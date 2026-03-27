@@ -1,0 +1,1 @@
+export { CategoriesPage as CategoriesModule } from "./pages/CategoriesPage";

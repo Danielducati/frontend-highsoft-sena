@@ -1,0 +1,1 @@
+export {SalesPage as SalesModule} from "./pages/SalesPage";

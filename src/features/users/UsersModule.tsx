@@ -1,0 +1,1 @@
+export { UsersPage as UsersModule } from "./pages/UsersPage";

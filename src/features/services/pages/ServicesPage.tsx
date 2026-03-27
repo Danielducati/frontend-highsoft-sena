@@ -1,0 +1,276 @@
+import { Search, Filter, Wrench, Clock3, Eye, Pencil, Trash2 } from "lucide-react";
+import { ServicesModuleProps } from "../types";
+import { useServices } from "../hooks/useServices";
+import { ServiceFormDialog } from "../components/ServiceFormDialog";
+import { ServiceViewDialog } from "../components/ServiceViewDialog";
+import { ServiceDeleteDialog } from "../components/ServiceDeleteDialog";
+
+export function ServicesPage({ userRole }: ServicesModuleProps) {
+  const {
+    categories, loading,
+    searchTerm, setSearchTerm,
+    filterCategory, setFilterCategory,
+    filterStatus, setFilterStatus,
+    isDialogOpen, setIsDialogOpen,
+    editingService, viewingService, setViewingService,
+    deleteDialogOpen, setDeleteDialogOpen,
+    formData, setFormData,
+    imagePreview, fileInputRef,
+    currentPage, setCurrentPage,
+    filteredServices, paginatedServices, totalPages, startIndex, endIndex,
+    handleCreateOrUpdate, handleDelete, handleToggleStatus,
+    confirmDelete, handleEdit, handleCloseDialog,
+    handleImageSelect, clearImage,
+  } = useServices();
+
+  return (
+    <div className="min-h-screen p-8" style={{ backgroundColor: "#f5f0e8", fontFamily: "var(--font-display)" }}>
+      {/* Header */}
+      <div className="flex justify-between items-start mb-8">
+        <div>
+          <h1 className="text-4xl font-normal mb-1" style={{ color: "#1a3a2a", fontFamily: "var(--font-display)" }}>
+            Gestión de Servicios
+          </h1>
+          <p className="text-sm" style={{ color: "#6b7c6b", fontFamily: "var(--font-body)" }}>
+            Administra el catálogo completo de servicios del spa
+          </p>
+        </div>
+
+        <ServiceFormDialog
+          isOpen={isDialogOpen}
+          onOpenChange={setIsDialogOpen}
+          editingService={editingService}
+          formData={formData}
+          setFormData={setFormData}
+          imagePreview={imagePreview}
+          fileInputRef={fileInputRef as React.RefObject<HTMLInputElement>}
+          categories={categories}
+          onSubmit={handleCreateOrUpdate}
+          onCancel={handleCloseDialog}
+          onNewClick={handleCloseDialog}
+          onImageSelect={handleImageSelect}
+          onClearImage={clearImage}
+          userRole={userRole}
+        />
+      </div>
+
+      {/* Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+        {[
+          { label: "Total Servicios", value: filteredServices.length },
+          { label: "Servicios Activos", value: filteredServices.filter((s) => s.isActive).length },
+          { label: "Duración Promedio", value: `${Math.round((filteredServices.reduce((sum, s) => sum + (s.duration || 0), 0) / Math.max(filteredServices.length, 1)) || 0)} min` },
+        ].map(({ label, value }) => (
+          <div key={label} className="rounded-2xl shadow-sm p-5" style={{ backgroundColor: "#ffffff" }}>
+            <p className="text-xs uppercase tracking-widest mb-1" style={{ color: "#6b7c6b", fontFamily: "sans-serif" }}>{label}</p>
+            <p className="text-3xl font-semibold" style={{ color: "#1a3a2a", fontFamily: "'Georgia', serif" }}>{value}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Filtros */}
+      <div className="flex flex-col sm:flex-row gap-3 mb-6" style={{ fontFamily: "var(--font-body)" }}>
+        <div className="flex items-center gap-2 px-4 py-2 rounded-full border flex-1" style={{ backgroundColor: "#ffffff", borderColor: "#d6cfc4", maxWidth: 380 }}>
+          <Search className="w-4 h-4 flex-shrink-0" style={{ color: "#6b7c6b" }} />
+          <input
+            placeholder="Buscar por nombre o descripción..."
+            value={searchTerm}
+            onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
+            className="bg-transparent outline-none text-sm w-full"
+            style={{ color: "#1a3a2a" }}
+          />
+        </div>
+        <div className="flex items-center gap-2">
+          <Filter className="w-4 h-4" style={{ color: "#6b7c6b" }} />
+          <select
+            value={filterCategory}
+            onChange={(e) => { setFilterCategory(e.target.value); setCurrentPage(1); }}
+            style={{ padding: "8px 14px", borderRadius: 10, border: "1px solid #d6cfc4", backgroundColor: "#ffffff", color: "#1a3a2a", fontSize: 13, fontFamily: "sans-serif", outline: "none" }}
+          >
+            <option value="all">Todas las categorías</option>
+            {categories.map((cat) => (
+              <option key={cat.id} value={cat.nombre}>{cat.nombre}</option>
+            ))}
+          </select>
+          <select
+            value={filterStatus}
+            onChange={(e) => { setFilterStatus(e.target.value); setCurrentPage(1); }}
+            style={{ padding: "8px 14px", borderRadius: 10, border: "1px solid #d6cfc4", backgroundColor: "#ffffff", color: "#1a3a2a", fontSize: 13, fontFamily: "sans-serif", outline: "none" }}
+          >
+            <option value="all">Todos</option>
+            <option value="active">Activos</option>
+            <option value="inactive">Inactivos</option>
+          </select>
+        </div>
+      </div>
+
+      {/* Lista */}
+      {loading ? (
+        <p className="text-center py-12 text-sm" style={{ color: "#6b7c6b", fontFamily: "sans-serif" }}>
+          Cargando servicios...
+        </p>
+      ) : filteredServices.length === 0 ? (
+        <div className="flex flex-col items-center py-16" style={{ fontFamily: "sans-serif" }}>
+          <Wrench className="w-10 h-10 mb-3" style={{ color: "#d6cfc4" }} />
+          <p className="font-medium" style={{ color: "#1a3a2a" }}>No se encontraron servicios</p>
+          <p className="text-sm mt-1" style={{ color: "#6b7c6b" }}>
+            {searchTerm ? "Intenta con otros términos de búsqueda" : "Comienza agregando tu primer servicio"}
+          </p>
+        </div>
+      ) : (
+        <div className="rounded-2xl overflow-hidden shadow-sm" style={{ backgroundColor: "#ffffff" }}>
+          <table className="w-full" style={{ fontFamily: "var(--font-body)" }}>
+            <thead>
+              <tr style={{ borderBottom: "1px solid #ede8e0" }}>
+                {["NOMBRE", "CATEGORÍA", "PRECIO", "DURACIÓN", "ESTADO", "ACCIONES"].map((col) => (
+                  <th key={col} className="px-6 py-4 text-left text-xs font-semibold tracking-widest" style={{ color: "#6b7c6b" }}>
+                    {col}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {paginatedServices.map((service, idx) => (
+                <tr
+                  key={service.id}
+                  style={{ borderBottom: idx < paginatedServices.length - 1 ? "1px solid #ede8e0" : "none", transition: "background 0.15s" }}
+                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#faf7f2")}
+                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+                >
+                  <td className="px-6 py-4">
+                    <p className="font-medium text-sm" style={{ color: "#1a3a2a" }}>{service.name}</p>
+                    <p className="text-xs mt-0.5" style={{ color: "#6b7c6b" }}>{service.description || "Sin descripción"}</p>
+                  </td>
+                  <td className="px-6 py-4">
+                    <span style={{ display: "inline-flex", padding: "3px 12px", borderRadius: 999, fontSize: 11, fontWeight: 600, letterSpacing: "0.04em", backgroundColor: "#edf7f4", color: "#1a5c3a" }}>
+                      {service.category}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4">
+                    <p className="font-semibold text-sm" style={{ color: "#1a3a2a" }}>${Number(service.price || 0).toLocaleString("es-CO")}</p>
+                  </td>
+                  <td className="px-6 py-4">
+                    <p className="text-sm flex items-center gap-1" style={{ color: "#1a3a2a" }}>
+                      <Clock3 className="w-3.5 h-3.5" style={{ color: "#6b7c6b" }} />
+                      {service.duration} min
+                    </p>
+                  </td>
+                  <td className="px-6 py-4">
+                    {userRole === "admin" ? (
+                      <button
+                        onClick={() => handleToggleStatus(service)}
+                        style={{
+                          display: "inline-flex",
+                          padding: "3px 12px",
+                          borderRadius: 999,
+                          fontSize: 11,
+                          fontWeight: 600,
+                          letterSpacing: "0.04em",
+                          border: "none",
+                          cursor: "pointer",
+                          backgroundColor: service.isActive ? "#edf7f4" : "#f3f4f6",
+                          color: service.isActive ? "#1a5c3a" : "#6b7280",
+                        }}
+                      >
+                        {service.isActive ? "Activo" : "Inactivo"}
+                      </button>
+                    ) : (
+                      <span style={{ display: "inline-flex", padding: "3px 12px", borderRadius: 999, fontSize: 11, fontWeight: 600, letterSpacing: "0.04em", backgroundColor: service.isActive ? "#edf7f4" : "#f3f4f6", color: service.isActive ? "#1a5c3a" : "#6b7280" }}>
+                        {service.isActive ? "Activo" : "Inactivo"}
+                      </span>
+                    )}
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={() => setViewingService(service)}
+                        title="Ver detalle"
+                        className="p-2 rounded-lg transition-colors"
+                        style={{ color: "#6b7c6b" }}
+                        onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#f0ebe3")}
+                        onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+                      >
+                        <Eye className="w-4 h-4" />
+                      </button>
+                      {userRole === "admin" && (
+                        <>
+                          <button
+                            onClick={() => handleEdit(service)}
+                            title="Editar"
+                            className="p-2 rounded-lg transition-colors"
+                            style={{ color: "#6b7c6b" }}
+                            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#f0ebe3")}
+                            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+                          >
+                            <Pencil className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => confirmDelete(service.id)}
+                            title="Eliminar"
+                            className="p-2 rounded-lg transition-colors"
+                            style={{ color: "#c0392b" }}
+                            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#fdf2f2")}
+                            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* Paginación */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between mt-6 px-4" style={{ fontFamily: "var(--font-body)" }}>
+          <p className="text-sm" style={{ color: "#6b7c6b" }}>
+            Mostrando {startIndex + 1}–{Math.min(endIndex, filteredServices.length)} de {filteredServices.length} servicios
+          </p>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              className="w-8 h-8 flex items-center justify-center rounded-lg text-sm disabled:opacity-30"
+              style={{ color: "#1a3a2a" }}
+              onMouseEnter={(e) => { if (!e.currentTarget.disabled) e.currentTarget.style.backgroundColor = "#ede8e0"; }}
+              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+            >
+              ‹
+            </button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+              <button
+                key={page}
+                onClick={() => setCurrentPage(page)}
+                className="w-8 h-8 flex items-center justify-center rounded-lg text-sm font-medium"
+                style={page === currentPage ? { backgroundColor: "#1a3a2a", color: "#ffffff" } : { color: "#1a3a2a" }}
+                onMouseEnter={(e) => { if (page !== currentPage) e.currentTarget.style.backgroundColor = "#ede8e0"; }}
+                onMouseLeave={(e) => { if (page !== currentPage) e.currentTarget.style.backgroundColor = "transparent"; }}
+              >
+                {page}
+              </button>
+            ))}
+            <button
+              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+              className="w-8 h-8 flex items-center justify-center rounded-lg text-sm disabled:opacity-30"
+              style={{ color: "#1a3a2a" }}
+              onMouseEnter={(e) => { if (!e.currentTarget.disabled) e.currentTarget.style.backgroundColor = "#ede8e0"; }}
+              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+            >
+              ›
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Dialogs */}
+      <ServiceViewDialog service={viewingService} onClose={() => setViewingService(null)} />
+      <ServiceDeleteDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen} onConfirm={handleDelete} />
+    </div>
+  );
+}

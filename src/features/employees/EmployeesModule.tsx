@@ -1,0 +1,1 @@
+export { EmployeesPage as EmployeesModule } from "./pages/EmployeesPage";
