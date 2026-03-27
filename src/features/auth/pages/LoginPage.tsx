@@ -27,22 +27,7 @@ export function LoginPage({ onLogin, onBack }: LoginPageProps) {
       style={{ backgroundColor: "#f5f0e8", fontFamily: "var(--font-display)" }}
     >
       {/* Top bar */}
-      <div className="flex items-start justify-between px-10 pt-8">
-        <div className="space-y-2">
-          <div className="tracking-[0.25em] text-xs" style={{ color: "#1a3a2a" }}>
-            HIGHLIFE SPA
-          </div>
-          <button
-            type="button"
-            onClick={onBack}
-            className="text-xs underline-offset-4 hover:underline"
-            style={{ color: "#6b7c6b", fontFamily: "var(--font-body)" }}
-            disabled={loading}
-          >
-            Volver al inicio
-          </button>
-        </div>
-
+      <div className="flex items-start justify-end px-10 pt-8">
         <button
           type="button"
           className="w-8 h-8 inline-flex items-center justify-center rounded-full"
@@ -169,6 +154,21 @@ export function LoginPage({ onLogin, onBack }: LoginPageProps) {
                   "Iniciar sesión"
                 )}
               </Button>
+
+              <div className="pt-2 text-center space-y-1.5">
+                <div className="tracking-[0.25em] text-xs" style={{ color: "#1a3a2a" }}>
+                  HIGHLIFE SPA
+                </div>
+                <button
+                  type="button"
+                  onClick={onBack}
+                  className="text-xs underline-offset-4 hover:underline"
+                  style={{ color: "#6b7c6b", fontFamily: "var(--font-body)" }}
+                  disabled={loading}
+                >
+                  Volver al inicio
+                </button>
+              </div>
             </form>
           </CardContent>
         </Card>

@@ -1,9 +1,9 @@
 import { Button } from "../../../shared/ui/button";
 import { Input } from "../../../shared/ui/input";
 import { Label } from "../../../shared/ui/label";
-import { Card, CardContent } from "../../../shared/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../../shared/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../shared/ui/select";
-import { Sparkles, ArrowLeft, Eye, EyeOff, Loader2 } from "lucide-react";
+import { Eye, EyeOff, HelpCircle, Loader2 } from "lucide-react";
 import { DOCUMENT_TYPES } from "../constants";
 import { RegisterPageProps } from "../types";
 import { useRegister } from "../hooks/UseRegister";
@@ -19,60 +19,126 @@ export function RegisterPage({ onBack, onRegisterSuccess }: RegisterPageProps) {
   if (showSuccess) return <RegisterSuccessScreen />;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#78D1BD]/10 via-[#60A5FA]/10 to-[#A78BFA]/10 flex items-center justify-center p-4">
-      <div className="w-full max-w-md space-y-6">
+    <div
+      className="min-h-screen"
+      style={{ backgroundColor: "#f5f0e8", fontFamily: "var(--font-display)" }}
+    >
+      <div className="flex items-start justify-end px-10 pt-8">
+        <button
+          type="button"
+          className="w-8 h-8 inline-flex items-center justify-center rounded-full"
+          style={{ color: "#6b7c6b" }}
+          aria-label="Ayuda"
+        >
+          <HelpCircle className="w-4 h-4" />
+        </button>
+      </div>
 
-        {/* Header */}
-        <div className="text-center space-y-3">
-          <div className="flex items-center justify-center gap-2">
-            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#78D1BD] to-[#5FBFAA] flex items-center justify-center shadow-lg">
-              <Sparkles className="w-7 h-7 text-white" />
-            </div>
-            <h1 className="text-2xl text-gray-900">HIGHLIFE SPA & BAR</h1>
-          </div>
-          <div>
-            <h2 className="text-xl text-gray-900">Crear Cuenta</h2>
-            <p className="text-sm text-gray-600 mt-1">Completa tus datos para registrarte</p>
-          </div>
-        </div>
+      <div className="flex items-center justify-center px-4 py-10">
+        <Card
+          className="border shadow-lg"
+          style={{
+            width: "100%",
+            maxWidth: 420,
+            backgroundColor: "#ffffff",
+            borderColor: "#ede8e0",
+            borderRadius: 16,
+          }}
+        >
+          <CardHeader className="text-center pb-2">
+            <CardTitle
+              className="text-2xl font-normal"
+              style={{ color: "#1a3a2a", fontFamily: "var(--font-display)" }}
+            >
+              Crear cuenta
+            </CardTitle>
+            <CardDescription
+              className="text-xs"
+              style={{ color: "#6b7c6b", fontFamily: "var(--font-body)" }}
+            >
+              Completa tus datos para registrarte
+            </CardDescription>
+          </CardHeader>
 
-        <Card className="border-gray-200 shadow-xl">
-          <CardContent className="p-8">
-            <form onSubmit={handleSubmit} className="space-y-5">
-
-              <div className="space-y-2">
-                <Label htmlFor="fullName" className="text-gray-900">Nombre *</Label>
-                <Input id="fullName" type="text" value={formData.fullName}
+          <CardContent className="pt-4 pb-8">
+            <form onSubmit={handleSubmit} className="space-y-4" style={{ fontFamily: "var(--font-body)" }}>
+              <div className="space-y-1.5">
+                <Label htmlFor="fullName" className="text-[10px] tracking-[0.18em]" style={{ color: "#6b7c6b" }}>
+                  NOMBRE
+                </Label>
+                <Input
+                  id="fullName"
+                  type="text"
+                  value={formData.fullName}
                   onChange={(e) => handleChange("fullName", e.target.value)}
-                  placeholder="Ingresa tu nombre" className="rounded-lg border-gray-200 h-11" disabled={loading} />
+                  placeholder="Ingresa tu nombre"
+                  className="h-10 rounded-lg border-0"
+                  style={{ backgroundColor: "#ece7df", color: "#1a3a2a" }}
+                  disabled={loading}
+                />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="apellido" className="text-gray-900">Apellido *</Label>
-                <Input id="apellido" type="text" value={formData.apellido}
+              <div className="space-y-1.5">
+                <Label htmlFor="apellido" className="text-[10px] tracking-[0.18em]" style={{ color: "#6b7c6b" }}>
+                  APELLIDO
+                </Label>
+                <Input
+                  id="apellido"
+                  type="text"
+                  value={formData.apellido}
                   onChange={(e) => handleChange("apellido", e.target.value)}
-                  placeholder="Ingresa tu apellido" className="rounded-lg border-gray-200 h-11" disabled={loading} />
+                  placeholder="Ingresa tu apellido"
+                  className="h-10 rounded-lg border-0"
+                  style={{ backgroundColor: "#ece7df", color: "#1a3a2a" }}
+                  disabled={loading}
+                />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="email" className="text-gray-900">Correo Electrónico *</Label>
-                <Input id="email" type="email" value={formData.email}
+              <div className="space-y-1.5">
+                <Label htmlFor="email" className="text-[10px] tracking-[0.18em]" style={{ color: "#6b7c6b" }}>
+                  CORREO ELECTRONICO
+                </Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={formData.email}
                   onChange={(e) => handleChange("email", e.target.value)}
-                  placeholder="correo@ejemplo.com" className="rounded-lg border-gray-200 h-11" disabled={loading} />
+                  placeholder="correo@ejemplo.com"
+                  className="h-10 rounded-lg border-0"
+                  style={{ backgroundColor: "#ece7df", color: "#1a3a2a" }}
+                  disabled={loading}
+                />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="phone" className="text-gray-900">Teléfono *</Label>
-                <Input id="phone" type="tel" value={formData.phone}
+              <div className="space-y-1.5">
+                <Label htmlFor="phone" className="text-[10px] tracking-[0.18em]" style={{ color: "#6b7c6b" }}>
+                  TELEFONO
+                </Label>
+                <Input
+                  id="phone"
+                  type="tel"
+                  value={formData.phone}
                   onChange={(e) => handleChange("phone", e.target.value)}
-                  placeholder="+57 300 123 4567" className="rounded-lg border-gray-200 h-11" disabled={loading} />
+                  placeholder="+57 300 123 4567"
+                  className="h-10 rounded-lg border-0"
+                  style={{ backgroundColor: "#ece7df", color: "#1a3a2a" }}
+                  disabled={loading}
+                />
               </div>
 
-              <div className="space-y-2">
-                <Label className="text-gray-900">Tipo de Documento *</Label>
-                <Select value={formData.tipocedula}
-                  onValueChange={(value) => handleChange("tipocedula", value)} disabled={loading}>
-                  <SelectTrigger className="h-11 rounded-lg border-gray-200">
+              <div className="space-y-1.5">
+                <Label className="text-[10px] tracking-[0.18em]" style={{ color: "#6b7c6b" }}>
+                  TIPO DE DOCUMENTO
+                </Label>
+                <Select
+                  value={formData.tipocedula}
+                  onValueChange={(value) => handleChange("tipocedula", value)}
+                  disabled={loading}
+                >
+                  <SelectTrigger
+                    className="h-10 rounded-lg border-0"
+                    style={{ backgroundColor: "#ece7df", color: "#1a3a2a" }}
+                  >
                     <SelectValue placeholder="Seleccione una opción" />
                   </SelectTrigger>
                   <SelectContent>
@@ -83,62 +149,129 @@ export function RegisterPage({ onBack, onRegisterSuccess }: RegisterPageProps) {
                 </Select>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="cedula" className="text-gray-900">Número de Documento *</Label>
-                <Input id="cedula" type="text" value={formData.cedula}
+              <div className="space-y-1.5">
+                <Label htmlFor="cedula" className="text-[10px] tracking-[0.18em]" style={{ color: "#6b7c6b" }}>
+                  NUMERO DE DOCUMENTO
+                </Label>
+                <Input
+                  id="cedula"
+                  type="text"
+                  value={formData.cedula}
                   onChange={(e) => handleChange("cedula", e.target.value)}
-                  placeholder="1234567890" className="rounded-lg border-gray-200 h-11" disabled={loading} />
+                  placeholder="1234567890"
+                  className="h-10 rounded-lg border-0"
+                  style={{ backgroundColor: "#ece7df", color: "#1a3a2a" }}
+                  disabled={loading}
+                />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="password" className="text-gray-900">Contraseña *</Label>
+              <div className="space-y-1.5">
+                <Label htmlFor="password" className="text-[10px] tracking-[0.18em]" style={{ color: "#6b7c6b" }}>
+                  CONTRASENA
+                </Label>
                 <div className="relative">
-                  <Input id="password" type={showPassword ? "text" : "password"} value={formData.password}
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    value={formData.password}
                     onChange={(e) => handleChange("password", e.target.value)}
-                    placeholder="Mínimo 6 caracteres" className="rounded-lg border-gray-200 h-11 pr-10" disabled={loading} />
-                  <button type="button" onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors">
-                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    placeholder="Minimo 6 caracteres"
+                    className="h-10 rounded-lg border-0 pr-10"
+                    style={{ backgroundColor: "#ece7df", color: "#1a3a2a" }}
+                    disabled={loading}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2"
+                    style={{ color: "#6b7c6b" }}
+                    aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                    disabled={loading}
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="confirmPassword" className="text-gray-900">Confirmar Contraseña *</Label>
+              <div className="space-y-1.5">
+                <Label htmlFor="confirmPassword" className="text-[10px] tracking-[0.18em]" style={{ color: "#6b7c6b" }}>
+                  CONFIRMAR CONTRASENA
+                </Label>
                 <div className="relative">
-                  <Input id="confirmPassword" type={showPassword ? "text" : "password"} value={formData.confirmPassword}
+                  <Input
+                    id="confirmPassword"
+                    type={showPassword ? "text" : "password"}
+                    value={formData.confirmPassword}
                     onChange={(e) => handleChange("confirmPassword", e.target.value)}
-                    placeholder="Repite tu contraseña" className="rounded-lg border-gray-200 h-11 pr-10" disabled={loading} />
-                  <button type="button" onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors">
-                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    placeholder="Repite tu contrasena"
+                    className="h-10 rounded-lg border-0 pr-10"
+                    style={{ backgroundColor: "#ece7df", color: "#1a3a2a" }}
+                    disabled={loading}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2"
+                    style={{ color: "#6b7c6b" }}
+                    aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                    disabled={loading}
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
               </div>
 
-              <Button type="submit" className="w-full h-11 rounded-lg !bg-[#00aae4] hover:!bg-[#0095c7] !text-white" disabled={loading}>
+              <Button
+                type="submit"
+                className="w-full h-11 rounded-lg"
+                style={{
+                  backgroundColor: "#1a3a2a",
+                  color: "#ffffff",
+                  fontWeight: 600,
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#2a5a40")}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#1a3a2a")}
+                disabled={loading}
+              >
                 {loading ? (
-                  <span className="flex items-center gap-2">
-                    <Loader2 className="w-4 h-4 animate-spin" />Registrando...
+                  <span className="flex items-center justify-center gap-2">
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Registrando...
                   </span>
-                ) : "Registrar"}
+                ) : (
+                  "Registrar"
+                )}
               </Button>
 
-              <button type="button" onClick={onBack}
-                className="w-full flex items-center justify-center gap-2 text-sm text-gray-600 hover:text-gray-900 transition-colors py-2"
-                disabled={loading}>
-                <ArrowLeft className="w-4 h-4" />Volver al inicio
-              </button>
+              <div className="pt-2 text-center space-y-1.5">
+                <div className="tracking-[0.25em] text-xs" style={{ color: "#1a3a2a" }}>
+                  HIGHLIFE SPA
+                </div>
+                <button
+                  type="button"
+                  onClick={onBack}
+                  className="text-xs underline-offset-4 hover:underline"
+                  style={{ color: "#6b7c6b", fontFamily: "var(--font-body)" }}
+                  disabled={loading}
+                >
+                  Volver al inicio
+                </button>
+                <p className="text-xs" style={{ color: "#6b7c6b" }}>
+                  ¿Ya tienes cuenta?{" "}
+                  <button
+                    type="button"
+                    onClick={onBack}
+                    className="underline-offset-4 hover:underline"
+                    style={{ color: "#1a3a2a" }}
+                    disabled={loading}
+                  >
+                    Inicia sesión aquí
+                  </button>
+                </p>
+              </div>
             </form>
           </CardContent>
         </Card>
-
-        <p className="text-center text-sm text-gray-600">
-          ¿Ya tienes cuenta?{" "}
-          <button onClick={onBack} className="text-[#007BFF] hover:text-[#0056b3] transition-colors">
-            Inicia sesión aquí
-          </button>
-        </p>
       </div>
     </div>
   );

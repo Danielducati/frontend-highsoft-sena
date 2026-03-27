@@ -1,3 +1,4 @@
+import React from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "../../../shared/ui/dialog";
 import { Employee } from "../types";
 import { ImageWithFallback } from "../../guidelines/figma/ImageWithFallback";

@@ -1,4 +1,5 @@
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
+
 // Landing & Auth
 import { LandingPage }    from "../features/landing/LandingPage";
 import { LoginPage }      from "../features/auth/pages/LoginPage";

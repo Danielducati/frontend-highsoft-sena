@@ -1,14 +1,16 @@
-import { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../../../shared/ui/dialog";
 import { Button } from "../../../shared/ui/button";
 import { Input } from "../../../shared/ui/input";
 import { Label } from "../../../shared/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../shared/ui/select";
 import { Avatar, AvatarFallback } from "../../../shared/ui/avatar";
-import { Plus, Upload, Image as ImageIcon, X } from "lucide-react";
+import { Plus, Upload, Image as ImageIcon, X, Loader2 } from "lucide-react";
 import { Client, ClientFormData } from "../types";
 import { DOCUMENT_TYPES } from "../constants";
 import { ImageWithFallback } from "../../guidelines/figma/ImageWithFallback";
+import { toast } from "sonner";
+import { uploadImage } from "../../../shared/utils/uploadImage";
 
 interface ClientFormDialogProps {
   isOpen: boolean;
@@ -28,22 +30,32 @@ export function ClientFormDialog({
   imagePreview, setImagePreview, onSubmit, onCancel, onNewClick,
 }: ClientFormDialogProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploadingImg, setUploadingImg] = useState(false);
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // ── Subir imagen a Cloudinary ────────────────────────────────────────────
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 5000000) {
-      import("sonner").then(({ toast }) => toast.error("La imagen no debe superar los 5MB"));
-      return;
+
+    try {
+      setUploadingImg(true);
+      // Preview local inmediato mientras sube
+      const reader = new FileReader();
+      reader.onloadend = () => setImagePreview(reader.result as string);
+      reader.readAsDataURL(file);
+
+      // Subir a Cloudinary y obtener URL real
+      const url = await uploadImage(file);
+      setFormData({ ...formData, image: url });
+      setImagePreview(url);
+      toast.success("Imagen subida correctamente");
+    } catch (err: any) {
+      toast.error(err.message ?? "Error al subir imagen");
+      setImagePreview("");
+    } finally {
+      setUploadingImg(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
     }
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const result = reader.result as string;
-      setImagePreview(result);
-      setFormData({ ...formData, image: result });
-      import("sonner").then(({ toast }) => toast.success("Imagen cargada exitosamente"));
-    };
-    reader.readAsDataURL(file);
   };
 
   return (
@@ -51,21 +63,13 @@ export function ClientFormDialog({
       <DialogTrigger asChild>
         <button
           style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 8,
-            padding: "10px 20px",
-            borderRadius: 10,
-            backgroundColor: "#1a3a2a",
-            color: "#ffffff",
-            fontSize: 14,
-            fontWeight: 600,
-            fontFamily: "sans-serif",
-            border: "none",
-            cursor: "pointer",
+            display: "inline-flex", alignItems: "center", gap: 8,
+            padding: "10px 20px", borderRadius: 10, backgroundColor: "#1a3a2a",
+            color: "#ffffff", fontSize: 14, fontWeight: 600,
+            fontFamily: "sans-serif", border: "none", cursor: "pointer",
           }}
-          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#2a5a40")}
-          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#1a3a2a")}
+          onMouseEnter={e => e.currentTarget.style.backgroundColor = "#2a5a40"}
+          onMouseLeave={e => e.currentTarget.style.backgroundColor = "#1a3a2a"}
           onClick={onNewClick}
         >
           <Plus className="w-3.5 h-3.5" />
@@ -87,7 +91,11 @@ export function ClientFormDialog({
             <div className="flex items-center gap-4">
               <div className="relative">
                 <Avatar className="w-20 h-20 ring-2 ring-gray-200">
-                  {imagePreview ? (
+                  {uploadingImg ? (
+                    <AvatarFallback className="bg-gray-100">
+                      <Loader2 className="w-6 h-6 text-gray-400 animate-spin" />
+                    </AvatarFallback>
+                  ) : imagePreview ? (
                     <ImageWithFallback src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
                   ) : (
                     <AvatarFallback className="bg-gradient-to-br from-[#60A5FA] to-[#3B82F6] text-white text-xl">
@@ -95,7 +103,7 @@ export function ClientFormDialog({
                     </AvatarFallback>
                   )}
                 </Avatar>
-                {imagePreview && (
+                {imagePreview && !uploadingImg && (
                   <button
                     onClick={() => { setImagePreview(""); setFormData({ ...formData, image: "" }); }}
                     className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-600 transition-colors"
@@ -106,11 +114,19 @@ export function ClientFormDialog({
               </div>
               <div className="flex-1">
                 <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
-                <Button type="button" variant="outline" onClick={() => fileInputRef.current?.click()} className="w-full rounded-lg border-gray-200">
-                  <Upload className="w-4 h-4 mr-2" />
-                  {imagePreview ? "Cambiar Imagen" : "Subir Imagen"}
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={uploadingImg}
+                  onClick={() => fileInputRef.current?.click()}
+                  className="w-full rounded-lg border-gray-200"
+                >
+                  {uploadingImg
+                    ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Subiendo...</>
+                    : <><Upload className="w-4 h-4 mr-2" />{imagePreview ? "Cambiar Imagen" : "Subir Imagen"}</>
+                  }
                 </Button>
-                <p className="text-xs text-gray-500 mt-1">JPG, PNG o GIF (máx. 5MB)</p>
+                <p className="text-xs text-gray-500 mt-1">JPG, PNG o WEBP (máx. 5MB)</p>
               </div>
             </div>
           </div>
@@ -119,13 +135,13 @@ export function ClientFormDialog({
             <div className="space-y-2">
               <Label htmlFor="firstName" className="text-gray-900">Nombre *</Label>
               <Input id="firstName" value={formData.firstName}
-                onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                onChange={e => setFormData({ ...formData, firstName: e.target.value })}
                 placeholder="Juan" className="rounded-lg border-gray-200" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="lastName" className="text-gray-900">Apellido *</Label>
               <Input id="lastName" value={formData.lastName}
-                onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                onChange={e => setFormData({ ...formData, lastName: e.target.value })}
                 placeholder="Pérez García" className="rounded-lg border-gray-200" />
             </div>
           </div>
@@ -133,7 +149,7 @@ export function ClientFormDialog({
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label className="text-gray-900">Tipo de Documento *</Label>
-              <Select value={formData.documentType} onValueChange={(v) => setFormData({ ...formData, documentType: v })}>
+              <Select value={formData.documentType} onValueChange={v => setFormData({ ...formData, documentType: v })}>
                 <SelectTrigger className="rounded-lg border-gray-200">
                   <SelectValue placeholder="Seleccionar tipo" />
                 </SelectTrigger>
@@ -147,7 +163,7 @@ export function ClientFormDialog({
             <div className="space-y-2">
               <Label htmlFor="document" className="text-gray-900">Número de Documento *</Label>
               <Input id="document" value={formData.document}
-                onChange={(e) => setFormData({ ...formData, document: e.target.value })}
+                onChange={e => setFormData({ ...formData, document: e.target.value })}
                 placeholder="1234567890" className="rounded-lg border-gray-200" />
             </div>
           </div>
@@ -156,13 +172,13 @@ export function ClientFormDialog({
             <div className="space-y-2">
               <Label htmlFor="phone" className="text-gray-900">Teléfono *</Label>
               <Input id="phone" value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                onChange={e => setFormData({ ...formData, phone: e.target.value })}
                 placeholder="+57 300 123 4567" className="rounded-lg border-gray-200" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="email" className="text-gray-900">Email *</Label>
               <Input id="email" type="email" value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                onChange={e => setFormData({ ...formData, email: e.target.value })}
                 placeholder="cliente@ejemplo.com" className="rounded-lg border-gray-200" />
             </div>
           </div>
@@ -170,13 +186,17 @@ export function ClientFormDialog({
           <div className="space-y-2">
             <Label htmlFor="address" className="text-gray-900">Dirección</Label>
             <Input id="address" value={formData.address}
-              onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+              onChange={e => setFormData({ ...formData, address: e.target.value })}
               placeholder="Calle 123 #45-67, Bogotá" className="rounded-lg border-gray-200" />
           </div>
 
           <div className="flex justify-end gap-3 pt-4 border-t">
             <Button variant="outline" onClick={onCancel} className="rounded-lg border-gray-300">Cancelar</Button>
-            <Button onClick={onSubmit} className="bg-gradient-to-r from-[#78D1BD] to-[#5FBFAA] hover:from-[#6BCAB7] hover:to-[#4FB5A1] text-white rounded-lg">
+            <Button
+              onClick={onSubmit}
+              disabled={uploadingImg}
+              className="bg-gradient-to-r from-[#78D1BD] to-[#5FBFAA] hover:from-[#6BCAB7] hover:to-[#4FB5A1] text-white rounded-lg"
+            >
               {editingClient ? "Actualizar" : "Crear"} Cliente
             </Button>
           </div>
