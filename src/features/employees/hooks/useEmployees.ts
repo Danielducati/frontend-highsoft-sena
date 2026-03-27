@@ -55,7 +55,7 @@ export function useEmployees() {
       ciudad:           formData.city         || null,
       especialidad:     formData.specialty,
       direccion:        formData.address      || null,
-      foto_perfil:      imagePreview          || null,
+      foto_perfil: formData.image || null,  // ← toma la URL de Cloudinary
       contrasena:       formData.contrasena   || "empleado123",
       id_rol:           ROL_MAP[formData.specialty] || 2,
       Estado:           "Activo",
@@ -121,6 +121,7 @@ export function useEmployees() {
       specialty:    employee.especialidad      || "",
       contrasena:   "",
       image:        employee.foto_perfil       || "",
+      
     });
     setImagePreview(employee.foto_perfil || "");
     setIsDialogOpen(true);

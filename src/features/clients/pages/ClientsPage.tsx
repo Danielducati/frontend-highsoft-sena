@@ -1,3 +1,4 @@
+import React from "react";
 import { User, Mail, Phone, Search, Filter, ShoppingBag, Eye, Edit, Trash2 } from "lucide-react";
 import { SpaPage } from "../../../shared/components/layout/SpaPage";
 import { ClientsModuleProps } from "../types";

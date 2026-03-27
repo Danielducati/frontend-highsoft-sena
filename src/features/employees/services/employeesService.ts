@@ -28,7 +28,7 @@ export async function fetchEmployeesApi(): Promise<Employee[]> {
     numeroDocumento: e.numeroDocumento || e.numero_documento || "",
     ciudad:          e.ciudad        || "",
     direccion:       e.direccion     || "",
-    fotoPerfil:      e.fotoPerfil    || e.foto_perfil  || "",
+    image:      e.fotoPerfil    || e.foto_perfil  || "",
     isActive: e.isActive !== undefined ? e.isActive : (e.estado ?? e.Estado) === "Activo",
     estado:          e.estado        || e.Estado       || "Activo",
     color:           e.color         || "#78D1BD",

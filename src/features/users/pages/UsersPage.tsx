@@ -1,3 +1,4 @@
+import React from "react";
 import { Badge } from "../../../shared/ui/badge";
 import { Plus, Search, Filter, Users as UsersIcon, Shield, Mail, Eye, Pencil, Trash2 } from "lucide-react";
 import { SpaPage } from "../../../shared/components/layout/SpaPage";

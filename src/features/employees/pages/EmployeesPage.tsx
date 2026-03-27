@@ -1,3 +1,4 @@
+import React from "react";
 import { Card, CardContent } from "../../../shared/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../shared/ui/select";
 import { Switch } from "../../../shared/ui/switch";
@@ -29,6 +30,7 @@ export function EmployeesPage({ userRole }: EmployeesModuleProps) {
     handleDelete, handleEdit,
     confirmDelete, resetForm,
   } = useEmployees();
+
 
   return (
     <div

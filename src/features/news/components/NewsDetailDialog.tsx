@@ -1,3 +1,4 @@
+import React from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../../../shared/ui/dialog";
 import { Badge } from "../../../shared/ui/badge";
 import { Button } from "../../../shared/ui/button";
