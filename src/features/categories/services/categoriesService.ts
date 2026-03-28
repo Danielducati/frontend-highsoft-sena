@@ -13,7 +13,12 @@ export async function fetchCategoriesApi(): Promise<Category[]> {
   const res = await fetch(`${API_URL}/categories?all=true`, {
     headers: getAuthHeaders(),
   });
-  if (!res.ok) throw new Error("Error al cargar categorías");
+  
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ error: "Error al cargar categorías" }));
+    throw new Error(err.error || "Error al cargar categorías");
+  }
+  
   const data = await res.json();
   return data.map((cat: any) => ({
     id:            cat.id ?? cat.PK_id_categoria_servicios,
@@ -35,9 +40,10 @@ export async function createCategoryApi(formData: CategoryFormData): Promise<voi
       color:       formData.color,
     }),
   });
-    if (!res.ok) {
-      const err = await res.json();
-      throw new Error(err.error || "Error al crear categoría"); // ← agrega esto
+  
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ error: "Error al crear categoría" }));
+    throw new Error(err.error || "Error al crear categoría");
   }
 }
 
@@ -49,10 +55,14 @@ export async function updateCategoryApi(id: number, formData: Partial<CategoryFo
       nombre:      formData.name,
       descripcion: formData.description,
       color:       formData.color,
-      estado:      formData.estado ?? "Activo",
+      estado:      formData.estado,
     }),
   });
-  if (!res.ok) throw new Error("Error al actualizar categoría");
+  
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ error: "Error al actualizar categoría" }));
+    throw new Error(err.error || "Error al actualizar categoría");
+  }
 }
 
 export async function deleteCategoryApi(id: number): Promise<void> {
@@ -60,5 +70,9 @@ export async function deleteCategoryApi(id: number): Promise<void> {
     method: "DELETE",
     headers: getAuthHeaders(),
   });
-  if (!res.ok) throw new Error("Error al eliminar categoría");
+  
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ error: "Error al eliminar categoría" }));
+    throw new Error(err.error || "Error al eliminar categoría");
+  }
 }
