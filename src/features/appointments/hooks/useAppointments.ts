@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import {
   Appointment, AppointmentService, Client, CurrentService, Employee, FormData, Service,} from "../types";
@@ -170,8 +170,8 @@ export function useAppointments() {
       await deleteAppointment(appointmentToDelete);
       setAppointments(prev => prev.filter(a => a.id !== appointmentToDelete));
       toast.success("Cita eliminada");
-    } catch {
-      toast.error("Error al eliminar la cita");
+    } catch (err: any) {
+      toast.error(err.message ?? "Error al eliminar la cita");
     } finally {
       setDeleteDialogOpen(false);
       setAppointmentToDelete(null);

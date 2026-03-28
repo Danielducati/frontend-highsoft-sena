@@ -1,3 +1,4 @@
+// src/features/appointments/services/appointmentsService.ts
 import { API_BASE } from "../constants";
 import { Appointment } from "../types";
 import { mapApiToAppointment } from "../utils";
@@ -72,7 +73,10 @@ export async function deleteAppointment(id: number) {
     method:  "DELETE",
     headers: authHeaders(),
   });
-  if (!res.ok) throw new Error("Error al eliminar cita");
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error || "Error al eliminar cita");
+  }
   return res.json();
 }
 
