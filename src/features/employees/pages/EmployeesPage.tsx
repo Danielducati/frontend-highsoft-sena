@@ -1,4 +1,4 @@
-import React from "react";
+import  { useState } from "react";
 import { Card, CardContent } from "../../../shared/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../shared/ui/select";
 import { Switch } from "../../../shared/ui/switch";
@@ -386,7 +386,7 @@ export function EmployeesPage({ userRole }: EmployeesModuleProps) {
         imagePreview={imagePreview}
         setImagePreview={setImagePreview}
         saving={saving}
-        onSubmit={handleCreateOrUpdate}
+        onSubmit={() => handleCreateOrUpdate(formData)}
         onCancel={resetForm}
       />
       <EmployeeViewDialog employee={viewingEmployee} onClose={() => setViewingEmployee(null)} />
