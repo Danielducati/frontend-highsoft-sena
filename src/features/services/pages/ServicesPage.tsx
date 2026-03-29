@@ -4,6 +4,7 @@ import { useServices } from "../hooks/useServices";
 import { ServiceFormDialog } from "../components/ServiceFormDialog";
 import { ServiceViewDialog } from "../components/ServiceViewDialog";
 import { ServiceDeleteDialog } from "../components/ServiceDeleteDialog";
+import { Switch } from "../../../shared/ui/switch";
 
 export function ServicesPage({ userRole }: ServicesModuleProps) {
   const {
@@ -22,6 +23,23 @@ export function ServicesPage({ userRole }: ServicesModuleProps) {
     confirmDelete, handleEdit, handleCloseDialog,
     handleImageSelect, clearImage,
   } = useServices();
+  const totalServices = filteredServices.length;
+
+  const activeServices = filteredServices.filter(s => s.isActive).length;
+
+  const averageDuration = totalServices
+    ? Math.round(
+        filteredServices.reduce((sum, s) => sum + (s.duration || 0), 0) / totalServices
+      )
+    : 0;
+
+// 🔥 Formato PRO: 90 → 1h 30min
+  const formatDuration = (minutes: number) => {
+    if (!minutes) return "—";
+    const h = Math.floor(minutes / 60);
+    const m = minutes % 60;
+    return h ? `${h}h ${m}min` : `${m} min`;
+  };
 
   return (
     <div className="min-h-screen p-8" style={{ backgroundColor: "#f5f0e8", fontFamily: "var(--font-display)" }}>
@@ -57,13 +75,27 @@ export function ServicesPage({ userRole }: ServicesModuleProps) {
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
         {[
-          { label: "Total Servicios", value: filteredServices.length },
-          { label: "Servicios Activos", value: filteredServices.filter((s) => s.isActive).length },
-          { label: "Duración Promedio", value: `${Math.round((filteredServices.reduce((sum, s) => sum + (s.duration || 0), 0) / Math.max(filteredServices.length, 1)) || 0)} min` },
+          { label: "Total Servicios", value: totalServices },
+          { label: "Servicios Activos", value: activeServices },
+          { label: "Duración Promedio", value: formatDuration(averageDuration) },
         ].map(({ label, value }) => (
-          <div key={label} className="rounded-2xl shadow-sm p-5" style={{ backgroundColor: "#ffffff" }}>
-            <p className="text-xs uppercase tracking-widest mb-1" style={{ color: "#6b7c6b", fontFamily: "sans-serif" }}>{label}</p>
-            <p className="text-3xl font-semibold" style={{ color: "#1a3a2a", fontFamily: "'Georgia', serif" }}>{value}</p>
+          <div
+            key={label}
+            className="rounded-2xl shadow-sm p-5"
+            style={{ backgroundColor: "#ffffff" }}
+          >
+            <p
+              className="text-xs uppercase tracking-widest mb-1"
+              style={{ color: "#6b7c6b", fontFamily: "sans-serif" }}
+            >
+              {label}
+            </p>
+            <p
+              className="text-3xl font-semibold"
+              style={{ color: "#1a3a2a", fontFamily: "'Georgia', serif" }}
+            >
+              {value}
+            </p>
           </div>
         ))}
       </div>
@@ -152,28 +184,30 @@ export function ServicesPage({ userRole }: ServicesModuleProps) {
                   <td className="px-6 py-4">
                     <p className="text-sm flex items-center gap-1" style={{ color: "#1a3a2a" }}>
                       <Clock3 className="w-3.5 h-3.5" style={{ color: "#6b7c6b" }} />
-                      {service.duration} min
+                      {service.duration ? `${service.duration} min` : "—"}
                     </p>
                   </td>
                   <td className="px-6 py-4">
                     {userRole === "admin" ? (
-                      <button
-                        onClick={() => handleToggleStatus(service)}
+                      <div className="flex items-center gap-2">
+                      <Switch
+                        checked={service.isActive}
+                        onCheckedChange={() => handleToggleStatus(service)}
+                        style={
+                          service.isActive
+                            ? { backgroundColor: "#4caf82" }
+                            : { backgroundColor: "#9ca3af" }
+                        }
+                      />
+                      <span
+                        className="text-xs font-semibold tracking-wide uppercase"
                         style={{
-                          display: "inline-flex",
-                          padding: "3px 12px",
-                          borderRadius: 999,
-                          fontSize: 11,
-                          fontWeight: 600,
-                          letterSpacing: "0.04em",
-                          border: "none",
-                          cursor: "pointer",
-                          backgroundColor: service.isActive ? "#edf7f4" : "#f3f4f6",
-                          color: service.isActive ? "#1a5c3a" : "#6b7280",
+                          color: service.isActive ? "#1a5c3a" : "#9ca3af"
                         }}
                       >
                         {service.isActive ? "Activo" : "Inactivo"}
-                      </button>
+                      </span>
+                    </div>
                     ) : (
                       <span style={{ display: "inline-flex", padding: "3px 12px", borderRadius: 999, fontSize: 11, fontWeight: 600, letterSpacing: "0.04em", backgroundColor: service.isActive ? "#edf7f4" : "#f3f4f6", color: service.isActive ? "#1a5c3a" : "#6b7280" }}>
                         {service.isActive ? "Activo" : "Inactivo"}
@@ -192,7 +226,7 @@ export function ServicesPage({ userRole }: ServicesModuleProps) {
                       >
                         <Eye className="w-4 h-4" />
                       </button>
-                      {userRole === "admin" && (
+                      {userRole === "admin" && service.isActive && (
                         <>
                           <button
                             onClick={() => handleEdit(service)}

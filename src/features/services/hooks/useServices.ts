@@ -153,17 +153,23 @@ export function useServices() {
 
   const handleToggleStatus = async (service: Service) => {
     try {
-      setServices(prev => prev.map(s =>
-        s.id === service.id ? { ...s, isActive: !s.isActive } : s
-      ));
+      const nuevoEstado = service.isActive ? "Inactivo" : "Activo";
+  
       await updateServiceApi(service.id, {
-        Estado: service.isActive ? "Inactivo" : "Activo",
+        nombre: service.name,
+        descripcion: service.description,
+        FK_categoria_servicios: service.categoryId,
+        Duracion: service.duration,
+        Precio: service.price,
+        imagen_servicio: service.image,
+        Estado: nuevoEstado,
       });
-      toast.success(`Servicio ${service.isActive ? "desactivado" : "activado"} exitosamente`);
-      await loadServices();
-    } catch {
-      await loadServices();
-      toast.error("Error al actualizar estado");
+  
+      toast.success(`Servicio ${nuevoEstado.toLowerCase()} correctamente`);
+  
+      await loadServices(); // recarga correcta
+    } catch (error: any) {
+      toast.error(error.message || "Error al cambiar el estado");
     }
   };
 

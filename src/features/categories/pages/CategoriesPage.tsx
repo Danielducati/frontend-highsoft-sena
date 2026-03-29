@@ -255,6 +255,7 @@ export function CategoriesPage({ userRole }: CategoriesModuleProps) {
                   {userRole === "admin" && (
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-1">
+                        {/* Ver detalle (SIEMPRE visible) */}
                         <button
                           onClick={() => handleViewDetail(category)}
                           title="Ver detalle"
@@ -265,26 +266,33 @@ export function CategoriesPage({ userRole }: CategoriesModuleProps) {
                         >
                           <Eye className="w-4 h-4" />
                         </button>
-                        <button
-                          onClick={() => handleEdit(category)}
-                          title="Editar"
-                          className="p-2 rounded-lg transition-colors"
-                          style={{ color: "#6b7c6b" }}
-                          onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#f0ebe3")}
-                          onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
-                        >
-                          <Pencil className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => handleDeleteClick(category.id)}
-                          title="Eliminar"
-                          className="p-2 rounded-lg transition-colors"
-                          style={{ color: "#c0392b" }}
-                          onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#fdf0ee")}
-                          onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+
+                        {/* SOLO SI ESTÁ ACTIVA */}
+                        {category.isActive && (
+                          <>
+                            <button
+                              onClick={() => handleEdit(category)}
+                              title="Editar"
+                              className="p-2 rounded-lg transition-colors"
+                              style={{ color: "#6b7c6b" }}
+                              onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#f0ebe3")}
+                              onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
+                            >
+                              <Pencil className="w-4 h-4" />
+                            </button>
+
+                            <button
+                              onClick={() => handleDeleteClick(category.id)}
+                              title="Eliminar"
+                              className="p-2 rounded-lg transition-colors"
+                              style={{ color: "#c0392b" }}
+                              onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#fdf0ee")}
+                              onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </>
+                        )}
                       </div>
                     </td>
                   )}

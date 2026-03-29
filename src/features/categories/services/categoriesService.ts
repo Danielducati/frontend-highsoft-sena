@@ -47,16 +47,33 @@ export async function createCategoryApi(formData: CategoryFormData): Promise<voi
   }
 }
 
-export async function updateCategoryApi(id: number, formData: Partial<CategoryFormData> & { estado?: string }): Promise<void> {
+export async function updateCategoryApi(
+  id: number, 
+  formData: Partial<CategoryFormData> & { estado?: string | boolean }
+): Promise<void> {
+  // Convertir boolean a string si viene como boolean
+  let estadoFinal: string | undefined;
+  
+  if (formData.estado !== undefined) {
+    if (typeof formData.estado === 'boolean') {
+      estadoFinal = formData.estado ? "Activo" : "Inactivo";
+    } else {
+      estadoFinal = formData.estado;
+    }
+  }
+
+  const body: any = {};
+  if (formData.name !== undefined) body.nombre = formData.name;
+  if (formData.description !== undefined) body.descripcion = formData.description;
+  if (formData.color !== undefined) body.color = formData.color;
+  if (estadoFinal !== undefined) body.estado = estadoFinal;
+
+  console.log("Body a enviar:", JSON.stringify(body, null, 2)); // DEBUG
+
   const res = await fetch(`${API_URL}/categories/${id}`, {
     method: "PUT",
     headers: getAuthHeaders(),
-    body: JSON.stringify({
-      nombre:      formData.name,
-      descripcion: formData.description,
-      color:       formData.color,
-      estado:      formData.estado,
-    }),
+    body: JSON.stringify(body),
   });
   
   if (!res.ok) {
