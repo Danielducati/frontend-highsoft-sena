@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "../../../shared/ui/dialog";
 import { Upload, ImageIcon, X, Loader2 } from "lucide-react";
 import { Employee, EmployeeFormData } from "../types";
@@ -16,7 +16,7 @@ interface EmployeeFormDialogProps {
   imagePreview: string;
   setImagePreview: (v: string) => void;
   saving: boolean;
-  onSubmit: () => void;
+  onSubmit: (data: EmployeeFormData) => void;
   onCancel: () => void;
 }
 
@@ -67,8 +67,8 @@ export function EmployeeFormDialog({
   imagePreview, setImagePreview, saving, onSubmit, onCancel,
 }: EmployeeFormDialogProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [touched,       setTouched]       = useState<Partial<Record<keyof EmployeeFormData, boolean>>>({});
-  const [uploadingImg,  setUploadingImg]  = useState(false);
+  const [touched,      setTouched]      = useState<Partial<Record<keyof EmployeeFormData, boolean>>>({});
+  const [uploadingImg, setUploadingImg] = useState(false);
 
   const touch = (field: keyof EmployeeFormData) =>
     setTouched(t => ({ ...t, [field]: true }));
@@ -82,22 +82,19 @@ export function EmployeeFormDialog({
   const s = (field: keyof EmployeeFormData) =>
     liveErrors[field] ? inputErr : inputOk;
 
-  // ── Subir imagen a Cloudinary ────────────────────────────────────────────
+  const update = (field: keyof EmployeeFormData, value: string) =>
+    setFormData({ ...formData, [field]: value });
+
+  // ── Subir imagen ─────────────────────────────────────────────────────────
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
     try {
       setUploadingImg(true);
-      // Mostrar preview local mientras sube
       const reader = new FileReader();
       reader.onloadend = () => setImagePreview(reader.result as string);
       reader.readAsDataURL(file);
-
-      // Subir a Cloudinary
       const url = await uploadImage(file);
-
-      // Guardar la URL real en el formData
       setFormData({ ...formData, image: url });
       setImagePreview(url);
       toast.success("Imagen subida correctamente");
@@ -106,22 +103,18 @@ export function EmployeeFormDialog({
       setImagePreview("");
     } finally {
       setUploadingImg(false);
-      // Limpiar input para permitir subir la misma imagen de nuevo
       if (fileInputRef.current) fileInputRef.current.value = "";
     }
   };
 
   const handleSubmit = () => {
     const errs = validate(formData, !editingEmployee);
-    const allTouched = Object.keys(formData).reduce(
-      (acc, k) => ({ ...acc, [k]: true }), {} as Record<string, boolean>
-    );
-    setTouched(allTouched);
+    setTouched(Object.keys(formData).reduce((acc, k) => ({ ...acc, [k]: true }), {}));
     if (Object.keys(errs).length > 0) {
-      toast.error("Revisa los campos marcados en rojo antes de continuar.");
+      toast.error("Revisa los campos marcados en rojo.");
       return;
     }
-    onSubmit();
+    onSubmit(formData); 
   };
 
   const handleCancel = () => {
@@ -152,7 +145,9 @@ export function EmployeeFormDialog({
             {editingEmployee ? "Editar Empleado" : "Nuevo Empleado"}
           </DialogTitle>
           <DialogDescription style={{ color: "#6b7c6b", fontSize: 13 }}>
-            {editingEmployee ? "Actualiza la información del empleado" : "Ingresa los datos del nuevo empleado. Los campos con * son obligatorios."}
+            {editingEmployee
+              ? "Actualiza la información del empleado"
+              : "Ingresa los datos del nuevo empleado. Los campos con * son obligatorios."}
           </DialogDescription>
         </DialogHeader>
 
@@ -169,7 +164,7 @@ export function EmployeeFormDialog({
                   display: "flex", alignItems: "center", justifyContent: "center",
                 }}>
                   {uploadingImg
-                    ? <Loader2 style={{ width: 24, height: 24, color: "#9ca3af", animation: "spin 1s linear infinite" }} />
+                    ? <Loader2 style={{ width: 24, height: 24, color: "#9ca3af" }} />
                     : imagePreview
                       ? <ImageWithFallback src={imagePreview} alt="Preview" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                       : <ImageIcon style={{ width: 28, height: 28, color: "#9ca3af" }} />
@@ -194,7 +189,7 @@ export function EmployeeFormDialog({
                   opacity: uploadingImg ? 0.7 : 1,
                 }}>
                   {uploadingImg
-                    ? <><Loader2 style={{ width: 14, height: 14, animation: "spin 1s linear infinite" }} /> Subiendo...</>
+                    ? <><Loader2 style={{ width: 14, height: 14 }} /> Subiendo...</>
                     : <><Upload style={{ width: 14, height: 14 }} /> Subir Imagen</>
                   }
                 </button>
@@ -207,12 +202,12 @@ export function EmployeeFormDialog({
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
             <Field label="Nombres" field="firstName" required>
               <input style={s("firstName")} value={formData.firstName} placeholder="Ana María"
-                onChange={e => setFormData({ ...formData, firstName: e.target.value })}
+                onChange={e => update("firstName", e.target.value)}
                 onBlur={() => touch("firstName")} />
             </Field>
             <Field label="Apellidos" field="lastName" required>
               <input style={s("lastName")} value={formData.lastName} placeholder="García Pérez"
-                onChange={e => setFormData({ ...formData, lastName: e.target.value })}
+                onChange={e => update("lastName", e.target.value)}
                 onBlur={() => touch("lastName")} />
             </Field>
           </div>
@@ -221,7 +216,7 @@ export function EmployeeFormDialog({
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
             <Field label="Tipo de Documento" field="documentType">
               <select style={s("documentType")} value={formData.documentType}
-                onChange={e => setFormData({ ...formData, documentType: e.target.value })}
+                onChange={e => update("documentType", e.target.value)}
                 onBlur={() => touch("documentType")}>
                 <option value="">Selecciona tipo</option>
                 {DOCUMENT_TYPES.map(({ value, label }) => (
@@ -231,7 +226,7 @@ export function EmployeeFormDialog({
             </Field>
             <Field label="Número de Documento" field="document">
               <input style={s("document")} value={formData.document} placeholder="1234567890"
-                onChange={e => setFormData({ ...formData, document: e.target.value })}
+                onChange={e => update("document", e.target.value)}
                 onBlur={() => touch("document")} />
             </Field>
           </div>
@@ -241,12 +236,12 @@ export function EmployeeFormDialog({
             <Field label="Correo" field="email" required>
               <input style={s("email")} type="email" value={formData.email}
                 placeholder="empleado@highlifespa.com"
-                onChange={e => setFormData({ ...formData, email: e.target.value })}
+                onChange={e => update("email", e.target.value)}
                 onBlur={() => touch("email")} />
             </Field>
             <Field label="Teléfono" field="phone">
               <input style={s("phone")} value={formData.phone} placeholder="+57 310 123 4567"
-                onChange={e => setFormData({ ...formData, phone: e.target.value })}
+                onChange={e => update("phone", e.target.value)}
                 onBlur={() => touch("phone")} />
             </Field>
           </div>
@@ -255,12 +250,12 @@ export function EmployeeFormDialog({
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
             <Field label="Ciudad" field="city">
               <input style={s("city")} value={formData.city} placeholder="Medellín"
-                onChange={e => setFormData({ ...formData, city: e.target.value })}
+                onChange={e => update("city", e.target.value)}
                 onBlur={() => touch("city")} />
             </Field>
             <Field label="Especialidad" field="specialty" required>
               <select style={s("specialty")} value={formData.specialty}
-                onChange={e => setFormData({ ...formData, specialty: e.target.value })}
+                onChange={e => update("specialty", e.target.value)}
                 onBlur={() => touch("specialty")}>
                 <option value="">Selecciona especialidad</option>
                 {SPECIALTIES.map(({ value, label }) => (
@@ -273,7 +268,7 @@ export function EmployeeFormDialog({
           {/* ── Dirección ── */}
           <Field label="Dirección" field="address">
             <input style={s("address")} value={formData.address} placeholder="Calle 123 #45-67"
-              onChange={e => setFormData({ ...formData, address: e.target.value })}
+              onChange={e => update("address", e.target.value)}
               onBlur={() => touch("address")} />
           </Field>
 
@@ -282,7 +277,7 @@ export function EmployeeFormDialog({
             <Field label="Contraseña inicial" field="contrasena">
               <input style={s("contrasena")} type="password" value={formData.contrasena}
                 placeholder="empleado123 (por defecto)"
-                onChange={e => setFormData({ ...formData, contrasena: e.target.value })}
+                onChange={e => update("contrasena", e.target.value)}
                 onBlur={() => touch("contrasena")} />
               <p style={{ fontSize: 11, color: "#9ca3af", marginTop: 4 }}>
                 Si no ingresas una, se usará "empleado123"
@@ -307,7 +302,7 @@ export function EmployeeFormDialog({
               onMouseEnter={e => { if (!saving && !uploadingImg) e.currentTarget.style.backgroundColor = "#2a5a40"; }}
               onMouseLeave={e => { if (!saving && !uploadingImg) e.currentTarget.style.backgroundColor = "#1a3a2a"; }}
             >
-              {saving && <Loader2 style={{ width: 14, height: 14, animation: "spin 1s linear infinite" }} />}
+              {saving && <Loader2 style={{ width: 14, height: 14 }} />}
               {saving ? "Guardando..." : `${editingEmployee ? "Actualizar" : "Crear"} Empleado`}
             </button>
           </div>

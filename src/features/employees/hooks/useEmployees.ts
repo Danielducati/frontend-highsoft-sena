@@ -39,25 +39,26 @@ export function useEmployees() {
     }
   };
 
-  const handleCreateOrUpdate = async () => {
-    if (!formData.firstName || !formData.lastName || !formData.email || !formData.specialty) {
+  const handleCreateOrUpdate = async (data?: EmployeeFormData) => {
+    const d = data ?? formData;  // ← usa los datos pasados o el estado
+    if (!d.firstName || !d.lastName || !d.email || !d.specialty) {
       toast.error("Nombre, apellido, correo y especialidad son requeridos");
       return;
     }
     setSaving(true);
     const body = {
-      nombre:           formData.firstName,
-      apellido:         formData.lastName,
-      tipo_documento:   formData.documentType || null,
-      numero_documento: formData.document     || null,
-      correo:           formData.email,
-      telefono:         formData.phone        || null,
-      ciudad:           formData.city         || null,
-      especialidad:     formData.specialty,
-      direccion:        formData.address      || null,
-      foto_perfil: formData.image || null,  // ← toma la URL de Cloudinary
-      contrasena:       formData.contrasena   || "empleado123",
-      id_rol:           ROL_MAP[formData.specialty] || 2,
+      nombre:           d.firstName,
+      apellido:         d.lastName,
+      tipo_documento:   d.documentType || null,
+      numero_documento: d.document     || null,
+      correo:           d.email,
+      telefono:         d.phone        || null,
+      ciudad:           d.city         || null,
+      especialidad:     d.specialty,
+      direccion:        d.address      || null,
+      foto_perfil:      d.image        || null,
+      contrasena:       d.contrasena   || "empleado123",
+      id_rol:           ROL_MAP[d.specialty] || 2,
       Estado:           "Activo",
     };
     try {
