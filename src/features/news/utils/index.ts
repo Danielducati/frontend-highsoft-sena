@@ -43,3 +43,13 @@ return new Date(y, m - 1, d).toLocaleDateString("es-ES", {
     day: "2-digit", month: "short", year: "numeric",
 });
 }
+
+export const getStatusStyles = (status: string) => {
+    switch (status.toLowerCase()) {
+    case "aprobada": return "bg-green-100 text-green-700 border-green-200";
+    case "rechazada": return "bg-red-100 text-red-700 border-red-200";
+    case "pendiente": return "bg-yellow-100 text-yellow-700 border-yellow-200";
+    case "resuelta":  return "bg-blue-100 text-blue-700 border-blue-200";
+    default: return "bg-gray-100 text-gray-700";
+    }
+};

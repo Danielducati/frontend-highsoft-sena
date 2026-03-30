@@ -41,20 +41,15 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
         </Select>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="space-y-4">
         <div className="space-y-2">
-          <Label>Tipo de Novedad *</Label>
-          <Select value={formData.type} onValueChange={(v: any) => setFormData(prev => ({ ...prev, type: v }))}>
-            <SelectTrigger><SelectValue /></SelectTrigger>
-            <SelectContent>
-              {NEWS_TYPES.map(t => <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>)}
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="space-y-2">
-          <Label>Fecha Inicio *</Label>
-          <Input type="date" value={formData.date}
-            onChange={e => setFormData(prev => ({ ...prev, date: e.target.value }))} />
+        <Label>Tipo de Novedad *</Label>
+        <Select value={formData.type} onValueChange={(v: any) => setFormData(prev => ({ ...prev, type: v }))}>
+          <SelectTrigger><SelectValue /></SelectTrigger>
+          <SelectContent>
+            {NEWS_TYPES.map(t => <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>)}
+          </SelectContent>
+        </Select>
         </div>
       </div>
 
@@ -64,7 +59,14 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
           <Input type="date" value={formData.fechaFinal}
             onChange={e => setFormData(prev => ({ ...prev, fechaFinal: e.target.value }))} />
         </div>
+
         <div className="space-y-2">
+          <Label>Fecha Inicio *</Label>
+          <Input type="date" value={formData.date}
+            onChange={e => setFormData(prev => ({ ...prev, date: e.target.value }))} />
+        </div>
+
+        {/* <div className="space-y-2">
           <Label>Estado *</Label>
           <Select value={formData.status} onValueChange={(v: any) => setFormData(prev => ({ ...prev, status: v }))}>
             <SelectTrigger><SelectValue /></SelectTrigger>
@@ -75,7 +77,7 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
               <SelectItem value="resuelta">Resuelta</SelectItem>
             </SelectContent>
           </Select>
-        </div>
+        </div> */}
       </div>
 
       <div className="grid grid-cols-2 gap-4">

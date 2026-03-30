@@ -16,9 +16,10 @@ import { NEWS_TYPES, EMPTY_FORM } from "../constants";
 import { EmployeeNews, NewsFormData, NewsModuleProps } from "../types";
 import { SpaPage } from "../../../shared/components/layout/SpaPage";
 
+
 export function NewsPage({ userRole }: NewsModuleProps) {
   // ← CAMBIO 2: desestructurar conflict, resolveConflict, dismissConflict del hook
-  const { employees, newsList, loading, createOrUpdate, remove, updateStatus, conflict, resolveConflict, dismissConflict } = useNews();
+  const { employees, newsList, loading, createOrUpdate, remove, updateStatus, conflict, resolveConflict, dismissConflict} = useNews();
 
   const [searchTerm,   setSearchTerm]   = useState("");
   const [filterType,   setFilterType]   = useState("all");
@@ -82,6 +83,8 @@ export function NewsPage({ userRole }: NewsModuleProps) {
     setDeleteDialogOpen(false);
     setNewsToDelete(null);
   };
+
+
 
   const handleStatusConfirm = async () => {
     if (newsToChangeStatus) await updateStatus(newsToChangeStatus.id, newStatus);
@@ -197,7 +200,7 @@ export function NewsPage({ userRole }: NewsModuleProps) {
           onView={setViewingNews}
           onEdit={handleEdit}
           onDelete={id => { setNewsToDelete(id); setDeleteDialogOpen(true); }}
-          onChangeStatus={item => { setNewsToChangeStatus(item); setNewStatus(item.status); setStatusDialogOpen(true); }}
+          onUpdateStatus={updateStatus}
         />
       </Card>
 
