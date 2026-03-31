@@ -1,5 +1,3 @@
-import React from "react";
-
 type SpaPageProps = {
   title: string;
   subtitle?: string;
