@@ -1,4 +1,5 @@
 // news/components/NewsConflictDialog.tsx
+
 import { useState } from "react";
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription } from "../../../shared/ui/alert-dialog";
 import { Badge } from "../../../shared/ui/badge";
