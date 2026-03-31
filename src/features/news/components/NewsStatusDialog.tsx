@@ -1,3 +1,4 @@
+//components/NewsStatusDialog.tsx
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "../../../shared/ui/alert-dialog";
 import { Label } from "../../../shared/ui/label";
 import { Badge } from "../../../shared/ui/badge";

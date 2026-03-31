@@ -135,7 +135,7 @@ export function NewsPage({ userRole }: NewsModuleProps) {
                 Nueva Novedad
               </button>
             </DialogTrigger>
-            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogContent className="hl-form-dialog max-w-2xl max-h-[90vh] overflow-y-auto ">
               <DialogHeader>
                 <DialogTitle>{editingNews ? "Editar Novedad" : "Registrar Nueva Novedad"}</DialogTitle>
                 <DialogDescription>
