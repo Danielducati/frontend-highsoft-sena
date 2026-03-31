@@ -113,6 +113,8 @@ const remove = async (id: number): Promise<boolean> => {
     }
 };
 
+
+
 const updateStatus = async (id: number, status: EmployeeNews["status"]): Promise<boolean> => {
     try {
     await newsApi.updateStatus(id, status);
@@ -124,6 +126,7 @@ const updateStatus = async (id: number, status: EmployeeNews["status"]): Promise
     return false;
     }
 };
+
 
 return {
     employees, newsList, loading,
