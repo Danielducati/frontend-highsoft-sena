@@ -1,3 +1,4 @@
+/* styles/globals.css */
 @custom-variant dark (&:is(.dark *));
 
 :root {
@@ -8,7 +9,7 @@
   --card-foreground: #2D3748;
   --popover: #ffffff;
   --popover-foreground: #2D3748;
-  --primary: #78D1BD;
+  --primary: #1a3a2a;
   --primary-foreground: #ffffff;
   --secondary: #F3F4F6;
   --secondary-foreground: #2D3748;
@@ -25,7 +26,7 @@
   --font-weight-medium: 600;
   --font-weight-normal: 400;
   --ring: #78D1BD;
-  --chart-1: #78D1BD;
+  --chart-1: #237e51;
   --chart-2: #A78BFA;
   --chart-3: #60A5FA;
   --chart-4: #FBBF24;
@@ -33,7 +34,7 @@
   --radius: 0.75rem;
   --sidebar: #ffffff;
   --sidebar-foreground: #4B5563;
-  --sidebar-primary: #78D1BD;
+  --sidebar-primary: #237e51;
   --sidebar-primary-foreground: #d7bdbd;
   --sidebar-accent: #F3F4F6;
   --sidebar-accent-foreground: #2D3748;

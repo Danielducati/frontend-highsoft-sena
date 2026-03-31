@@ -112,20 +112,20 @@ export function Sidebar({ activePage, onNavigate, onLogout, userRole }: SidebarP
   return (
     <aside
       className="w-64 flex flex-col h-screen fixed left-0 top-0"
-      style={{ backgroundColor: "#f7f7f5", borderRight: "1px solid #e8e6e1" }}
+      style={{ backgroundColor: " #f5f0e8", borderRight: "2px solid #e8e6e1" }}
     >
       {/* Logo Section */}
       <div className="px-5 py-4" style={{ borderBottom: "1px solid #ece9e3" }}>
         <div className="flex items-center gap-3">
           <div
             className="w-10 h-10 rounded-xl flex items-center justify-center"
-            style={{ background: "linear-gradient(135deg, #78D1BD, #5FBFAA)" }}
+            style={{ background: "linear-gradient(135deg, #1a3a2a,rgb(78, 174, 115))" }}
           >
             <Sparkles className="w-5 h-5 text-white" />
           </div>
           <div>
             <h2 className="tracking-tight leading-none" style={{ color: "#1a3a2a", fontFamily: "var(--font-display)" }}>
-              High Life Spa
+              High Life Spa Peorrotes
             </h2>
             <p className="text-[10px] tracking-[0.18em] mt-1" style={{ color: "#8a948b", fontFamily: "var(--font-body)" }}>
               MANAGEMENT SUITE
