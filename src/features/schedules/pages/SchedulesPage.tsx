@@ -1,3 +1,4 @@
+//frontend-highsoft-sena\src\features\schedules\pages\SchedulesPage.tsx
 import { Card, CardContent } from "../../../shared/ui/card";
 import { Button } from "../../../shared/ui/button";
 import { Input } from "../../../shared/ui/input";

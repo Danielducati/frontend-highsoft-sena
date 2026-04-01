@@ -174,8 +174,9 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
 
         <div className="flex justify-end gap-3 pt-4 border-t">
           <Button variant="outline" onClick={onCancel}>Cancelar</Button>
-          <Button onClick={onSubmit}
-            className="bg-gradient-to-r from-[#78D1BD] to-[#5FBFAA] hover:from-[#6BCAB7] hover:to-[#4FB5A1] text-white">
+          <Button variant="default" onClick={onSubmit}
+            // className="bg-gradient-to-r from-[#78D1BD] to-[#5FBFAA] hover:from-[#6BCAB7] hover:to-[#4FB5A1] text-white"
+            >
             {editingNews ? "Actualizar" : "Crear"} Novedad
           </Button>
         </div>
