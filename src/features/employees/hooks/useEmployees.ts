@@ -80,20 +80,22 @@ export function useEmployees() {
 
   const handleToggleStatus = async (employee: Employee) => {
     try {
+      const nuevoEstado = employee.isActive ? "Inactivo" : "Activo";
+  
       await updateEmployeeApi(employee.id, {
-        nombre:      employee.nombre,
-        apellido:    employee.apellido,
-        correo:      employee.correo,
-        especialidad: employee.especialidad,
-        Estado:      employee.isActive ? "Inactivo" : "Activo",
+        estado: nuevoEstado, // 🔥 SOLO ESTO
       });
-      toast.success(`Empleado ${employee.isActive ? "desactivado" : "activado"} exitosamente`);
+  
+      toast.success(
+        `Empleado ${employee.isActive ? "desactivado" : "activado"} exitosamente`
+      );
+  
       await loadEmployees();
-    } catch {
-      toast.error("Error al actualizar estado");
+    } catch (err: any) {
+      console.error(err);
+      toast.error(err.message || "Error al actualizar estado");
     }
   };
-
   const handleDelete = async () => {
     if (!employeeToDelete) return;
     try {
@@ -109,26 +111,35 @@ export function useEmployees() {
   };
 
   const handleEdit = (employee: Employee) => {
+    if (!employee.isActive) {
+      toast.error("No puedes editar un empleado inactivo");
+      return;
+    }
     setEditingEmployee(employee);
     setFormData({
       firstName:    employee.nombre,
       lastName:     employee.apellido,
-      documentType: employee.tipo_documento    || "",
-      document:     employee.numero_documento  || "",
-      email:        employee.correo            || "",
-      phone:        employee.telefono          || "",
-      city:         employee.ciudad            || "",
-      address:      employee.direccion         || "",
-      specialty:    employee.especialidad      || "",
+      documentType: employee.tipoDocumento || "",
+      document:     employee.numeroDocumento || "",
+      email:        employee.email || "",
+      phone:        employee.phone || "",
+      city:         employee.ciudad || "",
+      address:      employee.direccion || "",
+      specialty:    employee.specialty || "",
       contrasena:   "",
-      image:        employee.foto_perfil       || "",
-      
+      image:        employee.image || "",
     });
-    setImagePreview(employee.foto_perfil || "");
+    setImagePreview(employee.image || "");
     setIsDialogOpen(true);
   };
 
   const confirmDelete = (id: number) => {
+    const emp = employees.find(e => e.id === id);
+
+    if (!emp?.isActive) {
+      toast.error("No puedes eliminar un empleado inactivo");
+      return;
+    }
     setEmployeeToDelete(id);
     setDeleteDialogOpen(true);
   };

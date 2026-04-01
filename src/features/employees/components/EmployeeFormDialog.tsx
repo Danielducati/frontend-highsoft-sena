@@ -12,7 +12,7 @@ interface EmployeeFormDialogProps {
   onOpenChange: (v: boolean) => void;
   editingEmployee: Employee | null;
   formData: EmployeeFormData;
-  setFormData: (d: EmployeeFormData) => void;
+  setFormData: React.Dispatch<React.SetStateAction<EmployeeFormData>>;
   imagePreview: string;
   setImagePreview: (v: string) => void;
   saving: boolean;
@@ -28,13 +28,11 @@ const inputBase: React.CSSProperties = {
 };
 const inputOk:  React.CSSProperties = { ...inputBase, border: "1px solid #d6cfc4" };
 const inputErr: React.CSSProperties = { ...inputBase, border: "1px solid #c0392b", backgroundColor: "#fdf8f7" };
-
 const labelStyle: React.CSSProperties = {
   display: "block", fontSize: 11, fontWeight: 600,
   letterSpacing: "0.08em", textTransform: "uppercase",
   color: "#6b7c6b", marginBottom: 5, fontFamily: "sans-serif",
 };
-
 const errorStyle: React.CSSProperties = {
   fontSize: 11, color: "#c0392b", marginTop: 3, fontFamily: "sans-serif",
 };
@@ -53,13 +51,34 @@ function validate(data: EmployeeFormData, isNew: boolean): Errors {
   else if (data.lastName.trim().length < 2) e.lastName = "Debe tener al menos 2 caracteres.";
   if (!data.email.trim()) e.email = "El correo es obligatorio.";
   else if (!EMAIL_RE.test(data.email.trim())) e.email = "Correo inválido. Ej: nombre@dominio.com";
-  if (data.phone && !PHONE_RE.test(data.phone.trim())) e.phone = "Teléfono inválido. Ej: +57 310 123 4567";
+  if (data.phone && !PHONE_RE.test(data.phone.trim())) e.phone = "Teléfono inválido.";
   if (!data.specialty) e.specialty = "Selecciona una especialidad.";
   if (data.documentType && !data.document.trim()) e.document = "Ingresa el número de documento.";
   if (data.document.trim() && !DOC_RE.test(data.document.trim())) e.document = "Solo números, entre 5 y 15 dígitos.";
   if (!data.documentType && data.document.trim()) e.documentType = "Selecciona el tipo de documento.";
-  if (isNew && data.contrasena && data.contrasena.length < 6) e.contrasena = "La contraseña debe tener al menos 6 caracteres.";
+  if (isNew && data.contrasena && data.contrasena.length < 6) e.contrasena = "Mínimo 6 caracteres.";
   return e;
+}
+
+// ── Field FUERA del componente para evitar re-renders ─────────────────────
+interface FieldProps {
+  label: string;
+  field: keyof EmployeeFormData;
+  required?: boolean;
+  children: React.ReactNode;
+  error?: string;
+}
+
+function Field({ label, field, required, children, error }: FieldProps) {
+  return (
+    <div>
+      <label style={labelStyle}>
+        {label}{required && <span style={{ color: "#c0392b", marginLeft: 2 }}>*</span>}
+      </label>
+      {children}
+      {error && <p style={errorStyle}>⚠ {error}</p>}
+    </div>
+  );
 }
 
 export function EmployeeFormDialog({
@@ -83,9 +102,8 @@ export function EmployeeFormDialog({
     liveErrors[field] ? inputErr : inputOk;
 
   const update = (field: keyof EmployeeFormData, value: string) =>
-    setFormData({ ...formData, [field]: value });
+    setFormData(prev => ({ ...prev, [field]: value }));
 
-  // ── Subir imagen ─────────────────────────────────────────────────────────
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -95,7 +113,7 @@ export function EmployeeFormDialog({
       reader.onloadend = () => setImagePreview(reader.result as string);
       reader.readAsDataURL(file);
       const url = await uploadImage(file);
-      setFormData({ ...formData, image: url });
+      setFormData(prev => ({ ...prev, image: url }));
       setImagePreview(url);
       toast.success("Imagen subida correctamente");
     } catch (err: any) {
@@ -114,7 +132,7 @@ export function EmployeeFormDialog({
       toast.error("Revisa los campos marcados en rojo.");
       return;
     }
-    onSubmit(formData); 
+    onSubmit(formData);
   };
 
   const handleCancel = () => {
@@ -122,21 +140,9 @@ export function EmployeeFormDialog({
     onCancel();
   };
 
-  const Field = ({ label, field, required, children }: {
-    label: string; field: keyof EmployeeFormData; required?: boolean; children: React.ReactNode;
-  }) => (
-    <div>
-      <label style={labelStyle}>
-        {label}{required && <span style={{ color: "#c0392b", marginLeft: 2 }}>*</span>}
-      </label>
-      {children}
-      {liveErrors[field] && <p style={errorStyle}>⚠ {liveErrors[field]}</p>}
-    </div>
-  );
-
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="hl-form-dialog" style={{
+      <DialogContent style={{
         backgroundColor: "#faf7f2", borderRadius: 16, border: "1px solid #ede8e0",
         padding: 32, maxWidth: 600, maxHeight: "90vh", overflowY: "auto", fontFamily: "sans-serif",
       }}>
@@ -145,9 +151,7 @@ export function EmployeeFormDialog({
             {editingEmployee ? "Editar Empleado" : "Nuevo Empleado"}
           </DialogTitle>
           <DialogDescription style={{ color: "#6b7c6b", fontSize: 13 }}>
-            {editingEmployee
-              ? "Actualiza la información del empleado"
-              : "Ingresa los datos del nuevo empleado. Los campos con * son obligatorios."}
+            {editingEmployee ? "Actualiza la información del empleado" : "Ingresa los datos del nuevo empleado. Los campos con * son obligatorios."}
           </DialogDescription>
         </DialogHeader>
 
@@ -171,7 +175,7 @@ export function EmployeeFormDialog({
                   }
                 </div>
                 {imagePreview && !uploadingImg && (
-                  <button onClick={() => { setImagePreview(""); setFormData({ ...formData, image: "" }); }} style={{
+                  <button onClick={() => { setImagePreview(""); setFormData(p => ({ ...p, image: "" })); }} style={{
                     position: "absolute", top: -4, right: -4, width: 20, height: 20,
                     borderRadius: "50%", backgroundColor: "#c0392b", color: "#fff",
                     border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
@@ -183,10 +187,8 @@ export function EmployeeFormDialog({
               <div style={{ flex: 1 }}>
                 <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} style={{ display: "none" }} />
                 <button type="button" onClick={() => fileInputRef.current?.click()} disabled={uploadingImg} style={{
-                  ...inputOk, display: "flex", alignItems: "center",
-                  justifyContent: "center", gap: 8,
-                  cursor: uploadingImg ? "not-allowed" : "pointer",
-                  opacity: uploadingImg ? 0.7 : 1,
+                  ...inputOk, display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                  cursor: uploadingImg ? "not-allowed" : "pointer", opacity: uploadingImg ? 0.7 : 1,
                 }}>
                   {uploadingImg
                     ? <><Loader2 style={{ width: 14, height: 14 }} /> Subiendo...</>
@@ -200,12 +202,12 @@ export function EmployeeFormDialog({
 
           {/* ── Nombres / Apellidos ── */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-            <Field label="Nombres" field="firstName" required>
+            <Field label="Nombres" field="firstName" required error={liveErrors.firstName}>
               <input style={s("firstName")} value={formData.firstName} placeholder="Ana María"
                 onChange={e => update("firstName", e.target.value)}
                 onBlur={() => touch("firstName")} />
             </Field>
-            <Field label="Apellidos" field="lastName" required>
+            <Field label="Apellidos" field="lastName" required error={liveErrors.lastName}>
               <input style={s("lastName")} value={formData.lastName} placeholder="García Pérez"
                 onChange={e => update("lastName", e.target.value)}
                 onBlur={() => touch("lastName")} />
@@ -214,7 +216,7 @@ export function EmployeeFormDialog({
 
           {/* ── Documento ── */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-            <Field label="Tipo de Documento" field="documentType">
+            <Field label="Tipo de Documento" field="documentType" error={liveErrors.documentType}>
               <select style={s("documentType")} value={formData.documentType}
                 onChange={e => update("documentType", e.target.value)}
                 onBlur={() => touch("documentType")}>
@@ -224,7 +226,7 @@ export function EmployeeFormDialog({
                 ))}
               </select>
             </Field>
-            <Field label="Número de Documento" field="document">
+            <Field label="Número de Documento" field="document" error={liveErrors.document}>
               <input style={s("document")} value={formData.document} placeholder="1234567890"
                 onChange={e => update("document", e.target.value)}
                 onBlur={() => touch("document")} />
@@ -233,13 +235,13 @@ export function EmployeeFormDialog({
 
           {/* ── Correo / Teléfono ── */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-            <Field label="Correo" field="email" required>
+            <Field label="Correo" field="email" required error={liveErrors.email}>
               <input style={s("email")} type="email" value={formData.email}
                 placeholder="empleado@highlifespa.com"
                 onChange={e => update("email", e.target.value)}
                 onBlur={() => touch("email")} />
             </Field>
-            <Field label="Teléfono" field="phone">
+            <Field label="Teléfono" field="phone" error={liveErrors.phone}>
               <input style={s("phone")} value={formData.phone} placeholder="+57 310 123 4567"
                 onChange={e => update("phone", e.target.value)}
                 onBlur={() => touch("phone")} />
@@ -248,12 +250,12 @@ export function EmployeeFormDialog({
 
           {/* ── Ciudad / Especialidad ── */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-            <Field label="Ciudad" field="city">
+            <Field label="Ciudad" field="city" error={liveErrors.city}>
               <input style={s("city")} value={formData.city} placeholder="Medellín"
                 onChange={e => update("city", e.target.value)}
                 onBlur={() => touch("city")} />
             </Field>
-            <Field label="Especialidad" field="specialty" required>
+            <Field label="Especialidad" field="specialty" required error={liveErrors.specialty}>
               <select style={s("specialty")} value={formData.specialty}
                 onChange={e => update("specialty", e.target.value)}
                 onBlur={() => touch("specialty")}>
@@ -266,7 +268,7 @@ export function EmployeeFormDialog({
           </div>
 
           {/* ── Dirección ── */}
-          <Field label="Dirección" field="address">
+          <Field label="Dirección" field="address" error={liveErrors.address}>
             <input style={s("address")} value={formData.address} placeholder="Calle 123 #45-67"
               onChange={e => update("address", e.target.value)}
               onBlur={() => touch("address")} />
@@ -274,7 +276,7 @@ export function EmployeeFormDialog({
 
           {/* ── Contraseña (solo nuevo) ── */}
           {!editingEmployee && (
-            <Field label="Contraseña inicial" field="contrasena">
+            <Field label="Contraseña inicial" field="contrasena" error={liveErrors.contrasena}>
               <input style={s("contrasena")} type="password" value={formData.contrasena}
                 placeholder="empleado123 (por defecto)"
                 onChange={e => update("contrasena", e.target.value)}

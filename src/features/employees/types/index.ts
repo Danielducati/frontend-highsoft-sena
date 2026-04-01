@@ -1,23 +1,27 @@
 export interface Employee {
   id: number;
+
+  // Datos reales
   nombre: string;
   apellido: string;
-  tipo_documento?: string;
-  numero_documento?: string;
-  correo?: string;
-  telefono?: string;
   ciudad?: string;
-  especialidad?: string;
   direccion?: string;
-  foto_perfil?: string;
-  Estado: string;
-  // campos computados para UI
-  name: string;
+
+  // 👇 usa los que realmente devuelve el backend
+  tipoDocumento?: string;
+  numeroDocumento?: string;
+
+  // 👇 usa los aliases del formatEmployee
   email: string;
   phone: string;
   specialty: string;
   image: string;
+
+  estado: string;
   isActive: boolean;
+
+  // UI
+  name: string;
 }
 
 export interface EmployeeFormData {
