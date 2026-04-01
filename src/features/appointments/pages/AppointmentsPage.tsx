@@ -57,7 +57,7 @@ export function AppointmentsPage({ userRole }: AppointmentsModuleProps) {
               <button key={mode} onClick={() => setViewMode(mode)}
                 className={`inline-flex items-center justify-center gap-1.5 rounded px-2.5 py-1 text-xs transition-all ${
                   viewMode === mode
-                    ? "bg-gradient-to-r from-[#78D1BD] to-[#5FBFAA] text-white shadow-sm"
+                    ? "bg-primary text-white"
                     : "text-gray-600 hover:text-gray-900"
                 }`}>
                 {mode === "calendar" ? <Calendar className="w-3.5 h-3.5" /> : <List className="w-3.5 h-3.5" />}

@@ -1,3 +1,4 @@
+//frontend-highsoft-sena\src\features\schedules\components\ScheduleDetailDialog.tsx
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../../../shared/ui/dialog";
 import { Button } from "../../../shared/ui/button";
 import { Label } from "../../../shared/ui/label";
@@ -78,7 +79,7 @@ export function ScheduleDetailDialog({ isOpen, onOpenChange, schedule, employees
                       .sort((a, b) => a.dayIndex - b.dayIndex)
                       .map(ds => {
                         const day  = getDayLabel(ds.dayIndex);
-                        const date = getWeekDays(schedule.weekStartDate)[ds.dayIndex];
+                        const date = getWeekDays(new Date(schedule.weekStartDate + "T00:00:00"))[ds.dayIndex];
                         return (
                           <div key={ds.dayIndex} className="flex items-center justify-between p-3 rounded-lg bg-gray-50 border border-gray-200">
                             <div className="flex items-center gap-3">
