@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "../../../shared/ui/dialog";
 import { Employee } from "../types";
 import { ImageWithFallback } from "../../guidelines/figma/ImageWithFallback";
@@ -108,7 +108,7 @@ export function EmployeeViewDialog({ employee, onClose }: EmployeeViewDialogProp
                 { label: "Correo",     value: employee.email             },
                 { label: "Teléfono",   value: employee.phone             },
                 { label: "Ciudad",     value: employee.ciudad            },
-                { label: "Documento",  value: `${employee.tipo_documento ?? ""} ${employee.numero_documento ?? ""}`.trim() || "—" },
+                { label: "Documento",  value: `${employee.tipoDocumento ?? ""} ${employee.numeroDocumento ?? ""}`.trim() || "—" },
                 { label: "Dirección",  value: employee.direccion         },
               ].map(({ label, value }) => (
                 <div key={label}>

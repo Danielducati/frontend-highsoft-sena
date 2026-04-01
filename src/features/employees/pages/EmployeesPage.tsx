@@ -1,4 +1,4 @@
-import  { useState } from "react";
+import * as React from "react"; 
 import { Card, CardContent } from "../../../shared/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../shared/ui/select";
 import { Switch } from "../../../shared/ui/switch";
@@ -298,26 +298,32 @@ export function EmployeesPage({ userRole }: EmployeesModuleProps) {
                         >
                           <Eye className="w-4 h-4" />
                         </button>
-                        <button
-                          onClick={() => handleEdit(employee)}
-                          title="Editar"
-                          className="p-2 rounded-lg transition-colors"
-                          style={{ color: "#6b7c6b" }}
-                          onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#f0ebe3")}
-                          onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
-                        >
-                          <Pencil className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => confirmDelete(employee.id)}
-                          title="Desactivar"
-                          className="p-2 rounded-lg transition-colors"
-                          style={{ color: "#c0392b" }}
-                          onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#fdf0ee")}
-                          onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+
+                        {employee.isActive && (
+                          <>
+                            <button
+                              onClick={() => handleEdit(employee)}
+                              title="Editar"
+                              className="p-2 rounded-lg transition-colors"
+                              style={{ color: "#6b7c6b" }}
+                              onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#f0ebe3")}
+                              onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
+                            >
+                              <Pencil className="w-4 h-4" />
+                            </button>
+
+                            <button
+                              onClick={() => confirmDelete(employee.id)}
+                              title="Desactivar"
+                              className="p-2 rounded-lg transition-colors"
+                              style={{ color: "#c0392b" }}
+                              onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#fdf0ee")}
+                              onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </>
+                        )}
                       </div>
                     </td>
                   )}
