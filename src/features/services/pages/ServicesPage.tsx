@@ -5,24 +5,24 @@ import { ServiceFormDialog } from "../components/ServiceFormDialog";
 import { ServiceViewDialog } from "../components/ServiceViewDialog";
 import { ServiceDeleteDialog } from "../components/ServiceDeleteDialog";
 import { Switch } from "../../../shared/ui/switch";
+import { ImageWithFallback } from "../../guidelines/figma/ImageWithFallback";
 
 export function ServicesPage({ userRole }: ServicesModuleProps) {
   const {
-    categories, loading,
-    searchTerm, setSearchTerm,
-    filterCategory, setFilterCategory,
-    filterStatus, setFilterStatus,
-    isDialogOpen, setIsDialogOpen,
-    editingService, viewingService, setViewingService,
-    deleteDialogOpen, setDeleteDialogOpen,
-    formData, setFormData,
-    imagePreview, fileInputRef,
-    currentPage, setCurrentPage,
-    filteredServices, paginatedServices, totalPages, startIndex, endIndex,
-    handleCreateOrUpdate, handleDelete, handleToggleStatus,
-    confirmDelete, handleEdit, handleCloseDialog,
-    handleImageSelect, clearImage,
-  } = useServices();
+      categories, loading,
+      searchTerm, setSearchTerm,
+      filterCategory, setFilterCategory,
+      filterStatus, setFilterStatus,
+      isDialogOpen, setIsDialogOpen,
+      editingService, viewingService, setViewingService,
+      deleteDialogOpen, setDeleteDialogOpen,
+      formData, setFormData,
+      imagePreview, setImagePreview,  // ← agrega setImagePreview
+      currentPage, setCurrentPage,
+      filteredServices, paginatedServices, totalPages, startIndex, endIndex,
+      handleCreateOrUpdate, handleDelete, handleToggleStatus,
+      confirmDelete, handleEdit, handleCloseDialog,
+    } = useServices();
   const totalServices = filteredServices.length;
 
   const activeServices = filteredServices.filter(s => s.isActive).length;
@@ -33,7 +33,7 @@ export function ServicesPage({ userRole }: ServicesModuleProps) {
       )
     : 0;
 
-// 🔥 Formato PRO: 90 → 1h 30min
+//  Formato de duración: 90 → 1h 30min
   const formatDuration = (minutes: number) => {
     if (!minutes) return "—";
     const h = Math.floor(minutes / 60);
@@ -61,13 +61,11 @@ export function ServicesPage({ userRole }: ServicesModuleProps) {
           formData={formData}
           setFormData={setFormData}
           imagePreview={imagePreview}
-          fileInputRef={fileInputRef as React.RefObject<HTMLInputElement>}
+          setImagePreview={setImagePreview}  // ← agrega esto
           categories={categories}
           onSubmit={handleCreateOrUpdate}
           onCancel={handleCloseDialog}
           onNewClick={handleCloseDialog}
-          onImageSelect={handleImageSelect}
-          onClearImage={clearImage}
           userRole={userRole}
         />
       </div>
@@ -169,10 +167,46 @@ export function ServicesPage({ userRole }: ServicesModuleProps) {
                   onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#faf7f2")}
                   onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
                 >
-                  <td className="px-6 py-4">
-                    <p className="font-medium text-sm" style={{ color: "#1a3a2a" }}>{service.name}</p>
-                    <p className="text-xs mt-0.5" style={{ color: "#6b7c6b" }}>{service.description || "Sin descripción"}</p>
-                  </td>
+                 <td className="px-6 py-4">
+                  <div className="flex items-center gap-3">
+                    <div
+                      style={{
+                        width: 40,
+                        height: 40,
+                        borderRadius: "50%",
+                        backgroundColor: "#edf7f4",
+                        border: "2px solid #c8ead9",
+                        overflow: "hidden",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        flexShrink: 0,
+                        color: "#1a5c3a",
+                        fontWeight: 600,
+                        fontSize: 16,
+                      }}
+                    >
+                      {service.image ? (
+                        <ImageWithFallback
+                          src={service.image}
+                          alt={service.name}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        service.name.charAt(0).toUpperCase()
+                      )}
+                    </div>
+
+                    <div>
+                      <p className="font-medium text-sm" style={{ color: "#1a3a2a" }}>
+                        {service.name}
+                      </p>
+                      <p className="text-xs mt-0.5" style={{ color: "#6b7c6b" }}>
+                        {service.description || "Sin descripción"}
+                      </p>
+                    </div>
+                  </div>
+                </td>
                   <td className="px-6 py-4">
                     <span style={{ display: "inline-flex", padding: "3px 12px", borderRadius: 999, fontSize: 11, fontWeight: 600, letterSpacing: "0.04em", backgroundColor: "#edf7f4", color: "#1a5c3a" }}>
                       {service.category}
