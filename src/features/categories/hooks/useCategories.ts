@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { Category, CategoryFormData } from "../types";
-import { fetchCategoriesApi, createCategoryApi, updateCategoryApi, deleteCategoryApi } from "../services/categoriesService";
+import { fetchCategoriesApi, createCategoryApi, updateCategoryApi, deleteCategoryApi, } from "../services/categoriesService";
 import { DEFAULT_COLOR } from "../constants";
 
 const EMPTY_FORM: CategoryFormData = { name: "", description: "", color: DEFAULT_COLOR };

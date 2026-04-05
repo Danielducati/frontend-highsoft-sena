@@ -108,11 +108,11 @@ export function ServiceFormDialog({
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label className="flex items-center gap-2"><Clock className="w-4 h-4 text-[#78D1BD]" />Duración (minutos) *</Label>
-                <Input type="number" min="1" value={formData.duration} onChange={(e) => setFormData({ ...formData, duration: e.target.value })} placeholder="60" className="border-gray-300" />
+                <Input type="number" min="1" value={formData.duration} onChange={(e) => setFormData({ ...formData, duration: Number(e.target.value) })} placeholder="60" className="border-gray-300" />
               </div>
               <div className="space-y-2">
                 <Label className="flex items-center gap-2"><DollarSign className="w-4 h-4 text-[#78D1BD]" />Precio *</Label>
-                <Input type="number" step="0.01" min="0" value={formData.price} onChange={(e) => setFormData({ ...formData, price: e.target.value })} placeholder="100.00" className="border-gray-300" />
+                <Input type="number" step="0.01" min="0" value={formData.price} onChange={(e) => setFormData({ ...formData, price: Number(e.target.value) })} placeholder="100.00" className="border-gray-300" />
               </div>
             </div>
 

@@ -1,4 +1,4 @@
-import React from "react";
+//components/NewsDetailDialog.tsx
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../../../shared/ui/dialog";
 import { Badge } from "../../../shared/ui/badge";
 import { Button } from "../../../shared/ui/button";
@@ -18,7 +18,7 @@ export function NewsDetailDialog({ news, onClose }: NewsDetailDialogProps) {
 
   return (
     <Dialog open={!!news} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="hl-form-dialog max-w-2xl">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <AlertCircle className="w-5 h-5 text-[#A78BFA]" />
@@ -68,7 +68,10 @@ export function NewsDetailDialog({ news, onClose }: NewsDetailDialogProps) {
             </div>
           </div>
           <div className="flex justify-end pt-4 border-t border-gray-200">
-            <Button onClick={onClose} className="bg-gradient-to-r from-[#78D1BD] to-[#5FBFAA] text-white">
+            <Button onClick={onClose}
+            variant="default" 
+            // className="bg-gradient-to-r from-[#78D1BD] to-[#5FBFAA] text-white"
+            >
               Cerrar
             </Button>
           </div>
@@ -77,3 +80,4 @@ export function NewsDetailDialog({ news, onClose }: NewsDetailDialogProps) {
     </Dialog>
   );
 }
+

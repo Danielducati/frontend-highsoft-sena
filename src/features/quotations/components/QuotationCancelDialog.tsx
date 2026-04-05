@@ -13,12 +13,12 @@ export function QuotationCancelDialog({ open, onOpenChange, onConfirm }: Quotati
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent style={{
         backgroundColor: "#faf7f2", borderRadius: 16, border: "1px solid #ede8e0",
-        padding: 32, maxWidth: 420, fontFamily: "sans-serif",
+        padding: 32, maxWidth: 420, fontFamily: "var(--font-body)",
       }}>
         <AlertDialogHeader>
           <AlertDialogTitle style={{
             display: "flex", alignItems: "center", gap: 10,
-            fontFamily: "'Georgia', serif", fontSize: 20, color: "#1a3a2a", fontWeight: "normal",
+            fontFamily: "var(--font-display)", fontSize: 20, color: "#1a3a2a", fontWeight: "normal",
           }}>
             <AlertCircle style={{ width: 20, height: 20, color: "#c0392b", flexShrink: 0 }} />
             ¿Cancelar esta cotización?

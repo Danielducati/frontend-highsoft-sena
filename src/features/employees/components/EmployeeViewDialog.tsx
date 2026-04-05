@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "../../../shared/ui/dialog";
 import { Employee } from "../types";
 import { ImageWithFallback } from "../../guidelines/figma/ImageWithFallback";
@@ -15,13 +15,13 @@ const fieldLabel: React.CSSProperties = {
   textTransform: "uppercase",
   color: "#6b7c6b",
   marginBottom: 3,
-  fontFamily: "sans-serif",
+  fontFamily: "var(--font-body)",
 };
 
 const fieldValue: React.CSSProperties = {
   fontSize: 14,
   color: "#1a3a2a",
-  fontFamily: "sans-serif",
+  fontFamily: "var(--font-body)",
 };
 
 export function EmployeeViewDialog({ employee, onClose }: EmployeeViewDialogProps) {
@@ -34,12 +34,12 @@ export function EmployeeViewDialog({ employee, onClose }: EmployeeViewDialogProp
           border: "1px solid #ede8e0",
           padding: 32,
           maxWidth: 480,
-          fontFamily: "sans-serif",
+          fontFamily: "var(--font-body)",
         }}
       >
         <DialogHeader>
           <DialogTitle
-            style={{ fontFamily: "'Georgia', serif", fontSize: 22, color: "#1a3a2a", fontWeight: "normal" }}
+            style={{ fontFamily: "var(--font-display)", fontSize: 22, color: "#1a3a2a", fontWeight: "normal" }}
           >
             Detalles del Empleado
           </DialogTitle>
@@ -108,7 +108,7 @@ export function EmployeeViewDialog({ employee, onClose }: EmployeeViewDialogProp
                 { label: "Correo",     value: employee.email             },
                 { label: "Teléfono",   value: employee.phone             },
                 { label: "Ciudad",     value: employee.ciudad            },
-                { label: "Documento",  value: `${employee.tipo_documento ?? ""} ${employee.numero_documento ?? ""}`.trim() || "—" },
+                { label: "Documento",  value: `${employee.tipoDocumento ?? ""} ${employee.numeroDocumento ?? ""}`.trim() || "—" },
                 { label: "Dirección",  value: employee.direccion         },
               ].map(({ label, value }) => (
                 <div key={label}>
@@ -146,7 +146,7 @@ export function EmployeeViewDialog({ employee, onClose }: EmployeeViewDialogProp
                 style={{
                   padding: "9px 20px", borderRadius: 10,
                   border: "1px solid #d6cfc4", backgroundColor: "transparent",
-                  color: "#1a3a2a", fontSize: 14, fontFamily: "sans-serif", cursor: "pointer",
+                  color: "#1a3a2a", fontSize: 14, fontFamily: "var(--font-body)", cursor: "pointer",
                 }}
               >
                 Cerrar

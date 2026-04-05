@@ -16,13 +16,13 @@ export function CategoryDeleteDialog({ isOpen, onOpenChange, onConfirm }: Catego
           border: "1px solid #ede8e0",
           padding: 32,
           maxWidth: 420,
-          fontFamily: "sans-serif",
+          fontFamily: "var(--font-body)",
         }}
       >
         <AlertDialogHeader>
           <AlertDialogTitle
             style={{
-              fontFamily: "'Georgia', serif",
+              fontFamily: "var(--font-display)",
               fontSize: 20,
               color: "#1a3a2a",
               fontWeight: "normal",

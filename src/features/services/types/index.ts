@@ -13,8 +13,8 @@ export interface Service {
 export interface ServiceFormData {
   name: string;
   description: string;
-  duration: string;
-  price: string;
+  duration: number;
+  price: number;
   category: string;
   image: string;
   FK_categoria_servicios: string;

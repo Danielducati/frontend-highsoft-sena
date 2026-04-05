@@ -1,10 +1,12 @@
+//components/NewsForm.tsx
 import { Label } from "../../../shared/ui/label";
 import { Input } from "../../../shared/ui/input";
 import { Textarea } from "../../../shared/ui/textarea";
 import { Button } from "../../../shared/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../shared/ui/select";
-import { NEWS_TYPES } from "../constants";
+import { NEWS_TYPES, TIME_SLOTS } from "../constants";
 import { Employee, EmployeeNews, NewsFormData } from "../types";
+import { User, Calendar, Clock, FileText, Tag } from "lucide-react";
 
 interface NewsFormProps {
   formData:    NewsFormData;
@@ -24,12 +26,15 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
   return (
     <div className="space-y-4">
       <div className="space-y-2">
-        <Label>Empleado *</Label>
+        <Label className="flex items-center gap-2">
+          <User className="w-4 h-4 text-[#78D1BD]" />
+          Empleado *
+        </Label>
         <Select
           value={formData.employeeId || "placeholder"}
           onValueChange={v => { if (v !== "placeholder") handleEmployeeChange(v); }}
         >
-          <SelectTrigger><SelectValue placeholder="Selecciona un empleado" /></SelectTrigger>
+          <SelectTrigger className="border-gray-300"><SelectValue placeholder="Selecciona un empleado" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="placeholder" disabled>Selecciona un empleado</SelectItem>
             {employees.map(emp => (
@@ -41,67 +46,109 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
         </Select>
       </div>
 
+      <div className="space-y-2">
+        <Label className="flex items-center gap-2">
+          <Tag className="w-4 h-4 text-[#78D1BD]" />
+          Tipo de Novedad *
+        </Label>
+        <Select
+          value={formData.type}
+          onValueChange={(v: any) => setFormData(prev => ({ ...prev, type: v }))}
+        >
+          <SelectTrigger className="border-gray-300"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            {NEWS_TYPES.map(t => (
+              <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label>Tipo de Novedad *</Label>
-          <Select value={formData.type} onValueChange={(v: any) => setFormData(prev => ({ ...prev, type: v }))}>
-            <SelectTrigger><SelectValue /></SelectTrigger>
-            <SelectContent>
-              {NEWS_TYPES.map(t => <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>)}
-            </SelectContent>
-          </Select>
+          <Label className="flex items-center gap-2">
+            <Calendar className="w-4 h-4 text-[#78D1BD]" />
+            Fecha Inicio *
+          </Label>
+          <Input
+            className="border-gray-300"
+            type="date"
+            min={new Date().toLocaleDateString("en-CA", { timeZone: "America/Bogota" })}
+            value={formData.date}
+            onChange={e => setFormData(prev => ({ ...prev, date: e.target.value }))}
+          />
         </div>
         <div className="space-y-2">
-          <Label>Fecha Inicio *</Label>
-          <Input type="date" value={formData.date}
-            onChange={e => setFormData(prev => ({ ...prev, date: e.target.value }))} />
+          <Label className="flex items-center gap-2">
+            <Calendar className="w-4 h-4 text-[#78D1BD]" />
+            Fecha Final
+          </Label>
+          <Input
+            className="border-gray-300"
+            type="date"
+            min={new Date().toLocaleDateString("en-CA", { timeZone: "America/Bogota" })}
+            value={formData.date}
+            onChange={e => setFormData(prev => ({ ...prev, date: e.target.value }))}
+          />
         </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label>Fecha Final</Label>
-          <Input type="date" value={formData.fechaFinal}
-            onChange={e => setFormData(prev => ({ ...prev, fechaFinal: e.target.value }))} />
-        </div>
-        <div className="space-y-2">
-          <Label>Estado *</Label>
-          <Select value={formData.status} onValueChange={(v: any) => setFormData(prev => ({ ...prev, status: v }))}>
-            <SelectTrigger><SelectValue /></SelectTrigger>
+          <Label className="flex items-center gap-2">
+            <Clock className="w-4 h-4 text-[#78D1BD]" />
+            Hora Inicio
+          </Label>
+          <Select
+            value={formData.startTime || "placeholder"}
+            onValueChange={v => { if (v !== "placeholder") setFormData(prev => ({ ...prev, startTime: v })); }}
+          >
+            <SelectTrigger className="border-gray-300">
+              <SelectValue placeholder="Selecciona hora" />
+            </SelectTrigger>
             <SelectContent>
-              <SelectItem value="pendiente">Pendiente</SelectItem>
-              <SelectItem value="aprobada">Aprobada</SelectItem>
-              <SelectItem value="rechazada">Rechazada</SelectItem>
-              <SelectItem value="resuelta">Resuelta</SelectItem>
+              <SelectItem value="placeholder" disabled>Selecciona hora</SelectItem>
+              {TIME_SLOTS.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
             </SelectContent>
           </Select>
         </div>
-      </div>
-
-      <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label>Hora de Inicio</Label>
-          <Input type="time" value={formData.startTime}
-            onChange={e => setFormData(prev => ({ ...prev, startTime: e.target.value }))} />
-        </div>
-        <div className="space-y-2">
-          <Label>Hora Final</Label>
-          <Input type="time" value={formData.endTime}
-            onChange={e => setFormData(prev => ({ ...prev, endTime: e.target.value }))} />
+          <Label className="flex items-center gap-2">
+            <Clock className="w-4 h-4 text-[#78D1BD]" />
+            Hora Final
+          </Label>
+          <Select
+            value={formData.endTime || "placeholder"}
+            onValueChange={v => { if (v !== "placeholder") setFormData(prev => ({ ...prev, endTime: v })); }}
+          >
+            <SelectTrigger className="border-gray-300">
+              <SelectValue placeholder="Selecciona hora" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="placeholder" disabled>Selecciona hora</SelectItem>
+              {TIME_SLOTS.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
       <div className="space-y-2">
-        <Label>Descripción *</Label>
-        <Textarea rows={4} value={formData.description}
+        <Label className="flex items-center gap-2">
+          <FileText className="w-4 h-4 text-[#78D1BD]" />
+          Descripción *
+        </Label>
+        <Textarea
+          rows={4}
+          className="border-gray-300 resize-none"
+          value={formData.description}
           onChange={e => setFormData(prev => ({ ...prev, description: e.target.value }))}
-          placeholder="Describe la situación con el mayor detalle posible..." />
+          placeholder="Describe la situación con el mayor detalle posible..."
+        />
       </div>
 
       <div className="flex justify-end gap-3 pt-4 border-t">
         <Button variant="outline" onClick={onCancel}>Cancelar</Button>
-        <Button onClick={onSubmit}
-          className="bg-gradient-to-r from-[#78D1BD] to-[#5FBFAA] hover:from-[#6BCAB7] hover:to-[#4FB5A1] text-white">
+        <Button variant="default" onClick={onSubmit}>
           {editingNews ? "Actualizar" : "Crear"} Novedad
         </Button>
       </div>

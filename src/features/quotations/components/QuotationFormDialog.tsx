@@ -26,7 +26,7 @@ interface QuotationFormDialogProps {
 const inputBase: React.CSSProperties = {
   width: "100%", padding: "9px 14px", borderRadius: 10,
   backgroundColor: "#faf7f2", color: "#1a3a2a", fontSize: 14,
-  fontFamily: "sans-serif", outline: "none", boxSizing: "border-box",
+  fontFamily: "var(--font-body)", outline: "none", boxSizing: "border-box",
 };
 const inputOk:  React.CSSProperties = { ...inputBase, border: "1px solid #d6cfc4" };
 const inputErr: React.CSSProperties = { ...inputBase, border: "1px solid #c0392b", backgroundColor: "#fdf8f7" };
@@ -34,9 +34,9 @@ const inputErr: React.CSSProperties = { ...inputBase, border: "1px solid #c0392b
 const labelStyle: React.CSSProperties = {
   display: "block", fontSize: 11, fontWeight: 600,
   letterSpacing: "0.08em", textTransform: "uppercase",
-  color: "#6b7c6b", marginBottom: 5, fontFamily: "sans-serif",
+  color: "#6b7c6b", marginBottom: 5, fontFamily: "var(--font-body)",
 };
-const errorStyle: React.CSSProperties = { fontSize: 11, color: "#c0392b", marginTop: 3, fontFamily: "sans-serif" };
+const errorStyle: React.CSSProperties = { fontSize: 11, color: "#c0392b", marginTop: 3, fontFamily: "var(--font-body)" };
 
 type Errors = { clientId?: string; date?: string; services?: string; discount?: string };
 
@@ -86,7 +86,7 @@ export function QuotationFormDialog({
         <button onClick={onNewClick} style={{
           display: "inline-flex", alignItems: "center", gap: 8,
           padding: "10px 20px", borderRadius: 10, backgroundColor: "#1a3a2a",
-          color: "#ffffff", fontSize: 14, fontWeight: 600, fontFamily: "sans-serif",
+          color: "#ffffff", fontSize: 14, fontWeight: 600, fontFamily: "var(--font-body)",
           border: "none", cursor: "pointer",
         }}
           onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#2a5a40")}
@@ -97,10 +97,10 @@ export function QuotationFormDialog({
 
       <DialogContent className="hl-form-dialog" style={{
         backgroundColor: "#faf7f2", borderRadius: 16, border: "1px solid #ede8e0",
-        padding: 32, maxWidth: 680, maxHeight: "90vh", overflowY: "auto", fontFamily: "sans-serif",
+        padding: 32, maxWidth: 680, maxHeight: "90vh", overflowY: "auto", fontFamily: "var(--font-body)",
       }}>
         <DialogHeader>
-          <DialogTitle style={{ fontFamily: "'Georgia', serif", fontSize: 22, color: "#1a3a2a", fontWeight: "normal" }}>
+          <DialogTitle style={{ fontFamily: "var(--font-display)", fontSize: 22, color: "#1a3a2a", fontWeight: "normal" }}>
             {editingQuotation ? "Editar Cotización" : "Nueva Cotización"}
           </DialogTitle>
           <DialogDescription style={{ color: "#6b7c6b", fontSize: 13 }}>
@@ -144,7 +144,7 @@ export function QuotationFormDialog({
 
           {/* Servicios */}
           <div style={{ padding: 16, borderRadius: 12, border: "1px solid #ede8e0", backgroundColor: "#f5f0e8" }}>
-            <p style={{ fontFamily: "'Georgia', serif", fontSize: 16, color: "#1a3a2a", marginBottom: 12 }}>
+            <p style={{ fontFamily: "var(--font-display)", fontSize: 16, color: "#1a3a2a", marginBottom: 12 }}>
               Servicios
             </p>
             <div>
@@ -227,7 +227,7 @@ export function QuotationFormDialog({
               onChange={e => setFormData({ ...formData, notes: e.target.value })}
               placeholder="Notas adicionales para el cliente..."
               rows={3}
-              style={{ ...inputOk, resize: "vertical", fontFamily: "sans-serif" }} />
+              style={{ ...inputOk, resize: "vertical", fontFamily: "var(--font-body)" }} />
           </div>
 
           {/* Botones */}
@@ -235,12 +235,12 @@ export function QuotationFormDialog({
             <button onClick={handleCancel} style={{
               padding: "9px 18px", borderRadius: 10, border: "1px solid #d6cfc4",
               backgroundColor: "transparent", color: "#1a3a2a", fontSize: 14,
-              fontFamily: "sans-serif", cursor: "pointer",
+              fontFamily: "var(--font-body)", cursor: "pointer",
             }}>Cancelar</button>
             <button onClick={handleSubmit} style={{
               padding: "9px 20px", borderRadius: 10, border: "none",
               backgroundColor: "#1a3a2a", color: "#ffffff", fontSize: 14,
-              fontWeight: 600, fontFamily: "sans-serif", cursor: "pointer",
+              fontWeight: 600, fontFamily: "var(--font-body)", cursor: "pointer",
             }}
               onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#2a5a40")}
               onMouseLeave={e => (e.currentTarget.style.backgroundColor = "#1a3a2a")}>

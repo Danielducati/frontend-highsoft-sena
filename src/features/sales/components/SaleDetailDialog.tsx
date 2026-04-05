@@ -10,7 +10,7 @@ interface SaleDetailDialogProps {
 const fieldLabel: React.CSSProperties = {
   fontSize: 11, fontWeight: 600, letterSpacing: "0.08em",
   textTransform: "uppercase", color: "#6b7c6b",
-  marginBottom: 3, fontFamily: "sans-serif",
+  marginBottom: 3, fontFamily: "var(--font-body)",
 };
 
 export function SaleDetailDialog({ sale, onClose }: SaleDetailDialogProps) {
@@ -19,10 +19,10 @@ export function SaleDetailDialog({ sale, onClose }: SaleDetailDialogProps) {
     <Dialog open={!!sale} onOpenChange={onClose}>
       <DialogContent style={{
         backgroundColor: "#faf7f2", borderRadius: 16, border: "1px solid #ede8e0",
-        padding: 32, maxWidth: 500, fontFamily: "sans-serif",
+        padding: 32, maxWidth: 500, fontFamily: "var(--font-body)",
       }}>
         <DialogHeader>
-          <DialogTitle style={{ fontFamily: "'Georgia', serif", fontSize: 22, color: "#1a3a2a", fontWeight: "normal" }}>
+          <DialogTitle style={{ fontFamily: "var(--font-display)", fontSize: 22, color: "#1a3a2a", fontWeight: "normal" }}>
             Detalle de Venta
           </DialogTitle>
           <DialogDescription style={{ color: "#6b7c6b", fontSize: 13 }}>
@@ -70,8 +70,8 @@ export function SaleDetailDialog({ sale, onClose }: SaleDetailDialogProps) {
               display: "flex", justifyContent: "space-between", alignItems: "center",
               borderTop: "1px solid #ede8e0", paddingTop: 12, marginTop: 4,
             }}>
-              <span style={{ color: "#1a3a2a", fontSize: 16, fontFamily: "'Georgia', serif" }}>Total</span>
-              <span style={{ color: "#1a3a2a", fontSize: 24, fontWeight: 700, fontFamily: "'Georgia', serif" }}>
+              <span style={{ color: "#1a3a2a", fontSize: 16, fontFamily: "var(--font-display)" }}>Total</span>
+              <span style={{ color: "#1a3a2a", fontSize: 24, fontWeight: 700, fontFamily: "var(--font-display)" }}>
                 ${(sale.Total || 0).toLocaleString("es-CO")}
               </span>
             </div>
@@ -82,7 +82,7 @@ export function SaleDetailDialog({ sale, onClose }: SaleDetailDialogProps) {
             <button onClick={onClose} style={{
               padding: "9px 20px", borderRadius: 10, border: "1px solid #d6cfc4",
               backgroundColor: "transparent", color: "#1a3a2a", fontSize: 14,
-              fontFamily: "sans-serif", cursor: "pointer",
+              fontFamily: "var(--font-body)", cursor: "pointer",
             }}>Cerrar</button>
           </div>
         </div>
