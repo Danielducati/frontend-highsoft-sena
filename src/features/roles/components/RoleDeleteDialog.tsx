@@ -1,9 +1,10 @@
+// src/features/roles/components/RoleDeleteDialog.tsx
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "../../../shared/ui/alert-dialog";
 import { AlertCircle } from "lucide-react";
 
 interface Props {
-  open:     boolean;
-  onClose:  () => void;
+  open:      boolean;
+  onClose:   () => void;
   onConfirm: () => void;
 }
 

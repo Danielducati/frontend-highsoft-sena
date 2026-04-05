@@ -2,7 +2,7 @@
 export interface Permission {
   id: string;
   nombre: string;
-  category?: string; // opcional, se agrega en el hook
+  category?: string; 
 }
 
 export interface Role {

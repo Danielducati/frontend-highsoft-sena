@@ -10,7 +10,7 @@ import {
   toggleUserStatusApi, deleteUserApi,
 } from "../services/usersService";
 
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const EMAIL_RE   = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const digitsOnly = (v: string) => v.replace(/\D/g, "");
 
 export function useUsers() {
@@ -56,45 +56,45 @@ export function useUsers() {
 
   // ── CRUD ──────────────────────────────────────────────────────────────────
   const handleCreateOrUpdate = async () => {
-    const firstName = formData.firstName.trim();
-    const lastName = formData.lastName.trim();
-    const email = formData.email.trim().toLowerCase();
-    const phone = formData.phone.trim();
+    const firstName    = formData.firstName.trim();
+    const lastName     = formData.lastName.trim();
+    const email        = formData.email.trim().toLowerCase();
+    const phone        = formData.phone.trim();
     const documentType = formData.documentType.trim();
-    const document = formData.document.trim();
-    const roleId = formData.roleId.trim();
+    const document     = formData.document.trim();
+    const roleId       = formData.roleId.trim();
 
-    if (!firstName || !lastName || !email || !roleId) {
-      toast.error("Por favor completa todos los campos requeridos");
+    // ── Validaciones frontend ──────────────────────────────
+    if (!firstName || firstName.length < 2) {
+      toast.error("El nombre debe tener al menos 2 caracteres");
       return;
     }
-
-    if (!EMAIL_RE.test(email)) {
+    if (!lastName || lastName.length < 2) {
+      toast.error("El apellido debe tener al menos 2 caracteres");
+      return;
+    }
+    if (!email || !EMAIL_RE.test(email)) {
       toast.error("Ingresa un correo válido");
       return;
     }
-
+    if (!roleId) {
+      toast.error("Selecciona un rol");
+      return;
+    }
     if ((documentType && !document) || (!documentType && document)) {
       toast.error("Completa tipo y número de documento");
       return;
     }
-
-    if (document) {
-      const docDigits = digitsOnly(document);
-      if (docDigits.length < 5) {
-        toast.error("Ingresa un número de documento válido");
-        return;
-      }
+    if (document && digitsOnly(document).length < 5) {
+      toast.error("Ingresa un número de documento válido (mínimo 5 dígitos)");
+      return;
+    }
+    if (phone && digitsOnly(phone).length < 7) {
+      toast.error("Ingresa un teléfono válido (mínimo 7 dígitos)");
+      return;
     }
 
-    if (phone) {
-      const phoneDigits = digitsOnly(phone);
-      if (phoneDigits.length < 7) {
-        toast.error("Ingresa un teléfono válido (mínimo 7 dígitos)");
-        return;
-      }
-    }
-
+    // ── Verificar email duplicado ──────────────────────────
     const existingEmail = users.find(u =>
       u.email?.toLowerCase() === email && (!editingUser || u.id !== editingUser.id)
     );
@@ -103,8 +103,8 @@ export function useUsers() {
       return;
     }
 
-    // Buscar el nombre del rol a partir del id seleccionado
-    const selectedRole = roles.find(r => r.id === parseInt(roleId));
+    // ── Buscar nombre del rol ──────────────────────────────
+    const selectedRole = roles.find(r => String(r.id) === roleId);
     if (!selectedRole) {
       toast.error("El rol seleccionado no es válido");
       return;
@@ -117,7 +117,7 @@ export function useUsers() {
       document: document ? digitsOnly(document) : "",
       email,
       phone,
-      role:         selectedRole.Nombre, // ← nombre del rol, no el id
+      role: selectedRole.nombre, // ← nombre en minúscula
     };
 
     try {
@@ -174,7 +174,7 @@ export function useUsers() {
       document:     user.document     || "",
       email:        user.email,
       phone:        user.phone,
-      roleId:       user.roleId?.toString() || "",
+      roleId:       String(user.roleId ?? user.rolId ?? ""),
       image:        "",
     });
     setImagePreview(user.photo || "");
@@ -212,8 +212,8 @@ export function useUsers() {
 
   // ── Filtros / paginación ──────────────────────────────────────────────────
   const filteredUsers = users.filter(u => {
-    const matchSearch = u.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                        u.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    const matchSearch = u.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                        u.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                         u.phone?.includes(searchTerm);
     const matchRole   = filterRole   === "all" || u.role === filterRole;
     const matchStatus = filterStatus === "all" ||

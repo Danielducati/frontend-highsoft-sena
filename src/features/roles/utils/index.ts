@@ -1,3 +1,4 @@
+// src/features/roles/utils/index.ts
 import { Permission } from "../types";
 
 export function groupPermissionsByCategory(permissions: Permission[]): Record<string, Permission[]> {

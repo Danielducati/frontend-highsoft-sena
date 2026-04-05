@@ -11,6 +11,11 @@ import { ImageWithFallback } from "../../guidelines/figma/ImageWithFallback";
 import { User, Role, UserFormData } from "../types";
 import { DOCUMENT_TYPES, DEFAULT_PASSWORD } from "../constants";
 
+// ── Helpers de validación ─────────────────────────────────────
+const onlyLetters = (v: string) => v.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]/g, "");
+const onlyNumbers = (v: string) => v.replace(/\D/g, "");
+const onlyPhone   = (v: string) => v.replace(/[^0-9+\-\s]/g, "");
+
 interface UserFormDialogProps {
   isOpen:        boolean;
   onOpenChange:  (v: boolean) => void;
@@ -36,13 +41,11 @@ export function UserFormDialog({
       <DialogContent className="hl-form-dialog rounded-xl max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{editingUser ? "Editar Usuario" : "Nuevo Usuario"}</DialogTitle>
-          <DialogDescription>
-            {editingUser ? "Actualiza la información" : "Crea un nuevo usuario en el sistema"}
-          </DialogDescription>
+          <DialogDescription>{editingUser ? "Actualiza la información" : "Crea un nuevo usuario en el sistema"}</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 mt-2">
-          {/* Avatar + upload */}
+          {/* Avatar */}
           <div className="flex items-center gap-4">
             <div className="relative">
               <Avatar className="w-16 h-16 ring-2 ring-gray-200">
@@ -67,13 +70,13 @@ export function UserFormDialog({
             </div>
           </div>
 
-          {/* Nombre / Apellido */}
+          {/* Nombre / Apellido — solo letras */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Nombre *</Label>
               <Input
                 value={formData.firstName}
-                onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                onChange={(e) => setFormData({ ...formData, firstName: onlyLetters(e.target.value) })}
                 placeholder="Juan"
                 className="rounded-lg border-gray-200"
               />
@@ -82,28 +85,21 @@ export function UserFormDialog({
               <Label>Apellido *</Label>
               <Input
                 value={formData.lastName}
-                onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                onChange={(e) => setFormData({ ...formData, lastName: onlyLetters(e.target.value) })}
                 placeholder="Pérez"
                 className="rounded-lg border-gray-200"
               />
             </div>
           </div>
 
-          {/* Documento */}
+          {/* Documento — solo números */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Tipo de Documento</Label>
-              <Select
-                value={formData.documentType}
-                onValueChange={(v) => setFormData({ ...formData, documentType: v })}
-              >
-                <SelectTrigger className="rounded-lg border-gray-200">
-                  <SelectValue placeholder="Seleccionar" />
-                </SelectTrigger>
+              <Select value={formData.documentType} onValueChange={(v) => setFormData({ ...formData, documentType: v })}>
+                <SelectTrigger className="rounded-lg border-gray-200"><SelectValue placeholder="Seleccionar" /></SelectTrigger>
                 <SelectContent>
-                  {DOCUMENT_TYPES.map(dt => (
-                    <SelectItem key={dt.value} value={dt.value}>{dt.label}</SelectItem>
-                  ))}
+                  {DOCUMENT_TYPES.map(dt => <SelectItem key={dt.value} value={dt.value}>{dt.label}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
@@ -111,9 +107,10 @@ export function UserFormDialog({
               <Label>Número de Documento</Label>
               <Input
                 value={formData.document}
-                onChange={(e) => setFormData({ ...formData, document: e.target.value })}
+                onChange={(e) => setFormData({ ...formData, document: onlyNumbers(e.target.value) })}
                 placeholder="1234567890"
                 className="rounded-lg border-gray-200"
+                maxLength={20}
               />
             </div>
           </div>
@@ -134,9 +131,10 @@ export function UserFormDialog({
               <Label>Teléfono</Label>
               <Input
                 value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                onChange={(e) => setFormData({ ...formData, phone: onlyPhone(e.target.value) })}
                 placeholder="+57 300 123 4567"
                 className="rounded-lg border-gray-200"
+                maxLength={15}
               />
             </div>
           </div>
@@ -144,19 +142,12 @@ export function UserFormDialog({
           {/* Rol */}
           <div className="space-y-2">
             <Label>Rol *</Label>
-            <Select
-              value={formData.roleId}
-              onValueChange={(v) => setFormData({ ...formData, roleId: v })}
-            >
-              <SelectTrigger className="rounded-lg border-gray-200">
-                <SelectValue placeholder="Seleccionar rol" />
-              </SelectTrigger>
+            <Select value={formData.roleId} onValueChange={(v) => setFormData({ ...formData, roleId: v })}>
+              <SelectTrigger className="rounded-lg border-gray-200"><SelectValue placeholder="Seleccionar rol" /></SelectTrigger>
               <SelectContent>
                 {roles.map(r => (
                   r.id != null ? (
-                    <SelectItem key={r.id} value={r.id.toString()}>
-                      {r.Nombre}
-                    </SelectItem>
+                    <SelectItem key={String(r.id)} value={String(r.id)}>{r.nombre}</SelectItem>
                   ) : null
                 ))}
               </SelectContent>

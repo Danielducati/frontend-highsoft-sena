@@ -1,5 +1,4 @@
 // src/features/users/services/usersService.ts
-import React from "react";
 import { API_URL } from "../constants";
 import { User, Role } from "../types";
 
@@ -10,13 +9,13 @@ const authHeader = () => ({
 });
 
 export async function fetchUsersApi(): Promise<User[]> {
-  const res = await fetch(`${API_URL}/api/users`, { headers: authHeader() }); // ← /api/users
+  const res = await fetch(`${API_URL}/api/users`, { headers: authHeader() });
   if (!res.ok) throw new Error("Error al cargar usuarios");
   return res.json();
 }
 
 export async function fetchRolesApi(): Promise<Role[]> {
-  const res = await fetch(`${API_URL}/api/users/roles`, { headers: authHeader() }); // ← /api/users/roles + token
+  const res = await fetch(`${API_URL}/api/users/roles`, { headers: authHeader() });
   if (!res.ok) throw new Error("Error al cargar roles");
   return res.json();
 }
@@ -46,7 +45,7 @@ export async function updateUserApi(id: number, body: any): Promise<void> {
 }
 
 export async function toggleUserStatusApi(id: number, isActive: boolean): Promise<void> {
-  const res = await fetch(`${API_URL}/api/users/${id}/status`, { // ← /status no /estado
+  const res = await fetch(`${API_URL}/api/users/${id}/status`, {
     method:  "PATCH",
     headers: authHeader(),
     body:    JSON.stringify({ isActive }),
