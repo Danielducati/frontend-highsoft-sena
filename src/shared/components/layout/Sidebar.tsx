@@ -112,6 +112,7 @@ export function Sidebar({ activePage, onNavigate, onLogout, userRole }: SidebarP
   return (
     <aside
       className="w-64 flex flex-col h-screen fixed left-0 top-0"
+      // Color de fondo de la sidebar
       style={{ backgroundColor: " #f5f0e8", borderRight: "2px solid #e8e6e1" }}
     >
       {/* Logo Section */}
@@ -124,10 +125,10 @@ export function Sidebar({ activePage, onNavigate, onLogout, userRole }: SidebarP
             <Sparkles className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h2 className="tracking-tight leading-none" style={{ color: "#1a3a2a", fontFamily: "var(--font-display)" }}>
+            <h2 className="tracking-tight leading-none" style={{ color: " #1a3a2a", fontFamily: "var(--font-display)" }}>
               High Life Spa Peorrotes
             </h2>
-            <p className="text-[10px] tracking-[0.18em] mt-1" style={{ color: "#8a948b", fontFamily: "var(--font-body)" }}>
+            <p className="text-[10px] tracking-[0.18em] mt-1" style={{ color: " #8a948b", fontFamily: "var(--font-body)" }}>
               MANAGEMENT SUITE
             </p>
           </div>
@@ -148,7 +149,7 @@ export function Sidebar({ activePage, onNavigate, onLogout, userRole }: SidebarP
                 "w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 text-left",
                 isActive 
                   ? "text-white shadow-sm" 
-                  : "hover:bg-[#ece9e3]"
+                  : "hover:bg-[ #ece9e3]"
               )}
               style={
                 isActive

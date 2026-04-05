@@ -1,4 +1,3 @@
-import React from "react";
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "../../../shared/ui/alert-dialog";
 import { AlertCircle } from "lucide-react";
 
