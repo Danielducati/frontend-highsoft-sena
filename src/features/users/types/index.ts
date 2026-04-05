@@ -1,40 +1,39 @@
-import { Key } from "react";
-
+// src/features/users/types/index.ts
 export interface User {
-  photo: string;
-  document: string;
-  documentType: string;
-  id: number;
-  name: string;
-  email: string;
-  phone: string;
-  role: string;
-  roleId: number;
-  isActive: boolean;
-  tipo_documento: string;
-  numero_documento: string;
-  foto_perfil: string;
+  id:               number;
+  name:             string;
+  email:            string;
+  phone:            string;
+  role:             string;
+  roleId:           number;
+  rolId:            number;
+  isActive:         boolean;
+  firstName:        string;
+  lastName:         string;
+  documentType:     string;
+  document:         string;
+  specialty:        string;
+  photo:            string;
   assignedServices: string[];
-  createdAt: string;
-  lastLogin: string;
+  createdAt:        string;
+  lastLogin:        string;
 }
 
 export interface Role {
-  id: Key | null | undefined;
-  PK_id_rol: number;
-  Nombre: string;
-  Estado: string;
+  id:     number;
+  nombre: string;
+  estado: string;
 }
 
 export interface UserFormData {
-  firstName: string;
-  lastName: string;
+  firstName:    string;
+  lastName:     string;
   documentType: string;
-  document: string;
-  email: string;
-  phone: string;
-  roleId: string;
-  image: string;
+  document:     string;
+  email:        string;
+  phone:        string;
+  roleId:       string;
+  image:        string;
 }
 
 export interface UsersModuleProps {
