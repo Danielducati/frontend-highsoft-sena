@@ -123,7 +123,7 @@ export function NewsPage({ userRole }: NewsModuleProps) {
                   color: "#ffffff",
                   fontSize: 14,
                   fontWeight: 600,
-                  fontFamily: "sans-serif",
+                  fontFamily: "var(--font-body)",
                   border: "none",
                   cursor: "pointer",
                 }}

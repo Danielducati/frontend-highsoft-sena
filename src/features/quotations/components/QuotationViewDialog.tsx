@@ -18,7 +18,7 @@ function StatusBadge({ status }: { status: QuotationStatus }) {
     <span style={{
       display: "inline-flex", padding: "4px 14px", borderRadius: 999,
       fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em",
-      fontFamily: "sans-serif", ...(colors[status] ?? { backgroundColor: "#f3f4f6", color: "#6b7280" }),
+      fontFamily: "var(--font-body)", ...(colors[status] ?? { backgroundColor: "#f3f4f6", color: "#6b7280" }),
     }}>
       {STATUS_LABELS[status] ?? status}
     </span>
@@ -30,10 +30,10 @@ export function QuotationViewDialog({ quotation, onClose }: QuotationViewDialogP
     <Dialog open={!!quotation} onOpenChange={onClose}>
       <DialogContent style={{
         backgroundColor: "#faf7f2", borderRadius: 16, border: "1px solid #ede8e0",
-        padding: 32, maxWidth: 560, maxHeight: "90vh", overflowY: "auto", fontFamily: "sans-serif",
+        padding: 32, maxWidth: 560, maxHeight: "90vh", overflowY: "auto", fontFamily: "var(--font-body)",
       }}>
         <DialogHeader>
-          <DialogTitle style={{ fontFamily: "'Georgia', serif", fontSize: 22, color: "#1a3a2a", fontWeight: "normal" }}>
+          <DialogTitle style={{ fontFamily: "var(--font-display)", fontSize: 22, color: "#1a3a2a", fontWeight: "normal" }}>
             Cotización #{quotation?.id.toString().padStart(4, "0")}
           </DialogTitle>
           <DialogDescription style={{ color: "#6b7c6b", fontSize: 13 }}>
@@ -100,8 +100,8 @@ export function QuotationViewDialog({ quotation, onClose }: QuotationViewDialogP
                 display: "flex", justifyContent: "space-between", alignItems: "center",
                 borderTop: "1px solid #ede8e0", paddingTop: 10, marginTop: 4,
               }}>
-                <span style={{ color: "#1a3a2a", fontSize: 16, fontFamily: "'Georgia', serif" }}>Total</span>
-                <span style={{ color: "#1a3a2a", fontSize: 22, fontWeight: 700, fontFamily: "'Georgia', serif" }}>
+                <span style={{ color: "#1a3a2a", fontSize: 16, fontFamily: "var(--font-display)" }}>Total</span>
+                <span style={{ color: "#1a3a2a", fontSize: 22, fontWeight: 700, fontFamily: "var(--font-display)" }}>
                   ${(quotation.total || 0).toLocaleString("es-CO")}
                 </span>
               </div>
@@ -122,7 +122,7 @@ export function QuotationViewDialog({ quotation, onClose }: QuotationViewDialogP
               <button onClick={onClose} style={{
                 padding: "9px 20px", borderRadius: 10, border: "1px solid #d6cfc4",
                 backgroundColor: "transparent", color: "#1a3a2a", fontSize: 14,
-                fontFamily: "sans-serif", cursor: "pointer",
+                fontFamily: "var(--font-body)", cursor: "pointer",
               }}>Cerrar</button>
             </div>
           </div>

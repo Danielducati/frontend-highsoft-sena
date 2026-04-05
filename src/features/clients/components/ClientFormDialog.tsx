@@ -66,7 +66,7 @@ export function ClientFormDialog({
             display: "inline-flex", alignItems: "center", gap: 8,
             padding: "10px 20px", borderRadius: 10, backgroundColor: "#1a3a2a",
             color: "#ffffff", fontSize: 14, fontWeight: 600,
-            fontFamily: "sans-serif", border: "none", cursor: "pointer",
+            fontFamily: "var(--font-body)", border: "none", cursor: "pointer",
           }}
           onMouseEnter={e => e.currentTarget.style.backgroundColor = "#2a5a40"}
           onMouseLeave={e => e.currentTarget.style.backgroundColor = "#1a3a2a"}

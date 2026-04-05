@@ -23,7 +23,7 @@ export function PermissionRow({
   return (
     <div
       className="grid grid-cols-1 lg:grid-cols-12 gap-2 lg:gap-3 px-6 py-4 items-start lg:items-center"
-      style={{ fontFamily: "sans-serif" }}
+      style={{ fontFamily: "var(--font-body)" }}
       onMouseEnter={(e) => ((e.currentTarget as HTMLDivElement).style.backgroundColor = "#faf7f2")}
       onMouseLeave={(e) => ((e.currentTarget as HTMLDivElement).style.backgroundColor = "transparent")}
     >

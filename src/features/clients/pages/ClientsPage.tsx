@@ -51,7 +51,7 @@ export function ClientsPage({ userRole }: ClientsModuleProps) {
       <div className="space-y-4">
 
       {/* Filtros */}
-      <div className="flex flex-col sm:flex-row gap-3 mb-2" style={{ fontFamily: "sans-serif" }}>
+      <div className="flex flex-col sm:flex-row gap-3 mb-2" style={{ fontFamily: "var(--font-body)" }}>
         <div
           className="flex items-center gap-2 px-4 py-2 rounded-full border flex-1"
           style={{ backgroundColor: "#ffffff", borderColor: "#d6cfc4", maxWidth: 380 }}
@@ -66,7 +66,7 @@ export function ClientsPage({ userRole }: ClientsModuleProps) {
           />
         </div>
 
-        <div className="flex items-center gap-2" style={{ fontFamily: "sans-serif" }}>
+        <div className="flex items-center gap-2" style={{ fontFamily: "var(--font-body)" }}>
           <Filter className="w-4 h-4" style={{ color: "#6b7c6b" }} />
           <select
             value={filterStatus}
@@ -78,7 +78,7 @@ export function ClientsPage({ userRole }: ClientsModuleProps) {
               backgroundColor: "#ffffff",
               color: "#1a3a2a",
               fontSize: 13,
-              fontFamily: "sans-serif",
+              fontFamily: "var(--font-body)",
               outline: "none",
             }}
           >
@@ -91,7 +91,7 @@ export function ClientsPage({ userRole }: ClientsModuleProps) {
 
       {/* Tabla */}
       {filteredClients.length === 0 ? (
-        <div className="flex flex-col items-center py-16" style={{ fontFamily: "sans-serif" }}>
+        <div className="flex flex-col items-center py-16" style={{ fontFamily: "var(--font-body)" }}>
           <User className="w-10 h-10 mb-3" style={{ color: "#d6cfc4" }} />
           <p className="font-medium" style={{ color: "#1a3a2a" }}>No se encontraron clientes</p>
           <p className="text-sm mt-1" style={{ color: "#6b7c6b" }}>
@@ -100,7 +100,7 @@ export function ClientsPage({ userRole }: ClientsModuleProps) {
         </div>
       ) : (
         <div className="rounded-2xl overflow-hidden shadow-sm" style={{ backgroundColor: "#ffffff" }}>
-          <table className="w-full" style={{ fontFamily: "sans-serif" }}>
+          <table className="w-full" style={{ fontFamily: "var(--font-body)" }}>
             <thead>
               <tr style={{ borderBottom: "1px solid #ede8e0" }}>
                 {["NOMBRE", "CONTACTO", "SERVICIOS", "ESTADO", "ACCIONES"].map((col) => (
@@ -244,7 +244,7 @@ export function ClientsPage({ userRole }: ClientsModuleProps) {
 
       {/* Paginación */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-between mt-6 px-4" style={{ fontFamily: "sans-serif" }}>
+        <div className="flex items-center justify-between mt-6 px-4" style={{ fontFamily: "var(--font-body)" }}>
           <p className="text-sm" style={{ color: "#6b7c6b" }}>
             Mostrando {startIndex + 1}–{endIndex} de {filteredClients.length} clientes
           </p>

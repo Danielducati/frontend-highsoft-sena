@@ -53,7 +53,7 @@ export function SchedulesPage({ userRole }: SchedulesModuleProps) {
               fontWeight: 600,
               border: "none",
               cursor: "pointer",
-              fontFamily: "sans-serif",
+              fontFamily: "var(--font-body)",
             }}
             onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#2a5a40")}
             onMouseLeave={e => (e.currentTarget.style.backgroundColor = "#1a3a2a")}

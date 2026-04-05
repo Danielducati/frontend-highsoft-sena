@@ -66,3 +66,4 @@ export function NewsStatusDialog({ open, news, status, onStatusChange, onConfirm
     </AlertDialog>
   );
 }
+

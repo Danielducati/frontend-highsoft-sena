@@ -35,18 +35,18 @@ export function EmployeesPage({ userRole }: EmployeesModuleProps) {
   return (
     <div
       className="min-h-screen p-8"
-      style={{ backgroundColor: "#f5f0e8", fontFamily: "'Georgia', serif" }}
+      style={{ backgroundColor: "#f5f0e8", fontFamily: "var(--font-display)" }}
     >
       {/* ── Header ── */}
       <div className="flex justify-between items-start mb-8">
         <div>
           <h1
             className="text-4xl font-normal mb-1"
-            style={{ color: "#1a3a2a", fontFamily: "'Georgia', serif" }}
+            style={{ color: "#1a3a2a", fontFamily: "var(--font-display)" }}
           >
             Gestión de Empleados
           </h1>
-          <p className="text-sm" style={{ color: "#6b7c6b", fontFamily: "sans-serif" }}>
+          <p className="text-sm" style={{ color: "#6b7c6b", fontFamily: "var(--font-body)" }}>
             Administra el equipo de trabajo del spa
           </p>
         </div>
@@ -64,7 +64,7 @@ export function EmployeesPage({ userRole }: EmployeesModuleProps) {
               color: "#ffffff",
               fontSize: 14,
               fontWeight: 600,
-              fontFamily: "sans-serif",
+              fontFamily: "var(--font-body)",
               border: "none",
               cursor: "pointer",
               transition: "background 0.2s",
@@ -92,13 +92,13 @@ export function EmployeesPage({ userRole }: EmployeesModuleProps) {
           >
             <p
               className="text-xs uppercase tracking-widest mb-1"
-              style={{ color: "#6b7c6b", fontFamily: "sans-serif" }}
+              style={{ color: "#6b7c6b", fontFamily: "var(--font-body)" }}
             >
               {label}
             </p>
             <p
               className="text-3xl font-semibold"
-              style={{ color: "#1a3a2a", fontFamily: "'Georgia', serif" }}
+              style={{ color: "#1a3a2a", fontFamily: "var(--font-display)" }}
             >
               {value}
             </p>
@@ -109,7 +109,7 @@ export function EmployeesPage({ userRole }: EmployeesModuleProps) {
       {/* ── Filtros ── */}
       <div
         className="flex flex-col sm:flex-row gap-3 mb-6"
-        style={{ fontFamily: "sans-serif" }}
+        style={{ fontFamily: "var(--font-body)" }}
       >
         {/* Búsqueda */}
         <div
@@ -139,7 +139,7 @@ export function EmployeesPage({ userRole }: EmployeesModuleProps) {
               backgroundColor: "#ffffff",
               color: "#1a3a2a",
               fontSize: 13,
-              fontFamily: "sans-serif",
+              fontFamily: "var(--font-body)",
               outline: "none",
             }}
           >
@@ -157,7 +157,7 @@ export function EmployeesPage({ userRole }: EmployeesModuleProps) {
               backgroundColor: "#ffffff",
               color: "#1a3a2a",
               fontSize: 13,
-              fontFamily: "sans-serif",
+              fontFamily: "var(--font-body)",
               outline: "none",
             }}
           >
@@ -174,17 +174,17 @@ export function EmployeesPage({ userRole }: EmployeesModuleProps) {
         style={{ backgroundColor: "#ffffff" }}
       >
         {loading ? (
-          <p className="text-center py-12 text-sm" style={{ color: "#6b7c6b", fontFamily: "sans-serif" }}>
+          <p className="text-center py-12 text-sm" style={{ color: "#6b7c6b", fontFamily: "var(--font-body)" }}>
             Cargando empleados...
           </p>
         ) : paginatedEmployees.length === 0 ? (
-          <div className="flex flex-col items-center py-16" style={{ fontFamily: "sans-serif" }}>
+          <div className="flex flex-col items-center py-16" style={{ fontFamily: "var(--font-body)" }}>
             <Users className="w-10 h-10 mb-3" style={{ color: "#d6cfc4" }} />
             <p className="font-medium" style={{ color: "#1a3a2a" }}>No se encontraron empleados</p>
             <p className="text-sm mt-1" style={{ color: "#6b7c6b" }}>Intenta ajustar los filtros de búsqueda</p>
           </div>
         ) : (
-          <table className="w-full" style={{ fontFamily: "sans-serif" }}>
+          <table className="w-full" style={{ fontFamily: "var(--font-body)" }}>
             <thead>
               <tr style={{ borderBottom: "1px solid #ede8e0" }}>
                 {["NOMBRE DEL EMPLEADO", "ESPECIALIDAD", "CONTACTO", "ESTADO", ...(userRole === "admin" ? ["ACCIONES"] : [])].map(col => (
@@ -338,7 +338,7 @@ export function EmployeesPage({ userRole }: EmployeesModuleProps) {
       {totalPages > 1 && (
         <div
           className="flex items-center justify-between mt-6 px-4"
-          style={{ fontFamily: "sans-serif" }}
+          style={{ fontFamily: "var(--font-body)" }}
         >
           <p className="text-sm" style={{ color: "#6b7c6b" }}>
             Mostrando {(currentPage - 1) * ITEMS_PER_PAGE + 1}–{Math.min(currentPage * ITEMS_PER_PAGE, filteredEmployees.length)} de {filteredEmployees.length} empleados

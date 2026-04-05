@@ -15,7 +15,7 @@ export function StatCard({ title, value, change, icon: Icon, color, periodLabel 
   return (
     <Card
       className="rounded-2xl shadow-sm border-gray-200 bg-white hover:shadow-md transition-all duration-300"
-      style={{ fontFamily: "'Georgia', serif" }}
+      style={{ fontFamily: "var(--font-display)" }}
     >
       <CardContent className="p-5">
         <div className="flex items-start justify-between mb-3">
@@ -29,14 +29,14 @@ export function StatCard({ title, value, change, icon: Icon, color, periodLabel 
         <div className="space-y-1">
           <p
             className="text-xs uppercase tracking-widest mb-2"
-            style={{ color: "#6b7c6b", fontFamily: "sans-serif" }}
+            style={{ color: "#6b7c6b", fontFamily: "var(--font-body)" }}
           >
             {title}
           </p>
           <p className="text-3xl font-semibold" style={{ color: "#1a3a2a" }}>
             {value}
           </p>
-          <p className="text-sm" style={{ color: "#6b7c6b", fontFamily: "sans-serif" }}>
+          <p className="text-sm" style={{ color: "#6b7c6b", fontFamily: "var(--font-body)" }}>
             {periodLabel}
           </p>
         </div>
