@@ -25,7 +25,7 @@ interface SaleFormProps {
 const inputStyle: React.CSSProperties = {
   width: "100%", padding: "9px 14px", borderRadius: 10,
   border: "1px solid #d6cfc4", backgroundColor: "#faf7f2",
-  color: "#1a3a2a", fontSize: 14, fontFamily: "sans-serif",
+  color: "#1a3a2a", fontSize: 14, fontFamily: "var(--font-body)",
   outline: "none", boxSizing: "border-box",
 };
 
@@ -36,11 +36,11 @@ const inputErr: React.CSSProperties = {
 const labelStyle: React.CSSProperties = {
   display: "block", fontSize: 11, fontWeight: 600,
   letterSpacing: "0.08em", textTransform: "uppercase",
-  color: "#6b7c6b", marginBottom: 5, fontFamily: "sans-serif",
+  color: "#6b7c6b", marginBottom: 5, fontFamily: "var(--font-body)",
 };
 
 const errorStyle: React.CSSProperties = {
-  fontSize: 11, color: "#c0392b", marginTop: 3, fontFamily: "sans-serif",
+  fontSize: 11, color: "#c0392b", marginTop: 3, fontFamily: "var(--font-body)",
 };
 
 type Errors = { client?: string; services?: string; payment?: string; appointment?: string };
@@ -89,7 +89,7 @@ export function SaleForm({
   // Tab style helper
   const tabBtn = (active: boolean): React.CSSProperties => ({
     flex: 1, padding: "8px 16px", borderRadius: 8, border: "none",
-    fontSize: 13, fontWeight: 600, fontFamily: "sans-serif", cursor: "pointer",
+    fontSize: 13, fontWeight: 600, fontFamily: "var(--font-body)", cursor: "pointer",
     transition: "all 0.15s",
     ...(active
       ? { backgroundColor: "#1a3a2a", color: "#ffffff" }
@@ -227,13 +227,13 @@ export function SaleForm({
         <button onClick={onCancel} style={{
           padding: "9px 18px", borderRadius: 10, border: "1px solid #d6cfc4",
           backgroundColor: "transparent", color: "#1a3a2a", fontSize: 14,
-          fontFamily: "sans-serif", cursor: "pointer",
+          fontFamily: "var(--font-body)", cursor: "pointer",
         }}>Cancelar</button>
         <button onClick={handleSubmit} disabled={saving} style={{
           padding: "9px 20px", borderRadius: 10, border: "none",
           backgroundColor: saving ? "#9ca3af" : "#1a3a2a",
           color: "#ffffff", fontSize: 14, fontWeight: 600,
-          fontFamily: "sans-serif", cursor: saving ? "not-allowed" : "pointer",
+          fontFamily: "var(--font-body)", cursor: saving ? "not-allowed" : "pointer",
           display: "flex", alignItems: "center", gap: 8,
         }}
           onMouseEnter={e => { if (!saving) e.currentTarget.style.backgroundColor = "#2a5a40"; }}
@@ -257,11 +257,11 @@ function PaymentFields({ formData, setFormData, error, onBlur }: {
   const inputStyle: React.CSSProperties = {
     width: "100%", padding: "9px 14px", borderRadius: 10, border: "1px solid #d6cfc4",
     backgroundColor: "#faf7f2", color: "#1a3a2a", fontSize: 14,
-    fontFamily: "sans-serif", outline: "none", boxSizing: "border-box",
+    fontFamily: "var(--font-body)", outline: "none", boxSizing: "border-box",
   };
   const labelStyle: React.CSSProperties = {
     display: "block", fontSize: 11, fontWeight: 600, letterSpacing: "0.08em",
-    textTransform: "uppercase", color: "#6b7c6b", marginBottom: 5, fontFamily: "sans-serif",
+    textTransform: "uppercase", color: "#6b7c6b", marginBottom: 5, fontFamily: "var(--font-body)",
   };
   return (
     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
@@ -280,7 +280,7 @@ function PaymentFields({ formData, setFormData, error, onBlur }: {
           <option value="">Seleccionar método</option>
           {PAYMENT_METHODS.map(m => <option key={m} value={m}>{m}</option>)}
         </select>
-        {error && <p style={{ fontSize: 11, color: "#c0392b", marginTop: 3, fontFamily: "sans-serif" }}>⚠ {error}</p>}
+        {error && <p style={{ fontSize: 11, color: "#c0392b", marginTop: 3, fontFamily: "var(--font-body)" }}>⚠ {error}</p>}
       </div>
     </div>
   );
@@ -292,18 +292,18 @@ function Totals({ items, discount }: { items: SaleItem[]; discount: string }) {
   return (
     <div style={{ padding: "14px 16px", borderRadius: 12, backgroundColor: "#f0ebe3", display: "flex", flexDirection: "column", gap: 8 }}>
       <div style={{ display: "flex", justifyContent: "space-between" }}>
-        <span style={{ color: "#6b7c6b", fontSize: 14, fontFamily: "sans-serif" }}>Subtotal</span>
-        <span style={{ color: "#1a3a2a", fontSize: 14, fontFamily: "sans-serif" }}>${subtotal.toLocaleString("es-CO")}</span>
+        <span style={{ color: "#6b7c6b", fontSize: 14, fontFamily: "var(--font-body)" }}>Subtotal</span>
+        <span style={{ color: "#1a3a2a", fontSize: 14, fontFamily: "var(--font-body)" }}>${subtotal.toLocaleString("es-CO")}</span>
       </div>
       {desc > 0 && (
         <div style={{ display: "flex", justifyContent: "space-between" }}>
-          <span style={{ color: "#1a5c3a", fontSize: 14, fontFamily: "sans-serif" }}>Descuento</span>
-          <span style={{ color: "#1a5c3a", fontSize: 14, fontFamily: "sans-serif" }}>-${desc.toLocaleString("es-CO")}</span>
+          <span style={{ color: "#1a5c3a", fontSize: 14, fontFamily: "var(--font-body)" }}>Descuento</span>
+          <span style={{ color: "#1a5c3a", fontSize: 14, fontFamily: "var(--font-body)" }}>-${desc.toLocaleString("es-CO")}</span>
         </div>
       )}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid #d6cfc4", paddingTop: 10 }}>
-        <span style={{ color: "#1a3a2a", fontSize: 15, fontFamily: "'Georgia', serif" }}>Total</span>
-        <span style={{ color: "#1a3a2a", fontSize: 20, fontWeight: 700, fontFamily: "'Georgia', serif" }}>
+        <span style={{ color: "#1a3a2a", fontSize: 15, fontFamily: "var(--font-display)" }}>Total</span>
+        <span style={{ color: "#1a3a2a", fontSize: 20, fontWeight: 700, fontFamily: "var(--font-display)" }}>
           ${calcTotal(items, discount).toLocaleString("es-CO")}
         </span>
       </div>

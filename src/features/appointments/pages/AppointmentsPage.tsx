@@ -51,7 +51,7 @@ export function AppointmentsPage({ userRole }: AppointmentsModuleProps) {
       }
       icon={<CalendarIcon className="w-5 h-5 text-[#78D1BD]" />}
       action={
-        <div className="flex gap-2" style={{ fontFamily: "sans-serif" }}>
+        <div className="flex gap-2" style={{ fontFamily: "var(--font-body)" }}>
           <div className="flex rounded-lg border border-gray-200 bg-white p-1">
             {(["calendar", "list"] as const).map(mode => (
               <button key={mode} onClick={() => setViewMode(mode)}

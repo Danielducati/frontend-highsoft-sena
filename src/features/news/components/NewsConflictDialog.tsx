@@ -103,7 +103,7 @@ export function NewsConflictDialog({
                 disabled={!selectedEmployee}
                 style={{
                   flex: 1, padding: "6px 12px", borderRadius: 8,
-                  fontSize: 14, fontWeight: 600, fontFamily: "sans-serif",
+                  fontSize: 14, fontWeight: 600, fontFamily: "var(--font-body)",
                   color:           selectedEmployee ? "white"    : "#9ca3af",
                   backgroundColor: selectedEmployee ? "#78d1bd"  : "#e5e7eb",
                   cursor:          selectedEmployee ? "pointer"  : "not-allowed",
@@ -128,7 +128,7 @@ export function NewsConflictDialog({
               display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
               padding: "9px 16px", borderRadius: 10, border: "none",
               backgroundColor: "#f87171", color: "white",
-              fontSize: 14, fontWeight: 600, fontFamily: "sans-serif", cursor: "pointer",
+              fontSize: 14, fontWeight: 600, fontFamily: "var(--font-body)", cursor: "pointer",
               transition: "background-color 0.2s",
             }}
             onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#ef4444")}
@@ -146,7 +146,7 @@ export function NewsConflictDialog({
               padding: "9px 16px", borderRadius: 10,
               border: "1px solid #a78bfa", backgroundColor: "transparent",
               color: "#7c3aed", fontSize: 14, fontWeight: 600,
-              fontFamily: "sans-serif", cursor: "pointer", transition: "background-color 0.2s",
+              fontFamily: "var(--font-body)", cursor: "pointer", transition: "background-color 0.2s",
             }}
             onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#f5f3ff")}
             onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
@@ -163,7 +163,7 @@ export function NewsConflictDialog({
               padding: "9px 16px", borderRadius: 10,
               border: "1px solid #78d1bd", backgroundColor: "transparent",
               color: "#1a5c3a", fontSize: 14, fontWeight: 600,
-              fontFamily: "sans-serif", cursor: "pointer", transition: "background-color 0.2s",
+              fontFamily: "var(--font-body)", cursor: "pointer", transition: "background-color 0.2s",
             }}
             onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#edf7f4")}
             onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
@@ -179,7 +179,7 @@ export function NewsConflictDialog({
               display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
               padding: "8px", borderRadius: 8, border: "none",
               backgroundColor: "transparent", color: "#6b7c6b",
-              fontSize: 14, fontFamily: "sans-serif", cursor: "pointer",
+              fontSize: 14, fontFamily: "var(--font-body)", cursor: "pointer",
               transition: "color 0.15s",
             }}
             onMouseEnter={e => (e.currentTarget.style.color = "#1a3a2a")}

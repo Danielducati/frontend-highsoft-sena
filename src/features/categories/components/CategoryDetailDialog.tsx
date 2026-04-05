@@ -17,13 +17,13 @@ export function CategoryDetailDialog({ isOpen, onOpenChange, category }: Categor
           border: "1px solid #ede8e0",
           padding: 32,
           maxWidth: 440,
-          fontFamily: "sans-serif",
+          fontFamily: "var(--font-body)",
         }}
       >
         <DialogHeader>
           <DialogTitle
             style={{
-              fontFamily: "'Georgia', serif",
+              fontFamily: "var(--font-display)",
               fontSize: 22,
               color: "#1a3a2a",
               fontWeight: "normal",
@@ -159,7 +159,7 @@ export function CategoryDetailDialog({ isOpen, onOpenChange, category }: Categor
                   backgroundColor: "transparent",
                   color: "#1a3a2a",
                   fontSize: 14,
-                  fontFamily: "sans-serif",
+                  fontFamily: "var(--font-body)",
                   cursor: "pointer",
                 }}
               >

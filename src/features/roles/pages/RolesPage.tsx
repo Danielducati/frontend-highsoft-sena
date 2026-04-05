@@ -119,7 +119,7 @@ export function RolesPage({ userRole }: RolesModuleProps) {
               color: "#ffffff",
               fontSize: 14,
               fontWeight: 600,
-              fontFamily: "sans-serif",
+              fontFamily: "var(--font-body)",
               border: "none",
               cursor: "pointer",
             }}
@@ -135,7 +135,7 @@ export function RolesPage({ userRole }: RolesModuleProps) {
       <div className="space-y-4">
 
       {/* Search */}
-      <div className="flex flex-col sm:flex-row gap-3 mb-2" style={{ fontFamily: "sans-serif" }}>
+      <div className="flex flex-col sm:flex-row gap-3 mb-2" style={{ fontFamily: "var(--font-body)" }}>
         <div
           className="flex items-center gap-2 px-4 py-2 rounded-full border flex-1"
           style={{ backgroundColor: "#ffffff", borderColor: "#d6cfc4", maxWidth: 380 }}
@@ -152,11 +152,11 @@ export function RolesPage({ userRole }: RolesModuleProps) {
       </div>
 
       {loading ? (
-        <p className="text-center py-12 text-sm" style={{ color: "#6b7c6b", fontFamily: "sans-serif" }}>
+        <p className="text-center py-12 text-sm" style={{ color: "#6b7c6b", fontFamily: "var(--font-body)" }}>
           Cargando roles...
         </p>
       ) : filteredRoles.length === 0 ? (
-        <div className="flex flex-col items-center py-16" style={{ fontFamily: "sans-serif" }}>
+        <div className="flex flex-col items-center py-16" style={{ fontFamily: "var(--font-body)" }}>
           <Shield className="w-10 h-10 mb-3" style={{ color: "#d6cfc4" }} />
           <p className="font-medium" style={{ color: "#1a3a2a" }}>No se encontraron roles</p>
           <p className="text-sm mt-1" style={{ color: "#6b7c6b" }}>
@@ -165,7 +165,7 @@ export function RolesPage({ userRole }: RolesModuleProps) {
         </div>
       ) : (
         <div className="rounded-2xl overflow-hidden shadow-sm" style={{ backgroundColor: "#ffffff" }}>
-          <table className="w-full" style={{ fontFamily: "sans-serif" }}>
+          <table className="w-full" style={{ fontFamily: "var(--font-body)" }}>
             <thead>
               <tr style={{ borderBottom: "1px solid #ede8e0" }}>
                 {["ROL", "DESCRIPCIÓN", "PERMISOS", "ESTADO", "ACCIONES"].map((col) => (

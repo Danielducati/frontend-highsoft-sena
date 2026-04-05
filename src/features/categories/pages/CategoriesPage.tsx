@@ -50,18 +50,18 @@ export function CategoriesPage({ userRole }: CategoriesModuleProps) {
   return (
     <div
       className="min-h-screen p-8"
-      style={{ backgroundColor: "#f5f0e8", fontFamily: "'Georgia', serif" }}
+      style={{ backgroundColor: "#f5f0e8", fontFamily: "var(--font-display)" }}
     >
       {/* ── Header ── */}
       <div className="flex justify-between items-start mb-8">
         <div>
           <h1
             className="text-4xl font-normal mb-1"
-            style={{ color: "#1a3a2a", fontFamily: "'Georgia', serif" }}
+            style={{ color: "#1a3a2a", fontFamily: "var(--font-display)" }}
           >
             Categorías de Servicios
           </h1>
-          <p className="text-sm" style={{ color: "#6b7c6b", fontFamily: "sans-serif" }}>
+          <p className="text-sm" style={{ color: "#6b7c6b", fontFamily: "var(--font-body)" }}>
             Organiza y clasifica tus servicios
           </p>
         </div>
@@ -93,13 +93,13 @@ export function CategoriesPage({ userRole }: CategoriesModuleProps) {
             <CardContent className="pt-5 pb-5">
               <p
                 className="text-xs uppercase tracking-widest mb-1"
-                style={{ color: "#6b7c6b", fontFamily: "sans-serif" }}
+                style={{ color: "#6b7c6b", fontFamily: "var(--font-body)" }}
               >
                 {label}
               </p>
               <p
                 className="text-3xl font-semibold"
-                style={{ color: "#1a3a2a", fontFamily: "'Georgia', serif" }}
+                style={{ color: "#1a3a2a", fontFamily: "var(--font-display)" }}
               >
                 {value}
               </p>
@@ -117,7 +117,7 @@ export function CategoriesPage({ userRole }: CategoriesModuleProps) {
             borderColor: "#d6cfc4",
             maxWidth: 320,
             flex: 1,
-            fontFamily: "sans-serif",
+            fontFamily: "var(--font-body)",
           }}
         >
           <Search className="w-4 h-4" style={{ color: "#6b7c6b" }} />
@@ -139,19 +139,19 @@ export function CategoriesPage({ userRole }: CategoriesModuleProps) {
         {loading ? (
           <p
             className="text-center py-12 text-sm"
-            style={{ color: "#6b7c6b", fontFamily: "sans-serif" }}
+            style={{ color: "#6b7c6b", fontFamily: "var(--font-body)" }}
           >
             Cargando categorías...
           </p>
         ) : paginated.length === 0 ? (
           <p
             className="text-center py-12 text-sm"
-            style={{ color: "#6b7c6b", fontFamily: "sans-serif" }}
+            style={{ color: "#6b7c6b", fontFamily: "var(--font-body)" }}
           >
             No hay categorías registradas
           </p>
         ) : (
-          <table className="w-full" style={{ fontFamily: "sans-serif" }}>
+          <table className="w-full" style={{ fontFamily: "var(--font-body)" }}>
             <thead>
               <tr style={{ borderBottom: "1px solid #ede8e0" }}>
                 {[
@@ -307,7 +307,7 @@ export function CategoriesPage({ userRole }: CategoriesModuleProps) {
       {totalPages > 1 && (
         <div
           className="flex items-center justify-between mt-6 px-4"
-          style={{ fontFamily: "sans-serif" }}
+          style={{ fontFamily: "var(--font-body)" }}
         >
           <p className="text-sm" style={{ color: "#6b7c6b" }}>
             Mostrando {startIndex + 1}–{Math.min(startIndex + ITEMS_PER_PAGE, filtered.length)} de{" "}

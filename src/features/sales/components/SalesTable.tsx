@@ -18,13 +18,13 @@ const METHOD_COLORS: Record<string, React.CSSProperties> = {
 
 export function SalesTable({ sales, loading, onView }: SalesTableProps) {
   if (loading) return (
-    <p className="text-center py-12 text-sm" style={{ color: "#6b7c6b", fontFamily: "sans-serif" }}>
+    <p className="text-center py-12 text-sm" style={{ color: "#6b7c6b", fontFamily: "var(--font-body)" }}>
       Cargando ventas...
     </p>
   );
 
   if (sales.length === 0) return (
-    <div className="flex flex-col items-center py-16" style={{ fontFamily: "sans-serif" }}>
+    <div className="flex flex-col items-center py-16" style={{ fontFamily: "var(--font-body)" }}>
       <ShoppingCart className="w-10 h-10 mb-3" style={{ color: "#d6cfc4" }} />
       <p className="font-medium" style={{ color: "#1a3a2a" }}>No se encontraron ventas</p>
       <p className="text-sm mt-1" style={{ color: "#6b7c6b" }}>Intenta ajustar los filtros de búsqueda</p>
@@ -33,7 +33,7 @@ export function SalesTable({ sales, loading, onView }: SalesTableProps) {
 
   return (
     <div className="rounded-2xl overflow-hidden shadow-sm" style={{ backgroundColor: "#ffffff" }}>
-      <table className="w-full" style={{ fontFamily: "sans-serif" }}>
+      <table className="w-full" style={{ fontFamily: "var(--font-body)" }}>
         <thead>
           <tr style={{ borderBottom: "1px solid #ede8e0" }}>
             {["N°", "CLIENTE", "SERVICIO", "MÉTODO DE PAGO", "TOTAL", "FECHA", "ACCIONES"].map(col => (

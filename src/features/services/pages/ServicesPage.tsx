@@ -86,13 +86,13 @@ export function ServicesPage({ userRole }: ServicesModuleProps) {
           >
             <p
               className="text-xs uppercase tracking-widest mb-1"
-              style={{ color: "#6b7c6b", fontFamily: "sans-serif" }}
+              style={{ color: "#6b7c6b", fontFamily: "var(--font-body)" }}
             >
               {label}
             </p>
             <p
               className="text-3xl font-semibold"
-              style={{ color: "#1a3a2a", fontFamily: "'Georgia', serif" }}
+              style={{ color: "#1a3a2a", fontFamily: "var(--font-display)" }}
             >
               {value}
             </p>
@@ -117,7 +117,7 @@ export function ServicesPage({ userRole }: ServicesModuleProps) {
           <select
             value={filterCategory}
             onChange={(e) => { setFilterCategory(e.target.value); setCurrentPage(1); }}
-            style={{ padding: "8px 14px", borderRadius: 10, border: "1px solid #d6cfc4", backgroundColor: "#ffffff", color: "#1a3a2a", fontSize: 13, fontFamily: "sans-serif", outline: "none" }}
+            style={{ padding: "8px 14px", borderRadius: 10, border: "1px solid #d6cfc4", backgroundColor: "#ffffff", color: "#1a3a2a", fontSize: 13, fontFamily: "var(--font-body)", outline: "none" }}
           >
             <option value="all">Todas las categorías</option>
             {categories.map((cat) => (
@@ -127,7 +127,7 @@ export function ServicesPage({ userRole }: ServicesModuleProps) {
           <select
             value={filterStatus}
             onChange={(e) => { setFilterStatus(e.target.value); setCurrentPage(1); }}
-            style={{ padding: "8px 14px", borderRadius: 10, border: "1px solid #d6cfc4", backgroundColor: "#ffffff", color: "#1a3a2a", fontSize: 13, fontFamily: "sans-serif", outline: "none" }}
+            style={{ padding: "8px 14px", borderRadius: 10, border: "1px solid #d6cfc4", backgroundColor: "#ffffff", color: "#1a3a2a", fontSize: 13, fontFamily: "var(--font-body)", outline: "none" }}
           >
             <option value="all">Todos</option>
             <option value="active">Activos</option>
@@ -138,11 +138,11 @@ export function ServicesPage({ userRole }: ServicesModuleProps) {
 
       {/* Lista */}
       {loading ? (
-        <p className="text-center py-12 text-sm" style={{ color: "#6b7c6b", fontFamily: "sans-serif" }}>
+        <p className="text-center py-12 text-sm" style={{ color: "#6b7c6b", fontFamily: "var(--font-body)" }}>
           Cargando servicios...
         </p>
       ) : filteredServices.length === 0 ? (
-        <div className="flex flex-col items-center py-16" style={{ fontFamily: "sans-serif" }}>
+        <div className="flex flex-col items-center py-16" style={{ fontFamily: "var(--font-body)" }}>
           <Wrench className="w-10 h-10 mb-3" style={{ color: "#d6cfc4" }} />
           <p className="font-medium" style={{ color: "#1a3a2a" }}>No se encontraron servicios</p>
           <p className="text-sm mt-1" style={{ color: "#6b7c6b" }}>

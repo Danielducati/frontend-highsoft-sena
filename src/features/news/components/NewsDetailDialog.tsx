@@ -80,3 +80,4 @@ export function NewsDetailDialog({ news, onClose }: NewsDetailDialogProps) {
     </Dialog>
   );
 }
+
