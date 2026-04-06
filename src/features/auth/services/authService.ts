@@ -33,21 +33,37 @@ export async function loginRequest(correo: string, contrasena: string) {
   return data;
 }
 
+// ✅ CORREGIDO: Recibe datos en inglés (del frontend) y mapea a los nombres que espera el backend
 export async function registerRequest(payload: {
-  correo: string;
-  contrasena: string;
-  nombre: string;
+  email: string;
+  password: string;
+  fullName: string;
   apellido: string;
-  telefono: string;
-  tipo_documento: string;
-  numero_documento: string;
+  phone?: string;
+  tipocedula?: string;
+  cedula?: string;
 }) {
+  // ✅ MAPEO: Convierte los nombres del frontend a los que espera el backend
+  const mappedPayload = {
+    email: payload.email,              // ← Backend espera "email"
+    password: payload.password,        // ← Backend espera "password"
+    fullName: payload.fullName,        // ← Backend espera "fullName"
+    apellido: payload.apellido,        // ← Backend espera "apellido"
+    phone: payload.phone,              // ← Backend espera "phone"
+    tipocedula: payload.tipocedula,    // ← Backend espera "tipocedula"
+    cedula: payload.cedula,            // ← Backend espera "cedula"
+  };
+
+  console.log("📤 Enviando al backend:", mappedPayload);
+
   const res = await fetch(`${API_URL}/auth/register`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
+    body: JSON.stringify(mappedPayload),
   });
   const data = await parseJsonSafe(res);
+
+  console.log("📥 Respuesta del servidor:", data);
 
   if (!res.ok) {
     const apiError =
@@ -61,4 +77,27 @@ export async function registerRequest(payload: {
   }
 
   return data;
+}
+
+export type UserRole = "admin" | "employee" | "client";
+
+export interface LoginPageProps {
+  onLogin: (role: UserRole) => void;
+  onBack: () => void;
+}
+
+export interface RegisterPageProps {
+  onBack: () => void;
+  onRegisterSuccess: () => void;
+}
+
+export interface RegisterFormData {
+  fullName: string;
+  apellido: string;
+  email: string;
+  phone: string;
+  tipocedula: string;
+  cedula: string;
+  password: string;
+  confirmPassword: string;
 }
