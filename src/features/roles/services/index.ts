@@ -17,20 +17,20 @@ export const rolesService = {
   },
 
   createRole: async (data: { nombre: string; descripcion: string; permisosIds: number[] }) => {
-  console.log("📤 Enviando:", data);
-  
-  const res = await fetch(`${API}/api/roles`, {
-    method:  "POST",
-    headers: authHeaders(),
-    body:    JSON.stringify(data),
-  });
-  
-  const json = await res.json();
-  console.log("📥 Respuesta:", res.status, json);
-  
-  if (!res.ok) throw new Error(json.error ?? "Error al crear el rol");
-  return json;
-},
+    console.log("📤 Enviando:", data);
+    
+    const res = await fetch(`${API}/api/roles`, {
+      method:  "POST",
+      headers: authHeaders(),
+      body:    JSON.stringify(data),
+    });
+    
+    const json = await res.json();
+    console.log("📥 Respuesta:", res.status, json);
+    
+    if (!res.ok) throw new Error(json.error ?? "Error al crear el rol");
+    return json;
+  },
 
   updateRole: async (id: number, data: { nombre: string; descripcion: string; permisosIds: number[] }) => {
     const res = await fetch(`${API}/api/roles/${id}`, {
@@ -50,5 +50,20 @@ export const rolesService = {
     const data = await res.json();
     if (!res.ok) throw new Error(data.error ?? "Error al eliminar");
     return data;
+  },
+
+  // Cambiar el estado (activo/inactivo) del rol usando PUT
+  toggleRoleStatus: async (id: number, isActive: boolean) => {
+    const estado = isActive ? "Activo" : "Inactivo";
+    const res = await fetch(`${API}/api/roles/${id}`, {
+      method:  "PUT",
+      headers: authHeaders(),
+      body:    JSON.stringify({ estado }),
+    });
+    if (!res.ok) {
+      const errorData = await res.json();
+      throw new Error(errorData.error ?? "Error al cambiar el estado del rol");
+    }
+    return res.json();
   },
 };

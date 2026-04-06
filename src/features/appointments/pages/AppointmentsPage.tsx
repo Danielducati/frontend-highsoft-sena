@@ -51,13 +51,13 @@ export function AppointmentsPage({ userRole }: AppointmentsModuleProps) {
       }
       icon={<CalendarIcon className="w-5 h-5 text-[#78D1BD]" />}
       action={
-        <div className="flex gap-2" style={{ fontFamily: "sans-serif" }}>
+        <div className="flex gap-2" style={{ fontFamily: "var(--font-body)" }}>
           <div className="flex rounded-lg border border-gray-200 bg-white p-1">
             {(["calendar", "list"] as const).map(mode => (
               <button key={mode} onClick={() => setViewMode(mode)}
                 className={`inline-flex items-center justify-center gap-1.5 rounded px-2.5 py-1 text-xs transition-all ${
                   viewMode === mode
-                    ? "bg-gradient-to-r from-[#78D1BD] to-[#5FBFAA] text-white shadow-sm"
+                    ? "bg-primary text-white"
                     : "text-gray-600 hover:text-gray-900"
                 }`}>
                 {mode === "calendar" ? <Calendar className="w-3.5 h-3.5" /> : <List className="w-3.5 h-3.5" />}

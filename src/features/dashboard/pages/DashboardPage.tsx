@@ -20,7 +20,7 @@ export function DashboardPage() {
       subtitle="Vista general del rendimiento del spa"
       icon={<Sparkles className="w-6 h-6 text-[#78D1BD]" />}
       action={
-        <div className="flex flex-wrap gap-3" style={{ fontFamily: "sans-serif" }}>
+        <div className="flex flex-wrap gap-3" style={{ fontFamily: "var(--font-body)" }}>
           <Select value={period} onValueChange={handleFilterChange}>
             <SelectTrigger className="w-44 rounded-lg border-gray-200 bg-white">
               <Filter className="w-4 h-4 mr-2 text-gray-500" />

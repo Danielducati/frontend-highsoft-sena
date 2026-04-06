@@ -1,3 +1,4 @@
+// src/features/dashboard/components/RevenueChart.tsx
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../../shared/ui/card";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
@@ -26,7 +27,8 @@ export function RevenueChart({ data, periodLabel }: RevenueChartProps) {
               <XAxis dataKey="name" stroke="#9CA3AF" style={{ fontSize: "12px" }} axisLine={false} tickLine={false} />
               <YAxis stroke="#9CA3AF" style={{ fontSize: "12px" }} axisLine={false} tickLine={false} />
               <Tooltip contentStyle={{ borderRadius: "0.75rem", border: "none", boxShadow: "0 4px 6px -1px rgba(0,0,0,0.1)" }} />
-              <Bar dataKey="revenue" fill="#78D1BD" name="Ingresos ($)" radius={[8, 8, 0, 0]} />
+              {/* Colores de las barras */}
+              <Bar dataKey="revenue" fill=" #1A3A2A" name="Ingresos ($)" radius={[8, 8, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         )}

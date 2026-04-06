@@ -68,7 +68,10 @@ export function NewsDetailDialog({ news, onClose }: NewsDetailDialogProps) {
             </div>
           </div>
           <div className="flex justify-end pt-4 border-t border-gray-200">
-            <Button onClick={onClose} className="bg-gradient-to-r from-[#78D1BD] to-[#5FBFAA] text-white">
+            <Button onClick={onClose}
+            variant="default" 
+            // className="bg-gradient-to-r from-[#78D1BD] to-[#5FBFAA] text-white"
+            >
               Cerrar
             </Button>
           </div>
@@ -77,3 +80,4 @@ export function NewsDetailDialog({ news, onClose }: NewsDetailDialogProps) {
     </Dialog>
   );
 }
+

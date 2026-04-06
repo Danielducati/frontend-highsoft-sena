@@ -145,8 +145,8 @@ export function SalesPage({ userRole }: SalesModuleProps) {
           }).reduce((sum, s) => sum + (s.Total || 0), 0).toLocaleString("es-CO")}` },
         ].map(({ label, value }) => (
           <div key={label} className="rounded-2xl shadow-sm p-5" style={{ backgroundColor: "#ffffff" }}>
-            <p className="text-xs uppercase tracking-widest mb-1" style={{ color: "#6b7c6b", fontFamily: "sans-serif" }}>{label}</p>
-            <p className="text-3xl font-semibold" style={{ color: "#1a3a2a", fontFamily: "'Georgia', serif" }}>{value}</p>
+            <p className="text-xs uppercase tracking-widest mb-1" style={{ color: "#6b7c6b", fontFamily: "var(--font-body)" }}>{label}</p>
+            <p className="text-3xl font-semibold" style={{ color: "#1a3a2a", fontFamily: "var(--font-display)" }}>{value}</p>
           </div>
         ))}
       </div>
@@ -166,7 +166,7 @@ export function SalesPage({ userRole }: SalesModuleProps) {
             style={{
               padding: "8px 14px", borderRadius: 10, border: "1px solid #d6cfc4",
               backgroundColor: "#ffffff", color: "#1a3a2a", fontSize: 13,
-              fontFamily: "sans-serif", outline: "none",
+              fontFamily: "var(--font-body)", outline: "none",
             }}>
             <option value="all">Todos los métodos</option>
             {PAYMENT_METHODS.map(m => <option key={m} value={m}>{m}</option>)}

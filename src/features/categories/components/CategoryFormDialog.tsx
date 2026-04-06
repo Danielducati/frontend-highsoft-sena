@@ -26,7 +26,7 @@ export function CategoryFormDialog({
     backgroundColor: "#faf7f2",
     color: "#1a3a2a",
     fontSize: 14,
-    fontFamily: "sans-serif",
+    fontFamily: "var(--font-body)",
     outline: "none",
   };
 
@@ -38,7 +38,7 @@ export function CategoryFormDialog({
     textTransform: "uppercase",
     color: "#6b7c6b",
     marginBottom: 6,
-    fontFamily: "sans-serif",
+    fontFamily: "var(--font-body)",
   };
 
   return (
@@ -56,7 +56,7 @@ export function CategoryFormDialog({
             color: "#ffffff",
             fontSize: 14,
             fontWeight: 600,
-            fontFamily: "sans-serif",
+            fontFamily: "var(--font-body)",
             border: "none",
             cursor: "pointer",
             transition: "background 0.2s",
@@ -77,13 +77,13 @@ export function CategoryFormDialog({
           border: "1px solid #ede8e0",
           padding: 32,
           maxWidth: 480,
-          fontFamily: "sans-serif",
+          fontFamily: "var(--font-body)",
         }}
       >
         <DialogHeader>
           <DialogTitle
             style={{
-              fontFamily: "'Georgia', serif",
+              fontFamily: "var(--font-display)",
               fontSize: 22,
               color: "#1a3a2a",
               fontWeight: "normal",
@@ -159,7 +159,7 @@ export function CategoryFormDialog({
                 backgroundColor: "transparent",
                 color: "#1a3a2a",
                 fontSize: 14,
-                fontFamily: "sans-serif",
+                fontFamily: "var(--font-body)",
                 cursor: "pointer",
               }}
             >
@@ -175,7 +175,7 @@ export function CategoryFormDialog({
                 color: "#ffffff",
                 fontSize: 14,
                 fontWeight: 600,
-                fontFamily: "sans-serif",
+                fontFamily: "var(--font-body)",
                 cursor: "pointer",
               }}
               onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#2a5a40")}

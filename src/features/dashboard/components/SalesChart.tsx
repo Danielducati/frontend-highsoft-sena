@@ -1,3 +1,4 @@
+// src/features/dashboard/components/SalesChart.tsx
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../../shared/ui/card";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
@@ -26,8 +27,11 @@ export function SalesChart({ data, periodLabel }: SalesChartProps) {
               <XAxis dataKey="month" stroke="#9CA3AF" style={{ fontSize: "12px" }} axisLine={false} tickLine={false} />
               <YAxis stroke="#9CA3AF" style={{ fontSize: "12px" }} axisLine={false} tickLine={false} />
               <Tooltip contentStyle={{ borderRadius: "0.75rem", border: "none", boxShadow: "0 4px 6px -1px rgba(0,0,0,0.1)" }} />
-              <Line type="monotone" dataKey="ventas" stroke="#78D1BD" strokeWidth={3} name="Ventas ($)"
-                dot={{ fill: "#78D1BD", strokeWidth: 2, r: 4 }} activeDot={{ r: 6 }} />
+              {/* Colores de las lineas */}
+              <Line type="monotone" dataKey="ventas" 
+              stroke=" #1A3A2A" strokeWidth={3} name="Ventas ($)"
+                dot={{ fill: " #1A3A2A", strokeWidth: 2, r: 4 }} 
+                activeDot={{ r: 6 }} />
             </LineChart>
           </ResponsiveContainer>
         )}

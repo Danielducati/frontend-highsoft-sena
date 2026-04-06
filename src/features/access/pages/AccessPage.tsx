@@ -56,7 +56,7 @@ export function AccessPage({ userRole }: AccessModuleProps) {
               color: "#ffffff",
               fontSize: 14,
               fontWeight: 600,
-              fontFamily: "sans-serif",
+              fontFamily: "var(--font-body)",
               border: "none",
               cursor: "pointer",
             }}
@@ -72,7 +72,7 @@ export function AccessPage({ userRole }: AccessModuleProps) {
       <div className="space-y-4">
 
       {/* Filtros */}
-      <div className="flex flex-col sm:flex-row gap-3 mb-2" style={{ fontFamily: "sans-serif" }}>
+      <div className="flex flex-col sm:flex-row gap-3 mb-2" style={{ fontFamily: "var(--font-body)" }}>
         <div
           className="flex items-center gap-2 px-4 py-2 rounded-full border flex-1"
           style={{ backgroundColor: "#ffffff", borderColor: "#d6cfc4", maxWidth: 380 }}
@@ -87,7 +87,7 @@ export function AccessPage({ userRole }: AccessModuleProps) {
           />
         </div>
 
-        <div className="flex items-center gap-2 flex-wrap" style={{ fontFamily: "sans-serif" }}>
+        <div className="flex items-center gap-2 flex-wrap" style={{ fontFamily: "var(--font-body)" }}>
           <Filter className="w-4 h-4" style={{ color: "#6b7c6b" }} />
           <select
             value={filterModule}
@@ -99,7 +99,7 @@ export function AccessPage({ userRole }: AccessModuleProps) {
               backgroundColor: "#ffffff",
               color: "#1a3a2a",
               fontSize: 13,
-              fontFamily: "sans-serif",
+              fontFamily: "var(--font-body)",
               outline: "none",
             }}
           >
@@ -119,7 +119,7 @@ export function AccessPage({ userRole }: AccessModuleProps) {
               backgroundColor: "#ffffff",
               color: "#1a3a2a",
               fontSize: 13,
-              fontFamily: "sans-serif",
+              fontFamily: "var(--font-body)",
               outline: "none",
             }}
           >
@@ -133,7 +133,7 @@ export function AccessPage({ userRole }: AccessModuleProps) {
 
       {/* Lista */}
       {filteredPermissions.length === 0 ? (
-        <div className="flex flex-col items-center py-16" style={{ fontFamily: "sans-serif" }}>
+        <div className="flex flex-col items-center py-16" style={{ fontFamily: "var(--font-body)" }}>
           <Key className="w-10 h-10 mb-3" style={{ color: "#d6cfc4" }} />
           <p className="font-medium" style={{ color: "#1a3a2a" }}>No se encontraron permisos</p>
           <p className="text-sm mt-1" style={{ color: "#6b7c6b" }}>
@@ -143,7 +143,7 @@ export function AccessPage({ userRole }: AccessModuleProps) {
       ) : (
         <div className="rounded-2xl overflow-hidden shadow-sm" style={{ backgroundColor: "#ffffff" }}>
           <div style={{ borderBottom: "1px solid #ede8e0" }}>
-            <div className="hidden lg:grid lg:grid-cols-12 gap-3 px-6 py-4 text-xs font-semibold tracking-widest" style={{ color: "#6b7c6b", fontFamily: "sans-serif" }}>
+            <div className="hidden lg:grid lg:grid-cols-12 gap-3 px-6 py-4 text-xs font-semibold tracking-widest" style={{ color: "#6b7c6b", fontFamily: "var(--font-body)" }}>
               <div className="col-span-3">PERMISO</div>
               <div className="col-span-4">DESCRIPCIÓN</div>
               <div className="col-span-2">MÓDULO</div>
@@ -187,3 +187,4 @@ export function AccessPage({ userRole }: AccessModuleProps) {
     </SpaPage>
   );
 }
+

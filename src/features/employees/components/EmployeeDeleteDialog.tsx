@@ -1,4 +1,3 @@
-import React from "react";
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "../../../shared/ui/alert-dialog";
 import { AlertCircle } from "lucide-react";
 
@@ -18,7 +17,7 @@ export function EmployeeDeleteDialog({ open, onOpenChange, onConfirm }: Employee
           border: "1px solid #ede8e0",
           padding: 32,
           maxWidth: 420,
-          fontFamily: "sans-serif",
+          fontFamily: "var(--font-body)",
         }}
       >
         <AlertDialogHeader>
@@ -27,7 +26,7 @@ export function EmployeeDeleteDialog({ open, onOpenChange, onConfirm }: Employee
               display: "flex",
               alignItems: "center",
               gap: 10,
-              fontFamily: "'Georgia', serif",
+              fontFamily: "var(--font-display)",
               fontSize: 20,
               color: "#1a3a2a",
               fontWeight: "normal",

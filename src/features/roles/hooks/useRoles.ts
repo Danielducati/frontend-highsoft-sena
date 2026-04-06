@@ -18,6 +18,7 @@ export function useRoles() {
   const fetchRoles = async () => {
     try {
       const data = await rolesService.getRoles();
+      // Cargar TODOS los roles (activos e inactivos)
       setRoles(data);
     } catch {
       toast.error("Error al cargar roles");
@@ -58,8 +59,20 @@ export function useRoles() {
     await fetchRoles();
   };
 
+  const toggleRoleStatus = async (id: number, currentStatus: boolean) => {
+    try {
+      console.log(`📌 Cambiando estado del rol ${id} de ${currentStatus} a ${!currentStatus}`);
+      await rolesService.toggleRoleStatus(id, !currentStatus);
+      toast.success(`Rol ${!currentStatus ? "activado" : "desactivado"} exitosamente`);
+      await fetchRoles();
+    } catch (err: any) {
+      console.error("❌ Error al cambiar estado:", err);
+      toast.error(err.message ?? "Error al cambiar el estado del rol");
+    }
+  };
+
   return {
     roles, availablePermissions, loading,
-    createRole, updateRole, deleteRole,
+    createRole, updateRole, deleteRole, toggleRoleStatus,
   };
 }
