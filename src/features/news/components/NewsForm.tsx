@@ -23,6 +23,8 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
     if (emp) setFormData(prev => ({ ...prev, employeeId: String(emp.id), employeeName: emp.name }));
   };
 
+  const hoy = new Date().toLocaleDateString("en-CA", { timeZone: "America/Bogota" });
+
   return (
     <div className="space-y-4">
       <div className="space-y-2">
@@ -73,9 +75,17 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
           <Input
             className="border-gray-300"
             type="date"
-            min={new Date().toLocaleDateString("en-CA", { timeZone: "America/Bogota" })}
+            min={hoy}
             value={formData.date}
-            onChange={e => setFormData(prev => ({ ...prev, date: e.target.value }))}
+            onChange={e => {
+              const nuevaFecha = e.target.value;
+              setFormData(prev => ({
+                ...prev,
+                date: nuevaFecha,
+                // Si la fecha final era anterior a la nueva fecha inicio, la resetea
+                fechaFinal: prev.fechaFinal && prev.fechaFinal < nuevaFecha ? "" : prev.fechaFinal,
+              }));
+            }}
           />
         </div>
         <div className="space-y-2">
@@ -86,9 +96,9 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
           <Input
             className="border-gray-300"
             type="date"
-            min={new Date().toLocaleDateString("en-CA", { timeZone: "America/Bogota" })}
-            value={formData.date}
-            onChange={e => setFormData(prev => ({ ...prev, date: e.target.value }))}
+            min={formData.date || hoy}
+            value={formData.fechaFinal}
+            onChange={e => setFormData(prev => ({ ...prev, fechaFinal: e.target.value }))}
           />
         </div>
       </div>
