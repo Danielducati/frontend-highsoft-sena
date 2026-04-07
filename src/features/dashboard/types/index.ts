@@ -6,6 +6,8 @@ export interface DashboardStats {
   citasChange:          string;
   serviciosCompletados: number;
   serviciosChange:      string;
+  ventasCompletadas: number
+  ventasCountChange: string
 }
 
 export interface DashboardData {
