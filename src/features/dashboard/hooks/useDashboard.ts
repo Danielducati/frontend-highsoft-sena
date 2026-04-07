@@ -1,3 +1,4 @@
+//frontend-highsoft-sena\src\features\dashboard\hooks\useDashboard.ts
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { DashboardData } from "../types";
@@ -31,10 +32,10 @@ export function useDashboard() {
   };
 
   const statsCards = data ? [
-    { title: "Ventas Totales",        value: `$${data.stats.ventasTotales.toLocaleString()}`,   change: data.stats.ventasChange,        icon: DollarSign,  color: "from-emerald-400 to-emerald-500" },
+    { title: "Ingresos Totales",      value: `$${data.stats.ventasTotales.toLocaleString()}`,   change: data.stats.ventasChange,        icon: DollarSign,  color: "from-emerald-400 to-emerald-500" },
     { title: "Clientes Activos",      value: data.stats.clientesActivos.toLocaleString(),       change: null,                           icon: Users,       color: "from-blue-400 to-blue-500"      },
     { title: "Citas del Período",     value: data.stats.citasDelPeriodo.toLocaleString(),       change: data.stats.citasChange,         icon: Calendar,    color: "from-purple-400 to-purple-500"  },
-    { title: "Servicios Completados", value: data.stats.serviciosCompletados.toLocaleString(),  change: data.stats.serviciosChange,     icon: CheckCircle, color: "from-amber-400 to-amber-500"    },
+    { title: "Ventas Completadas",    value: data.stats.ventasCompletadas.toLocaleString(),     change: data.stats.ventasCountChange,   icon: CheckCircle, color: "from-amber-400 to-amber-500"}
   ] : [];
 
   return {
