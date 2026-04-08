@@ -1,5 +1,5 @@
 // src/features/users/components/UserFormDialog.tsx
-import React, { RefObject } from "react";
+import { RefObject } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../../../shared/ui/dialog";
 import { Button } from "../../../shared/ui/button";
 import { Input } from "../../../shared/ui/input";
@@ -114,6 +114,7 @@ export function UserFormDialog({
               />
             </div>
           </div>
+          
 
           {/* Email / Teléfono */}
           <div className="grid grid-cols-2 gap-4">
