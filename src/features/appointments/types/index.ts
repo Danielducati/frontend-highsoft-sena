@@ -28,17 +28,29 @@ export interface AppointmentService {
   startTime: string;
 }
 
+export interface AppointmentItem {
+  servicioId: number;
+  nombre: string;
+  precio: number;
+  cantidad: number;
+}
+
 export interface Appointment {
   id: number;
+  clienteId: number;
+
   clientName: string;
   clientPhone: string;
+
   date: Date;
-  services: AppointmentService[];
-  totalDuration: number;
   startTime: string;
   endTime: string;
+
   status: "pending" | "cancelled" | "completed";
   notes?: string;
+
+  services?: AppointmentService[]; // UI
+  items: AppointmentItem[];        // BACKEND 🔥
 }
 
 export interface AppointmentsModuleProps {

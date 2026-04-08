@@ -20,19 +20,62 @@ export function useCategories() {
   const [sortOrder,         setSortOrder]         = useState<"asc" | "desc">("asc");
   const [currentPage,       setCurrentPage]       = useState(1);
   const [formData,          setFormData]          = useState<CategoryFormData>(EMPTY_FORM);
+  const [filterStatus, setFilterStatus]           = useState("all");
+  const [filterServices, setFilterServices]       = useState("all");
 
   useEffect(() => { loadCategories(); }, []);
+
+  const filteredCategories = categories.filter(c => {
+    const matchSearch =
+      c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      c.description.toLowerCase().includes(searchTerm.toLowerCase());
+  
+    const matchStatus =
+      filterStatus === "all" ||
+      (filterStatus === "active" && c.isActive) ||
+      (filterStatus === "inactive" && !c.isActive);
+  
+    return matchSearch && matchStatus;
+  });
+
 
   const loadCategories = async () => {
     try {
       setLoading(true);
       const data = await fetchCategoriesApi();
       setCategories(data);
-    } catch {
+    } catch (error: any) {
+      console.log("ERROR REAL:", error);
       toast.error("Error al cargar categorías");
     } finally {
       setLoading(false);
     }
+  };
+  const getErrorMessage = (error: any): string => {
+    console.log("ERROR COMPLETO:", error);
+  
+    // Axios (backend típico)
+    if (error.response?.data) {
+      const data = error.response.data;
+  
+      if (data.error) return data.error;
+      if (data.message) return data.message;
+  
+      // Si viene como string plano
+      if (typeof data === "string") return data;
+    }
+  
+    // Si el mensaje viene como string JSON (MUY común)
+    if (typeof error.message === "string") {
+      try {
+        const parsed = JSON.parse(error.message);
+        if (parsed.error) return parsed.error;
+      } catch {
+        return error.message;
+      }
+    }
+  
+    return "Ocurrió un error inesperado";
   };
 
   const handleCreateOrUpdate = async () => {
@@ -52,8 +95,9 @@ export function useCategories() {
       setIsDialogOpen(false);
       setEditingCategory(null);
       setFormData(EMPTY_FORM);
-    } catch {
-      toast.error("Error al guardar la categoría");
+    } catch (error: any) {
+      console.log("ERROR REAL:", error);
+      toast.error(getErrorMessage(error));
     }
   };
 
@@ -63,8 +107,9 @@ export function useCategories() {
       await deleteCategoryApi(deletingCategoryId);
       toast.success("Categoría eliminada");
       await loadCategories();
-    } catch {
-      toast.error("Error al eliminar la categoría");
+    } catch (error: any) {
+      toast.error(error.message || "Error al eliminar la categoría");
+    
     } finally {
       setDeletingCategoryId(null);
       setIsDeleteDialogOpen(false);
@@ -81,8 +126,9 @@ export function useCategories() {
       });
       toast.success("Estado actualizado");
       await loadCategories();
-    } catch {
-      toast.error("Error al actualizar el estado");
+    } catch (error: any) {
+      toast.error(error.message || "Error al actualizar el estado");
+      
     }
   };
 
@@ -135,5 +181,8 @@ export function useCategories() {
     handleToggleStatus, handleEdit,
     handleViewDetail, handleDeleteClick,
     handleSort, handleNewClick,
+    filteredCategories,
+    filterStatus, setFilterStatus,
+    filterServices, setFilterServices,
   };
 }

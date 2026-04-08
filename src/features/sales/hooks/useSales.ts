@@ -11,6 +11,9 @@ export function useSales() {
   const [clients,           setClients]           = useState<any[]>([]);
   const [loading,           setLoading]           = useState(true);
   const [saving,            setSaving]            = useState(false);
+  const [searchTerm, setSearchTerm]               = useState("");
+  const [filterStatus, setFilterStatus]           = useState("all");
+  const [filterClient, setFilterClient]           = useState("all");
 
   useEffect(() => {
     async function fetchAll() {
@@ -74,5 +77,7 @@ export function useSales() {
     }
   };
 
-  return { sales, appointments, availableServices, clients, loading, saving, registerSale };
+  return { sales, appointments, availableServices, clients, loading, saving, registerSale,
+    filterClient, setFilterClient
+   };
 }

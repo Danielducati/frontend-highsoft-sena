@@ -1,19 +1,19 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { Service, ServiceFormData } from "../types";
-import { ITEMS_PER_PAGE, MAX_IMAGE_SIZE_MB, EMPTY_FORM } from "../constants";
+import { ITEMS_PER_PAGE, EMPTY_FORM } from "../constants";
 import {
   fetchServicesApi, fetchCategoriesApi,
   createServiceApi, updateServiceApi, deleteServiceApi,
 } from "../services/servicesService";
 
-const NAME_MIN_LENGTH = 3;
-const NAME_MAX_LENGTH = 100;
+const NAME_MIN_LENGTH        = 3;
+const NAME_MAX_LENGTH        = 100;
 const DESCRIPTION_MAX_LENGTH = 600;
-const DURATION_MIN = 5;
-const DURATION_MAX = 600;
-const PRICE_MIN = 1000;
-const PRICE_MAX = 10000000;
+const DURATION_MIN           = 5;
+const DURATION_MAX           = 600;
+const PRICE_MIN              = 1000;
+const PRICE_MAX              = 10000000;
 
 export function useServices() {
   const [services,         setServices]         = useState<Service[]>([]);
@@ -28,9 +28,8 @@ export function useServices() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [serviceToDelete,  setServiceToDelete]  = useState<number | null>(null);
   const [currentPage,      setCurrentPage]      = useState(1);
-  const [formData,         setFormData]         = useState<ServiceFormData>({ ...EMPTY_FORM });
+  const [formData,         setFormData]         = useState<ServiceFormData>({ ...EMPTY_FORM, duration: 0, price: 0 });
   const [imagePreview,     setImagePreview]     = useState("");
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     loadServices();
@@ -53,45 +52,39 @@ export function useServices() {
     catch { toast.error("Error al cargar categorías"); }
   };
 
-  // ── CRUD ──────────────────────────────────────────────────────────────────
+  // ── Validación ────────────────────────────────────────────────────────────
   const validateServiceForm = () => {
-    const name = formData.name.trim();
+    const name        = formData.name.trim();
     const description = formData.description.trim();
-    const duration = Number(formData.duration);
-    const price = Number(formData.price);
-    const categoryId = Number(formData.FK_categoria_servicios);
+    const duration    = Number(formData.duration);
+    const price       = Number(formData.price);
+    const categoryId  = Number(formData.FK_categoria_servicios);
 
     if (!name || !formData.duration || !formData.price || !formData.FK_categoria_servicios) {
       toast.error("Por favor completa todos los campos obligatorios");
       return false;
     }
-
     if (name.length < NAME_MIN_LENGTH || name.length > NAME_MAX_LENGTH) {
       toast.error(`El nombre debe tener entre ${NAME_MIN_LENGTH} y ${NAME_MAX_LENGTH} caracteres`);
       return false;
     }
-
     if (description.length > DESCRIPTION_MAX_LENGTH) {
       toast.error(`La descripción no puede superar ${DESCRIPTION_MAX_LENGTH} caracteres`);
       return false;
     }
-
     if (!Number.isInteger(duration) || duration < DURATION_MIN || duration > DURATION_MAX) {
       toast.error(`La duración debe estar entre ${DURATION_MIN} y ${DURATION_MAX} minutos`);
       return false;
     }
-
     if (!Number.isFinite(price) || price < PRICE_MIN || price > PRICE_MAX) {
       toast.error(`El precio debe estar entre ${PRICE_MIN.toLocaleString("es-CO")} y ${PRICE_MAX.toLocaleString("es-CO")}`);
       return false;
     }
-
     if (!Number.isInteger(categoryId) || categoryId <= 0) {
       toast.error("Selecciona una categoría válida");
       return false;
     }
-
-    const duplicated = services.find((s) => {
+    const duplicated = services.find(s => {
       if (editingService && s.id === editingService.id) return false;
       return s.name.trim().toLowerCase() === name.toLowerCase();
     });
@@ -99,26 +92,19 @@ export function useServices() {
       toast.error("Ya existe un servicio con ese nombre");
       return false;
     }
-
     return true;
   };
 
+  // ── CRUD ──────────────────────────────────────────────────────────────────
   const handleCreateOrUpdate = async () => {
-    if (!validateServiceForm()) {
-      return;
-    }
-
-    const duration = Number(formData.duration);
-    const price = Number(formData.price);
-    const name = formData.name.trim();
-    const description = formData.description.trim();
+    if (!validateServiceForm()) return;
 
     const body = {
-      nombre:                 name,
-      descripcion:            description,
+      nombre:                 formData.name.trim(),
+      descripcion:            formData.description.trim(),
       FK_categoria_servicios: parseInt(formData.FK_categoria_servicios),
-      Duracion:               duration,
-      Precio:                 price,
+      Duracion:               Number(formData.duration),
+      Precio:                 Number(formData.price),
       imagen_servicio:        formData.image || null,
       Estado:                 "Activo",
     };
@@ -154,22 +140,11 @@ export function useServices() {
   const handleToggleStatus = async (service: Service) => {
     try {
       const nuevoEstado = service.isActive ? "Inactivo" : "Activo";
-  
-      await updateServiceApi(service.id, {
-        nombre: service.name,
-        descripcion: service.description,
-        FK_categoria_servicios: service.categoryId,
-        Duracion: service.duration,
-        Precio: service.price,
-        imagen_servicio: service.image,
-        Estado: nuevoEstado,
-      });
-  
+      await updateServiceApi(service.id, { Estado: nuevoEstado });
       toast.success(`Servicio ${nuevoEstado.toLowerCase()} correctamente`);
-  
-      await loadServices(); // recarga correcta
-    } catch (error: any) {
-      toast.error(error.message || "Error al cambiar el estado");
+      await loadServices();
+    } catch (err: any) {
+      toast.error(err.message || "Error al cambiar el estado");
     }
   };
 
@@ -180,12 +155,12 @@ export function useServices() {
 
   const handleEdit = (service: Service) => {
     setEditingService(service);
-    const cat = categories.find(c => c.name === service.category);
+    const cat = categories.find(c => c.name === service.category || c.nombre === service.category);
     setFormData({
       name:                   service.name,
       description:            service.description || "",
-      duration:               service.duration.toString(),
-      price:                  service.price.toString(),
+      duration:               service.duration,
+      price:                  service.price,
       category:               service.category,
       image:                  service.image,
       FK_categoria_servicios: cat?.id?.toString() || service.categoryId?.toString() || "",
@@ -197,35 +172,8 @@ export function useServices() {
   const handleCloseDialog = () => {
     setIsDialogOpen(false);
     setEditingService(null);
-    setFormData({ ...EMPTY_FORM });
+    setFormData({ ...EMPTY_FORM, duration: 0, price: 0 });
     setImagePreview("");
-  };
-
-  // ── Imagen ────────────────────────────────────────────────────────────────
-  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const allowedTypes = ["image/png", "image/jpeg", "image/jpg", "image/webp"];
-    if (!allowedTypes.includes(file.type)) {
-      toast.error("Formato inválido. Usa PNG, JPG o WEBP");
-      return;
-    }
-    if (file.size > MAX_IMAGE_SIZE_MB * 1024 * 1024) {
-      toast.error(`La imagen debe ser menor a ${MAX_IMAGE_SIZE_MB}MB`);
-      return;
-    }
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const result = reader.result as string;
-      setImagePreview(result);
-      setFormData(prev => ({ ...prev, image: result }));
-    };
-    reader.readAsDataURL(file);
-  };
-
-  const clearImage = () => {
-    setImagePreview("");
-    setFormData(prev => ({ ...prev, image: "" }));
   };
 
   // ── Filtros / paginación ───────────────────────────────────────────────────
@@ -253,11 +201,10 @@ export function useServices() {
     editingService, viewingService, setViewingService,
     deleteDialogOpen, setDeleteDialogOpen,
     formData, setFormData,
-    imagePreview, fileInputRef,
+    imagePreview, setImagePreview,
     currentPage, setCurrentPage,
     filteredServices, paginatedServices, totalPages, startIndex, endIndex,
     handleCreateOrUpdate, handleDelete, handleToggleStatus,
     confirmDelete, handleEdit, handleCloseDialog,
-    handleImageSelect, clearImage,
   };
 }
