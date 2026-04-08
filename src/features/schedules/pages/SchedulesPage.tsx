@@ -70,37 +70,35 @@ export function SchedulesPage({ userRole }: SchedulesModuleProps) {
       {/* Filtros */}
       <Card className="border-gray-200 shadow-sm rounded-2xl">
         <CardContent className="p-4">
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
-            <div className="md:col-span-8 relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <Input
-                placeholder="Buscar por empleado..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-9 h-9 rounded-lg border-gray-200"
-              />
-            </div>
-            <div className="md:col-span-3">
-              <Select value={filterEmployee} onValueChange={setFilterEmployee}>
-                <SelectTrigger className="h-9 rounded-lg border-gray-200">
-                  <SelectValue placeholder="Todos los empleados" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todos los empleados</SelectItem>
-                  {employees.map(emp => (
-                    <SelectItem key={emp.id} value={emp.id}>{emp.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="md:col-span-1">
-              <Button variant="outline" size="sm" onClick={clearFilters}
-                className="h-9 w-full rounded-lg border-gray-200 hover:bg-gray-50"
-                disabled={!searchTerm && filterEmployee === "all"}>
-                <X className="w-4 h-4" />
-              </Button>
-            </div>
+        <div className="flex gap-3 w-full">
+          {/* BUSCADOR */}
+          <div className="flex-1 relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Input
+              placeholder="Buscar por empleado..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-9 h-9 rounded-lg border-gray-200 w-full"
+            />
           </div>
+
+          {/* FILTRO EMPLEADO (DERECHA) */}
+          <div className="w-64">
+            <Select value={filterEmployee} onValueChange={setFilterEmployee}>
+              <SelectTrigger className="h-9 rounded-lg border-gray-200 w-full">
+                <SelectValue placeholder="Todos los empleados" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos los empleados</SelectItem>
+                {employees.map(emp => (
+                  <SelectItem key={emp.id} value={emp.id}>
+                    {emp.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
 
           {/* Filtros activos */}
           {(searchTerm || filterEmployee !== "all") && (

@@ -74,7 +74,6 @@ export function CategoryDetailDialog({ isOpen, onOpenChange, category }: Categor
               </div>
               <div>
                 <p style={{ fontWeight: 600, color: "#1a3a2a", fontSize: 16 }}>{category.name}</p>
-                <p style={{ fontSize: 12, color: "#6b7c6b", marginTop: 2 }}>ID: {category.id}</p>
               </div>
             </div>
 

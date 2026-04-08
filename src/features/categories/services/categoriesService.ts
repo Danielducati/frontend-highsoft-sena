@@ -9,17 +9,30 @@ function getAuthHeaders() {
   };
 }
 
+// 🔥 Helper para manejar errores correctamente
+async function handleError(res: Response, defaultMsg: string) {
+  if (!res.ok) {
+    const text = await res.text();
+
+    try {
+      const err = JSON.parse(text);
+      throw new Error(err.message || err.error || defaultMsg);
+    } catch {
+      // 🔥 Si NO es JSON (html, texto, etc)
+      throw new Error(text || defaultMsg);
+    }
+  }
+} 
+
 export async function fetchCategoriesApi(): Promise<Category[]> {
   const res = await fetch(`${API_URL}/categories?all=true`, {
     headers: getAuthHeaders(),
   });
-  
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({ error: "Error al cargar categorías" }));
-    throw new Error(err.error || "Error al cargar categorías");
-  }
-  
+
+  await handleError(res, "Error al cargar categorías");
+
   const data = await res.json();
+
   return data.map((cat: any) => ({
     id:            cat.id ?? cat.PK_id_categoria_servicios,
     name:          cat.nombre ?? cat.Nombre,
@@ -40,22 +53,19 @@ export async function createCategoryApi(formData: CategoryFormData): Promise<voi
       color:       formData.color,
     }),
   });
-  
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({ error: "Error al crear categoría" }));
-    throw new Error(err.error || "Error al crear categoría");
-  }
+
+  await handleError(res, "Error al crear categoría");
 }
 
 export async function updateCategoryApi(
-  id: number, 
+  id: number,
   formData: Partial<CategoryFormData> & { estado?: string | boolean }
 ): Promise<void> {
-  // Convertir boolean a string si viene como boolean
+
   let estadoFinal: string | undefined;
-  
+
   if (formData.estado !== undefined) {
-    if (typeof formData.estado === 'boolean') {
+    if (typeof formData.estado === "boolean") {
       estadoFinal = formData.estado ? "Activo" : "Inactivo";
     } else {
       estadoFinal = formData.estado;
@@ -63,6 +73,7 @@ export async function updateCategoryApi(
   }
 
   const body: any = {};
+
   if (formData.name !== undefined) body.nombre = formData.name;
   if (formData.description !== undefined) body.descripcion = formData.description;
   if (formData.color !== undefined) body.color = formData.color;
@@ -75,11 +86,8 @@ export async function updateCategoryApi(
     headers: getAuthHeaders(),
     body: JSON.stringify(body),
   });
-  
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({ error: "Error al actualizar categoría" }));
-    throw new Error(err.error || "Error al actualizar categoría");
-  }
+
+  await handleError(res, "Error al actualizar categoría");
 }
 
 export async function deleteCategoryApi(id: number): Promise<void> {
@@ -87,9 +95,6 @@ export async function deleteCategoryApi(id: number): Promise<void> {
     method: "DELETE",
     headers: getAuthHeaders(),
   });
-  
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({ error: "Error al eliminar categoría" }));
-    throw new Error(err.error || "Error al eliminar categoría");
-  }
+
+  await handleError(res, "Error al eliminar categoría");
 }

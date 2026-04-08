@@ -44,6 +44,7 @@ export function QuotationsPage({ userRole }: QuotationsModuleProps) {
     confirmCancel, handleEdit, resetForm,
     addService, removeService, updateQuantity,
     calculateSubtotal, calculateTotal,
+    filterClient, setFilterClient
   } = useQuotations();
 
   return (
@@ -91,6 +92,7 @@ export function QuotationsPage({ userRole }: QuotationsModuleProps) {
 
       {/* ── Filtros ── */}
       <div className="flex flex-col sm:flex-row gap-3 mb-6" style={{ fontFamily: "var(--font-body)" }}>
+        {/* BUSCADOR */}
         <div className="flex items-center gap-2 px-4 py-2 rounded-full border flex-1"
           style={{ backgroundColor: "#ffffff", borderColor: "#d6cfc4", maxWidth: 340 }}>
           <Search className="w-4 h-4 flex-shrink-0" style={{ color: "#6b7c6b" }} />
@@ -102,15 +104,48 @@ export function QuotationsPage({ userRole }: QuotationsModuleProps) {
             style={{ color: "#1a3a2a" }}
           />
         </div>
+
+        {/* FILTRO CLIENTE */}
+        <div className="flex items-center gap-2">
+          <Filter className="w-4 h-4" style={{ color: "#6b7c6b" }} />
+          <select
+            value={filterClient}
+            onChange={e => { setFilterClient(e.target.value); setCurrentPage(1); }}
+            style={{
+              padding: "8px 14px",
+              borderRadius: 10,
+              border: "1px solid #d6cfc4",
+              backgroundColor: "#ffffff",
+              color: "#1a3a2a",
+              fontSize: 13,
+              fontFamily: "var(--font-body)",
+              outline: "none",
+            }}
+          >
+            <option value="all">Todos los clientes</option>
+            {clients.map(client => (
+              <option key={client.id} value={client.id}>
+                {client.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* FILTRO ESTADO */}
         <div className="flex items-center gap-2">
           <Filter className="w-4 h-4" style={{ color: "#6b7c6b" }} />
           <select
             value={filterStatus}
             onChange={e => { setFilterStatus(e.target.value); setCurrentPage(1); }}
             style={{
-              padding: "8px 14px", borderRadius: 10, border: "1px solid #d6cfc4",
-              backgroundColor: "#ffffff", color: "#1a3a2a", fontSize: 13,
-              fontFamily: "var(--font-body)", outline: "none",
+              padding: "8px 14px",
+              borderRadius: 10,
+              border: "1px solid #d6cfc4",
+              backgroundColor: "#ffffff",
+              color: "#1a3a2a",
+              fontSize: 13,
+              fontFamily: "var(--font-body)",
+              outline: "none",
             }}
           >
             <option value="all">Todos los estados</option>
@@ -120,7 +155,6 @@ export function QuotationsPage({ userRole }: QuotationsModuleProps) {
           </select>
         </div>
       </div>
-
       {/* ── Tabla ── */}
       <div className="rounded-2xl overflow-hidden shadow-sm" style={{ backgroundColor: "#ffffff" }}>
         {loading ? (
@@ -253,32 +287,72 @@ export function QuotationsPage({ userRole }: QuotationsModuleProps) {
 
       {/* ── Paginación ── */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-between mt-6 px-4" style={{ fontFamily: "var(--font-body)" }}>
-          <p className="text-sm" style={{ color: "#6b7c6b" }}>
-            Mostrando {startIndex + 1}–{Math.min(startIndex + ITEMS_PER_PAGE, filteredQuotations.length)} de {filteredQuotations.length} cotizaciones
-          </p>
-          <div className="flex items-center gap-1">
-            <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1}
-              className="w-8 h-8 flex items-center justify-center rounded-lg text-sm transition-colors disabled:opacity-30"
-              style={{ color: "#1a3a2a" }}
-              onMouseEnter={e => { if (!e.currentTarget.disabled) e.currentTarget.style.backgroundColor = "#ede8e0"; }}
-              onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}>‹</button>
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
-              <button key={page} onClick={() => setCurrentPage(page)}
-                className="w-8 h-8 flex items-center justify-center rounded-lg text-sm font-medium transition-colors"
-                style={page === currentPage ? { backgroundColor: "#1a3a2a", color: "#ffffff" } : { color: "#1a3a2a" }}
-                onMouseEnter={e => { if (page !== currentPage) e.currentTarget.style.backgroundColor = "#ede8e0"; }}
-                onMouseLeave={e => { if (page !== currentPage) e.currentTarget.style.backgroundColor = "transparent"; }}>
-                {page}
-              </button>
-            ))}
-            <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages}
-              className="w-8 h-8 flex items-center justify-center rounded-lg text-sm transition-colors disabled:opacity-30"
-              style={{ color: "#1a3a2a" }}
-              onMouseEnter={e => { if (!e.currentTarget.disabled) e.currentTarget.style.backgroundColor = "#ede8e0"; }}
-              onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}>›</button>
-          </div>
+        <div className="flex flex-col sm:flex-row gap-3 mb-6" style={{ fontFamily: "var(--font-body)" }}>
+
+        {/* BUSCADOR */}
+        <div className="flex items-center gap-2 px-4 py-2 rounded-full border flex-1"
+          style={{ backgroundColor: "#ffffff", borderColor: "#d6cfc4", maxWidth: 340 }}>
+          <Search className="w-4 h-4 flex-shrink-0" style={{ color: "#6b7c6b" }} />
+          <input
+            placeholder="Buscar por cliente..."
+            value={searchTerm}
+            onChange={e => { setSearchTerm(e.target.value); setCurrentPage(1); }}
+            className="bg-transparent outline-none text-sm w-full"
+            style={{ color: "#1a3a2a" }}
+          />
         </div>
+      
+        {/* FILTRO CLIENTE */}
+        <div className="flex items-center gap-2">
+          <Filter className="w-4 h-4" style={{ color: "#6b7c6b" }} />
+          <select
+            value={filterClient}
+            onChange={e => { setFilterClient(e.target.value); setCurrentPage(1); }}
+            style={{
+              padding: "8px 14px",
+              borderRadius: 10,
+              border: "1px solid #d6cfc4",
+              backgroundColor: "#ffffff",
+              color: "#1a3a2a",
+              fontSize: 13,
+              fontFamily: "var(--font-body)",
+              outline: "none",
+            }}
+          >
+            <option value="all">Todos los clientes</option>
+            {clients.map(client => (
+              <option key={client.id} value={client.id}>
+                {client.name}
+              </option>
+            ))}
+          </select>
+        </div>
+      
+        {/* FILTRO ESTADO */}
+        <div className="flex items-center gap-2">
+          <Filter className="w-4 h-4" style={{ color: "#6b7c6b" }} />
+          <select
+            value={filterStatus}
+            onChange={e => { setFilterStatus(e.target.value); setCurrentPage(1); }}
+            style={{
+              padding: "8px 14px",
+              borderRadius: 10,
+              border: "1px solid #d6cfc4",
+              backgroundColor: "#ffffff",
+              color: "#1a3a2a",
+              fontSize: 13,
+              fontFamily: "var(--font-body)",
+              outline: "none",
+            }}
+          >
+            <option value="all">Todos los estados</option>
+            {STATUS_OPTIONS.map(({ value, label }) => (
+              <option key={value} value={value}>{label}</option>
+            ))}
+          </select>
+        </div>
+      
+      </div>
       )}
 
       {/* ── Dialogs ── */}

@@ -21,7 +21,6 @@ export function ServiceViewDialog({ service, onClose }: ServiceViewDialogProps) 
                 <Eye className="w-5 h-5 text-[#78D1BD]" />
                 Detalle del Servicio
               </DialogTitle>
-              <DialogDescription>{service.category}</DialogDescription>
             </DialogHeader>
             <div className="space-y-6 py-4">
               {service.image && (
@@ -29,9 +28,30 @@ export function ServiceViewDialog({ service, onClose }: ServiceViewDialogProps) 
                   <ImageWithFallback src={service.image} alt={service.name} className="w-full h-72 object-cover" />
                 </div>
               )}
-              <div>
-                <h3 className="text-2xl text-gray-900 mb-2">{service.name}</h3>
-                <p className="text-gray-600 leading-relaxed">{service.description}</p>
+              <div className="space-y-2">
+                {/* Categoría */}
+                <div>
+                  <p className="text-xs text-gray-400">Categoría</p>
+                  <p className="text-sm font-medium text-gray-900">
+                    {service.category}
+                  </p>
+                </div>
+
+                {/* Nombre */}
+                <div>
+                  <p className="text-xs text-gray-400">Nombre</p>
+                  <p className="text-2xl font-semibold text-gray-900">
+                    {service.name}
+                  </p>
+                </div>
+
+                {/* Descripción */}
+                <div>
+                  <p className="text-xs text-gray-400">Descripción</p>
+                  <p className="text-gray-600 leading-relaxed">
+                    {service.description}
+                  </p>
+                </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <Card className="border-gray-200">

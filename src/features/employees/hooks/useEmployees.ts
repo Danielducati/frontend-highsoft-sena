@@ -81,18 +81,11 @@ export function useEmployees() {
   const handleToggleStatus = async (employee: Employee) => {
     try {
       const nuevoEstado = employee.isActive ? "Inactivo" : "Activo";
-  
-      await updateEmployeeApi(employee.id, {
-        estado: nuevoEstado, // 🔥 SOLO ESTO
-      });
-  
-      toast.success(
-        `Empleado ${employee.isActive ? "desactivado" : "activado"} exitosamente`
-      );
-  
+      await updateEmployeeApi(employee.id, { estado: nuevoEstado });
+      toast.success(`Empleado ${employee.isActive ? "desactivado" : "activado"} exitosamente`);
       await loadEmployees();
     } catch (err: any) {
-      console.error(err);
+      console.error("Error toggle:", err);
       toast.error(err.message || "Error al actualizar estado");
     }
   };

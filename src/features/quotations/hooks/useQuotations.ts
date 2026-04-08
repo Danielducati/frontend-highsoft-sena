@@ -30,6 +30,7 @@ export function useQuotations() {
   const [quotationToCancel,  setQuotationToCancel]  = useState<number | null>(null);
   const [currentPage,        setCurrentPage]        = useState(1);
   const [formData,           setFormData]           = useState<QuotationFormData>(EMPTY_FORM);
+  const [filterClient,       setFilterClient]             = useState("all");
 
   useEffect(() => {
     loadQuotations();
@@ -172,11 +173,13 @@ export function useQuotations() {
 
   // ── Filtros / paginación ───────────────────────────────────────────────────
   const filteredQuotations = quotations.filter(q => {
-    const matchSearch =
-      q.clientName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      q.clientEmail?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchStatus = filterStatus === "all" || q.status === filterStatus;
-    return matchSearch && matchStatus;
+    const matchesSearch =
+      q.clientName.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus =
+      filterStatus === "all" || q.status === filterStatus;
+    const matchesClient =
+    filterClient === "all" || q.FK_id_cliente?.toString() === filterClient;
+    return matchesSearch && matchesStatus && matchesClient;
   });
 
   const totalPages          = Math.ceil(filteredQuotations.length / ITEMS_PER_PAGE);
@@ -202,5 +205,6 @@ export function useQuotations() {
     confirmCancel, handleEdit, resetForm,
     addService, removeService, updateQuantity,
     calculateSubtotal, calculateTotal,
+    filterClient,setFilterClient,
   };
 }
