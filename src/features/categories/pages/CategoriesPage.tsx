@@ -1,16 +1,17 @@
-import React from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent } from "../../../shared/ui/card";
 import { Button } from "../../../shared/ui/button";
 import { Input } from "../../../shared/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../../shared/ui/table";
 import { Switch } from "../../../shared/ui/switch";
-import { Search, Eye, Pencil, Trash2, Tag } from "lucide-react";
+import { Search, Eye, Pencil, Trash2, Tag, Filter } from "lucide-react";
 import { CategoriesModuleProps } from "../types";
 import { ITEMS_PER_PAGE } from "../constants";
 import { useCategories } from "../hooks/useCategories";
 import { CategoryFormDialog } from "../components/CategoryFormDialog";
 import { CategoryDetailDialog } from "../components/CategoryDetailDialog";
 import { CategoryDeleteDialog } from "../components/CategoryDeleteDialog";
+import { Select,SelectTrigger,SelectValue,SelectContent,SelectItem,} from "../../../shared/ui/select";
 
 export function CategoriesPage({ userRole }: CategoriesModuleProps) {
   const {
@@ -27,13 +28,28 @@ export function CategoriesPage({ userRole }: CategoriesModuleProps) {
     handleToggleStatus, handleEdit,
     handleViewDetail, handleDeleteClick,
     handleSort, handleNewClick,
+    filterStatus, setFilterStatus,
+    filterServices, setFilterServices,
   } = useCategories();
 
-  const filtered = categories
-    .filter(c =>
-      c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      c.description.toLowerCase().includes(searchTerm.toLowerCase())
-    )
+    const filtered = categories
+    .filter(c => {
+      const matchSearch =
+        c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        c.description.toLowerCase().includes(searchTerm.toLowerCase());
+
+      const matchStatus =
+        filterStatus === "all" ||
+        (filterStatus === "active" && c.isActive) ||
+        (filterStatus === "inactive" && !c.isActive);
+
+      const matchServices =
+        filterServices === "all" ||
+        (filterServices === "with" && c.servicesCount > 0) ||
+        (filterServices === "without" && c.servicesCount === 0);
+
+      return matchSearch && matchStatus && matchServices;
+    })
     .sort((a, b) => {
       const order = sortOrder === "asc" ? 1 : -1;
       return sortField === "name"
@@ -90,7 +106,7 @@ export function CategoriesPage({ userRole }: CategoriesModuleProps) {
             className="border-0 shadow-sm"
             style={{ backgroundColor: "#ffffff" }}
           >
-            <CardContent className="pt-5 pb-5">
+            <CardContent className="p-6">
               <p
                 className="text-xs uppercase tracking-widest mb-1"
                 style={{ color: "#6b7c6b", fontFamily: "var(--font-body)" }}
@@ -109,7 +125,7 @@ export function CategoriesPage({ userRole }: CategoriesModuleProps) {
       </div>
 
       {/* ── Search bar ── */}
-      <div className="flex items-center gap-3 mb-6">
+      <div className="flex flex-wrap items-center gap-3 mb-6">
         <div
           className="flex items-center gap-2 px-4 py-2 rounded-full border"
           style={{
@@ -129,6 +145,46 @@ export function CategoriesPage({ userRole }: CategoriesModuleProps) {
             style={{ color: "#1a3a2a" }}
           />
         </div>
+        <Filter className="w-4 h-4" style={{ color: "#6b7c6b" }} />
+        {/* 🟢 Filtro Servicios */}
+        <Select value={filterServices} onValueChange={setFilterServices}>
+          <SelectTrigger
+            className="w-[180px] rounded-lg border"
+            style={{
+              backgroundColor: "#ffffff",
+              borderColor: "#d6cfc4",
+              color: "#1a3a2a",
+              fontFamily: "var(--font-body)"
+            }}>
+            <SelectValue placeholder="Servicios" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todas las Categorias</SelectItem>
+            <SelectItem value="with">Con servicios</SelectItem>
+            <SelectItem value="without">Sin servicios</SelectItem>
+          </SelectContent>
+        </Select>
+
+        {/* 🟢 Filtro Estado */}
+        <Select value={filterStatus} onValueChange={setFilterStatus}>
+          <SelectTrigger
+            className="w-[160px] rounded-lg border"
+            style={{
+              backgroundColor: "#ffffff",
+              borderColor: "#d6cfc4",
+              color: "#1a3a2a",
+              fontFamily: "var(--font-body)"
+            }}
+          >
+            <SelectValue placeholder="Estado" />
+          </SelectTrigger>
+
+          <SelectContent>
+            <SelectItem value="all">Todos</SelectItem>
+            <SelectItem value="active">Activos</SelectItem>
+            <SelectItem value="inactive">Inactivos</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       {/* ── Table ── */}

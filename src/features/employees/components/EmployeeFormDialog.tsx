@@ -53,9 +53,12 @@ function validate(data: EmployeeFormData, isNew: boolean): Errors {
   else if (!EMAIL_RE.test(data.email.trim())) e.email = "Correo inválido. Ej: nombre@dominio.com";
   if (data.phone && !PHONE_RE.test(data.phone.trim())) e.phone = "Teléfono inválido.";
   if (!data.specialty) e.specialty = "Selecciona una especialidad.";
-  if (data.documentType && !data.document.trim()) e.document = "Ingresa el número de documento.";
-  if (data.document.trim() && !DOC_RE.test(data.document.trim())) e.document = "Solo números, entre 5 y 15 dígitos.";
-  if (!data.documentType && data.document.trim()) e.documentType = "Selecciona el tipo de documento.";
+
+  // ✅ Ahora son obligatorios
+  if (!data.documentType) e.documentType = "Selecciona el tipo de documento.";
+  if (!data.document.trim()) e.document = "El número de documento es obligatorio.";
+  else if (!DOC_RE.test(data.document.trim())) e.document = "Solo números, entre 5 y 15 dígitos.";
+
   if (isNew && data.contrasena && data.contrasena.length < 6) e.contrasena = "Mínimo 6 caracteres.";
   return e;
 }
@@ -216,7 +219,7 @@ export function EmployeeFormDialog({
 
           {/* ── Documento ── */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-            <Field label="Tipo de Documento" field="documentType" error={liveErrors.documentType}>
+            <Field label="Tipo de Documento" field="documentType" required error={liveErrors.documentType}>
               <select style={s("documentType")} value={formData.documentType}
                 onChange={e => update("documentType", e.target.value)}
                 onBlur={() => touch("documentType")}>
@@ -226,7 +229,7 @@ export function EmployeeFormDialog({
                 ))}
               </select>
             </Field>
-            <Field label="Número de Documento" field="document" error={liveErrors.document}>
+            <Field label="Número de Documento" field="document" required error={liveErrors.document}>
               <input style={s("document")} value={formData.document} placeholder="1234567890"
                 onChange={e => update("document", e.target.value)}
                 onBlur={() => touch("document")} />

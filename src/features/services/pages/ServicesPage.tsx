@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Search, Filter, Wrench, Clock3, Eye, Pencil, Trash2 } from "lucide-react";
 import { ServicesModuleProps } from "../types";
 import { useServices } from "../hooks/useServices";
@@ -24,8 +25,19 @@ export function ServicesPage({ userRole }: ServicesModuleProps) {
       confirmDelete, handleEdit, handleCloseDialog,
     } = useServices();
   const totalServices = filteredServices.length;
-
+  const [openCategory, setOpenCategory] = useState(false);
+  const [openStatus, setOpenStatus] = useState(false);
   const activeServices = filteredServices.filter(s => s.isActive).length;
+
+    useEffect(() => {
+      const handleClickOutside = () => {
+        setOpenCategory(false);
+        setOpenStatus(false);
+      };
+  
+    document.addEventListener("click", handleClickOutside);
+    return () => document.removeEventListener("click", handleClickOutside);
+  }, []);
 
   const averageDuration = totalServices
     ? Math.round(
@@ -111,27 +123,134 @@ export function ServicesPage({ userRole }: ServicesModuleProps) {
           />
         </div>
         <div className="flex items-center gap-2">
-          <Filter className="w-4 h-4" style={{ color: "#6b7c6b" }} />
-          <select
-            value={filterCategory}
-            onChange={(e) => { setFilterCategory(e.target.value); setCurrentPage(1); }}
-            style={{ padding: "8px 14px", borderRadius: 10, border: "1px solid #d6cfc4", backgroundColor: "#ffffff", color: "#1a3a2a", fontSize: 13, fontFamily: "var(--font-body)", outline: "none" }}
-          >
-            <option value="all">Todas las categorías</option>
-            {categories.map((cat) => (
-              <option key={cat.id} value={cat.nombre}>{cat.nombre}</option>
-            ))}
-          </select>
-          <select
-            value={filterStatus}
-            onChange={(e) => { setFilterStatus(e.target.value); setCurrentPage(1); }}
-            style={{ padding: "8px 14px", borderRadius: 10, border: "1px solid #d6cfc4", backgroundColor: "#ffffff", color: "#1a3a2a", fontSize: 13, fontFamily: "var(--font-body)", outline: "none" }}
-          >
-            <option value="all">Todos</option>
-            <option value="active">Activos</option>
-            <option value="inactive">Inactivos</option>
-          </select>
+  <Filter className="w-4 h-4" style={{ color: "#6b7c6b" }} />
+
+  {/* CATEGORÍA */}
+  <div className="relative">
+    <button
+      onClick={(e) => {
+        e.stopPropagation();
+        setOpenCategory(!openCategory);
+        setOpenStatus(false);
+      }}
+      className="px-4 py-2 rounded-lg border text-sm flex items-center gap-2"
+      style={{
+        borderColor: "#d6cfc4",
+        backgroundColor: "#ffffff",
+        color: "#1a3a2a",
+        fontFamily: "var(--font-body)"
+      }}
+    >
+      {filterCategory === "all" ? "Todas las categorías" : filterCategory}
+      <span style={{ fontSize: 10, color: "#6b7c6b" }}>▼</span>
+    </button>
+
+    {openCategory && (
+      <div
+        className="absolute mt-2 w-56 rounded-xl shadow-md z-10"
+        style={{
+          backgroundColor: "#ffffff",
+          border: "1px solid #ede8e0"
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div
+          className="px-4 py-2 text-sm cursor-pointer hover:bg-[#faf7f2]"
+          onClick={() => {
+            setFilterCategory("all");
+            setOpenCategory(false);
+            setCurrentPage(1);
+          }}
+        >
+          Todas las categorías
         </div>
+
+        {categories.map((cat) => (
+          <div
+            key={cat.id}
+            className="px-4 py-2 text-sm cursor-pointer hover:bg-[#faf7f2]"
+            onClick={() => {
+              setFilterCategory(cat.nombre);
+              setOpenCategory(false);
+              setCurrentPage(1);
+            }}
+          >
+            {cat.nombre}
+          </div>
+        ))}
+      </div>
+    )}
+  </div>
+
+  {/* ESTADO */}
+  <div className="relative">
+    <button
+      onClick={(e) => {
+        e.stopPropagation();
+        setOpenStatus(!openStatus);
+        setOpenCategory(false);
+      }}
+      className="px-4 py-2 rounded-lg border text-sm flex items-center gap-2"
+      style={{
+        borderColor: "#d6cfc4",
+        backgroundColor: "#ffffff",
+        color: "#1a3a2a",
+        fontFamily: "var(--font-body)"
+      }}
+    >
+      {filterStatus === "all"
+        ? "Todos"
+        : filterStatus === "active"
+        ? "Activos"
+        : "Inactivos"}
+      <span style={{ fontSize: 10, color: "#6b7c6b" }}>▼</span>
+    </button>
+
+    {openStatus && (
+      <div
+        className="absolute mt-2 w-40 rounded-xl shadow-md z-10"
+        style={{
+          backgroundColor: "#ffffff",
+          border: "1px solid #ede8e0"
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div
+          className="px-4 py-2 text-sm cursor-pointer hover:bg-[#faf7f2]"
+          onClick={() => {
+            setFilterStatus("all");
+            setOpenStatus(false);
+            setCurrentPage(1);
+          }}
+        >
+          Todos
+        </div>
+
+        <div
+          className="px-4 py-2 text-sm cursor-pointer hover:bg-[#faf7f2]"
+          onClick={() => {
+            setFilterStatus("active");
+            setOpenStatus(false);
+            setCurrentPage(1);
+          }}
+        >
+          Activos
+        </div>
+
+        <div
+          className="px-4 py-2 text-sm cursor-pointer hover:bg-[#faf7f2]"
+          onClick={() => {
+            setFilterStatus("inactive");
+            setOpenStatus(false);
+            setCurrentPage(1);
+          }}
+        >
+          Inactivos
+        </div>
+      </div>
+    )}
+  </div>
+</div>
       </div>
 
       {/* Lista */}

@@ -48,38 +48,47 @@ export const salesApi = {
   },
 
   async create(formData: SaleFormData, saleType: "appointment" | "direct"): Promise<void> {
-    let body: any;
-
-    if (saleType === "appointment") {
-      body = {
-        tipo:       "cita",
-        citaId:     formData.appointmentId,
-        metodoPago: formData.paymentMethod,
-        descuento:  parseFloat(formData.discount) || 0,
-      };
-    } else {
-      body = {
-        tipo:       "directo",
-        clienteId:  formData.clienteId ? Number(formData.clienteId) : null,
-        servicios:  formData.selectedServices.map(s => ({
-          id:     s.serviceId,
-          precio: s.price,
-          qty:    s.quantity,
-        })),
-        metodoPago: formData.paymentMethod,
-        descuento:  parseFloat(formData.discount) || 0,
-      };
-    }
-
+    const body = {
+      tipo: saleType === "appointment" ? "cita" : "directo",
+  
+      clienteId: formData.clienteId ? Number(formData.clienteId) : null,
+  
+      servicios: formData.selectedServices.map(s => ({
+        id:     s.serviceId,
+        precio: s.price,
+        qty:    s.quantity, //  coincide con lo que lee el backend
+      })),
+  
+      metodoPago: formData.paymentMethod,
+      descuento: parseFloat(formData.discount) || 0,
+  
+      // 🔥 SOLO SI ES CITA
+      ...(saleType === "appointment" && {
+        citaId: formData.appointmentId,
+      }),
+    };
+  
     const res = await fetch(`${API_URL}/sales`, {
-      method:  "POST",
+      method: "POST",
       headers: getAuthHeaders(),
-      body:    JSON.stringify(body),
+      body: JSON.stringify(body),
     });
-
+  
     if (!res.ok) {
       const err = await res.json();
       throw new Error(err.error || "Error al registrar venta");
     }
-  },
-};
+  }
+
+//     const res = await fetch(`${API_URL}/sales`, {
+//       method:  "POST",
+//       headers: getAuthHeaders(),
+//       body:    JSON.stringify(body),
+//     });
+
+//     if (!res.ok) {
+//       const err = await res.json();
+//       throw new Error(err.error || "Error al registrar venta");
+//     }
+//   },
+}

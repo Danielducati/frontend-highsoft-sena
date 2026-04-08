@@ -23,11 +23,21 @@ export function SalesPage({ userRole }: SalesModuleProps) {
   const [selectedSale,     setSelectedSale]     = useState<Sale | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [formData,         setFormData]         = useState<SaleFormData>(EMPTY_FORM);
+  const [filterClient, setFilterClient]         = useState("all");
 
-  const filteredSales = sales.filter(sale => {
-    const matchSearch  = (sale.Cliente || "").toLowerCase().includes(searchTerm.toLowerCase());
-    const matchPayment = filterPayment === "all" || sale.metodo_pago === filterPayment;
-    return matchSearch && matchPayment;
+
+
+  const filteredSales = sales.filter(s => {
+    const matchesSearch =
+      s.Cliente?.toLowerCase().includes(searchTerm.toLowerCase());
+  
+    const matchesPayment =
+      filterPayment === "all" || s.metodo_pago === filterPayment;
+  
+    const matchesClient =
+      filterClient === "all" || s.Cliente?.toString() === filterClient;
+  
+    return matchesSearch && matchesPayment && matchesClient;
   });
 
   const totalPages     = Math.ceil(filteredSales.length / itemsPerPage);
@@ -42,15 +52,21 @@ export function SalesPage({ userRole }: SalesModuleProps) {
   const handleAppointmentSelect = (appointmentId: string) => {
     const appt = appointments.find(a => a.id === parseInt(appointmentId));
     if (!appt) return;
-    const service = availableServices.find(s =>
-      s.name === appt.service || appt.service?.includes(s.name) || s.name?.includes(appt.service)
-    );
+  
     setFormData(prev => ({
       ...prev,
       appointmentId: appt.id,
+      clienteId: appt.clienteId, // 🔥 IMPORTANTE
       clientName: appt.clientName,
-      selectedServices: service ? [{ serviceId: service.id, serviceName: service.name, price: appt.precio || service.price, quantity: 1 }] : [],
+  
+      selectedServices: appt.items.map(item => ({
+        serviceId: item.servicioId,
+        serviceName: item.nombre,
+        price: item.precio,
+        quantity: item.cantidad
+      }))
     }));
+  
     toast.success(`Cita seleccionada: ${appt.clientName}`);
   };
 
@@ -159,6 +175,35 @@ export function SalesPage({ userRole }: SalesModuleProps) {
           <input placeholder="Buscar por cliente..." value={searchTerm}
             onChange={e => { setSearchTerm(e.target.value); setCurrentPage(1); }}
             className="bg-transparent outline-none text-sm w-full" style={{ color: "#1a3a2a" }} />
+        </div>
+        {/* FILTRO CLIENTE */}
+        <div className="flex items-center gap-2">
+          <Filter className="w-4 h-4" style={{ color: "#6b7c6b" }} />
+          <select
+            value={filterClient}
+            onChange={e => {
+              setFilterClient(e.target.value);
+              setCurrentPage(1);
+            }}
+            style={{
+              padding: "8px 14px",
+              borderRadius: 10,
+              border: "1px solid #d6cfc4",
+              backgroundColor: "#ffffff",
+              color: "#1a3a2a",
+              fontSize: 13,
+              fontFamily: "var(--font-body)",
+              outline: "none",
+            }}
+          >
+            <option value="all">Todos los clientes</option>
+
+            {clients.map(c => (
+              <option key={c.id} value={c.name}>
+                {c.name}
+              </option>
+                ))}
+          </select>
         </div>
         <div className="flex items-center gap-2">
           <Filter className="w-4 h-4" style={{ color: "#6b7c6b" }} />
