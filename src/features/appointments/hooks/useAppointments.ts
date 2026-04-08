@@ -1,3 +1,4 @@
+//frontend-highsoft-sena\src\features\appointments\hooks\useAppointments.ts
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import {
@@ -238,6 +239,8 @@ export function useAppointments() {
   };
 
   // ── Calendario ──
+
+  // Retorna las citas que ocupan una celda (fecha + franja horaria)
   const getAppointmentsForCell = (date: Date, time: string) =>
     appointments.filter(apt => {
       if (apt.date.toDateString() !== date.toDateString()) return false;
@@ -246,6 +249,26 @@ export function useAppointments() {
       const [cH, cM] = time.split(":").map(Number);
       return (cH * 60 + cM) >= (aH * 60 + aM) && (cH * 60 + cM) < (eH * 60 + eM);
     });
+
+  // Devuelve el conjunto de employeeIds ocupados en una celda concreta.
+  // Una celda solo se considera "completamente bloqueada" si TODOS los
+  // empleados activos están ocupados en esa franja.
+  const getOccupiedEmployeeIds = (date: Date, time: string): Set<string> => {
+    const cellApts = getAppointmentsForCell(date, time).filter(
+      a => a.status !== "cancelled"
+    );
+    const occupied = new Set<string>();
+    cellApts.forEach(apt => {
+      apt.services.forEach(s => occupied.add(s.employeeId));
+    });
+    return occupied;
+  };
+
+  const isCellFullyBlocked = (date: Date, time: string): boolean => {
+    if (employees.length === 0) return false;
+    const occupied = getOccupiedEmployeeIds(date, time);
+    return employees.every(e => occupied.has(e.id));
+  };
 
   const getAppointmentCellSpan = (apt: Appointment) => {
     const [sH, sM] = apt.startTime.split(":").map(Number);
@@ -280,6 +303,7 @@ export function useAppointments() {
     getWeekDates, goToPreviousWeek, goToNextWeek, goToToday,
     isToday, isPastDate, getEmployeesByCategory,
     getAppointmentsForCell, getAppointmentCellSpan,
+    getOccupiedEmployeeIds, isCellFullyBlocked,
     // handlers
     handleAddService, handleRemoveService,
     handleCreateOrUpdate, handleDelete, handleCancelAppointment,
