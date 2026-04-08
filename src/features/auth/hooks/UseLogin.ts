@@ -15,26 +15,42 @@ export function useLogin(onLogin: (role: UserRole) => void) {
   const [recoverySuccess,    setRecoverySuccess]    = useState(false);
 
   const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email || !password) {
-      toast.error("Por favor ingresa tu correo y contraseña");
-      return;
-    }
-    setLoading(true);
-    try {
-      const data = await loginRequest(email, password);
-      localStorage.setItem("token",   data.token);
-      localStorage.setItem("usuario", JSON.stringify(data.usuario));
-      const rolFrontend = ROL_MAP[data.usuario.rol] ?? "client";
-      toast.success(`¡Bienvenido! Accediendo como ${data.usuario.rol}`);
-      onLogin(rolFrontend);
-    } catch (err: any) {
-      toast.error(err.message ?? "No se pudo conectar con el servidor");
-    } finally {
-      setLoading(false);
-    }
-  };
+  e.preventDefault();
 
+  if (!email || !password) {
+    toast.error("Por favor ingresa tu correo y contraseña");
+    return;
+  }
+
+  setLoading(true);
+
+  try {
+    const data = await loginRequest(email, password);
+
+    console.log("🔥 LOGIN DATA:", data);
+
+   
+    // ✅ NORMALIZAR ROL SEGURO
+    const rolBackend = data.usuario?.rol;
+
+    const rolFrontend: UserRole =
+      ROL_MAP?.[rolBackend] ?? "client";
+
+    // ✅ GUARDAR
+    localStorage.setItem("token", data.token);
+    localStorage.setItem("usuario", JSON.stringify(data.usuario));
+
+    toast.success(`¡Bienvenido! Accediendo como ${rolBackend}`);
+
+    onLogin(rolFrontend);
+
+  } catch (err: any) {
+    console.error("❌ ERROR LOGIN:", err);
+    toast.error(err.message ?? "No se pudo conectar con el servidor");
+  } finally {
+    setLoading(false);
+  }
+};
   const handleForgotPassword = (e: React.FormEvent) => {
     e.preventDefault();
     if (!recoveryEmail) {
