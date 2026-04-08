@@ -1,3 +1,4 @@
+//frontend-highsoft-sena\src\features\appointments\types\index.ts
 export interface Service {
   id: string;
   name: string;
