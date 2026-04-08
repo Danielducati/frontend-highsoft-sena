@@ -5,7 +5,7 @@ import { Input } from "../../../shared/ui/input";
 import { Badge } from "../../../shared/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../shared/ui/select";
 import {
-  Plus, ChevronLeft, ChevronRight, Clock, Search, Filter,
+  Plus, ChevronLeft, ChevronRight, Search, Filter,
   List, Calendar, XCircle, Edit, CalendarIcon,
 } from "lucide-react";
 import { AppointmentsModuleProps } from "../types";
@@ -16,11 +16,68 @@ import { AppointmentFormDialog } from "../components/AppointmentFormDialog";
 import { AppointmentViewDialog } from "../components/AppointmentViewDialog";
 import { DeleteAppointmentDialog, CancelAppointmentDialog } from "../components/ConfirmDialogs";
 import { SpaPage } from "../../../shared/components/layout/SpaPage";
+import { Appointment } from "../types";
+
+// ── Helpers estilo Google Calendar ────────────────────────────────────────────
+
+const toMin = (t: string) => {
+  const [h, m] = t.split(":").map(Number);
+  return h * 60 + m;
+};
+
+/**
+ * Agrupa citas solapadas en columnas.
+ * Cada columna contiene citas que NO se solapan entre sí.
+ */
+function buildColumns(apts: Appointment[]): Appointment[][] {
+  const sorted = [...apts].sort((a, b) => toMin(a.startTime) - toMin(b.startTime));
+  const columns: Appointment[][] = [];
+
+  for (const apt of sorted) {
+    let placed = false;
+    for (const col of columns) {
+      const last = col[col.length - 1];
+      if (toMin(last.endTime) <= toMin(apt.startTime)) {
+        col.push(apt);
+        placed = true;
+        break;
+      }
+    }
+    if (!placed) columns.push([apt]);
+  }
+  return columns;
+}
+
+/**
+ * Devuelve { colIndex, totalCols } para posicionar side-by-side.
+ * totalCols = máximo de columnas que se solapan con esta cita.
+ */
+function getAptLayout(apt: Appointment, allApts: Appointment[]) {
+  const columns   = buildColumns(allApts);
+  const aptStart  = toMin(apt.startTime);
+  const aptEnd    = toMin(apt.endTime);
+
+  const overlappingCols = columns.filter(col =>
+    col.some(a => toMin(a.startTime) < aptEnd && toMin(a.endTime) > aptStart)
+  );
+
+  const colIndex = overlappingCols.findIndex(col => col.includes(apt));
+  return { colIndex, totalCols: overlappingCols.length };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+
+const ROW_HEIGHT = 48; // px por franja de 30 min
+
+const STATUS_COLORS: Record<string, { bg: string; border: string }> = {
+  pending:   { bg: "#FEF3C7", border: "#F59E0B" },
+  cancelled: { bg: "#FEE2E2", border: "#EF4444" },
+  completed: { bg: "#DBEAFE", border: "#3B82F6" },
+};
 
 export function AppointmentsPage({ userRole }: AppointmentsModuleProps) {
-
   const {
-    services, employees, clients, loading,
+    services, employees, clients, loading, appointments,
     currentWeekStart, viewMode, setViewMode,
     searchTerm, setSearchTerm, filterStatus, setFilterStatus,
     isDialogOpen, setIsDialogOpen,
@@ -31,7 +88,6 @@ export function AppointmentsPage({ userRole }: AppointmentsModuleProps) {
     filteredAppointments,
     getWeekDates, goToPreviousWeek, goToNextWeek, goToToday,
     isToday, isPastDate, getEmployeesByCategory,
-    getAppointmentsForCell, getAppointmentCellSpan,
     isCellFullyBlocked,
     handleAddService, handleRemoveService,
     handleCreateOrUpdate, handleDelete, handleCancelAppointment,
@@ -39,21 +95,25 @@ export function AppointmentsPage({ userRole }: AppointmentsModuleProps) {
   } = useAppointments();
 
   const EMPTY_FORM = {
-    clientId: "",
-    clientName: "",
-    clientPhone: "",
-    date: new Date(),
-    startTime: "",
-    notes: ""
+    clientId: "", clientName: "", clientPhone: "",
+    date: new Date(), startTime: "", notes: "",
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64 text-gray-500">
-        Cargando citas...
-      </div>
-    );
-  }
+  const firstSlotMin  = toMin(TIME_SLOTS[0]);
+  const totalHeight   = TIME_SLOTS.length * ROW_HEIGHT;
+
+  const getAptsByDate = (date: Date) =>
+    appointments.filter(a => a.date.toDateString() === date.toDateString());
+
+  const aptTop = (apt: Appointment) =>
+    ((toMin(apt.startTime) - firstSlotMin) / 30) * ROW_HEIGHT;
+
+  const aptHeight = (apt: Appointment) =>
+    Math.max(((toMin(apt.endTime) - toMin(apt.startTime)) / 30) * ROW_HEIGHT - 2, ROW_HEIGHT * 0.8);
+
+  if (loading) return (
+    <div className="flex items-center justify-center h-64 text-gray-500">Cargando citas...</div>
+  );
 
   return (
     <SpaPage
@@ -66,43 +126,23 @@ export function AppointmentsPage({ userRole }: AppointmentsModuleProps) {
       icon={<CalendarIcon className="w-5 h-5 text-[#78D1BD]" />}
       action={
         <div className="flex gap-2">
-
-          {/* Toggle vista */}
           <div className="flex rounded-lg border border-gray-200 bg-white p-1">
             {(["calendar", "list"] as const).map(mode => (
-              <button
-                key={mode}
-                onClick={() => setViewMode(mode)}
+              <button key={mode} onClick={() => setViewMode(mode)}
                 className={`inline-flex items-center gap-1.5 rounded px-2.5 py-1 text-xs transition-all ${
-                  viewMode === mode
-                    ? "bg-primary text-white"
-                    : "text-gray-600 hover:text-gray-900"
-                }`}
-              >
-                {mode === "calendar"
-                  ? <Calendar className="w-3.5 h-3.5"/>
-                  : <List className="w-3.5 h-3.5"/>}
-
+                  viewMode === mode ? "bg-primary text-white" : "text-gray-600 hover:text-gray-900"
+                }`}>
+                {mode === "calendar" ? <Calendar className="w-3.5 h-3.5" /> : <List className="w-3.5 h-3.5" />}
                 {mode === "calendar" ? "Calendario" : "Lista"}
               </button>
             ))}
           </div>
-
-          {/* Nueva cita */}
           <button
             style={{
-              display: "inline-flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: 8,
-              padding: "10px 20px",
-              borderRadius: 10,
-              backgroundColor: "#1a3a2a",
-              color: "#ffffff",
-              fontSize: 14,
-              fontWeight: 600,
-              border: "none",
-              cursor: "pointer",
+              display: "inline-flex", alignItems: "center", justifyContent: "center",
+              gap: 8, padding: "10px 20px", borderRadius: 10,
+              backgroundColor: "#1a3a2a", color: "#ffffff",
+              fontSize: 14, fontWeight: 600, border: "none", cursor: "pointer",
             }}
             onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#2a5a40")}
             onMouseLeave={e => (e.currentTarget.style.backgroundColor = "#1a3a2a")}
@@ -114,155 +154,95 @@ export function AppointmentsPage({ userRole }: AppointmentsModuleProps) {
         </div>
       }
     >
-
       <div className="space-y-4">
 
-
-            {viewMode === "list" && (
-        <>
-          <Card className="border-gray-200 shadow-sm">
-            <CardContent className="p-3">
-              <div className="flex flex-col sm:flex-row gap-2">
-                <div className="flex-1 relative">
-                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
-                  <Input
-                    placeholder="Buscar por cliente..."
-                    value={searchTerm}
-                    onChange={e => setSearchTerm(e.target.value)}
-                    className="pl-8 h-8 text-sm rounded-lg border-gray-200"
-                  />
+        {/* ── Vista Lista ── */}
+        {viewMode === "list" && (
+          <>
+            <Card className="border-gray-200 shadow-sm">
+              <CardContent className="p-3">
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <div className="flex-1 relative">
+                    <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
+                    <Input placeholder="Buscar por cliente..." value={searchTerm}
+                      onChange={e => setSearchTerm(e.target.value)}
+                      className="pl-8 h-8 text-sm rounded-lg border-gray-200" />
+                  </div>
+                  <div className="flex gap-2 items-center">
+                    <Filter className="w-3.5 h-3.5 text-gray-400" />
+                    <Select value={filterStatus} onValueChange={setFilterStatus}>
+                      <SelectTrigger className="w-32 h-8 text-sm rounded-lg border-gray-200">
+                        <SelectValue placeholder="Estado" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Todos</SelectItem>
+                        <SelectItem value="pending">Pendientes</SelectItem>
+                        <SelectItem value="completed">Completadas</SelectItem>
+                        <SelectItem value="cancelled">Canceladas</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
+              </CardContent>
+            </Card>
 
-                <div className="flex gap-2 items-center">
-                  <Filter className="w-3.5 h-3.5 text-gray-400" />
-                  <Select value={filterStatus} onValueChange={setFilterStatus}>
-                    <SelectTrigger className="w-32 h-8 text-sm rounded-lg border-gray-200">
-                      <SelectValue placeholder="Estado" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">Todos</SelectItem>
-                      <SelectItem value="pending">Pendientes</SelectItem>
-                      <SelectItem value="completed">Completadas</SelectItem>
-                      <SelectItem value="cancelled">Canceladas</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+            <div className="hidden lg:grid lg:grid-cols-[80px_1.5fr_1.5fr_1.2fr_100px_1.8fr_120px_140px] gap-4 px-4 py-2 bg-gray-50 rounded-lg border border-gray-200 text-xs text-gray-600">
+              <div>Código</div><div>Cliente</div><div>Empleado</div>
+              <div>Fecha</div><div>Hora</div><div>Servicios</div>
+              <div>Estado</div><div className="text-right">Acciones</div>
+            </div>
 
-          <div className="hidden lg:grid lg:grid-cols-[80px_1.5fr_1.5fr_1.2fr_100px_1.8fr_120px_140px] gap-4 px-4 py-2 bg-gray-50 rounded-lg border border-gray-200 text-xs text-gray-600">
-            <div>Código</div>
-            <div>Cliente</div>
-            <div>Empleado</div>
-            <div>Fecha</div>
-            <div>Hora</div>
-            <div>Servicios</div>
-            <div>Estado</div>
-            <div className="text-right">Acciones</div>
-          </div>
-
-          <div className="space-y-1">
-            {filteredAppointments.length === 0 ? (
-              <Card className="border-gray-200">
-                <CardContent className="p-8 text-center">
-                  <CalendarIcon className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                  <p className="text-gray-600">No se encontraron citas</p>
-                  <p className="text-sm text-gray-500 mt-1">
-                    Intenta ajustar los filtros
-                  </p>
-                </CardContent>
-              </Card>
-            ) : (
-              filteredAppointments.map(apt => (
-                <div
-                  key={apt.id}
-                  className="bg-white border border-gray-200 rounded-lg hover:shadow-sm transition-all"
-                >
+            <div className="space-y-1">
+              {filteredAppointments.length === 0 ? (
+                <Card className="border-gray-200">
+                  <CardContent className="p-8 text-center">
+                    <CalendarIcon className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                    <p className="text-gray-600">No se encontraron citas</p>
+                    <p className="text-sm text-gray-500 mt-1">Intenta ajustar los filtros</p>
+                  </CardContent>
+                </Card>
+              ) : filteredAppointments.map(apt => (
+                <div key={apt.id} className="bg-white border border-gray-200 rounded-lg hover:shadow-sm transition-all">
                   <div className="grid grid-cols-1 lg:grid-cols-[80px_1.5fr_1.5fr_1.2fr_100px_1.8fr_120px_140px] gap-2 lg:gap-4 p-2.5 lg:p-4 items-start lg:items-center">
-
-                    <span className="text-sm text-gray-900">
-                      #{String(apt.id).padStart(4, "0")}
-                    </span>
-
+                    <span className="text-sm text-gray-900">#{String(apt.id).padStart(4, "0")}</span>
                     <div>
-                      <p className="text-sm text-gray-900 truncate">
-                        {apt.clientName}
-                      </p>
-                      <p className="text-xs text-gray-500 truncate">
-                        {apt.clientPhone}
-                      </p>
+                      <p className="text-sm text-gray-900 truncate">{apt.clientName}</p>
+                      <p className="text-xs text-gray-500 truncate">{apt.clientPhone}</p>
                     </div>
-
-                    <p className="text-sm text-gray-700 truncate">
-                      {apt.services[0]?.employeeName ?? "N/A"}
-                    </p>
-
+                    <p className="text-sm text-gray-700 truncate">{apt.services[0]?.employeeName ?? "N/A"}</p>
                     <p className="text-sm text-gray-700">
-                      {apt.date.toLocaleDateString("es-ES", {
-                        day: "2-digit",
-                        month: "2-digit",
-                        year: "numeric",
-                      })}
+                      {apt.date.toLocaleDateString("es-ES", { day: "2-digit", month: "2-digit", year: "numeric" })}
                     </p>
-
                     <p className="text-sm text-gray-700">{apt.startTime}</p>
-
                     <div>
                       {apt.services.slice(0, 2).map((s, i) => (
-                        <p key={i} className="text-sm text-gray-700 truncate">
-                          {s.serviceName}
-                        </p>
+                        <p key={i} className="text-sm text-gray-700 truncate">{s.serviceName}</p>
                       ))}
-
                       {apt.services.length > 2 && (
-                        <p className="text-xs text-gray-500">
-                          +{apt.services.length - 2} más
-                        </p>
+                        <p className="text-xs text-gray-500">+{apt.services.length - 2} más</p>
                       )}
                     </div>
-
-                    <Badge
-                      className={`${getStatusColor(
-                        apt.status
-                      )} text-[11px] px-2 py-0.5 whitespace-nowrap`}
-                    >
+                    <Badge className={`${getStatusColor(apt.status)} text-[11px] px-2 py-0.5 whitespace-nowrap`}>
                       {getStatusLabel(apt.status)}
                     </Badge>
-
                     <div className="flex items-center justify-start lg:justify-end gap-1.5">
-
-                      <button
-                        onClick={() => setViewingAppointment(apt)}
-                        className="p-1.5 rounded-lg text-[#60A5FA] hover:bg-[#60A5FA]/10"
-                        title="Ver detalles"
-                      >
+                      <button onClick={() => setViewingAppointment(apt)}
+                        className="p-1.5 rounded-lg text-[#60A5FA] hover:bg-[#60A5FA]/10" title="Ver detalles">
                         <Edit className="w-4 h-4" />
                       </button>
-
                       {userRole === "admin" && (
                         <>
-                          <button
-                            onClick={() => handleEdit(apt)}
-                            className="p-1.5 rounded-lg text-[#FBBF24] hover:bg-[#FBBF24]/10"
-                            title="Editar"
-                          >
+                          <button onClick={() => handleEdit(apt)}
+                            className="p-1.5 rounded-lg text-[#FBBF24] hover:bg-[#FBBF24]/10" title="Editar">
                             <Edit className="w-4 h-4" />
                           </button>
-
                           <button
-                            onClick={() => {
-                              setAppointmentToCancel(apt.id);
-                              setCancelDialogOpen(true);
-                            }}
+                            onClick={() => { setAppointmentToCancel(apt.id); setCancelDialogOpen(true); }}
                             disabled={apt.status === "cancelled"}
                             className={`p-1.5 rounded-lg transition-all ${
-                              apt.status === "cancelled"
-                                ? "text-gray-300 cursor-not-allowed"
-                                : "text-[#F87171] hover:bg-[#F87171]/10"
+                              apt.status === "cancelled" ? "text-gray-300 cursor-not-allowed" : "text-[#F87171] hover:bg-[#F87171]/10"
                             }`}
-                            title="Cancelar"
-                          >
+                            title="Cancelar">
                             <XCircle className="w-4 h-4" />
                           </button>
                         </>
@@ -270,222 +250,227 @@ export function AppointmentsPage({ userRole }: AppointmentsModuleProps) {
                     </div>
                   </div>
                 </div>
-              ))
-            )}
-          </div>
-        </>
-      )}
-
-          {/* ====================== CALENDARIO ====================== */}
-
-          {viewMode === "calendar" && (
-          <>
-          {/* Header semana */}
-          <Card>
-          <CardContent className="p-3">
-          <div className="flex items-center justify-between">
-
-          <button onClick={goToPreviousWeek} className="p-2 hover:bg-gray-100 rounded-lg">
-          <ChevronLeft className="w-5 h-5"/>
-          </button>
-
-          <div className="flex items-center gap-3">
-          <h3 className="text-gray-900">
-          {getWeekDates()[0].toLocaleDateString("es-ES",{day:"numeric",month:"long"})}
-          {" - "}
-          {getWeekDates()[6].toLocaleDateString("es-ES",{day:"numeric",month:"long",year:"numeric"})}
-          </h3>
-
-          <Button
-          variant="outline"
-          size="sm"
-          onClick={goToToday}
-          className="border-gray-300 rounded-lg h-8 text-sm"
-          >
-          Hoy
-          </Button>
-          </div>
-
-          <button onClick={goToNextWeek} className="p-2 hover:bg-gray-100 rounded-lg">
-          <ChevronRight className="w-5 h-5"/>
-          </button>
-
-          </div>
-          </CardContent>
-          </Card>
-
-          {/* Calendario */}
-          <Card className="overflow-hidden">
-          <div className="overflow-x-auto">
-          <div className="min-w-[1200px]">
-
-          {/* Días */}
-          <div className="grid grid-cols-8 border-b bg-gray-50 sticky top-0 z-10">
-
-          <div className="p-3 border-r text-gray-900">Hora</div>
-
-          {getWeekDates().map((date,idx)=>{
-
-          const past = isPastDate(date)
-          const today = isToday(date)
-
-          return(
-          <div
-          key={idx}
-          className={`p-3 border-r text-center
-          ${today && "bg-[#78D1BD]/10"}
-          ${past && "bg-gray-200 text-gray-400"}
-          `}
-          >
-
-          <div className={`text-sm ${past ? "text-gray-400":"text-gray-600"}`}>
-          {WEEK_DAYS[idx]}
-          </div>
-
-          <div className={`mt-1 font-medium
-          ${today ? "text-[#78D1BD]" : past ? "text-gray-400" : "text-gray-900"}
-          `}>
-          {date.getDate()}
-          </div>
-
-          </div>
-          )
-
-          })}
-
-          </div>
-
-          {/* HORAS */}
-          {TIME_SLOTS.map(time=>(
-          <div key={time} className="grid grid-cols-8 border-b">
-
-          {/* Columna hora */}
-          <div className="p-2 border-r bg-gray-50 text-sm text-gray-600">{time}</div>
-
-          {getWeekDates().map((date,dIdx)=>{
-
-          const cellApts = getAppointmentsForCell(date,time)
-          const startingApts = cellApts.filter(a=>a.startTime===time)
-          const fullyBlocked = isCellFullyBlocked(date,time)
-          const past = isPastDate(date)
-
-          return(
-          <div
-          key={dIdx}
-          className={`border-r border-gray-200 last:border-r-0 min-h-[42px] p-1 flex flex-col gap-1
-          ${past && "bg-gray-100 opacity-70"}
-          `}
-          onClick={()=>{
-
-          if(!fullyBlocked && !past){
-
-          setFormData({...EMPTY_FORM,date,startTime:time})
-          setIsDialogOpen(true)
-
-          }
-
-          }}
-          >
-
-          {/* ⭐ citas */}
-          {startingApts.map(apt=>(
-          <div
-          key={apt.id}
-          className="rounded-md border-l-4 px-2 py-1 text-[11px] cursor-pointer hover:shadow-sm transition-all"
-          style={{
-          backgroundColor:{
-          pending:"#FEF3C7",
-          cancelled:"#FEE2E2",
-          completed:"#DBEAFE"
-          }[apt.status],
-          borderLeftColor:{
-          pending:"#F59E0B",
-          cancelled:"#EF4444",
-          completed:"#3B82F6"
-          }[apt.status],
-          }}
-          onClick={(e)=>{
-          e.stopPropagation()
-          setViewingAppointment(apt)
-          }}
-          >
-
-          <div className="font-medium truncate text-gray-900">{apt.clientName}</div>
-
-          <div className="text-gray-600 text-[10px]">
-          {apt.startTime} - {apt.endTime}
-          </div>
-
-          <div className="text-gray-700 truncate text-[10px]">
-          {apt.services.map(s=>s.serviceName).join(", ")}
-          </div>
-
-          </div>
-          ))}
-
-          </div>
-          )
-
-          })}
-
-          </div>
-          ))}
-
-          </div>
-          </div>
-          </Card>
+              ))}
+            </div>
           </>
-          )}
+        )}
 
-      {/* ====================== DIALOGS ====================== */}
+        {/* ── Vista Calendario ── */}
+        {viewMode === "calendar" && (
+          <>
+            {/* Navegación semana */}
+            <Card className="border-gray-200 shadow-sm">
+              <CardContent className="p-3">
+                <div className="flex items-center justify-between">
+                  <button onClick={goToPreviousWeek} className="p-2 hover:bg-gray-100 rounded-lg">
+                    <ChevronLeft className="w-5 h-5 text-gray-600" />
+                  </button>
+                  <div className="flex items-center gap-3">
+                    <h3 className="text-gray-900">
+                      {getWeekDates()[0].toLocaleDateString("es-ES", { day: "numeric", month: "long" })}
+                      {" - "}
+                      {getWeekDates()[6].toLocaleDateString("es-ES", { day: "numeric", month: "long", year: "numeric" })}
+                    </h3>
+                    <Button variant="outline" size="sm" onClick={goToToday}
+                      className="border-gray-300 rounded-lg h-8 text-sm">Hoy</Button>
+                  </div>
+                  <button onClick={goToNextWeek} className="p-2 hover:bg-gray-100 rounded-lg">
+                    <ChevronRight className="w-5 h-5 text-gray-600" />
+                  </button>
+                </div>
+              </CardContent>
+            </Card>
 
-      <AppointmentViewDialog
-        appointment={viewingAppointment}
-        employees={employees}
-        userRole={userRole}
-        onClose={()=>setViewingAppointment(null)}
-        onEdit={handleEdit}
-        onDeleteRequest={(id)=>{
-          setAppointmentToDelete(id);
-          setDeleteDialogOpen(true);
-        }}
-        onUpdateStatus={handleUpdateStatus}
-      />
+            {/* Leyenda */}
+            <Card className="border-gray-200 shadow-sm">
+              <CardContent className="p-3">
+                <div className="flex items-center gap-4 flex-wrap">
+                  <span className="text-xs text-gray-600">Estados:</span>
+                  {LEGEND_ITEMS.map(({ color, label }) => (
+                    <div key={label} className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded border-l-4"
+                        style={{ borderLeftColor: color, backgroundColor: color + "20" }} />
+                      <span className="text-xs text-gray-700">{label}</span>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
 
-      <AppointmentFormDialog
-        isOpen={isDialogOpen}
-        onOpenChange={setIsDialogOpen}
-        editingAppointment={editingAppointment}
-        formData={formData}
-        setFormData={setFormData}
-        selectedServices={selectedServices}
-        currentService={currentService}
-        setCurrentService={setCurrentService}
-        services={services}
-        employees={employees}
-        clients={clients}
-        getEmployeesByCategory={getEmployeesByCategory}
-        onAddService={handleAddService}
-        onRemoveService={handleRemoveService}
-        onClientChange={handleClientChange}
-        onSubmit={handleCreateOrUpdate}
-        onCancel={resetForm}
-      />
+            {/* Grid del calendario */}
+            <Card className="border-gray-200 shadow-sm overflow-hidden">
+              <div className="overflow-x-auto">
+                <div className="min-w-[1100px]">
 
-      <DeleteAppointmentDialog
-        open={deleteDialogOpen}
-        onOpenChange={setDeleteDialogOpen}
-        onConfirm={handleDelete}
-      />
+                  {/* Cabecera de días */}
+                  <div className="grid grid-cols-8 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-gray-100 sticky top-0 z-10">
+                    <div className="p-3 border-r border-gray-200 text-gray-500 text-xs uppercase tracking-wide">Hora</div>
+                    {getWeekDates().map((date, idx) => (
+                      <div key={idx} className={`p-3 border-r border-gray-200 last:border-r-0 text-center ${
+                        isToday(date) ? "bg-[#78D1BD]/10" : isPastDate(date) ? "bg-gray-100" : ""
+                      }`}>
+                        <div className={`text-xs uppercase tracking-wide ${isPastDate(date) ? "text-gray-400" : "text-gray-500"}`}>
+                          {WEEK_DAYS[idx]}
+                        </div>
+                        <div className={`mt-1 text-lg font-semibold ${
+                          isToday(date) ? "text-[#78D1BD]" : isPastDate(date) ? "text-gray-400" : "text-gray-800"
+                        }`}>
+                          {date.getDate()}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
 
-      <CancelAppointmentDialog
-        open={cancelDialogOpen}
-        onOpenChange={setCancelDialogOpen}
-        onConfirm={handleCancelAppointment}
-      />
+                  {/* Cuerpo: horas + columnas de días */}
+                  <div className="grid grid-cols-8">
 
+                    {/* Columna de horas */}
+                    <div className="border-r border-gray-200 bg-gray-50/50">
+                      {TIME_SLOTS.map(time => (
+                        <div key={time}
+                          style={{ height: ROW_HEIGHT }}
+                          className="border-b border-gray-100 last:border-b-0 px-2 flex items-start pt-1.5">
+                          <span className="text-[11px] text-gray-400 font-medium">{time}</span>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Columna de cada día */}
+                    {getWeekDates().map((date, dIdx) => {
+                      const dayApts = getAptsByDate(date);
+                      const past    = isPastDate(date);
+
+                      return (
+                        <div key={dIdx}
+                          className={`border-r border-gray-200 last:border-r-0 relative ${
+                            isToday(date) ? "bg-[#78D1BD]/5" : past ? "bg-gray-50/80" : "bg-white"
+                          }`}
+                          style={{ height: totalHeight }}
+                        >
+                          {/* Líneas guía por franja */}
+                          {TIME_SLOTS.map((_, i) => (
+                            <div key={i}
+                              className="absolute w-full border-b border-gray-100 pointer-events-none"
+                              style={{ top: i * ROW_HEIGHT }} />
+                          ))}
+
+                          {/* Zonas clickeables por franja horaria */}
+                          {TIME_SLOTS.map(time => {
+                            const fullyBlocked = isCellFullyBlocked(date, time);
+                            return (
+                              <div key={time}
+                                className={`absolute w-full transition-colors ${
+                                  !fullyBlocked && !past
+                                    ? "hover:bg-[#A78BFA]/8 cursor-pointer group"
+                                    : past ? "cursor-not-allowed" : ""
+                                }`}
+                                style={{
+                                  top:    ((toMin(time) - firstSlotMin) / 30) * ROW_HEIGHT,
+                                  height: ROW_HEIGHT,
+                                  zIndex: 1,
+                                }}
+                                onClick={() => {
+                                  if (!fullyBlocked && !past) {
+                                    setFormData({ ...EMPTY_FORM, date, startTime: time });
+                                    setIsDialogOpen(true);
+                                  }
+                                }}
+                              >
+                                {/* Icono + al hacer hover en celda vacía */}
+                                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 pointer-events-none">
+                                  <Plus className="w-3.5 h-3.5 text-[#A78BFA]/50" />
+                                </div>
+                              </div>
+                            );
+                          })}
+
+                          {/* ⭐ Citas side-by-side con posición absoluta */}
+                          {dayApts.map(apt => {
+                            const { colIndex, totalCols } = getAptLayout(apt, dayApts);
+                            const widthPct = 100 / totalCols;
+                            const leftPct  = colIndex * widthPct;
+                            const { bg, border } = STATUS_COLORS[apt.status] ?? STATUS_COLORS.pending;
+                            const h = aptHeight(apt);
+
+                            return (
+                              <div
+                                key={apt.id}
+                                className="absolute rounded-md border-l-[3px] px-1.5 py-1 cursor-pointer hover:shadow-lg hover:brightness-95 transition-all overflow-hidden"
+                                style={{
+                                  top:             aptTop(apt) + 1,
+                                  height:          h,
+                                  left:            `calc(${leftPct}% + 2px)`,
+                                  width:           `calc(${widthPct}% - 4px)`,
+                                  backgroundColor: bg,
+                                  borderLeftColor: border,
+                                  zIndex:          20,
+                                }}
+                                onClick={e => { e.stopPropagation(); setViewingAppointment(apt); }}
+                              >
+                                <p className="text-[11px] font-semibold text-gray-900 truncate leading-tight">
+                                  {apt.clientName}
+                                </p>
+                                <p className="text-[10px] text-gray-500 leading-tight">
+                                  {apt.startTime} – {apt.endTime}
+                                </p>
+                                {h > 40 && (
+                                  <p className="text-[10px] text-gray-600 truncate leading-tight mt-0.5">
+                                    {apt.services.map(s => s.serviceName).join(", ")}
+                                  </p>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            </Card>
+          </>
+        )}
+
+        {/* ── Dialogs ── */}
+        <AppointmentViewDialog
+          appointment={viewingAppointment}
+          employees={employees}
+          userRole={userRole}
+          onClose={() => setViewingAppointment(null)}
+          onEdit={handleEdit}
+          onDeleteRequest={id => { setAppointmentToDelete(id); setDeleteDialogOpen(true); }}
+          onUpdateStatus={handleUpdateStatus}
+        />
+        <AppointmentFormDialog
+          isOpen={isDialogOpen}
+          onOpenChange={setIsDialogOpen}
+          editingAppointment={editingAppointment}
+          formData={formData}
+          setFormData={setFormData}
+          selectedServices={selectedServices}
+          currentService={currentService}
+          setCurrentService={setCurrentService}
+          services={services}
+          employees={employees}
+          clients={clients}
+          getEmployeesByCategory={getEmployeesByCategory}
+          onAddService={handleAddService}
+          onRemoveService={handleRemoveService}
+          onClientChange={handleClientChange}
+          onSubmit={handleCreateOrUpdate}
+          onCancel={resetForm}
+        />
+        <DeleteAppointmentDialog
+          open={deleteDialogOpen}
+          onOpenChange={setDeleteDialogOpen}
+          onConfirm={handleDelete}
+        />
+        <CancelAppointmentDialog
+          open={cancelDialogOpen}
+          onOpenChange={setCancelDialogOpen}
+          onConfirm={handleCancelAppointment}
+        />
       </div>
-
     </SpaPage>
   );
 }
