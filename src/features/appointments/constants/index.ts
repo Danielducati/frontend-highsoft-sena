@@ -22,19 +22,19 @@ export const STATUS_LABELS: Record<string, string> = {
 };
 
 export const STATUS_BG: Record<string, string> = {
-  pending:   "#F59E0B20",
-  cancelled: "#EF444420",
-  completed: "#3B82F620",
+  pending:   " #F59E0B20",
+  cancelled: " #EF444420",
+  completed: " #3B82F620",
 };
 
 export const STATUS_BORDER: Record<string, string> = {
-  pending:   "#F59E0B",
-  cancelled: "#EF4444",
-  completed: "#3B82F6",
+  pending:   " #F59E0B",
+  cancelled: " #EF4444",
+  completed: " #3B82F6",
 };
 
 export const LEGEND_ITEMS = [
-  { color: "#F59E0B", label: "Pendiente"  },
-  { color: "#23f83f", label: "Completada" },
-  { color: "#EF4444", label: "Cancelada"  },
+  { color: " #F59E0B", label: "Pendiente"  },
+  { color: "rgb(0, 125, 241)", label: "Completada" },
+  { color: " #EF4444", label: "Cancelada"  },
 ];

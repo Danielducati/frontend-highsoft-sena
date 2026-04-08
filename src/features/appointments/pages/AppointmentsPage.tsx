@@ -1,4 +1,3 @@
-//frontend-highsoft-sena\src\features\appointments\pages\AppointmentsPage.tsx
 import { Card, CardContent } from "../../../shared/ui/card";
 import { Button } from "../../../shared/ui/button";
 import { Input } from "../../../shared/ui/input";
@@ -18,21 +17,16 @@ import { DeleteAppointmentDialog, CancelAppointmentDialog } from "../components/
 import { SpaPage } from "../../../shared/components/layout/SpaPage";
 import { Appointment } from "../types";
 
-// ── Helpers estilo Google Calendar ────────────────────────────────────────────
+// ── Helpers ───────────────────────────────────────────────────────────────────
 
 const toMin = (t: string) => {
   const [h, m] = t.split(":").map(Number);
   return h * 60 + m;
 };
 
-/**
- * Agrupa citas solapadas en columnas.
- * Cada columna contiene citas que NO se solapan entre sí.
- */
 function buildColumns(apts: Appointment[]): Appointment[][] {
   const sorted = [...apts].sort((a, b) => toMin(a.startTime) - toMin(b.startTime));
   const columns: Appointment[][] = [];
-
   for (const apt of sorted) {
     let placed = false;
     for (const col of columns) {
@@ -49,30 +43,39 @@ function buildColumns(apts: Appointment[]): Appointment[][] {
 }
 
 /**
- * Devuelve { colIndex, totalCols } para posicionar side-by-side.
- * totalCols = máximo de columnas que se solapan con esta cita.
+ * Siempre reserva 1 columna extra como "carril libre".
+ * Con N citas solapadas → efectiveCols = N + 1
+ * Cada cita ocupa 1/(N+1) del ancho, dejando el último slot vacío.
  */
 function getAptLayout(apt: Appointment, allApts: Appointment[]) {
-  const columns   = buildColumns(allApts);
-  const aptStart  = toMin(apt.startTime);
-  const aptEnd    = toMin(apt.endTime);
+  const columns  = buildColumns(allApts);
+  const aptStart = toMin(apt.startTime);
+  const aptEnd   = toMin(apt.endTime);
 
   const overlappingCols = columns.filter(col =>
     col.some(a => toMin(a.startTime) < aptEnd && toMin(a.endTime) > aptStart)
   );
 
-  const colIndex = overlappingCols.findIndex(col => col.includes(apt));
-  return { colIndex, totalCols: overlappingCols.length };
+  const colIndex      = overlappingCols.findIndex(col => col.includes(apt));
+  const totalCols     = overlappingCols.length;
+  const effectiveCols = totalCols + 1; // +1 = carril libre siempre
+
+  const widthPct = 100 / effectiveCols;
+  const leftPct  = colIndex * widthPct;
+  // El carril libre empieza justo después de la última cita
+  const freeLaneLeft = totalCols * widthPct;
+
+  return { colIndex, totalCols, widthPct, leftPct, freeLaneLeft, effectiveCols };
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
 
-const ROW_HEIGHT = 48; // px por franja de 30 min
+const ROW_HEIGHT = 80; // px por franja de 30 min — más grande para mejor UX
 
 const STATUS_COLORS: Record<string, { bg: string; border: string }> = {
-  pending:   { bg: "#FEF3C7", border: "#F59E0B" },
-  cancelled: { bg: "#FEE2E2", border: "#EF4444" },
-  completed: { bg: "#DBEAFE", border: "#3B82F6" },
+  pending:   { bg: " #FEF3C7", border: " #F59E0B" },
+  cancelled: { bg: " #FEE2E2", border: " #EF4444" },
+  completed: { bg: " #DBEAFE", border: " #3B82F6" },
 };
 
 export function AppointmentsPage({ userRole }: AppointmentsModuleProps) {
@@ -99,8 +102,8 @@ export function AppointmentsPage({ userRole }: AppointmentsModuleProps) {
     date: new Date(), startTime: "", notes: "",
   };
 
-  const firstSlotMin  = toMin(TIME_SLOTS[0]);
-  const totalHeight   = TIME_SLOTS.length * ROW_HEIGHT;
+  const firstSlotMin = toMin(TIME_SLOTS[0]);
+  const totalHeight  = TIME_SLOTS.length * ROW_HEIGHT;
 
   const getAptsByDate = (date: Date) =>
     appointments.filter(a => a.date.toDateString() === date.toDateString());
@@ -109,7 +112,7 @@ export function AppointmentsPage({ userRole }: AppointmentsModuleProps) {
     ((toMin(apt.startTime) - firstSlotMin) / 30) * ROW_HEIGHT;
 
   const aptHeight = (apt: Appointment) =>
-    Math.max(((toMin(apt.endTime) - toMin(apt.startTime)) / 30) * ROW_HEIGHT - 2, ROW_HEIGHT * 0.8);
+    Math.max(((toMin(apt.endTime) - toMin(apt.startTime)) / 30) * ROW_HEIGHT - 4, ROW_HEIGHT * 0.85);
 
   if (loading) return (
     <div className="flex items-center justify-center h-64 text-gray-500">Cargando citas...</div>
@@ -141,7 +144,7 @@ export function AppointmentsPage({ userRole }: AppointmentsModuleProps) {
             style={{
               display: "inline-flex", alignItems: "center", justifyContent: "center",
               gap: 8, padding: "10px 20px", borderRadius: 10,
-              backgroundColor: "#1a3a2a", color: "#ffffff",
+              backgroundColor: "#1a3a2a", color: " #ffffff",
               fontSize: 14, fontWeight: 600, border: "none", cursor: "pointer",
             }}
             onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#2a5a40")}
@@ -299,11 +302,12 @@ export function AppointmentsPage({ userRole }: AppointmentsModuleProps) {
 
             {/* Grid del calendario */}
             <Card className="border-gray-200 shadow-sm overflow-hidden">
-              <div className="overflow-x-auto">
-                <div className="min-w-[1100px]">
+              {/* overflow-y: scroll para navegar con rueda del mouse */}
+              <div className="overflow-x-auto overflow-y-auto" style={{ maxHeight: "75vh" }}>
+                <div className="min-w-[1600px]">
 
-                  {/* Cabecera de días */}
-                  <div className="grid grid-cols-8 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-gray-100 sticky top-0 z-10">
+                  {/* Cabecera de días — sticky para que quede fija al hacer scroll */}
+                  <div className="grid grid-cols-8 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-gray-100 sticky top-0 z-30">
                     <div className="p-3 border-r border-gray-200 text-gray-500 text-xs uppercase tracking-wide">Hora</div>
                     {getWeekDates().map((date, idx) => (
                       <div key={idx} className={`p-3 border-r border-gray-200 last:border-r-0 text-center ${
@@ -321,15 +325,15 @@ export function AppointmentsPage({ userRole }: AppointmentsModuleProps) {
                     ))}
                   </div>
 
-                  {/* Cuerpo: horas + columnas de días */}
+                  {/* Cuerpo */}
                   <div className="grid grid-cols-8">
 
-                    {/* Columna de horas */}
-                    <div className="border-r border-gray-200 bg-gray-50/50">
+                    {/* Columna de horas — sticky para que quede fija al hacer scroll horizontal */}
+                    <div className="border-r border-gray-200 bg-gray-50/50 sticky left-0 z-20">
                       {TIME_SLOTS.map(time => (
                         <div key={time}
                           style={{ height: ROW_HEIGHT }}
-                          className="border-b border-gray-100 last:border-b-0 px-2 flex items-start pt-1.5">
+                          className="border-b border-gray-100 last:border-b-0 px-2 flex items-start pt-2">
                           <span className="text-[11px] text-gray-400 font-medium">{time}</span>
                         </div>
                       ))}
@@ -340,6 +344,18 @@ export function AppointmentsPage({ userRole }: AppointmentsModuleProps) {
                       const dayApts = getAptsByDate(date);
                       const past    = isPastDate(date);
 
+                      // Para cada franja, calcula cuántas citas hay solapadas → determina freeLaneLeft
+                      const getFreeLaneForSlot = (time: string): number => {
+                        const slotMin = toMin(time);
+                        const slotEnd = slotMin + 30;
+                        const slotApts = dayApts.filter(a =>
+                          toMin(a.startTime) < slotEnd && toMin(a.endTime) > slotMin
+                        );
+                        if (slotApts.length === 0) return 0;
+                        // freeLaneLeft = N/(N+1) * 100%
+                        return (slotApts.length / (slotApts.length + 1)) * 100;
+                      };
+
                       return (
                         <div key={dIdx}
                           className={`border-r border-gray-200 last:border-r-0 relative ${
@@ -347,57 +363,75 @@ export function AppointmentsPage({ userRole }: AppointmentsModuleProps) {
                           }`}
                           style={{ height: totalHeight }}
                         >
-                          {/* Líneas guía por franja */}
+                          {/* Líneas guía */}
                           {TIME_SLOTS.map((_, i) => (
                             <div key={i}
                               className="absolute w-full border-b border-gray-100 pointer-events-none"
                               style={{ top: i * ROW_HEIGHT }} />
                           ))}
 
-                          {/* Zonas clickeables por franja horaria */}
+                          {/* Zonas clickeables por franja */}
                           {TIME_SLOTS.map(time => {
                             const fullyBlocked = isCellFullyBlocked(date, time);
+                            const freeLaneLeft = getFreeLaneForSlot(time);
+                            const hasApts      = freeLaneLeft > 0;
+                            const top          = ((toMin(time) - firstSlotMin) / 30) * ROW_HEIGHT;
+
                             return (
-                              <div key={time}
-                                className={`absolute w-full transition-colors ${
-                                  !fullyBlocked && !past
-                                    ? "hover:bg-[#A78BFA]/8 cursor-pointer group"
-                                    : past ? "cursor-not-allowed" : ""
-                                }`}
-                                style={{
-                                  top:    ((toMin(time) - firstSlotMin) / 30) * ROW_HEIGHT,
-                                  height: ROW_HEIGHT,
-                                  zIndex: 1,
-                                }}
-                                onClick={() => {
-                                  if (!fullyBlocked && !past) {
-                                    setFormData({ ...EMPTY_FORM, date, startTime: time });
-                                    setIsDialogOpen(true);
-                                  }
-                                }}
-                              >
-                                {/* Icono + al hacer hover en celda vacía */}
-                                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 pointer-events-none">
-                                  <Plus className="w-3.5 h-3.5 text-[#A78BFA]/50" />
+                              <div key={time}>
+                                {/* Zona clickeable principal:
+                                    - Sin citas: toda la celda
+                                    - Con citas: solo el carril libre (último slot) */}
+                                <div
+                                  className={`absolute transition-colors group ${
+                                    !fullyBlocked && !past
+                                      ? "hover:bg-[#A78BFA]/10 cursor-pointer"
+                                      : past
+                                      ? "cursor-not-allowed"
+                                      : ""
+                                  }`}
+                                  style={{
+                                    top,
+                                    left:   hasApts ? `${freeLaneLeft}%` : "0%",
+                                    width:  hasApts ? `${100 - freeLaneLeft}%` : "100%",
+                                    height: ROW_HEIGHT,
+                                    zIndex: 25,
+                                  }}
+                                  onClick={() => {
+                                    if (!fullyBlocked && !past) {
+                                      setFormData({ ...EMPTY_FORM, date, startTime: time });
+                                      setIsDialogOpen(true);
+                                    }
+                                  }}
+                                >
+                                  {/* Ícono + siempre visible en el carril libre */}
+                                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity">
+                                    <div className="flex flex-col items-center gap-0.5">
+                                      <Plus className="w-4 h-4 text-[#A78BFA]" />
+                                      {hasApts && (
+                                        <span className="text-[9px] text-[#A78BFA] font-medium leading-none">
+                                          {time}
+                                        </span>
+                                      )}
+                                    </div>
+                                  </div>
                                 </div>
                               </div>
                             );
                           })}
 
-                          {/* ⭐ Citas side-by-side con posición absoluta */}
+                          {/* Citas renderizadas con posición absoluta */}
                           {dayApts.map(apt => {
-                            const { colIndex, totalCols } = getAptLayout(apt, dayApts);
-                            const widthPct = 100 / totalCols;
-                            const leftPct  = colIndex * widthPct;
+                            const { widthPct, leftPct } = getAptLayout(apt, dayApts);
                             const { bg, border } = STATUS_COLORS[apt.status] ?? STATUS_COLORS.pending;
                             const h = aptHeight(apt);
 
                             return (
                               <div
                                 key={apt.id}
-                                className="absolute rounded-md border-l-[3px] px-1.5 py-1 cursor-pointer hover:shadow-lg hover:brightness-95 transition-all overflow-hidden"
+                                className="absolute rounded-md border-l-[3px] px-2 py-1.5 cursor-pointer hover:shadow-md hover:brightness-95 transition-all overflow-hidden"
                                 style={{
-                                  top:             aptTop(apt) + 1,
+                                  top:             aptTop(apt) + 2,
                                   height:          h,
                                   left:            `calc(${leftPct}% + 2px)`,
                                   width:           `calc(${widthPct}% - 4px)`,
@@ -413,7 +447,7 @@ export function AppointmentsPage({ userRole }: AppointmentsModuleProps) {
                                 <p className="text-[10px] text-gray-500 leading-tight">
                                   {apt.startTime} – {apt.endTime}
                                 </p>
-                                {h > 40 && (
+                                {h > 50 && (
                                   <p className="text-[10px] text-gray-600 truncate leading-tight mt-0.5">
                                     {apt.services.map(s => s.serviceName).join(", ")}
                                   </p>
