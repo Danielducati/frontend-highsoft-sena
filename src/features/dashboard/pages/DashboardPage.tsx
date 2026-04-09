@@ -1,4 +1,4 @@
-//frontend-highsoft-sena\src\features\dashboard\pages\DashboardPage.tsx
+// frontend-highsoft-sena/src/features/dashboard/pages/DashboardPage.tsx
 import { Button } from "../../../shared/ui/button";
 import {
   Select,
