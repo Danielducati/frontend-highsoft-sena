@@ -12,15 +12,15 @@ export function ServicesChart({ data, periodLabel }: ServicesChartProps) {
   return (
     <Card className="border-gray-200 shadow-sm">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-gray-900">
+        <CardTitle className="flex items-center gap-2 text-base font-bold" style={{ color: "#1a3a2a", fontFamily: "var(--font-body)" }}>
           <div className="w-1 h-6 bg-[#A78BFA] rounded-full" />
           Distribución de Servicios
         </CardTitle>
-        <CardDescription>Top 5 servicios más solicitados — {periodLabel}</CardDescription>
+        <CardDescription style={{ color: "#6b7c6b", fontFamily: "var(--font-body)" }}>Top 5 servicios más solicitados — {periodLabel}</CardDescription>
       </CardHeader>
       <CardContent>
         {data.length === 0 ? (
-          <div className="flex items-center justify-center h-[300px] text-gray-400">Sin datos para este período</div>
+          <div className="flex items-center justify-center h-[300px]" style={{ color: "#6b7c6b", fontFamily: "var(--font-body)" }}>Sin datos para este período</div>
         ) : (
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
@@ -32,7 +32,7 @@ export function ServicesChart({ data, periodLabel }: ServicesChartProps) {
                   <Cell key={index} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>
-              <Tooltip contentStyle={{ borderRadius: "0.75rem", border: "none", boxShadow: "0 4px 6px -1px rgba(0,0,0,0.1)" }} />
+              <Tooltip contentStyle={{ borderRadius: "0.75rem", border: "none", boxShadow: "0 8px 20px rgba(0,0,0,0.08)", fontSize: "14px", fontFamily: "var(--font-body)" }} />
             </PieChart>
           </ResponsiveContainer>
         )}
