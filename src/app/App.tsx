@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 
 // Landing & Auth
-import { LandingPage }    from "../features/landing/LandingPage";
-import { LoginPage }      from "../features/auth/pages/LoginPage";
-import { RegisterPage }   from "../features/auth//pages/RegisterPage";
+import { LandingPage }       from "../features/landing/LandingPage";
+import { LoginPage }         from "../features/auth/pages/LoginPage";
+import { RegisterPage }      from "../features/auth//pages/RegisterPage";
+import { ResetPasswordPage } from "../features/auth/pages/ResetPasswordPage";
 
 // Layout
 import { Sidebar } from "../shared/components/layout/Sidebar";
@@ -28,7 +29,7 @@ import { Toaster } from "sonner";
 
 type UserRole = "admin" | "employee" | "client" | null;
 type Page =
-  | "landing" | "login" | "register"
+  | "landing" | "login" | "register" | "reset-password"
   | "dashboard" | "services" | "categories" | "news"
   | "appointments" | "schedules" | "quotations" | "sales"
   | "clients" | "employees" | "users" | "roles" | "settings";
@@ -45,7 +46,14 @@ const ALLOWED_PAGES: Record<string, Page[]> = {
 };
 
 export default function App() {
-  const [currentPage, setCurrentPage] = useState<Page>("landing");
+  // Si la URL trae ?token=... mostrar reset-password directamente
+  const getInitialPage = (): Page => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("token")) return "reset-password";
+    return "landing";
+  };
+
+  const [currentPage, setCurrentPage] = useState<Page>(getInitialPage);
   const [userRole,    setUserRole]    = useState<UserRole>(null);
 
   const handleLogin = (role: "admin" | "employee" | "client") => {
@@ -59,7 +67,7 @@ export default function App() {
   };
 
   const handleNavigate = (page: string) => {
-    if (page === "login" || page === "register") {
+    if (page === "login" || page === "register" || page === "reset-password") {
       setCurrentPage(page as Page);
       return;
     }
@@ -81,6 +89,10 @@ export default function App() {
 
   if (currentPage === "register") return (
     <><RegisterPage onBack={() => setCurrentPage("landing")} onRegisterSuccess={() => setCurrentPage("landing")} /><Toaster /></>
+  );
+
+  if (currentPage === "reset-password") return (
+    <><ResetPasswordPage onGoToLogin={() => setCurrentPage("login")} /><Toaster /></>
   );
 
   if (!userRole) return null;

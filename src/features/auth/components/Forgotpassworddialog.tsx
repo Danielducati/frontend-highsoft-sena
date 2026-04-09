@@ -2,7 +2,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Button } from "../../../shared/ui/button";
 import { Input } from "../../../shared/ui/input";
 import { Label } from "../../../shared/ui/label";
-import { Mail, CheckCircle } from "lucide-react";
+import { Mail, CheckCircle, Loader2 } from "lucide-react";
 
 interface ForgotPasswordDialogProps {
   open: boolean;
@@ -10,80 +10,95 @@ interface ForgotPasswordDialogProps {
   recoveryEmail: string;
   setRecoveryEmail: (v: string) => void;
   recoverySuccess: boolean;
+  recoveryLoading?: boolean;
   onSubmit: (e: React.FormEvent) => void;
 }
 
 export function ForgotPasswordDialog({
-  open, onClose, recoveryEmail, setRecoveryEmail, recoverySuccess, onSubmit,
+  open, onClose, recoveryEmail, setRecoveryEmail,
+  recoverySuccess, recoveryLoading = false, onSubmit,
 }: ForgotPasswordDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[480px]">
+      <DialogContent className="max-w-[340px] p-5" style={{ borderRadius: 14 }}>
         {!recoverySuccess ? (
           <>
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2">
-                <Mail className="w-5 h-5 text-primary" />
-                Recuperar Contraseña
-              </DialogTitle>
-              <DialogDescription>
-                Ingresa tu correo y te enviaremos un enlace para restablecer tu contraseña.
-              </DialogDescription>
-            </DialogHeader>
-            <form onSubmit={onSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="recovery-email">Correo Electrónico</Label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <Input
-                    id="recovery-email"
-                    type="email"
-                    placeholder="tu_correo@ejemplo.com"
-                    value={recoveryEmail}
-                    onChange={(e) => setRecoveryEmail(e.target.value)}
-                    className="pl-10"
-                  />
+            <DialogHeader className="space-y-1">
+              <div className="flex justify-center mb-1">
+                <div className="w-9 h-9 rounded-full flex items-center justify-center" style={{ backgroundColor: "#e8f7f4" }}>
+                  <Mail className="w-4 h-4" style={{ color: "#1a5c3a" }} />
                 </div>
               </div>
-              <div className="flex justify-end gap-2 pt-4">
-                <Button type="button" variant="outline" onClick={onClose}>Cancelar</Button>
-                <Button type="submit" className="bg-primary hover:bg-primary/90 text-foreground">
-                  Enviar Enlace
+              <DialogTitle className="text-center text-base font-normal" style={{ color: "#1a3a2a" }}>
+                Recuperar contraseña
+              </DialogTitle>
+              <DialogDescription className="text-center text-[11px]" style={{ color: "#6b7c6b" }}>
+                Te enviaremos un enlace para restablecerla.
+              </DialogDescription>
+            </DialogHeader>
+
+            <form onSubmit={onSubmit} className="space-y-3 pt-1">
+              <div className="space-y-1">
+                <Label className="text-[10px] tracking-[0.18em]" style={{ color: "#6b7c6b" }}>
+                  CORREO ELECTRÓNICO
+                </Label>
+                <Input
+                  id="recovery-email"
+                  type="email"
+                  placeholder="tu@correo.com"
+                  value={recoveryEmail}
+                  onChange={(e) => setRecoveryEmail(e.target.value)}
+                  className="h-9 rounded-lg border-0 text-sm"
+                  style={{ backgroundColor: "#ece7df", color: "#1a3a2a" }}
+                  disabled={recoveryLoading}
+                />
+              </div>
+
+              <div className="flex gap-2 pt-1">
+                <Button type="button" variant="outline" onClick={onClose}
+                  disabled={recoveryLoading}
+                  className="flex-1 h-9 rounded-lg text-xs"
+                  style={{ borderColor: "#d6cfc4", color: "#6b7c6b" }}>
+                  Cancelar
+                </Button>
+                <Button type="submit"
+                  disabled={recoveryLoading || !recoveryEmail}
+                  className="flex-1 h-9 rounded-lg text-xs"
+                  style={{ backgroundColor: "#1a3a2a", color: "#ffffff", fontWeight: 600 }}>
+                  {recoveryLoading ? (
+                    <span className="flex items-center gap-1.5">
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      Enviando...
+                    </span>
+                  ) : "Enviar enlace"}
                 </Button>
               </div>
             </form>
           </>
         ) : (
           <>
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-green-500" />
-                Correo Enviado
-              </DialogTitle>
-            </DialogHeader>
-            <div className="py-6">
-              <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
-                <div className="flex items-start gap-3">
-                  <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
-                  <div>
-                    <p className="text-sm text-green-800 mb-1">¡Correo enviado exitosamente!</p>
-                    <p className="text-xs text-green-700">
-                      Hemos enviado un enlace de recuperación a <span className="font-semibold">{recoveryEmail}</span>
-                    </p>
-                  </div>
+            <DialogHeader className="space-y-1">
+              <div className="flex justify-center mb-1">
+                <div className="w-9 h-9 rounded-full flex items-center justify-center" style={{ backgroundColor: "#e8f7f4" }}>
+                  <CheckCircle className="w-4 h-4" style={{ color: "#1a5c3a" }} />
                 </div>
               </div>
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <p className="text-xs text-blue-800">
-                  <span className="font-semibold">Nota:</span> Si no recibes el correo, revisa tu carpeta de spam.
-                </p>
-              </div>
+              <DialogTitle className="text-center text-base font-normal" style={{ color: "#1a3a2a" }}>
+                ¡Revisa tu correo!
+              </DialogTitle>
+              <DialogDescription className="text-center text-[11px]" style={{ color: "#6b7c6b" }}>
+                Enviamos el enlace a <span className="font-medium" style={{ color: "#1a3a2a" }}>{recoveryEmail}</span>
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="rounded-lg p-2.5 text-[11px] mt-2" style={{ backgroundColor: "#f5f0e8", color: "#6b7c6b" }}>
+              Si no recibes el correo, revisa tu carpeta de spam.
             </div>
-            <div className="flex justify-end">
-              <Button onClick={onClose} className="bg-primary hover:bg-primary/90 text-foreground">
-                Entendido
-              </Button>
-            </div>
+
+            <Button onClick={onClose} className="w-full h-9 rounded-lg text-xs mt-1"
+              style={{ backgroundColor: "#1a3a2a", color: "#ffffff", fontWeight: 600 }}>
+              Entendido
+            </Button>
           </>
         )}
       </DialogContent>
