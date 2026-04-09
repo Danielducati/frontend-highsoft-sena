@@ -6,7 +6,7 @@ import { Input } from "../../../shared/ui/input";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../../../shared/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "../../../shared/ui/alert-dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../shared/ui/select";
-import { Plus, Search, Filter, AlertCircle } from "lucide-react";
+import { Plus, Search, Filter, AlertCircle, Eye, Pencil, Trash2, } from "lucide-react";
 import { useNews } from "../hooks/useNews";
 import { NewsForm } from "../components/NewsForm";
 import { NewsTable } from "../components/NewsTable";
@@ -232,7 +232,7 @@ export function NewsPage({ userRole }: NewsModuleProps) {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} className="bg-[#F87171] hover:bg-[#EF4444]">Eliminar</AlertDialogAction>
+            <AlertDialogAction onClick={handleDelete} className="bg-[#F87171] hover:bg-[ #EF4444]">Eliminar</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
