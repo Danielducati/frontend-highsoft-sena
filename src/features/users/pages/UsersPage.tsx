@@ -108,8 +108,14 @@ export function UsersPage({ userRole }: UsersModuleProps) {
                     >
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3 min-w-0">
-                          <div className="w-9 h-9 rounded-full flex items-center justify-center text-white text-sm flex-shrink-0" style={{ background: "linear-gradient(135deg, #78D1BD, #5FBFAA)" }}>
-                            {user.name.charAt(0)}
+                          <div className="w-9 h-9 rounded-full overflow-hidden flex-shrink-0" style={{ border: "2px solid #c8ead9" }}>
+                            {user.photo ? (
+                              <img src={user.photo} alt={user.name} className="w-full h-full object-cover" />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center text-white text-sm" style={{ background: "linear-gradient(135deg, #78D1BD, #5FBFAA)" }}>
+                                {user.name.charAt(0)}
+                              </div>
+                            )}
                           </div>
                           <div className="min-w-0">
                             <p className="font-medium text-sm truncate" style={{ color: "#1a3a2a" }}>{user.name}</p>
@@ -124,9 +130,17 @@ export function UsersPage({ userRole }: UsersModuleProps) {
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <div className="flex items-center gap-2 min-w-0">
-                          <Mail className="w-3.5 h-3.5 flex-shrink-0" style={{ color: "#6b7c6b" }} />
-                          <span className="text-xs truncate" style={{ color: "#1a3a2a" }}>{user.email}</span>
+                        <div className="flex flex-col gap-0.5 min-w-0">
+                          <div className="flex items-center gap-1.5 min-w-0">
+                            <Mail className="w-3.5 h-3.5 flex-shrink-0" style={{ color: "#6b7c6b" }} />
+                            <span className="text-xs truncate" style={{ color: "#1a3a2a" }}>{user.email}</span>
+                          </div>
+                          {user.phone && (
+                            <div className="flex items-center gap-1.5 min-w-0 pl-0.5">
+                              <span className="text-[10px] flex-shrink-0" style={{ color: "#6b7c6b" }}>📞</span>
+                              <span className="text-xs truncate" style={{ color: "#6b7c6b" }}>{user.phone}</span>
+                            </div>
+                          )}
                         </div>
                       </td>
 
