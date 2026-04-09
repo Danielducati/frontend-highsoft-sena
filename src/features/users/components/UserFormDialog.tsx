@@ -114,6 +114,7 @@ export function UserFormDialog({
               />
             </div>
           </div>
+          
 
           {/* Email / Teléfono */}
           <div className="grid grid-cols-2 gap-4">

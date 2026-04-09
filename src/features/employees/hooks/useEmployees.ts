@@ -59,7 +59,7 @@ export function useEmployees() {
       foto_perfil:      d.image        || null,
       contrasena:       d.contrasena   || "empleado123",
       id_rol:           ROL_MAP[d.specialty] || 2,
-      Estado:           "Activo",
+      Estado:           editingEmployee ? editingEmployee.estado : "Activo",
     };
     try {
       if (editingEmployee) {
@@ -81,7 +81,7 @@ export function useEmployees() {
   const handleToggleStatus = async (employee: Employee) => {
     try {
       const nuevoEstado = employee.isActive ? "Inactivo" : "Activo";
-      await updateEmployeeApi(employee.id, { estado: nuevoEstado });
+      await updateEmployeeApi(employee.id, { Estado: nuevoEstado });
       toast.success(`Empleado ${employee.isActive ? "desactivado" : "activado"} exitosamente`);
       await loadEmployees();
     } catch (err: any) {

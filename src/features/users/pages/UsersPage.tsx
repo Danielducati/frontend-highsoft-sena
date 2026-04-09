@@ -113,7 +113,7 @@ export function UsersPage({ userRole }: UsersModuleProps) {
                           </div>
                           <div className="min-w-0">
                             <p className="font-medium text-sm truncate" style={{ color: "#1a3a2a" }}>{user.name}</p>
-                            <p className="text-xs truncate" style={{ color: "#6b7c6b" }}>{user.document || "Sin documento"}</p>
+                            <p className="text-xs truncate" style={{ color: "#6b7c6b" }}>{user.phone || "Sin teléfono"}</p>
                           </div>
                         </div>
                       </td>

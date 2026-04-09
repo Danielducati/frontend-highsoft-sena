@@ -113,10 +113,7 @@ export function CategoriesPage({ userRole }: CategoriesModuleProps) {
               >
                 {label}
               </p>
-              <p
-                className="text-3xl font-semibold"
-                style={{ color: "#1a3a2a", fontFamily: "var(--font-body)" }}
-              >
+              <p className="text-3xl font-semibold" style={{ color: "#1a3a2a", fontFamily: "var(--font-body)" }}>
                 {value}
               </p>
             </CardContent>

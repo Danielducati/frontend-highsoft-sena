@@ -69,15 +69,31 @@ export function ServiceFormDialog({
       <DialogTrigger asChild>
         <button
           onClick={onNewClick}
-          className="inline-flex items-center justify-center gap-2 rounded-lg px-6 py-3 bg-gradient-to-r from-[#78D1BD] to-[#5FBFAA] hover:from-[#6BCAB7] hover:to-[#4FB5A1] text-white transition-all shadow-md hover:shadow-lg"
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 8,
+            padding: "10px 20px",
+            borderRadius: 10,
+            backgroundColor: "#1a3a2a",
+            color: "#ffffff",
+            fontSize: 14,
+            fontWeight: 600,
+            fontFamily: "var(--font-body)",
+            border: "none",
+            cursor: "pointer",
+            transition: "background 0.2s",
+          }}
+          onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#2a5a40")}
+          onMouseLeave={e => (e.currentTarget.style.backgroundColor = "#1a3a2a")}
         >
           <Plus className="w-5 h-5" />
           <span>Agregar Servicio</span>
         </button>
       </DialogTrigger>
-      <DialogContent className="hl-form-dialog max-w-3xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="hl-form-dialog max-w-3xl max-h-[90vh] overflow-y-auto" style={{ fontFamily: "var(--font-body)" }}>
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
+          <DialogTitle className="flex items-center gap-2" style={{ fontFamily: "var(--font-body)", fontWeight: 700 }}>
             {editingService
               ? <><Pencil className="w-5 h-5 text-[#78D1BD]" />Editar Servicio</>
               : <><Plus   className="w-5 h-5 text-[#78D1BD]" />Nuevo Servicio</>}

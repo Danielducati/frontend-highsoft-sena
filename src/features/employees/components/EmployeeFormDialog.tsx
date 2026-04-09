@@ -52,6 +52,7 @@ function validate(data: EmployeeFormData, isNew: boolean): Errors {
   if (!data.email.trim()) e.email = "El correo es obligatorio.";
   else if (!EMAIL_RE.test(data.email.trim())) e.email = "Correo inválido. Ej: nombre@dominio.com";
   if (data.phone && !PHONE_RE.test(data.phone.trim())) e.phone = "Teléfono inválido.";
+  if (!data.city?.trim()) e.city = "La ciudad es obligatoria.";
   if (!data.specialty) e.specialty = "Selecciona una especialidad.";
 
   // ✅ Ahora son obligatorios
@@ -150,7 +151,7 @@ export function EmployeeFormDialog({
         padding: 32, maxWidth: 600, maxHeight: "90vh", overflowY: "auto", fontFamily: "var(--font-body)",
       }}>
         <DialogHeader>
-          <DialogTitle style={{ fontFamily: "var(--font-display)", fontSize: 22, color: "#1a3a2a", fontWeight: "normal" }}>
+          <DialogTitle style={{ fontFamily: "var(--font-body)", fontSize: 22, color: "#1a3a2a", fontWeight: 700 }}>
             {editingEmployee ? "Editar Empleado" : "Nuevo Empleado"}
           </DialogTitle>
           <DialogDescription style={{ color: "#6b7c6b", fontSize: 13 }}>
@@ -253,7 +254,7 @@ export function EmployeeFormDialog({
 
           {/* ── Ciudad / Especialidad ── */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-            <Field label="Ciudad" field="city" error={liveErrors.city}>
+            <Field label="Ciudad" field="city" required error={liveErrors.city}>
               <input style={s("city")} value={formData.city} placeholder="Medellín"
                 onChange={e => update("city", e.target.value)}
                 onBlur={() => touch("city")} />
