@@ -75,9 +75,9 @@ export function ServiceFormDialog({
           <span>Agregar Servicio</span>
         </button>
       </DialogTrigger>
-      <DialogContent className="hl-form-dialog max-w-3xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="hl-form-dialog max-w-3xl max-h-[90vh] overflow-y-auto" style={{ fontFamily: "var(--font-body)" }}>
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
+          <DialogTitle className="flex items-center gap-2" style={{ fontFamily: "var(--font-body)", fontWeight: 700 }}>
             {editingService
               ? <><Pencil className="w-5 h-5 text-[#78D1BD]" />Editar Servicio</>
               : <><Plus   className="w-5 h-5 text-[#78D1BD]" />Nuevo Servicio</>}

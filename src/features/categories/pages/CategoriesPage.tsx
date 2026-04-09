@@ -66,14 +66,14 @@ export function CategoriesPage({ userRole }: CategoriesModuleProps) {
   return (
     <div
       className="min-h-screen p-8"
-      style={{ backgroundColor: "#f5f0e8", fontFamily: "var(--font-display)" }}
+      style={{ backgroundColor: "#f5f0e8", fontFamily: "var(--font-body)" }}
     >
       {/* ── Header ── */}
       <div className="flex justify-between items-start mb-8">
         <div>
         <h1
   className="text-4xl font-bold mb-1"
-  style={{ color: "#1a3a2a", fontFamily: "var(--font-display)" }}
+  style={{ color: "#1a3a2a", fontFamily: "var(--font-body)" }}
 >
   Categorías de Servicios
 </h1>
@@ -113,10 +113,7 @@ export function CategoriesPage({ userRole }: CategoriesModuleProps) {
               >
                 {label}
               </p>
-              <p
-                className="text-3xl font-semibold"
-                style={{ color: "#1a3a2a", fontFamily: "var(--font-display)" }}
-              >
+              <p className="text-3xl font-semibold" style={{ color: "#1a3a2a", fontFamily: "var(--font-body)" }}>
                 {value}
               </p>
             </CardContent>

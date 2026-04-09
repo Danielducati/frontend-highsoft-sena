@@ -35,14 +35,14 @@ export function EmployeesPage({ userRole }: EmployeesModuleProps) {
   return (
     <div
       className="min-h-screen p-8"
-      style={{ backgroundColor: "#f5f0e8", fontFamily: "var(--font-display)" }}
+      style={{ backgroundColor: "#f5f0e8", fontFamily: "var(--font-body)" }}
     >
       {/* ── Header ── */}
       <div className="flex justify-between items-start mb-8">
         <div>
           <h1
-            className="text-4xl font-normal mb-1"
-            style={{ color: "#1a3a2a", fontFamily: "var(--font-display)" }}
+            className="text-4xl font-bold mb-1"
+            style={{ color: "#1a3a2a", fontFamily: "var(--font-body)" }}
           >
             Gestión de Empleados
           </h1>
@@ -98,7 +98,7 @@ export function EmployeesPage({ userRole }: EmployeesModuleProps) {
             </p>
             <p
               className="text-3xl font-semibold"
-              style={{ color: "#1a3a2a", fontFamily: "var(--font-display)" }}
+              style={{ color: "#1a3a2a", fontFamily: "var(--font-body)" }}
             >
               {value}
             </p>

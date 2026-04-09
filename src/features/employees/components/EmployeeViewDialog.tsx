@@ -39,7 +39,7 @@ export function EmployeeViewDialog({ employee, onClose }: EmployeeViewDialogProp
       >
         <DialogHeader>
           <DialogTitle
-            style={{ fontFamily: "var(--font-display)", fontSize: 22, color: "#1a3a2a", fontWeight: "normal" }}
+            style={{ fontFamily: "var(--font-body)", fontSize: 22, color: "#1a3a2a", fontWeight: 700 }}
           >
             Detalles del Empleado
           </DialogTitle>

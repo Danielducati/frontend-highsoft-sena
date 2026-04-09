@@ -302,8 +302,8 @@ function Totals({ items, discount }: { items: SaleItem[]; discount: string }) {
         </div>
       )}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid #d6cfc4", paddingTop: 10 }}>
-        <span style={{ color: "#1a3a2a", fontSize: 15, fontFamily: "var(--font-display)" }}>Total</span>
-        <span style={{ color: "#1a3a2a", fontSize: 20, fontWeight: 700, fontFamily: "var(--font-display)" }}>
+        <span style={{ color: "#1a3a2a", fontSize: 15, fontFamily: "var(--font-body)", fontWeight: 600 }}>Total</span>
+        <span style={{ color: "#1a3a2a", fontSize: 20, fontWeight: 700, fontFamily: "var(--font-body)" }}>
           ${calcTotal(items, discount).toLocaleString("es-CO")}
         </span>
       </div>

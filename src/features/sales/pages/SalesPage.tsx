@@ -94,12 +94,12 @@ export function SalesPage({ userRole }: SalesModuleProps) {
   const handleSubmit = async () => { const ok = await registerSale(formData, saleType); if (ok) resetForm(); };
 
   return (
-    <div className="min-h-screen p-8" style={{ backgroundColor: "#f5f0e8", fontFamily: "var(--font-display)" }}>
+    <div className="min-h-screen p-8" style={{ backgroundColor: "#f5f0e8", fontFamily: "var(--font-body)" }}>
 
       {/* ── Header ── */}
       <div className="flex justify-between items-start mb-8">
         <div>
-          <h1 className="text-4xl font-normal mb-1" style={{ color: "#1a3a2a", fontFamily: "var(--font-display)" }}>
+          <h1 className="text-4xl font-bold mb-1" style={{ color: "#1a3a2a", fontFamily: "var(--font-body)" }}>
             Gestión de Ventas
           </h1>
           <p className="text-sm" style={{ color: "#6b7c6b", fontFamily: "var(--font-body)" }}>
@@ -126,7 +126,7 @@ export function SalesPage({ userRole }: SalesModuleProps) {
               padding: 32, maxWidth: 680, maxHeight: "90vh", overflowY: "auto",
             }}>
               <DialogHeader>
-                <DialogTitle style={{ fontFamily: "var(--font-display)", fontSize: 22, color: "#1a3a2a", fontWeight: "normal" }}>
+                <DialogTitle style={{ fontFamily: "var(--font-body)", fontSize: 22, color: "#1a3a2a", fontWeight: 700 }}>
                   Registrar Nueva Venta
                 </DialogTitle>
                 <DialogDescription style={{ color: "#6b7c6b", fontSize: 13 }}>
@@ -162,7 +162,7 @@ export function SalesPage({ userRole }: SalesModuleProps) {
         ].map(({ label, value }) => (
           <div key={label} className="rounded-2xl shadow-sm p-5" style={{ backgroundColor: "#ffffff" }}>
             <p className="text-xs uppercase tracking-widest mb-1" style={{ color: "#6b7c6b", fontFamily: "var(--font-body)" }}>{label}</p>
-            <p className="text-3xl font-semibold" style={{ color: "#1a3a2a", fontFamily: "var(--font-display)" }}>{value}</p>
+            <p className="text-3xl font-semibold" style={{ color: "#1a3a2a", fontFamily: "var(--font-body)" }}>{value}</p>
           </div>
         ))}
       </div>
@@ -263,7 +263,7 @@ export function SalesPage({ userRole }: SalesModuleProps) {
           <AlertDialogHeader>
             <AlertDialogTitle style={{
               display: "flex", alignItems: "center", gap: 10,
-              fontFamily: "var(--font-display)", fontSize: 20, color: "#1a3a2a", fontWeight: "normal",
+              fontFamily: "var(--font-body)", fontSize: 20, color: "#1a3a2a", fontWeight: 700,
             }}>
               <AlertCircle style={{ width: 20, height: 20, color: "#c0392b" }} />
               ¿Anular esta venta?
