@@ -36,7 +36,6 @@ export function DashboardPage() {
       action={
         <div
           className="flex flex-wrap gap-3"
-          style={{ fontFamily: "var(--font-body)" }}
         >
           <Select value={period} onValueChange={handleFilterChange}>
             <SelectTrigger className="w-44 rounded-lg border-gray-200 bg-white">
@@ -79,7 +78,12 @@ export function DashboardPage() {
             {/* Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
               {statsCards.map((stat, i) => (
-                <StatCard key={i} {...stat} periodLabel={periodLabel} />
+                <StatCard
+                  key={i}
+                  {...stat}
+                  change={stat.change != null ? String(stat.change) : undefined}
+                  periodLabel={periodLabel}
+                />
               ))}
             </div>
 
