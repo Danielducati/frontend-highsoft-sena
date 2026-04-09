@@ -66,23 +66,57 @@ export async function resetPasswordRequest(
   const res = await fetch(`${API_URL}/auth/reset-password`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      token,
-      nuevaPassword,
-    }),
+    body: JSON.stringify({ token, nuevaPassword }),
   });
 
   const data = await parseJsonSafe(res);
 
   if (!res.ok) {
     const apiError =
-      (data &&
-        typeof data === "object" &&
-        "error" in data &&
-        typeof data.error === "string" &&
-        data.error) ||
+      (data && typeof data === "object" && "error" in data && typeof data.error === "string" && data.error) ||
       `Error HTTP ${res.status}`;
+    throw new Error(apiError);
+  }
 
+  return data;
+}
+
+export async function validateResetTokenRequest(token: string) {
+  const res = await fetch(`${API_URL}/auth/validate-reset-token`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ token }),
+  });
+
+  const data = await parseJsonSafe(res);
+
+  if (!res.ok) {
+    const apiError =
+      (data && typeof data === "object" && "error" in data && typeof data.error === "string" && data.error) ||
+      `Error HTTP ${res.status}`;
+    throw new Error(apiError);
+  }
+
+  return data;
+}
+
+export async function changePasswordRequest(contrasenaActual: string, nuevaPassword: string) {
+  const token = localStorage.getItem("token");
+  const res = await fetch(`${API_URL}/auth/change-password`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ contrasenaActual, nuevaPassword }),
+  });
+
+  const data = await parseJsonSafe(res);
+
+  if (!res.ok) {
+    const apiError =
+      (data && typeof data === "object" && "error" in data && typeof data.error === "string" && data.error) ||
+      `Error HTTP ${res.status}`;
     throw new Error(apiError);
   }
 

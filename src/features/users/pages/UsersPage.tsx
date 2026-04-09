@@ -90,7 +90,7 @@ export function UsersPage({ userRole }: UsersModuleProps) {
             <table className="w-full" style={{ fontFamily: "var(--font-body)" }}>
               <thead>
                 <tr style={{ borderBottom: "1px solid #ede8e0" }}>
-                  {["NOMBRE", "ROL", "CORREO", "ESTADO", "ACCIONES"].map((col) => (
+                  {["USUARIO", "ROL", "CONTACTO", "ESTADO", "ACCIONES"].map((col) => (
                     <th key={col} className="px-6 py-4 text-left text-xs font-semibold tracking-widest" style={{ color: "#6b7c6b" }}>{col}</th>
                   ))}
                 </tr>
@@ -113,7 +113,7 @@ export function UsersPage({ userRole }: UsersModuleProps) {
                           </div>
                           <div className="min-w-0">
                             <p className="font-medium text-sm truncate" style={{ color: "#1a3a2a" }}>{user.name}</p>
-                            <p className="text-xs truncate" style={{ color: "#6b7c6b" }}>{user.phone || "Sin teléfono"}</p>
+                            <p className="text-xs truncate" style={{ color: "#6b7c6b" }}>{user.document || "Sin documento"}</p>
                           </div>
                         </div>
                       </td>

@@ -16,6 +16,7 @@ export function LoginPage({ onLogin, onBack }: LoginPageProps) {
     forgotPasswordOpen, setForgotPasswordOpen,
     recoveryEmail, setRecoveryEmail,
     recoverySuccess,
+    recoveryLoading,
     handleLogin,
     handleForgotPassword,
     handleCloseRecoveryDialog,
@@ -180,6 +181,7 @@ export function LoginPage({ onLogin, onBack }: LoginPageProps) {
         recoveryEmail={recoveryEmail}
         setRecoveryEmail={setRecoveryEmail}
         recoverySuccess={recoverySuccess}
+        recoveryLoading={recoveryLoading}
         onSubmit={handleForgotPassword}
       />
     </div>
