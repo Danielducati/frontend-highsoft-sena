@@ -132,20 +132,21 @@ export async function registerRequest(payload: {
   tipocedula?: string;
   cedula?: string;
 }) {
-  const mappedPayload = {
-    email: payload.email,
-    password: payload.password,
-    fullName: payload.fullName,
-    apellido: payload.apellido,
-    phone: payload.phone,
-    tipocedula: payload.tipocedula,
-    cedula: payload.cedula,
+  // Mapear los nombres del frontend a los que espera el backend
+  const body = {
+    correo:           payload.email,
+    contrasena:       payload.password,
+    nombre:           payload.fullName,
+    apellido:         payload.apellido,
+    telefono:         payload.phone,
+    tipo_documento:   payload.tipocedula,
+    numero_documento: payload.cedula,
   };
 
-  const res = await fetch(`${API_URL}/auth/register`, {
+  const res  = await fetch(`${API_URL}/auth/register`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(mappedPayload),
+    body: JSON.stringify(body),
   });
 
   const data = await parseJsonSafe(res);
