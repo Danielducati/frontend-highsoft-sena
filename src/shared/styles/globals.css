@@ -4,7 +4,7 @@
 
 :root {
   --font-size: 16px;
-  --font-display: "Cormorant Garamond", serif;
+  --font-display: "Inter", system-ui, -apple-system, sans-serif;
   --font-body: "Inter", system-ui, -apple-system, sans-serif;
   --background: #F7F9FC;
   --foreground: #2D3748;
@@ -156,6 +156,7 @@
 
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-body);
   }
 }
 

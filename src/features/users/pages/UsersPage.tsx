@@ -39,7 +39,7 @@ export function UsersPage({ userRole }: UsersModuleProps) {
         userRole === "admin" ? (
           <button
             onClick={() => { resetForm(); setIsDialogOpen(true); }}
-            style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "10px 20px", borderRadius: 10, backgroundColor: "#1a3a2a", color: "#ffffff", fontSize: 14, fontWeight: 600, fontFamily: "sans-serif", border: "none", cursor: "pointer" }}
+            style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "10px 20px", borderRadius: 10, backgroundColor: "#1a3a2a", color: "#ffffff", fontSize: 14, fontWeight: 600, fontFamily: "var(--font-body)", border: "none", cursor: "pointer" }}
             onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#2a5a40")}
             onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#1a3a2a")}
           >
@@ -51,7 +51,7 @@ export function UsersPage({ userRole }: UsersModuleProps) {
       <div className="space-y-4">
 
         {/* Filtros */}
-        <div className="flex flex-col sm:flex-row gap-3 mb-2" style={{ fontFamily: "sans-serif" }}>
+        <div className="flex flex-col sm:flex-row gap-3 mb-2" style={{ fontFamily: "var(--font-body)" }}>
           <div className="flex items-center gap-2 px-4 py-2 rounded-full border flex-1" style={{ backgroundColor: "#ffffff", borderColor: "#d6cfc4", maxWidth: 380 }}>
             <Search className="w-4 h-4 flex-shrink-0" style={{ color: "#6b7c6b" }} />
             <input
@@ -62,13 +62,13 @@ export function UsersPage({ userRole }: UsersModuleProps) {
               style={{ color: "#1a3a2a" }}
             />
           </div>
-          <div className="flex items-center gap-2 flex-wrap" style={{ fontFamily: "sans-serif" }}>
+          <div className="flex items-center gap-2 flex-wrap" style={{ fontFamily: "var(--font-body)" }}>
             <Filter className="w-4 h-4" style={{ color: "#6b7c6b" }} />
-            <select value={filterRole} onChange={(e) => { setFilterRole(e.target.value); setCurrentPage(1); }} style={{ padding: "8px 14px", borderRadius: 10, border: "1px solid #d6cfc4", backgroundColor: "#ffffff", color: "#1a3a2a", fontSize: 13, fontFamily: "sans-serif", outline: "none" }}>
+            <select value={filterRole} onChange={(e) => { setFilterRole(e.target.value); setCurrentPage(1); }} style={{ padding: "8px 14px", borderRadius: 10, border: "1px solid #d6cfc4", backgroundColor: "#ffffff", color: "#1a3a2a", fontSize: 13, fontFamily: "var(--font-body)", outline: "none" }}>
               <option value="all">Todos los roles</option>
               {roles.map(r => <option key={r.id} value={r.nombre}>{r.nombre}</option>)}
             </select>
-            <select value={filterStatus} onChange={(e) => { setFilterStatus(e.target.value); setCurrentPage(1); }} style={{ padding: "8px 14px", borderRadius: 10, border: "1px solid #d6cfc4", backgroundColor: "#ffffff", color: "#1a3a2a", fontSize: 13, fontFamily: "sans-serif", outline: "none" }}>
+            <select value={filterStatus} onChange={(e) => { setFilterStatus(e.target.value); setCurrentPage(1); }} style={{ padding: "8px 14px", borderRadius: 10, border: "1px solid #d6cfc4", backgroundColor: "#ffffff", color: "#1a3a2a", fontSize: 13, fontFamily: "var(--font-body)", outline: "none" }}>
               <option value="all">Todos</option>
               <option value="active">Activos</option>
               <option value="inactive">Inactivos</option>
@@ -78,16 +78,16 @@ export function UsersPage({ userRole }: UsersModuleProps) {
 
         {/* Lista */}
         {loading ? (
-          <p className="text-center py-12 text-sm" style={{ color: "#6b7c6b", fontFamily: "sans-serif" }}>Cargando usuarios...</p>
+          <p className="text-center py-12 text-sm" style={{ color: "#6b7c6b", fontFamily: "var(--font-body)" }}>Cargando usuarios...</p>
         ) : filteredUsers.length === 0 ? (
-          <div className="flex flex-col items-center py-16" style={{ fontFamily: "sans-serif" }}>
+          <div className="flex flex-col items-center py-16" style={{ fontFamily: "var(--font-body)" }}>
             <UsersIcon className="w-10 h-10 mb-3" style={{ color: "#d6cfc4" }} />
             <p className="font-medium" style={{ color: "#1a3a2a" }}>No se encontraron usuarios</p>
             <p className="text-sm mt-1" style={{ color: "#6b7c6b" }}>Intenta ajustar los filtros de búsqueda</p>
           </div>
         ) : (
           <div className="rounded-2xl overflow-hidden shadow-sm" style={{ backgroundColor: "#ffffff" }}>
-            <table className="w-full" style={{ fontFamily: "sans-serif" }}>
+            <table className="w-full" style={{ fontFamily: "var(--font-body)" }}>
               <thead>
                 <tr style={{ borderBottom: "1px solid #ede8e0" }}>
                   {["USUARIO", "ROL", "CONTACTO", "ESTADO", "ACCIONES"].map((col) => (
@@ -119,7 +119,7 @@ export function UsersPage({ userRole }: UsersModuleProps) {
                           </div>
                           <div className="min-w-0">
                             <p className="font-medium text-sm truncate" style={{ color: "#1a3a2a" }}>{user.name}</p>
-                            <p className="text-xs truncate" style={{ color: "#6b7c6b" }}>{user.document || "Sin documento"}</p>
+                            <p className="text-xs truncate" style={{ color: "#6b7c6b" }}>{user.phone || "Sin teléfono"}</p>
                           </div>
                         </div>
                       </td>
@@ -245,7 +245,7 @@ export function UsersPage({ userRole }: UsersModuleProps) {
 
         {/* Paginación */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-between mt-6 px-4" style={{ fontFamily: "sans-serif" }}>
+          <div className="flex items-center justify-between mt-6 px-4" style={{ fontFamily: "var(--font-body)" }}>
             <p className="text-sm" style={{ color: "#6b7c6b" }}>Mostrando {startIndex + 1}–{endIndex} de {filteredUsers.length} usuarios</p>
             <div className="flex items-center gap-1">
               <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1} className="w-8 h-8 flex items-center justify-center rounded-lg text-sm disabled:opacity-30" style={{ color: "#1a3a2a" }}>‹</button>

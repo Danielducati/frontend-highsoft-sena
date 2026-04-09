@@ -195,19 +195,39 @@ export function SchedulesPage({ userRole }: SchedulesModuleProps) {
 
                         {userRole === "admin" && (
                           <td className="px-4 py-3">
-                            <div className="flex items-center justify-center gap-1">
-                              <Button variant="ghost" size="icon" onClick={() => handleViewDetail(schedule)} className="h-8 w-8 hover:bg-[#78D1BD]/10 hover:text-[#78D1BD]">
-                                <Eye className="w-3.5 h-3.5" />
-                              </Button>
-                              <Button variant="ghost" size="icon" onClick={() => handleEdit(schedule)} className="h-8 w-8 hover:bg-[#60A5FA]/10 hover:text-[#60A5FA]">
-                                <Pencil className="w-3.5 h-3.5" />
-                              </Button>
-                              {/* ← FIX 2: pasar schedule completo en lugar de schedule.id */}
-                              <Button variant="ghost" size="icon" onClick={() => confirmDelete(schedule)} className="h-8 w-8 hover:bg-[#F87171]/10 hover:text-[#F87171]">
-                                <Trash2 className="w-3.5 h-3.5" />
-                              </Button>
-                            </div>
-                          </td>
+                          <div className="flex items-center justify-center gap-1">
+                            <button
+                              onClick={() => handleViewDetail(schedule)}
+                              title="Ver detalles"
+                              className="p-2 rounded-lg transition-colors"
+                              style={{ color: "#6b7c6b" }}
+                              onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#f0ebe3")}
+                              onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
+                            >
+                              <Eye className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => handleEdit(schedule)}
+                              title="Editar"
+                              className="p-2 rounded-lg transition-colors"
+                              style={{ color: "#6b7c6b" }}
+                              onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#f0ebe3")}
+                              onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
+                            >
+                              <Pencil className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => confirmDelete(schedule)}
+                              title="Eliminar"
+                              className="p-2 rounded-lg transition-colors"
+                              style={{ color: "#c0392b" }}
+                              onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#fdf0ee")}
+                              onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </td>
                         )}
                       </tr>
                     );

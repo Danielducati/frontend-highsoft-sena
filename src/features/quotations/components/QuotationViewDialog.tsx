@@ -33,7 +33,7 @@ export function QuotationViewDialog({ quotation, onClose }: QuotationViewDialogP
         padding: 32, maxWidth: 560, maxHeight: "90vh", overflowY: "auto", fontFamily: "var(--font-body)",
       }}>
         <DialogHeader>
-          <DialogTitle style={{ fontFamily: "var(--font-display)", fontSize: 22, color: "#1a3a2a", fontWeight: "normal" }}>
+          <DialogTitle style={{ fontFamily: "var(--font-body)", fontSize: 22, color: "#1a3a2a", fontWeight: 700 }}>
             Cotización #{quotation?.id.toString().padStart(4, "0")}
           </DialogTitle>
           <DialogDescription style={{ color: "#6b7c6b", fontSize: 13 }}>
@@ -100,8 +100,8 @@ export function QuotationViewDialog({ quotation, onClose }: QuotationViewDialogP
                 display: "flex", justifyContent: "space-between", alignItems: "center",
                 borderTop: "1px solid #ede8e0", paddingTop: 10, marginTop: 4,
               }}>
-                <span style={{ color: "#1a3a2a", fontSize: 16, fontFamily: "var(--font-display)" }}>Total</span>
-                <span style={{ color: "#1a3a2a", fontSize: 22, fontWeight: 700, fontFamily: "var(--font-display)" }}>
+                <span style={{ color: "#1a3a2a", fontSize: 16, fontFamily: "var(--font-body)", fontWeight: 600 }}>Total</span>
+                <span style={{ color: "#1a3a2a", fontSize: 22, fontWeight: 700, fontFamily: "var(--font-body)" }}>
                   ${(quotation.total || 0).toLocaleString("es-CO")}
                 </span>
               </div>

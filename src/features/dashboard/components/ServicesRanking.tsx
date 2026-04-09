@@ -15,19 +15,19 @@ export function ServicesRanking({ data, periodLabel }: ServicesRankingProps) {
   return (
     <Card className="border-gray-200 shadow-sm">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-gray-900">
+        <CardTitle className="flex items-center gap-2 text-base font-bold" style={{ color: "#1a3a2a", fontFamily: "var(--font-body)" }}>
           <div className="w-1 h-6 bg-purple-500 rounded-full" />
           Top Servicios
         </CardTitle>
 
-        <CardDescription>
+        <CardDescription style={{ color: "#6b7c6b", fontFamily: "var(--font-body)" }}>
           Servicios más vendidos — {periodLabel}
         </CardDescription>
       </CardHeader>
 
       <CardContent>
         {data.length === 0 ? (
-          <p className="text-center text-gray-400 py-8">
+          <p className="text-center py-8" style={{ color: "#6b7c6b", fontFamily: "var(--font-body)" }}>
             Sin datos para este período
           </p>
         ) : (
@@ -49,6 +49,7 @@ export function ServicesRanking({ data, periodLabel }: ServicesRankingProps) {
                 stroke="#9CA3AF"
                 tickLine={false}
                 axisLine={false}
+                style={{ fontSize: "12px", fontFamily: "var(--font-body)" }}
               />
 
               <YAxis
@@ -58,7 +59,7 @@ export function ServicesRanking({ data, periodLabel }: ServicesRankingProps) {
                 width={150}
                 tickLine={false}
                 axisLine={false}
-                style={{ fontSize: "12px" }}
+                style={{ fontSize: "12px", fontFamily: "var(--font-body)" }}
               />
 
               <Tooltip
@@ -69,7 +70,9 @@ export function ServicesRanking({ data, periodLabel }: ServicesRankingProps) {
                 contentStyle={{
                   borderRadius: "0.75rem",
                   border: "none",
-                  boxShadow: "0 8px 20px rgba(0,0,0,0.08)"
+                  boxShadow: "0 8px 20px rgba(0,0,0,0.08)",
+                  fontSize: "14px",
+                  fontFamily: "var(--font-body)"
                 }}
               />
 

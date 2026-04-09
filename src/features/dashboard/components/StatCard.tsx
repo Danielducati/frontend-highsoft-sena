@@ -16,7 +16,7 @@ export function StatCard({ title, value, change, icon: Icon, color, periodLabel 
   return (
     <Card
       className="rounded-2xl shadow-sm border-gray-200 bg-white hover:shadow-md transition-all duration-300"
-      style={{ fontFamily: "var(--font-display)" }}
+      style={{ fontFamily: "var(--font-body)" }}
     >
       <CardContent className="p-5">
         <div className="flex items-start justify-between mb-3">

@@ -100,7 +100,7 @@ export function QuotationFormDialog({
         padding: 32, maxWidth: 680, maxHeight: "90vh", overflowY: "auto", fontFamily: "var(--font-body)",
       }}>
         <DialogHeader>
-          <DialogTitle style={{ fontFamily: "var(--font-display)", fontSize: 22, color: "#1a3a2a", fontWeight: "normal" }}>
+          <DialogTitle style={{ fontFamily: "var(--font-body)", fontSize: 22, color: "#1a3a2a", fontWeight: 700 }}>
             {editingQuotation ? "Editar Cotización" : "Nueva Cotización"}
           </DialogTitle>
           <DialogDescription style={{ color: "#6b7c6b", fontSize: 13 }}>
@@ -144,7 +144,7 @@ export function QuotationFormDialog({
 
           {/* Servicios */}
           <div style={{ padding: 16, borderRadius: 12, border: "1px solid #ede8e0", backgroundColor: "#f5f0e8" }}>
-            <p style={{ fontFamily: "var(--font-display)", fontSize: 16, color: "#1a3a2a", marginBottom: 12 }}>
+            <p style={{ fontFamily: "var(--font-body)", fontSize: 16, fontWeight: 600, color: "#1a3a2a", marginBottom: 12 }}>
               Servicios
             </p>
             <div>

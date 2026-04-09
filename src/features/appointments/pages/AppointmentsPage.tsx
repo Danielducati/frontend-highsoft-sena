@@ -1,3 +1,4 @@
+//frontend-highsoft-sena\src\features\appointments\pages\AppointmentsPage.tsx
 import { Card, CardContent } from "../../../shared/ui/card";
 import { Button } from "../../../shared/ui/button";
 import { Input } from "../../../shared/ui/input";
@@ -5,7 +6,8 @@ import { Badge } from "../../../shared/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../shared/ui/select";
 import {
   Plus, ChevronLeft, ChevronRight, Search, Filter,
-  List, Calendar, XCircle, Edit, CalendarIcon,
+  List, Calendar, XCircle, Eye, Pencil, CalendarIcon,
+  Trash2,
 } from "lucide-react";
 import { AppointmentsModuleProps } from "../types";
 import { WEEK_DAYS, TIME_SLOTS, LEGEND_ITEMS } from "../constants";
@@ -43,10 +45,11 @@ function buildColumns(apts: Appointment[]): Appointment[][] {
 }
 
 /**
- * Siempre reserva 1 columna extra como "carril libre".
- * Con N citas solapadas → efectiveCols = N + 1
- * Cada cita ocupa 1/(N+1) del ancho, dejando el último slot vacío.
+ * Siempre reserva un carril libre de ancho fijo (FREE_LANE_PX) a la derecha.
+ * Las citas se distribuyen en el espacio restante (100% - FREE_LANE_PX).
  */
+const FREE_LANE_PX = 48;
+
 function getAptLayout(apt: Appointment, allApts: Appointment[]) {
   const columns  = buildColumns(allApts);
   const aptStart = toMin(apt.startTime);
@@ -56,16 +59,15 @@ function getAptLayout(apt: Appointment, allApts: Appointment[]) {
     col.some(a => toMin(a.startTime) < aptEnd && toMin(a.endTime) > aptStart)
   );
 
-  const colIndex      = overlappingCols.findIndex(col => col.includes(apt));
-  const totalCols     = overlappingCols.length;
-  const effectiveCols = totalCols + 1; // +1 = carril libre siempre
+  const colIndex  = overlappingCols.findIndex(col => col.includes(apt));
+  const totalCols = overlappingCols.length;
 
-  const widthPct = 100 / effectiveCols;
-  const leftPct  = colIndex * widthPct;
-  // El carril libre empieza justo después de la última cita
-  const freeLaneLeft = totalCols * widthPct;
+  // Cada cita ocupa una fracción del espacio disponible (excluyendo el carril libre fijo)
+  // Se expresa como calc() para combinar % y px
+  const widthCalc = `calc((100% - ${FREE_LANE_PX}px) / ${totalCols})`;
+  const leftCalc  = `calc((100% - ${FREE_LANE_PX}px) / ${totalCols} * ${colIndex})`;
 
-  return { colIndex, totalCols, widthPct, leftPct, freeLaneLeft, effectiveCols };
+  return { colIndex, totalCols, widthCalc, leftCalc };
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -228,25 +230,42 @@ export function AppointmentsPage({ userRole }: AppointmentsModuleProps) {
                     <Badge className={`${getStatusColor(apt.status)} text-[11px] px-2 py-0.5 whitespace-nowrap`}>
                       {getStatusLabel(apt.status)}
                     </Badge>
-                    <div className="flex items-center justify-start lg:justify-end gap-1.5">
-                      <button onClick={() => setViewingAppointment(apt)}
-                        className="p-1.5 rounded-lg text-[#60A5FA] hover:bg-[#60A5FA]/10" title="Ver detalles">
-                        <Edit className="w-4 h-4" />
+                    <div className="flex items-center justify-start lg:justify-end gap-1">
+                      <button
+                        onClick={() => setViewingAppointment(apt)}
+                        title="Ver detalles"
+                        className="p-2 rounded-lg transition-colors"
+                        style={{ color: "#6b7c6b" }}
+                        onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#f0ebe3")}
+                        onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
+                      >
+                        <Eye className="w-4 h-4" />
                       </button>
                       {userRole === "admin" && (
                         <>
-                          <button onClick={() => handleEdit(apt)}
-                            className="p-1.5 rounded-lg text-[#FBBF24] hover:bg-[#FBBF24]/10" title="Editar">
-                            <Edit className="w-4 h-4" />
+                          <button
+                            onClick={() => handleEdit(apt)}
+                            title="Editar"
+                            className="p-2 rounded-lg transition-colors"
+                            style={{ color: "#6b7c6b" }}
+                            onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#f0ebe3")}
+                            onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
+                          >
+                            <Pencil className="w-4 h-4" />
                           </button>
                           <button
                             onClick={() => { setAppointmentToCancel(apt.id); setCancelDialogOpen(true); }}
                             disabled={apt.status === "cancelled"}
-                            className={`p-1.5 rounded-lg transition-all ${
-                              apt.status === "cancelled" ? "text-gray-300 cursor-not-allowed" : "text-[#F87171] hover:bg-[#F87171]/10"
-                            }`}
-                            title="Cancelar">
-                            <XCircle className="w-4 h-4" />
+                            title="Cancelar"
+                            className="p-2 rounded-lg transition-colors"
+                            style={{
+                              color: apt.status === "cancelled" ? "#d1d5db" : "#c0392b",
+                              cursor: apt.status === "cancelled" ? "not-allowed" : "pointer",
+                            }}
+                            onMouseEnter={e => { if (apt.status !== "cancelled") e.currentTarget.style.backgroundColor = "#fdf0ee"; }}
+                            onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
+                          >
+                            <Trash2 className="w-4 h-4" />
                           </button>
                         </>
                       )}
@@ -307,7 +326,7 @@ export function AppointmentsPage({ userRole }: AppointmentsModuleProps) {
                 <div className="min-w-[1600px]">
 
                   {/* Cabecera de días — sticky para que quede fija al hacer scroll */}
-                  <div className="grid grid-cols-8 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-gray-100 sticky top-0 z-30">
+                  <div className="grid grid-cols-8 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-gray-100 sticky top-0 z-40">
                     <div className="p-3 border-r border-gray-200 text-gray-500 text-xs uppercase tracking-wide">Hora</div>
                     {getWeekDates().map((date, idx) => (
                       <div key={idx} className={`p-3 border-r border-gray-200 last:border-r-0 text-center ${
@@ -329,7 +348,7 @@ export function AppointmentsPage({ userRole }: AppointmentsModuleProps) {
                   <div className="grid grid-cols-8">
 
                     {/* Columna de horas — sticky para que quede fija al hacer scroll horizontal */}
-                    <div className="border-r border-gray-200 bg-gray-50/50 sticky left-0 z-20">
+                    <div className="border-r border-gray-200 bg-gray-50/50 sticky left-0 z-30">
                       {TIME_SLOTS.map(time => (
                         <div key={time}
                           style={{ height: ROW_HEIGHT }}
@@ -344,21 +363,18 @@ export function AppointmentsPage({ userRole }: AppointmentsModuleProps) {
                       const dayApts = getAptsByDate(date);
                       const past    = isPastDate(date);
 
-                      // Para cada franja, calcula cuántas citas hay solapadas → determina freeLaneLeft
-                      const getFreeLaneForSlot = (time: string): number => {
+                      // Para cada franja, indica si hay citas solapadas
+                      const slotHasApts = (time: string): boolean => {
                         const slotMin = toMin(time);
                         const slotEnd = slotMin + 30;
-                        const slotApts = dayApts.filter(a =>
+                        return dayApts.some(a =>
                           toMin(a.startTime) < slotEnd && toMin(a.endTime) > slotMin
                         );
-                        if (slotApts.length === 0) return 0;
-                        // freeLaneLeft = N/(N+1) * 100%
-                        return (slotApts.length / (slotApts.length + 1)) * 100;
                       };
 
                       return (
                         <div key={dIdx}
-                          className={`border-r border-gray-200 last:border-r-0 relative ${
+                          className={`border-r border-gray-200 last:border-r-0 relative overflow-hidden ${
                             isToday(date) ? "bg-[#78D1BD]/5" : past ? "bg-gray-50/80" : "bg-white"
                           }`}
                           style={{ height: totalHeight }}
@@ -372,39 +388,31 @@ export function AppointmentsPage({ userRole }: AppointmentsModuleProps) {
 
                           {/* Zonas clickeables por franja */}
                           {TIME_SLOTS.map(time => {
-                            const fullyBlocked = isCellFullyBlocked(date, time);
-                            const freeLaneLeft = getFreeLaneForSlot(time);
-                            const hasApts      = freeLaneLeft > 0;
-                            const top          = ((toMin(time) - firstSlotMin) / 30) * ROW_HEIGHT;
+                            const hasApts = slotHasApts(time);
+                            const top     = ((toMin(time) - firstSlotMin) / 30) * ROW_HEIGHT;
 
                             return (
                               <div key={time}>
-                                {/* Zona clickeable principal:
-                                    - Sin citas: toda la celda
-                                    - Con citas: solo el carril libre (último slot) */}
                                 <div
                                   className={`absolute transition-colors group ${
-                                    !fullyBlocked && !past
+                                    !past
                                       ? "hover:bg-[#A78BFA]/10 cursor-pointer"
-                                      : past
-                                      ? "cursor-not-allowed"
-                                      : ""
+                                      : "cursor-not-allowed"
                                   }`}
                                   style={{
                                     top,
-                                    left:   hasApts ? `${freeLaneLeft}%` : "0%",
-                                    width:  hasApts ? `${100 - freeLaneLeft}%` : "100%",
+                                    right:  0,
+                                    width:  hasApts ? FREE_LANE_PX : "100%",
                                     height: ROW_HEIGHT,
-                                    zIndex: 25,
+                                    zIndex: 5,
                                   }}
                                   onClick={() => {
-                                    if (!fullyBlocked && !past) {
+                                    if (!past) {
                                       setFormData({ ...EMPTY_FORM, date, startTime: time });
                                       setIsDialogOpen(true);
                                     }
                                   }}
                                 >
-                                  {/* Ícono + siempre visible en el carril libre */}
                                   <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity">
                                     <div className="flex flex-col items-center gap-0.5">
                                       <Plus className="w-4 h-4 text-[#A78BFA]" />
@@ -422,7 +430,7 @@ export function AppointmentsPage({ userRole }: AppointmentsModuleProps) {
 
                           {/* Citas renderizadas con posición absoluta */}
                           {dayApts.map(apt => {
-                            const { widthPct, leftPct } = getAptLayout(apt, dayApts);
+                            const { widthCalc, leftCalc } = getAptLayout(apt, dayApts);
                             const { bg, border } = STATUS_COLORS[apt.status] ?? STATUS_COLORS.pending;
                             const h = aptHeight(apt);
 
@@ -433,11 +441,11 @@ export function AppointmentsPage({ userRole }: AppointmentsModuleProps) {
                                 style={{
                                   top:             aptTop(apt) + 2,
                                   height:          h,
-                                  left:            `calc(${leftPct}% + 2px)`,
-                                  width:           `calc(${widthPct}% - 4px)`,
+                                  left:            `calc(${leftCalc} + 2px)`,
+                                  width:           `calc(${widthCalc} - 4px)`,
                                   backgroundColor: bg,
                                   borderLeftColor: border,
-                                  zIndex:          20,
+                                  zIndex:          10,
                                 }}
                                 onClick={e => { e.stopPropagation(); setViewingAppointment(apt); }}
                               >

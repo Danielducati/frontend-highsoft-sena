@@ -18,7 +18,7 @@ export function QuotationCancelDialog({ open, onOpenChange, onConfirm }: Quotati
         <AlertDialogHeader>
           <AlertDialogTitle style={{
             display: "flex", alignItems: "center", gap: 10,
-            fontFamily: "var(--font-display)", fontSize: 20, color: "#1a3a2a", fontWeight: "normal",
+            fontFamily: "var(--font-body)", fontSize: 20, color: "#1a3a2a", fontWeight: 700,
           }}>
             <AlertCircle style={{ width: 20, height: 20, color: "#c0392b", flexShrink: 0 }} />
             ¿Cancelar esta cotización?
