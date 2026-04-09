@@ -71,12 +71,12 @@ export function CategoriesPage({ userRole }: CategoriesModuleProps) {
       {/* ── Header ── */}
       <div className="flex justify-between items-start mb-8">
         <div>
-          <h1
-            className="text-4xl font-normal mb-1"
-            style={{ color: "#1a3a2a", fontFamily: "var(--font-display)" }}
-          >
-            Categorías de Servicios
-          </h1>
+        <h1
+  className="text-4xl font-bold mb-1"
+  style={{ color: "#1a3a2a", fontFamily: "var(--font-display)" }}
+>
+  Categorías de Servicios
+</h1>
           <p className="text-sm" style={{ color: "#6b7c6b", fontFamily: "var(--font-body)" }}>
             Organiza y clasifica tus servicios
           </p>

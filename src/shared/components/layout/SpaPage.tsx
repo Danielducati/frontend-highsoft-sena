@@ -1,3 +1,4 @@
+//C:\Users\samue\frontend-highsoft-sena\src\shared\components\layout\SpaPage.tsx
 type SpaPageProps = {
   title: string;
   subtitle?: string;
@@ -17,11 +18,11 @@ export function SpaPage({ title, subtitle, action, icon, children }: SpaPageProp
           <div className="flex items-center gap-2">
             {icon}
             <h1
-              className="text-4xl font-normal mb-1"
-              style={{ color: "#1a3a2a", fontFamily: "var(--font-display)" }}
-            >
-              {title}
-            </h1>
+  className="text-4xl font-bold mb-1"
+  style={{ color: "#1a3a2a", fontFamily: "var(--font-display)" }}
+>
+  {title}
+</h1>
           </div>
           {subtitle ? (
             <p className="text-sm" style={{ color: "#6b7c6b", fontFamily: "var(--font-body)" }}>

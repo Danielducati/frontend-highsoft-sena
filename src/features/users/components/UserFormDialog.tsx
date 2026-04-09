@@ -1,5 +1,5 @@
 // src/features/users/components/UserFormDialog.tsx
-import React, { RefObject } from "react";
+import { RefObject } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../../../shared/ui/dialog";
 import { Button } from "../../../shared/ui/button";
 import { Input } from "../../../shared/ui/input";
@@ -95,7 +95,7 @@ export function UserFormDialog({
           {/* Documento — solo números */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>Tipo de Documento</Label>
+              <Label>Tipo de Documento *</Label>
               <Select value={formData.documentType} onValueChange={(v) => setFormData({ ...formData, documentType: v })}>
                 <SelectTrigger className="rounded-lg border-gray-200"><SelectValue placeholder="Seleccionar" /></SelectTrigger>
                 <SelectContent>
@@ -104,7 +104,7 @@ export function UserFormDialog({
               </Select>
             </div>
             <div className="space-y-2">
-              <Label>Número de Documento</Label>
+              <Label>Número de Documento *</Label>
               <Input
                 value={formData.document}
                 onChange={(e) => setFormData({ ...formData, document: onlyNumbers(e.target.value) })}

@@ -81,11 +81,15 @@ export function useUsers() {
       toast.error("Selecciona un rol");
       return;
     }
-    if ((documentType && !document) || (!documentType && document)) {
-      toast.error("Completa tipo y número de documento");
+    if (!documentType) {
+      toast.error("El tipo de documento es obligatorio");
       return;
     }
-    if (document && digitsOnly(document).length < 5) {
+    if (!document) {
+      toast.error("El número de documento es obligatorio");
+      return;
+    }
+    if (digitsOnly(document).length < 5) {
       toast.error("Ingresa un número de documento válido (mínimo 5 dígitos)");
       return;
     }
@@ -114,10 +118,10 @@ export function useUsers() {
       firstName,
       lastName,
       documentType,
-      document: document ? digitsOnly(document) : "",
+      document: digitsOnly(document),
       email,
       phone,
-      role: selectedRole.nombre, // ← nombre en minúscula
+      role: selectedRole.nombre,
     };
 
     try {
@@ -147,12 +151,22 @@ export function useUsers() {
 
   const handleDelete = async () => {
     if (!userToDelete) return;
+    
+    const user = users.find(u => u.id === userToDelete);
+    
+    if (user?.role?.toLowerCase() === "admin" || user?.role?.toLowerCase() === "administrador") {
+      toast.error("No se puede eliminar un usuario con rol de administrador");
+      setDeleteDialogOpen(false);
+      setUserToDelete(null);
+      return;
+    }
+    
     try {
       await deleteUserApi(userToDelete);
       toast.success("Usuario eliminado exitosamente");
       await loadUsers();
-    } catch {
-      toast.error("Error al eliminar usuario");
+    } catch (error: any) {
+      toast.error(error.message || "Error al eliminar usuario");
     } finally {
       setDeleteDialogOpen(false);
       setUserToDelete(null);

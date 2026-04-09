@@ -1,4 +1,4 @@
-import React from "react";
+
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../../../shared/ui/dialog";
 import { Button } from "../../../shared/ui/button";
 import { Badge } from "../../../shared/ui/badge";
@@ -41,7 +41,7 @@ export function UserViewDialog({ user, onClose }: UserViewDialogProps) {
               </div>
               <div>
                 <p className="text-gray-500">Documento</p>
-                <p className="text-gray-900">{user.tipo_documento} {user.numero_documento || "-"}</p>
+                <p className="text-gray-900">{user.tipo_Documento} {user.numero_Documento || "-"}</p>
               </div>
             </div>
 

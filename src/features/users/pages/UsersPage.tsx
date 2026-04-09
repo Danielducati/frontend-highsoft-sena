@@ -1,5 +1,4 @@
 // src/features/users/pages/UsersPage.tsx
-import React from "react";
 import { Badge } from "../../../shared/ui/badge";
 import { Plus, Search, Filter, Users as UsersIcon, Shield, Mail, Eye, Pencil, Trash2 } from "lucide-react";
 import { SpaPage } from "../../../shared/components/layout/SpaPage";
@@ -97,118 +96,134 @@ export function UsersPage({ userRole }: UsersModuleProps) {
                 </tr>
               </thead>
               <tbody>
-                {paginatedUsers.map((user, idx) => (
-                  <tr
-                    key={user.id}
-                    style={{ borderBottom: idx < paginatedUsers.length - 1 ? "1px solid #ede8e0" : "none", transition: "background 0.15s" }}
-                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#faf7f2")}
-                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
-                  >
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3 min-w-0">
-                        <div className="w-9 h-9 rounded-full flex items-center justify-center text-white text-sm flex-shrink-0" style={{ background: "linear-gradient(135deg, #78D1BD, #5FBFAA)" }}>
-                          {user.name.charAt(0)}
+                {paginatedUsers.map((user, idx) => {
+                  const isAdmin = user.role?.toLowerCase() === "admin" || user.role?.toLowerCase() === "administrador";
+                  
+                  return (
+                    <tr
+                      key={user.id}
+                      style={{ borderBottom: idx < paginatedUsers.length - 1 ? "1px solid #ede8e0" : "none", transition: "background 0.15s" }}
+                      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#faf7f2")}
+                      onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+                    >
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="w-9 h-9 rounded-full flex items-center justify-center text-white text-sm flex-shrink-0" style={{ background: "linear-gradient(135deg, #78D1BD, #5FBFAA)" }}>
+                            {user.name.charAt(0)}
+                          </div>
+                          <div className="min-w-0">
+                            <p className="font-medium text-sm truncate" style={{ color: "#1a3a2a" }}>{user.name}</p>
+                            <p className="text-xs truncate" style={{ color: "#6b7c6b" }}>{user.phone || "Sin teléfono"}</p>
+                          </div>
                         </div>
-                        <div className="min-w-0">
-                          <p className="font-medium text-sm truncate" style={{ color: "#1a3a2a" }}>{user.name}</p>
-                          <p className="text-xs truncate" style={{ color: "#6b7c6b" }}>{user.phone || "Sin teléfono"}</p>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-2">
+                          <Shield className="w-3.5 h-3.5" style={{ color: "#6b7c6b" }} />
+                          <Badge className={`${getRoleBadgeColor(user.role)} text-xs px-2 py-0.5`}>{user.role}</Badge>
                         </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-2">
-                        <Shield className="w-3.5 h-3.5" style={{ color: "#6b7c6b" }} />
-                        <Badge className={`${getRoleBadgeColor(user.role)} text-xs px-2 py-0.5`}>{user.role}</Badge>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-2 min-w-0">
-                        <Mail className="w-3.5 h-3.5 flex-shrink-0" style={{ color: "#6b7c6b" }} />
-                        <span className="text-xs truncate" style={{ color: "#1a3a2a" }}>{user.email}</span>
-                      </div>
-                    </td>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <Mail className="w-3.5 h-3.5 flex-shrink-0" style={{ color: "#6b7c6b" }} />
+                          <span className="text-xs truncate" style={{ color: "#1a3a2a" }}>{user.email}</span>
+                        </div>
+                      </td>
 
-                    {/* ── SWITCH DE ESTADO ── */}
-                    <td className="px-6 py-4">
-                      {userRole === "admin" ? (
-                        <button
-                          onClick={() => handleToggleStatus(user)}
-                          title={user.isActive ? "Desactivar usuario" : "Activar usuario"}
-                          style={{
-                            position: "relative",
-                            display: "inline-flex",
-                            alignItems: "center",
-                            width: 44,
-                            height: 24,
-                            borderRadius: 999,
-                            border: "none",
-                            cursor: "pointer",
-                            backgroundColor: user.isActive ? "#1a5c3a" : "#d1d5db",
-                            transition: "background 0.2s",
-                            padding: 0,
-                          }}
-                        >
-                          <span
+                      {/* ── SWITCH DE ESTADO ── */}
+                      <td className="px-6 py-4">
+                        {userRole === "admin" ? (
+                          <button
+                            onClick={() => handleToggleStatus(user)}
+                            title={user.isActive ? "Desactivar usuario" : "Activar usuario"}
                             style={{
-                              position: "absolute",
-                              left: user.isActive ? 22 : 2,
-                              width: 20,
-                              height: 20,
-                              borderRadius: "50%",
-                              backgroundColor: "#ffffff",
-                              boxShadow: "0 1px 3px rgba(0,0,0,0.2)",
-                              transition: "left 0.2s",
+                              position: "relative",
+                              display: "inline-flex",
+                              alignItems: "center",
+                              width: 44,
+                              height: 24,
+                              borderRadius: 999,
+                              border: "none",
+                              cursor: "pointer",
+                              backgroundColor: user.isActive ? "#1a5c3a" : "#d1d5db",
+                              transition: "background 0.2s",
+                              padding: 0,
                             }}
-                          />
-                        </button>
-                      ) : (
-                        <span style={{ display: "inline-flex", padding: "3px 12px", borderRadius: 999, fontSize: 11, fontWeight: 600, backgroundColor: user.isActive ? "#edf7f4" : "#f3f4f6", color: user.isActive ? "#1a5c3a" : "#6b7280" }}>
-                          {user.isActive ? "Activo" : "Inactivo"}
-                        </span>
-                      )}
-                    </td>
+                          >
+                            <span
+                              style={{
+                                position: "absolute",
+                                left: user.isActive ? 22 : 2,
+                                width: 20,
+                                height: 20,
+                                borderRadius: "50%",
+                                backgroundColor: "#ffffff",
+                                boxShadow: "0 1px 3px rgba(0,0,0,0.2)",
+                                transition: "left 0.2s",
+                              }}
+                            />
+                          </button>
+                        ) : (
+                          <span style={{ display: "inline-flex", padding: "3px 12px", borderRadius: 999, fontSize: 11, fontWeight: 600, backgroundColor: user.isActive ? "#edf7f4" : "#f3f4f6", color: user.isActive ? "#1a5c3a" : "#6b7280" }}>
+                            {user.isActive ? "Activo" : "Inactivo"}
+                          </span>
+                        )}
+                      </td>
 
-                    {/* ── ACCIONES — deshabilitadas si inactivo ── */}
-                    <td className="px-6 py-4">
-                      {userRole === "admin" && (
-                        <div className="flex items-center gap-1">
-                          <button
-                            onClick={() => setViewingUser(user)}
-                            title="Ver detalles"
-                            className="p-2 rounded-lg transition-colors"
-                            style={{ color: "#6b7c6b" }}
-                            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#f0ebe3")}
-                            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
-                          >
-                            <Eye className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => user.isActive && handleEdit(user)}
-                            title={user.isActive ? "Editar" : "Activa el usuario para editar"}
-                            disabled={!user.isActive}
-                            className="p-2 rounded-lg transition-colors"
-                            style={{ color: user.isActive ? "#6b7c6b" : "#d1d5db", cursor: user.isActive ? "pointer" : "not-allowed" }}
-                            onMouseEnter={(e) => { if (user.isActive) e.currentTarget.style.backgroundColor = "#f0ebe3"; }}
-                            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
-                          >
-                            <Pencil className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => user.isActive && confirmDelete(user.id)}
-                            title={user.isActive ? "Eliminar" : "Activa el usuario para eliminar"}
-                            disabled={!user.isActive}
-                            className="p-2 rounded-lg transition-colors"
-                            style={{ color: user.isActive ? "#c0392b" : "#d1d5db", cursor: user.isActive ? "pointer" : "not-allowed" }}
-                            onMouseEnter={(e) => { if (user.isActive) e.currentTarget.style.backgroundColor = "#fdf2f2"; }}
-                            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      )}
-                    </td>
-                  </tr>
-                ))}
+                      {/* ── ACCIONES ── */}
+                      <td className="px-6 py-4">
+                        {userRole === "admin" && (
+                          <div className="flex items-center gap-1">
+                            <button
+                              onClick={() => setViewingUser(user)}
+                              title="Ver detalles"
+                              className="p-2 rounded-lg transition-colors"
+                              style={{ color: "#6b7c6b" }}
+                              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#f0ebe3")}
+                              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+                            >
+                              <Eye className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => user.isActive && handleEdit(user)}
+                              title={user.isActive ? "Editar" : "Activa el usuario para editar"}
+                              disabled={!user.isActive}
+                              className="p-2 rounded-lg transition-colors"
+                              style={{ color: user.isActive ? "#6b7c6b" : "#d1d5db", cursor: user.isActive ? "pointer" : "not-allowed" }}
+                              onMouseEnter={(e) => { if (user.isActive) e.currentTarget.style.backgroundColor = "#f0ebe3"; }}
+                              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+                            >
+                              <Pencil className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => user.isActive && !isAdmin && confirmDelete(user.id)}
+                              title={
+                                !user.isActive 
+                                  ? "Activa el usuario para eliminar" 
+                                  : isAdmin 
+                                    ? "No se puede eliminar un administrador" 
+                                    : "Eliminar"
+                              }
+                              disabled={!user.isActive || isAdmin}
+                              className="p-2 rounded-lg transition-colors"
+                              style={{ 
+                                color: (user.isActive && !isAdmin) ? "#c0392b" : "#d1d5db", 
+                                cursor: (user.isActive && !isAdmin) ? "pointer" : "not-allowed" 
+                              }}
+                              onMouseEnter={(e) => { 
+                                if (user.isActive && !isAdmin) 
+                                  e.currentTarget.style.backgroundColor = "#fdf2f2"; 
+                              }}
+                              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>

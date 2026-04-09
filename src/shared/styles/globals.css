@@ -1,8 +1,11 @@
 /* styles/globals.css */
 @custom-variant dark (&:is(.dark *));
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap");
 
 :root {
   --font-size: 16px;
+  --font-display: "Cormorant Garamond", serif;
+  --font-body: "Inter", system-ui, -apple-system, sans-serif;
   --background: #F7F9FC;
   --foreground: #2D3748;
   --card: #ffffff;
