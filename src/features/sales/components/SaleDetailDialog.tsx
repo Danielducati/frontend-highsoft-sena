@@ -22,7 +22,7 @@ export function SaleDetailDialog({ sale, onClose }: SaleDetailDialogProps) {
         padding: 32, maxWidth: 500, fontFamily: "var(--font-body)",
       }}>
         <DialogHeader>
-          <DialogTitle style={{ fontFamily: "var(--font-display)", fontSize: 22, color: "#1a3a2a", fontWeight: "normal" }}>
+          <DialogTitle style={{ fontFamily: "var(--font-body)", fontSize: 22, color: "#1a3a2a", fontWeight: 700 }}>
             Detalle de Venta
           </DialogTitle>
           <DialogDescription style={{ color: "#6b7c6b", fontSize: 13 }}>
@@ -70,8 +70,8 @@ export function SaleDetailDialog({ sale, onClose }: SaleDetailDialogProps) {
               display: "flex", justifyContent: "space-between", alignItems: "center",
               borderTop: "1px solid #ede8e0", paddingTop: 12, marginTop: 4,
             }}>
-              <span style={{ color: "#1a3a2a", fontSize: 16, fontFamily: "var(--font-display)" }}>Total</span>
-              <span style={{ color: "#1a3a2a", fontSize: 24, fontWeight: 700, fontFamily: "var(--font-display)" }}>
+              <span style={{ color: "#1a3a2a", fontSize: 16, fontFamily: "var(--font-body)", fontWeight: 600 }}>Total</span>
+              <span style={{ color: "#1a3a2a", fontSize: 24, fontWeight: 700, fontFamily: "var(--font-body)" }}>
                 ${(sale.Total || 0).toLocaleString("es-CO")}
               </span>
             </div>

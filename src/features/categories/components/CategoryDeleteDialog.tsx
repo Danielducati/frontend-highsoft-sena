@@ -20,14 +20,7 @@ export function CategoryDeleteDialog({ isOpen, onOpenChange, onConfirm }: Catego
         }}
       >
         <AlertDialogHeader>
-          <AlertDialogTitle
-            style={{
-              fontFamily: "var(--font-display)",
-              fontSize: 20,
-              color: "#1a3a2a",
-              fontWeight: "normal",
-            }}
-          >
+          <AlertDialogTitle style={{ fontFamily: "var(--font-body)", fontSize: 20, color: "#1a3a2a", fontWeight: 700 }}>
             ¿Eliminar esta categoría?
           </AlertDialogTitle>
           <AlertDialogDescription style={{ color: "#6b7c6b", fontSize: 14, marginTop: 8 }}>

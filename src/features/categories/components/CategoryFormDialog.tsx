@@ -83,10 +83,10 @@ export function CategoryFormDialog({
         <DialogHeader>
           <DialogTitle
             style={{
-              fontFamily: "var(--font-display)",
+              fontFamily: "var(--font-body)",
               fontSize: 22,
               color: "#1a3a2a",
-              fontWeight: "normal",
+              fontWeight: 700,
             }}
           >
             {editingCategory ? "Editar Categoría" : "Nueva Categoría"}

@@ -21,7 +21,7 @@ export function RegisterPage({ onBack, onRegisterSuccess }: RegisterPageProps) {
   return (
     <div
       className="min-h-screen flex flex-col"
-      style={{ backgroundColor: "#f5f0e8", fontFamily: "var(--font-display)" }}
+      style={{ backgroundColor: "#f5f0e8", fontFamily: "var(--font-body)" }}
     >
       {/* Header */}
       <div className="flex items-start justify-end px-10 pt-8">
@@ -44,8 +44,8 @@ export function RegisterPage({ onBack, onRegisterSuccess }: RegisterPageProps) {
             <div className="space-y-6">
               <div>
                 <h2
-                  className="text-4xl font-normal mb-3"
-                  style={{ color: "#1a3a2a", fontFamily: "var(--font-display)" }}
+                  className="text-4xl font-bold mb-3"
+                  style={{ color: "#1a3a2a", fontFamily: "var(--font-body)" }}
                 >
                   Bienvenido a Highlife Spa
                 </h2>
@@ -143,8 +143,8 @@ export function RegisterPage({ onBack, onRegisterSuccess }: RegisterPageProps) {
             >
               <CardHeader className="text-center pb-4"> 
                 <CardTitle
-                  className="text-2xl font-normal"
-                  style={{ color: "#1a3a2a", fontFamily: "var(--font-display)" }}
+                  className="text-2xl font-bold"
+                  style={{ color: "#1a3a2a", fontFamily: "var(--font-body)" }}
                 >
                   Crear cuenta
                 </CardTitle>

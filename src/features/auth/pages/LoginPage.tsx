@@ -16,6 +16,7 @@ export function LoginPage({ onLogin, onBack }: LoginPageProps) {
     forgotPasswordOpen, setForgotPasswordOpen,
     recoveryEmail, setRecoveryEmail,
     recoverySuccess,
+    recoveryLoading,
     handleLogin,
     handleForgotPassword,
     handleCloseRecoveryDialog,
@@ -24,7 +25,7 @@ export function LoginPage({ onLogin, onBack }: LoginPageProps) {
   return (
     <div
       className="min-h-screen"
-      style={{ backgroundColor: "#f5f0e8", fontFamily: "var(--font-display)" }}
+      style={{ backgroundColor: "#f5f0e8", fontFamily: "var(--font-body)" }}
     >
       {/* Top bar */}
       <div className="flex items-start justify-end px-10 pt-8">
@@ -53,7 +54,7 @@ export function LoginPage({ onLogin, onBack }: LoginPageProps) {
           <CardHeader className="text-center pb-2">
             <CardTitle
               className="text-2xl font-normal"
-              style={{ color: "#1a3a2a", fontFamily: "var(--font-display)" }}
+              style={{ color: "#1a3a2a", fontFamily: "var(--font-body)" }}
             >
               Bienvenido a
               <br />
@@ -180,6 +181,7 @@ export function LoginPage({ onLogin, onBack }: LoginPageProps) {
         recoveryEmail={recoveryEmail}
         setRecoveryEmail={setRecoveryEmail}
         recoverySuccess={recoverySuccess}
+        recoveryLoading={recoveryLoading}
         onSubmit={handleForgotPassword}
       />
     </div>

@@ -21,14 +21,7 @@ export function CategoryDetailDialog({ isOpen, onOpenChange, category }: Categor
         }}
       >
         <DialogHeader>
-          <DialogTitle
-            style={{
-              fontFamily: "var(--font-display)",
-              fontSize: 22,
-              color: "#1a3a2a",
-              fontWeight: "normal",
-            }}
-          >
+          <DialogTitle style={{ fontFamily: "var(--font-body)", fontSize: 22, color: "#1a3a2a", fontWeight: 700 }}>
             Detalle de Categoría
           </DialogTitle>
           <DialogDescription style={{ color: "#6b7c6b", fontSize: 13 }}>
