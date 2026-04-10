@@ -75,9 +75,9 @@ function getAptLayout(apt: Appointment, allApts: Appointment[]) {
 const ROW_HEIGHT = 80; // px por franja de 30 min — más grande para mejor UX
 
 const STATUS_COLORS: Record<string, { bg: string; border: string }> = {
-  pending:   { bg: " #FEF3C7", border: " #F59E0B" },
-  cancelled: { bg: " #FEE2E2", border: " #EF4444" },
-  completed: { bg: " #DBEAFE", border: " #3B82F6" },
+  pending:   { bg: "#FEF3C7", border: "#D97706" },  // amber-100 / amber-700
+  cancelled: { bg: "#FEE2E2", border: "#B91C1C" },  // red-100 / red-700
+  completed: { bg: "#DBEAFE", border: "#1D4ED8" },  // blue-100 / blue-700
 };
 
 export function AppointmentsPage({ userRole }: AppointmentsModuleProps) {
@@ -326,12 +326,18 @@ export function AppointmentsPage({ userRole }: AppointmentsModuleProps) {
                 <div className="min-w-[1600px]">
 
                   {/* Cabecera de días — sticky para que quede fija al hacer scroll */}
-                  <div className="grid grid-cols-8 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-gray-100 sticky top-0 z-40">
+                  <div className="grid grid-cols-8 border-b border-gray-200 sticky top-0 z-40" style={{ background: "#f8f9fa" }}>
                     <div className="p-3 border-r border-gray-200 text-gray-500 text-xs uppercase tracking-wide">Hora</div>
                     {getWeekDates().map((date, idx) => (
-                      <div key={idx} className={`p-3 border-r border-gray-200 last:border-r-0 text-center ${
-                        isToday(date) ? "bg-[#78D1BD]/10" : isPastDate(date) ? "bg-gray-100" : ""
-                      }`}>
+                      <div key={idx} className="p-3 border-r border-gray-200 last:border-r-0 text-center"
+                        style={{
+                          backgroundColor: isToday(date)
+                            ? "#F1F5F9"
+                            : isPastDate(date)
+                            ? "#ebebeb"
+                            : "transparent"
+                        }}
+                      >
                         <div className={`text-xs uppercase tracking-wide ${isPastDate(date) ? "text-gray-400" : "text-gray-500"}`}>
                           {WEEK_DAYS[idx]}
                         </div>
@@ -348,7 +354,7 @@ export function AppointmentsPage({ userRole }: AppointmentsModuleProps) {
                   <div className="grid grid-cols-8">
 
                     {/* Columna de horas — sticky para que quede fija al hacer scroll horizontal */}
-                    <div className="border-r border-gray-200 bg-gray-50/50 sticky left-0 z-30">
+                    <div className="border-r border-gray-200 bg-white sticky left-0 z-30">
                       {TIME_SLOTS.map(time => (
                         <div key={time}
                           style={{ height: ROW_HEIGHT }}
@@ -374,10 +380,11 @@ export function AppointmentsPage({ userRole }: AppointmentsModuleProps) {
 
                       return (
                         <div key={dIdx}
-                          className={`border-r border-gray-200 last:border-r-0 relative overflow-hidden ${
-                            isToday(date) ? "bg-[#78D1BD]/5" : past ? "bg-gray-50/80" : "bg-white"
-                          }`}
-                          style={{ height: totalHeight }}
+                          className={`border-r border-gray-200 last:border-r-0 relative overflow-hidden`}
+                          style={{ 
+                            height: totalHeight,
+                            backgroundColor: isToday(date) ? "#F1F5F9" : past ? "#f2f2f2" : "#ffffff"
+                          }}
                         >
                           {/* Líneas guía */}
                           {TIME_SLOTS.map((_, i) => (
@@ -396,7 +403,7 @@ export function AppointmentsPage({ userRole }: AppointmentsModuleProps) {
                                 <div
                                   className={`absolute transition-colors group ${
                                     !past
-                                      ? "hover:bg-[#A78BFA]/10 cursor-pointer"
+                                      ? "hover:bg-[#1a3a2a]/5 cursor-pointer"
                                       : "cursor-not-allowed"
                                   }`}
                                   style={{
@@ -415,9 +422,9 @@ export function AppointmentsPage({ userRole }: AppointmentsModuleProps) {
                                 >
                                   <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity">
                                     <div className="flex flex-col items-center gap-0.5">
-                                      <Plus className="w-4 h-4 text-[#A78BFA]" />
+                                      <Plus className="w-4 h-4 text-[#1a3a2a]/40" />
                                       {hasApts && (
-                                        <span className="text-[9px] text-[#A78BFA] font-medium leading-none">
+                                        <span className="text-[9px] text-[#1a3a2a]/40 font-medium leading-none">
                                           {time}
                                         </span>
                                       )}
@@ -449,14 +456,14 @@ export function AppointmentsPage({ userRole }: AppointmentsModuleProps) {
                                 }}
                                 onClick={e => { e.stopPropagation(); setViewingAppointment(apt); }}
                               >
-                                <p className="text-[11px] font-semibold text-gray-900 truncate leading-tight">
+                                <p className="text-[11px] font-semibold truncate leading-tight" style={{ color: STATUS_COLORS[apt.status]?.border ?? "#D97706" }}>
                                   {apt.clientName}
                                 </p>
-                                <p className="text-[10px] text-gray-500 leading-tight">
+                                <p className="text-[10px] leading-tight" style={{ color: STATUS_COLORS[apt.status]?.border ?? "#D97706", opacity: 0.8 }}>
                                   {apt.startTime} – {apt.endTime}
                                 </p>
                                 {h > 50 && (
-                                  <p className="text-[10px] text-gray-600 truncate leading-tight mt-0.5">
+                                  <p className="text-[10px] truncate leading-tight mt-0.5" style={{ color: STATUS_COLORS[apt.status]?.border ?? "#D97706", opacity: 0.8 }}>
                                     {apt.services.map(s => s.serviceName).join(", ")}
                                   </p>
                                 )}

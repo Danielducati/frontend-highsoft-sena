@@ -126,10 +126,10 @@ export function Sidebar({ activePage, onNavigate, onLogout, userRole }: SidebarP
           </div>
           <div>
             <h2 className="tracking-tight leading-none" style={{ color: " #1a3a2a", fontFamily: "var(--font-display)" }}>
-              High Life Spa Peorrotes
+              Highlife Spa
             </h2>
             <p className="text-[10px] tracking-[0.18em] mt-1" style={{ color: " #8a948b", fontFamily: "var(--font-body)" }}>
-              MANAGEMENT SUITE
+              MANAGEMENT SUITE 
             </p>
           </div>
         </div>
@@ -164,23 +164,8 @@ export function Sidebar({ activePage, onNavigate, onLogout, userRole }: SidebarP
         })}
       </nav>
 
-      {/* User Info & Logout */}
-      <div className="p-4 space-y-3" style={{ borderTop: "1px solid #ece9e3" }}>
-        {/* User Card */}
-        <div className="flex items-center gap-3 px-3 py-2.5 rounded-lg" style={{ backgroundColor: "#efeee9" }}>
-          <div
-            className="w-8 h-8 rounded-lg flex items-center justify-center"
-            style={{ background: "linear-gradient(135deg, #78D1BD, #5FBFAA)" }}
-          >
-            <UserCircle className="w-5 h-5 text-white" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm truncate" style={{ color: "#1a3a2a", fontFamily: "var(--font-body)" }}>{roleLabels[userRole]}</p>
-            <p className="text-xs" style={{ color: "#8a948b", fontFamily: "var(--font-body)" }}>Sesión activa</p>
-          </div>
-        </div>
-
-        {/* Logout Button */}
+      {/* Logout Button */}
+      <div className="p-4" style={{ borderTop: "1px solid #ece9e3" }}>
         <button
           className="w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200"
           style={{ color: "#6b7c6b" }}

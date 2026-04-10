@@ -1,8 +1,15 @@
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "../../../shared/ui/dialog";
-import { Plus, X, Loader2 } from "lucide-react";
+import { Plus, X } from "lucide-react";
 import { Quotation, QuotationFormData } from "../types";
 import { toast } from "sonner";
+
+const TIME_SLOTS = [
+  "08:00","08:30","09:00","09:30","10:00","10:30",
+  "11:00","11:30","12:00","12:30","13:00","13:30",
+  "14:00","14:30","15:00","15:30","16:00","16:30",
+  "17:00","17:30",
+];
 
 interface QuotationFormDialogProps {
   isOpen: boolean;
@@ -144,8 +151,11 @@ export function QuotationFormDialog({
             </div>
             <div>
               <label style={labelStyle}>Hora de Inicio</label>
-              <input type="time" style={inputOk} value={formData.startTime}
-                onChange={e => setFormData({ ...formData, startTime: e.target.value })} />
+              <select style={inputOk} value={formData.startTime}
+                onChange={e => setFormData({ ...formData, startTime: e.target.value })}>
+                <option value="">Selecciona una hora</option>
+                {TIME_SLOTS.map(t => <option key={t} value={t}>{t}</option>)}
+              </select>
             </div>
           </div>
 

@@ -163,8 +163,12 @@ export function UserFormDialog({
 
           <div className="flex justify-end gap-3 pt-4 border-t">
             <Button variant="outline" onClick={onCancel}>Cancelar</Button>
-            <Button onClick={onSubmit} className="bg-gradient-to-r from-[#78D1BD] to-[#5FBFAA] text-white">
-              {editingUser ? "Actualizar" : "Crear"} Usuario
+            <Button
+              onClick={onSubmit}
+              style={{ backgroundColor: "#1a3a2a", color: "#ffffff" }}
+              onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#2a5a40")}
+              onMouseLeave={e => (e.currentTarget.style.backgroundColor = "#1a3a2a")}
+            >              {editingUser ? "Actualizar" : "Crear"} Usuario
             </Button>
           </div>
         </div>

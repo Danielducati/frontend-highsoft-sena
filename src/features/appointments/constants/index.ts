@@ -34,7 +34,7 @@ export const STATUS_BORDER: Record<string, string> = {
 };
 
 export const LEGEND_ITEMS = [
-  { color: " #F59E0B", label: "Pendiente"  },
-  { color: "rgb(0, 125, 241)", label: "Completada" },
-  { color: " #EF4444", label: "Cancelada"  },
+  { color: "#D97706", label: "Pendiente"  },
+  { color: "#1D4ED8", label: "Completada" },
+  { color: "#B91C1C", label: "Cancelada"  },
 ];

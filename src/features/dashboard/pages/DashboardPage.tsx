@@ -15,7 +15,8 @@ import { StatCard } from "../components/StatCard";
 import { SalesChart } from "../components/SalesChart";
 import { ServicesChart } from "../components/ServicesChart";
 import { RevenueChart } from "../components/RevenueChart";
-import { ServicesRanking } from "../components/ServicesRanking";
+import { CancelRateCard } from "../components/CancelRateCard";
+import { UpcomingAppointments } from "../components/UpcomingAppointments";
 import { SpaPage } from "../../../shared/components/layout/SpaPage";
 
 export function DashboardPage() {
@@ -56,7 +57,10 @@ export function DashboardPage() {
               data && exportDashboardReport(data, period, periodLabel)
             }
             disabled={!data}
-            className="bg-gradient-to-r from-[#78D1BD] to-[#5FBFAA] hover:from-[#6BCAB7] hover:to-[#4FB5A1] text-white rounded-lg shadow-md"
+            className="rounded-lg shadow-md"
+            style={{ backgroundColor: "#1a3a2a", color: "#ffffff" }}
+            onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#2a5a40")}
+            onMouseLeave={e => (e.currentTarget.style.backgroundColor = "#1a3a2a")}
           >
             <Download className="w-4 h-4 mr-2" />
             Exportar Reporte
@@ -87,27 +91,35 @@ export function DashboardPage() {
               ))}
             </div>
 
-            {/* Gráficas */}
-            <div className="grid lg:grid-cols-2 gap-6">
-              <SalesChart
-                data={data.salesData ?? []}
-                periodLabel={periodLabel}
-              />
+            {/* Fila 1: Ventas por mes (2/3) + Distribución servicios (1/3) */}
+            <div className="grid lg:grid-cols-3 gap-6">
+              <div className="lg:col-span-2">
+                <SalesChart
+                  data={data.salesData ?? []}
+                  periodLabel={periodLabel}
+                />
+              </div>
               <ServicesChart
                 data={data.servicesData ?? []}
                 periodLabel={periodLabel}
               />
             </div>
 
-            <RevenueChart
-              data={data.servicesData ?? []}
-              periodLabel={periodLabel}
-            />
+            {/* Fila 2: Ingresos por servicio (2/3) + Tasa cancelaciones (1/3) */}
+            <div className="grid lg:grid-cols-3 gap-6">
+              <div className="lg:col-span-2">
+                <RevenueChart
+                  data={data.servicesData ?? []}
+                  periodLabel={periodLabel}
+                />
+              </div>
+              <CancelRateCard
+                data={data.cancelRate ?? { total: 0, cancelled: 0, rate: "0%" }}
+                periodLabel={periodLabel}
+              />
+            </div>
 
-            <ServicesRanking
-              data={data.servicesData ?? []}
-              periodLabel={periodLabel}
-            />
+            <UpcomingAppointments data={data.upcomingAppointments ?? []} />
           </>
         )}
       </div>

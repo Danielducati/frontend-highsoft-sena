@@ -23,9 +23,12 @@ async function parseJsonOrThrow(res: Response): Promise<unknown> {
 export async function fetchMyClientProfile(): Promise<{ id: string; name: string; phone: string }> {
   const res = await fetch(`${API_BASE}/clients/mi-perfil`, { headers: authHeaders() });
   const data = await parseJsonOrThrow(res) as any;
+  // Si PK_id_cliente es null, el usuario no tiene perfil de cliente aún
+  // Usamos un id especial "me" que el backend reconocerá
+  const id = data.PK_id_cliente ? String(data.PK_id_cliente) : "me";
   return {
-    id:    data.PK_id_cliente ? String(data.PK_id_cliente) : "",
-    name:  `${data.nombre ?? ""} ${data.apellido ?? ""}`.trim(),
+    id,
+    name:  `${data.nombre ?? ""} ${data.apellido ?? ""}`.trim() || data.correo || "Mi perfil",
     phone: data.telefono ?? "",
   };
 }

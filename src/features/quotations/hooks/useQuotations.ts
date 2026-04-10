@@ -8,6 +8,9 @@ import {
   fetchMyProfileApi,
 } from "../services/quotationsService";
 
+const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3001";
+const getToken = () => localStorage.getItem("token");
+
 const EMPTY_FORM: QuotationFormData = {
   clientId: "",
   date: new Date().toISOString().split("T")[0],
@@ -21,6 +24,7 @@ export function useQuotations(userRole?: string) {
   const [quotations,         setQuotations]         = useState<Quotation[]>([]);
   const [clients,            setClients]            = useState<any[]>([]);
   const [availableServices,  setAvailableServices]  = useState<any[]>([]);
+  const [employees,          setEmployees]          = useState<any[]>([]);
   const [loading,            setLoading]            = useState(true);
   const [searchTerm,         setSearchTerm]         = useState("");
   const [filterStatus,       setFilterStatus]       = useState("all");
@@ -37,6 +41,7 @@ export function useQuotations(userRole?: string) {
   useEffect(() => {
     loadQuotations();
     loadServices();
+    loadEmployees();
     if (userRole === "client") {
       loadMyProfile();
     } else {
@@ -73,6 +78,14 @@ export function useQuotations(userRole?: string) {
   const loadServices = async () => {
     try { setAvailableServices(await fetchServicesApi()); }
     catch { toast.error("Error al cargar servicios"); }
+  };
+
+  const loadEmployees = async () => {
+    try {
+      const res = await fetch(`${API_URL}/employees`, { headers: { Authorization: `Bearer ${getToken()}` } });
+      const data = await res.json();
+      setEmployees(Array.isArray(data) ? data : []);
+    } catch { /* silencioso */ }
   };
 
   // ── CRUD ──────────────────────────────────────────────────────────────────
@@ -162,6 +175,14 @@ export function useQuotations(userRole?: string) {
       ),
     });
 
+  const updateServiceEmployee = (serviceId: number, empleadoId: number, empleadoName: string) =>
+    setFormData({
+      ...formData,
+      selectedServices: formData.selectedServices.map(s =>
+        s.serviceId === serviceId ? { ...s, empleadoId, empleadoName } : s
+      ),
+    });
+
   const calculateSubtotal = () =>
     formData.selectedServices.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
@@ -219,9 +240,9 @@ export function useQuotations(userRole?: string) {
     totalAmount, pendingCount, approvedCount,
     handleCreate, handleStatusChange, handleCancel,
     confirmCancel, handleEdit, resetForm,
-    addService, removeService, updateQuantity,
+    addService, removeService, updateQuantity, updateServiceEmployee,
     calculateSubtotal, calculateTotal,
     filterClient, setFilterClient,
-    myClientData,
+    myClientData, employees,
   };
 }

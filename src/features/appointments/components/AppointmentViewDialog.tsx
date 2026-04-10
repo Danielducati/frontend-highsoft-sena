@@ -112,7 +112,12 @@ export function AppointmentViewDialog({
                 className="border-[#FBBF24] text-[#FBBF24] hover:bg-[#FBBF24]/10">
                 <Edit className="w-4 h-4 mr-2" />Editar
               </Button>
-              <Button onClick={onClose} className="bg-gradient-to-r from-[#78D1BD] to-[#5FBFAA] text-white">
+              <Button
+                onClick={onClose}
+                style={{ backgroundColor: "#1a3a2a", color: "#ffffff" }}
+                onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#2a5a40")}
+                onMouseLeave={e => (e.currentTarget.style.backgroundColor = "#1a3a2a")}
+              >
                 Cerrar
               </Button>
             </div>

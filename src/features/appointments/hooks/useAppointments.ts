@@ -161,6 +161,9 @@ export function useAppointments(userRole?: string) {
   // ── CRUD ──
   const handleCreateOrUpdate = async () => {
     if (!formData.clientId || !formData.startTime || selectedServices.length === 0) {
+      if (userRole === "client" && !formData.clientId) {
+        toast.error("Cargando tu perfil, intenta de nuevo en un momento"); return;
+      }
       toast.error("Selecciona un cliente, hora y al menos un servicio"); return;
     }
     const hoy = new Date(); hoy.setHours(0, 0, 0, 0);

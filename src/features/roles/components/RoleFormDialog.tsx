@@ -168,7 +168,10 @@ export function RoleFormDialog({
             </Button>
             <Button
               onClick={onSubmit}
-              className="bg-gradient-to-r from-[#A78BFA] to-[#8B5CF6] hover:from-[#9870E8] hover:to-[#7C3AED] text-white rounded-lg"
+              style={{ backgroundColor: "#1a3a2a", color: "#ffffff" }}
+              onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#2a5a40")}
+              onMouseLeave={e => (e.currentTarget.style.backgroundColor = "#1a3a2a")}
+              className="rounded-lg"
             >
               {isEditing ? "Actualizar" : "Crear"} Rol
             </Button>
