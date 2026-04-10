@@ -20,5 +20,5 @@ export const ROLE_BADGE_COLORS: Record<string, string> = {
 
 export const EMPTY_FORM = {
   firstName: "", lastName: "", documentType: "",
-  document: "", email: "", phone: "", roleId: "", image: "",
+  document: "", email: "", phone: "", roleId: "", image: "", contrasena: "",
 };

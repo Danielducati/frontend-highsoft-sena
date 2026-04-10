@@ -18,6 +18,7 @@ export function RolesPage({ userRole }: RolesModuleProps) {
   const { roles, availablePermissions, loading, createRole, updateRole, deleteRole, toggleRoleStatus } = useRoles();
 
   const [searchTerm,       setSearchTerm]       = useState("");
+  const [filterStatus,     setFilterStatus]     = useState("all");
   const [isDialogOpen,     setIsDialogOpen]     = useState(false);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -31,10 +32,16 @@ export function RolesPage({ userRole }: RolesModuleProps) {
 
   const groupedPermissions = groupPermissionsByCategory(availablePermissions);
 
-  const filteredRoles = roles.filter(r =>
-    r.nombre?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    r.descripcion?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredRoles = roles.filter(r => {
+    const matchesSearch =
+      r.nombre?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      r.descripcion?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus =
+      filterStatus === "all" ||
+      (filterStatus === "active"   &&  r.isActive) ||
+      (filterStatus === "inactive" && !r.isActive);
+    return matchesSearch && matchesStatus;
+  });
 
   const closeDialog = () => {
     setIsDialogOpen(false);
@@ -140,6 +147,19 @@ export function RolesPage({ userRole }: RolesModuleProps) {
               style={{ color: "#1a3a2a" }}
             />
           </div>
+          <select
+            value={filterStatus}
+            onChange={e => setFilterStatus(e.target.value)}
+            style={{
+              padding: "8px 14px", borderRadius: 10, border: "1px solid #d6cfc4",
+              backgroundColor: "#ffffff", color: "#1a3a2a", fontSize: 13,
+              fontFamily: "var(--font-body)", outline: "none",
+            }}
+          >
+            <option value="all">Todos los estados</option>
+            <option value="active">Activos</option>
+            <option value="inactive">Inactivos</option>
+          </select>
         </div>
 
         {loading ? (

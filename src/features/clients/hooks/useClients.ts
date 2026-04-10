@@ -6,7 +6,8 @@ import { clientsApi } from "../services/clientsApi";
 
 const EMPTY_FORM: ClientFormData = {
   firstName: "", lastName: "", documentType: "", document: "",
-  email: "", phone: "", address: "", image: "",
+  email: "", phone: "", address: "", image: "", contrasena: "",
+  razonSocial: "", representanteLegal: "", digitoVerificacion: "",
 };
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -58,16 +59,31 @@ export function useClients() {
 
   // ── Crear / Actualizar ───────────────────────────────────────────────────
   const handleCreateOrUpdate = async () => {
-    const firstName = formData.firstName.trim();
-    const lastName = formData.lastName.trim();
+    const isNIT        = formData.documentType === "NIT";
     const documentType = formData.documentType.trim();
-    const document = formData.document.trim();
-    const email = formData.email.trim().toLowerCase();
-    const phone = formData.phone.trim();
-    const address = formData.address.trim();
+    const document     = formData.document.trim();
+    const email        = formData.email.trim().toLowerCase();
+    const phone        = formData.phone.trim();
+    const address      = formData.address.trim();
 
-    if (!firstName || !lastName || !documentType || !document || !email || !phone) {
+    // Para NIT: razonSocial → firstName, representanteLegal → lastName
+    const firstName = isNIT
+      ? (formData.razonSocial ?? "").trim()
+      : formData.firstName.trim();
+    const lastName = isNIT
+      ? (formData.representanteLegal ?? "").trim()
+      : formData.lastName.trim();
+
+    if (!documentType || !document || !email || !phone) {
       toast.error("Por favor completa todos los campos requeridos");
+      return;
+    }
+    if (!firstName) {
+      toast.error(isNIT ? "La razón social es obligatoria" : "El nombre es obligatorio");
+      return;
+    }
+    if (!lastName) {
+      toast.error(isNIT ? "El representante legal es obligatorio" : "El apellido es obligatorio");
       return;
     }
 
@@ -107,16 +123,22 @@ export function useClients() {
       return;
     }
 
+    // Para NIT: concatenar dígito de verificación si se ingresó
+    const docFinal = isNIT && formData.digitoVerificacion?.trim()
+      ? `${docDigits}-${formData.digitoVerificacion.trim()}`
+      : docDigits;
+
     try {
       const payload: ClientFormData = {
         firstName,
         lastName,
         documentType,
-        document: docDigits,
+        document: docFinal,
         email,
         phone,
         address,
         image: formData.image,
+        contrasena: formData.contrasena?.trim() || undefined,
       };
 
       if (editingClient) {

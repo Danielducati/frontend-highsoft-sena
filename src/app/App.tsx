@@ -75,7 +75,7 @@ function AppContent({ currentPage, userRole }: { currentPage: Page; userRole: No
       {currentPage === "roles"        && can("roles")        && <RolesModule       userRole={userRole} />}
       {currentPage === "settings"     && can("settings")     && <SettingsModule    userRole={userRole} />}
       {currentPage === "news"         && can("news")         && <NewsModule        userRole={userRole} />}
-      {currentPage === "sales"        && can("ventas")       && <SalesModule       userRole={userRole} />}
+      {currentPage === "sales"        && can("sales")        && <SalesModule       userRole={userRole} />}
       {currentPage === "clients"      && can("clients")      && <ClientsModule     userRole={userRole} />}
       {currentPage === "services"     && can("services")     && <ServicesModule    userRole={userRole} />}
       {currentPage === "appointments" && userRole === "client"  && <ClientAppointmentsPage />}

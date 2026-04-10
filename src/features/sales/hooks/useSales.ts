@@ -9,6 +9,7 @@ export function useSales() {
   const [appointments,      setAppointments]      = useState<Appointment[]>([]);
   const [availableServices, setAvailableServices] = useState<any[]>([]);
   const [clients,           setClients]           = useState<any[]>([]);
+  const [employees,         setEmployees]         = useState<any[]>([]);
   const [loading,           setLoading]           = useState(true);
   const [saving,            setSaving]            = useState(false);
   const [searchTerm, setSearchTerm]               = useState("");
@@ -18,16 +19,18 @@ export function useSales() {
   useEffect(() => {
     async function fetchAll() {
       try {
-        const [salesData, apptData, svcData, clientsData] = await Promise.all([
+        const [salesData, apptData, svcData, clientsData, empData] = await Promise.all([
           salesApi.getSales(),
           salesApi.getAppointments(),
           salesApi.getServices(),
           salesApi.getClients(),
+          salesApi.getEmployees(),
         ]);
         setSales(salesData);
         setAppointments(apptData);
         setAvailableServices(svcData);
         setClients(clientsData);
+        setEmployees(empData);
       } catch (err: any) {
         toast.error(err.message ?? "Error al cargar datos");
       } finally {
@@ -54,8 +57,12 @@ export function useSales() {
       toast.error("Debes seleccionar una cita");
       return false;
     }
-    if (saleType === "direct" && !formData.clienteId) {
+    if (saleType === "direct" && !formData.clienteId && !formData.guestMode) {
       toast.error("Debes seleccionar un cliente");
+      return false;
+    }
+    if (saleType === "direct" && formData.guestMode && !formData.guestFirstName?.trim()) {
+      toast.error("El nombre del cliente es obligatorio");
       return false;
     }
     if (saleType === "direct" && formData.selectedServices.length === 0) {
@@ -77,7 +84,7 @@ export function useSales() {
     }
   };
 
-  return { sales, appointments, availableServices, clients, loading, saving, registerSale,
+  return { sales, appointments, availableServices, clients, employees, loading, saving, registerSale,
     filterClient, setFilterClient
    };
 }

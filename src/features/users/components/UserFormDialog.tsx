@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { Upload, Image as ImageIcon, X } from "lucide-react";
 import { ImageWithFallback } from "../../guidelines/figma/ImageWithFallback";
 import { User, Role, UserFormData } from "../types";
-import { DOCUMENT_TYPES, DEFAULT_PASSWORD } from "../constants";
+import { DOCUMENT_TYPES } from "../constants";
 
 // ── Helpers de validación ─────────────────────────────────────
 const onlyLetters = (v: string) => v.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]/g, "");
@@ -156,9 +156,19 @@ export function UserFormDialog({
           </div>
 
           {!editingUser && (
-            <p className="text-xs text-gray-500 bg-gray-50 p-3 rounded-lg">
-              La contraseña inicial será <strong>{DEFAULT_PASSWORD}</strong>. El usuario podrá cambiarla después.
-            </p>
+            <div className="space-y-2">
+              <Label>Contraseña</Label>
+              <Input
+                type="password"
+                value={formData.contrasena ?? ""}
+                onChange={e => setFormData({ ...formData, contrasena: e.target.value })}
+                placeholder="Por defecto: número de documento"
+                className="rounded-lg border-gray-200"
+              />
+              <p className="text-xs text-gray-400">
+                Si no ingresas una, se usará el número de documento como contraseña.
+              </p>
+            </div>
           )}
 
           <div className="flex justify-end gap-3 pt-4 border-t">

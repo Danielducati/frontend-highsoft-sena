@@ -286,11 +286,11 @@ export function EmployeeFormDialog({
           {!editingEmployee && (
             <Field label="Contraseña inicial" field="contrasena" error={liveErrors.contrasena}>
               <input style={s("contrasena")} type="password" value={formData.contrasena}
-                placeholder="empleado123 (por defecto)"
+                placeholder="Por defecto: número de documento"
                 onChange={e => update("contrasena", e.target.value)}
                 onBlur={() => touch("contrasena")} />
               <p style={{ fontSize: 11, color: "#9ca3af", marginTop: 4 }}>
-                Si no ingresas una, se usará "empleado123"
+                Si no ingresas una, se usará el número de documento como contraseña.
               </p>
             </Field>
           )}
