@@ -19,6 +19,7 @@ interface EmployeeFormDialogProps {
   onSubmit: (data: EmployeeFormData) => void;
   onCancel: () => void;
   categories: { value: string; label: string }[];
+  onResetPassword?: (id: number, password: string) => Promise<void>;
 }
 
 const inputBase: React.CSSProperties = {
@@ -88,7 +89,7 @@ function Field({ label, field, required, children, error }: FieldProps) {
 
 export function EmployeeFormDialog({
   isOpen, onOpenChange, editingEmployee, formData, setFormData,
-  imagePreview, setImagePreview, saving, onSubmit, onCancel, categories,
+  imagePreview, setImagePreview, saving, onSubmit, onCancel, categories, onResetPassword,
 }: EmployeeFormDialogProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [touched,        setTouched]        = useState<Partial<Record<keyof EmployeeFormData, boolean>>>({});

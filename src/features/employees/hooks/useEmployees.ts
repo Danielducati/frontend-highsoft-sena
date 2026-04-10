@@ -186,7 +186,7 @@ export function useEmployees() {
 
   const handleResetPassword = async (id: number, nuevaContrasena: string) => {
     try {
-      await resetEmployeePasswordApi(id, nuevaContrasena);
+      await updateEmployeeApi(id, { contrasena: nuevaContrasena });
       toast.success("Contraseña actualizada correctamente");
     } catch (err: any) {
       toast.error(err.message || "Error al resetear contraseña");
@@ -229,7 +229,6 @@ export function useEmployees() {
     currentPage, setCurrentPage, totalPages,
     filteredEmployees, paginatedEmployees,
     specialties, activeEmployees,
-    categories,
     handleCreateOrUpdate, handleToggleStatus,
     handleDelete, handleEdit,
     confirmDelete, resetForm, handleResetPassword,

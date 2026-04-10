@@ -26,7 +26,6 @@ export function EmployeesPage({ userRole }: EmployeesModuleProps) {
     currentPage, setCurrentPage, totalPages,
     filteredEmployees, paginatedEmployees,
     specialties, activeEmployees,
-    categories,
     handleCreateOrUpdate, handleToggleStatus,
     handleDelete, handleEdit,
     confirmDelete, resetForm, handleResetPassword,
@@ -395,6 +394,8 @@ export function EmployeesPage({ userRole }: EmployeesModuleProps) {
         saving={saving}
         onSubmit={() => handleCreateOrUpdate(formData)}
         onCancel={resetForm}
+        categories={categories}
+        onResetPassword={handleResetPassword}
       />
       <EmployeeViewDialog employee={viewingEmployee} onClose={() => setViewingEmployee(null)} />
       <EmployeeDeleteDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen} onConfirm={handleDelete} />
