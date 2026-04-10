@@ -21,6 +21,7 @@ interface QuotationFormDialogProps {
   onCancel: () => void;
   onNewClick: () => void;
   userRole: string;
+  myClientData?: { id: number; nombre: string; apellido: string } | null;
 }
 
 const inputBase: React.CSSProperties = {
@@ -54,7 +55,7 @@ export function QuotationFormDialog({
   isOpen, onOpenChange, editingQuotation, formData, setFormData,
   clients, availableServices, calculateSubtotal, calculateTotal,
   addService, removeService, updateQuantity,
-  onSubmit, onCancel, onNewClick, userRole,
+  onSubmit, onCancel, onNewClick, userRole, myClientData,
 }: QuotationFormDialogProps) {
   const [touched, setTouched] = useState<Partial<Record<keyof Errors, boolean>>>({});
 
@@ -113,16 +114,22 @@ export function QuotationFormDialog({
           {/* Cliente */}
           <div>
             <label style={labelStyle}>Cliente <span style={{ color: "#c0392b" }}>*</span></label>
-            <select style={s("clientId")} value={formData.clientId}
-              onChange={e => setFormData({ ...formData, clientId: e.target.value })}
-              onBlur={() => touch("clientId")}>
-              <option value="">Selecciona un cliente</option>
-              {clients.filter(c => c.id != null).map(c => (
-                <option key={c.id} value={c.id.toString()}>
-                  {c.name ?? `${c.nombre ?? ""} ${c.apellido ?? ""}`.trim()}
-                </option>
-              ))}
-            </select>
+            {userRole === "client" && myClientData ? (
+              <div style={{ ...inputOk, backgroundColor: "#edf7f4", border: "1px solid #c8ead9", color: "#1a5c3a", fontWeight: 600 }}>
+                {myClientData.nombre} {myClientData.apellido}
+              </div>
+            ) : (
+              <select style={s("clientId")} value={formData.clientId}
+                onChange={e => setFormData({ ...formData, clientId: e.target.value })}
+                onBlur={() => touch("clientId")}>
+                <option value="">Selecciona un cliente</option>
+                {clients.filter(c => c.id != null).map(c => (
+                  <option key={c.id} value={c.id.toString()}>
+                    {c.name ?? `${c.nombre ?? ""} ${c.apellido ?? ""}`.trim()}
+                  </option>
+                ))}
+              </select>
+            )}
             {liveErrors.clientId && <p style={errorStyle}>⚠ {liveErrors.clientId}</p>}
           </div>
 

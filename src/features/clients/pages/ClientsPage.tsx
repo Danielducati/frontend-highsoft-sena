@@ -1,6 +1,6 @@
 // src/features/clients/pages/ClientsPage.tsx
 import React from "react";
-import { User, Mail, Phone, Search, Filter, ShoppingBag, Eye, Edit, Trash2 } from "lucide-react";
+import { User, Mail, Phone, Search, Filter, ShoppingBag, Eye, Pencil, Trash2 } from "lucide-react";
 import { SpaPage } from "../../../shared/components/layout/SpaPage";
 import { ClientsModuleProps } from "../types";
 import { ITEMS_PER_PAGE } from "../constants";
@@ -112,7 +112,9 @@ export function ClientsPage({ userRole }: ClientsModuleProps) {
                         </div>
                         <div className="min-w-0">
                           <p className="font-medium text-sm truncate" style={{ color: "#1a3a2a" }}>{client.name}</p>
-                          <p className="text-xs truncate" style={{ color: "#6b7c6b" }}>{client.lastVisit || "Sin visitas"}</p>
+                          {client.numero_documento && (
+                            <p className="text-xs truncate" style={{ color: "#6b7c6b" }}>{client.tipo_documento ? `${client.tipo_documento}: ` : ""}{client.numero_documento}</p>
+                          )}
                         </div>
                       </div>
                     </td>
@@ -199,7 +201,7 @@ export function ClientsPage({ userRole }: ClientsModuleProps) {
                               onMouseEnter={(e) => { if (client.isActive) e.currentTarget.style.backgroundColor = "#f0ebe3"; }}
                               onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
                             >
-                              <Edit className="w-4 h-4" />
+                              <Pencil className="w-4 h-4" />
                             </button>
                             <button
                               onClick={() => client.isActive && confirmDelete(client.id)}

@@ -5,8 +5,8 @@ import {
   Appointment, AppointmentService, Client, CurrentService, Employee, FormData, Service,} from "../types";
 import { getMonday, calculateEndTime } from "../utils";
 import {
-  fetchAppointments, fetchServices, fetchEmployees, fetchClients,
-  createAppointment, updateAppointment, deleteAppointment,
+  fetchAppointments, fetchMyAppointments, fetchServices, fetchEmployees, fetchClients,
+  fetchMyClientProfile, createAppointment, updateAppointment, deleteAppointment,
   cancelAppointment, updateAppointmentStatus,
 } from "../services/appointmentsService";
 
@@ -17,7 +17,7 @@ const EMPTY_FORM: FormData = {
   date: TODAY, startTime: "", notes: "",
 };
 
-export function useAppointments() {
+export function useAppointments(userRole?: string) {
   const [services,     setServices]     = useState<Service[]>([]);
   const [employees,    setEmployees]    = useState<Employee[]>([]);
   const [clients,      setClients]      = useState<Client[]>([]);
@@ -42,13 +42,32 @@ export function useAppointments() {
   useEffect(() => {
     async function loadAll() {
       try {
-        const [sData, eData, cData, aData] = await Promise.all([
-          fetchServices(), fetchEmployees(), fetchClients(), fetchAppointments(),
+        const isClient = userRole === "client";
+
+        const [sData, eData, aData] = await Promise.all([
+          fetchServices(),
+          fetchEmployees(),
+          isClient ? fetchMyAppointments() : fetchAppointments(),
         ]);
+
         setServices(sData);
         setEmployees(eData);
-        setClients(cData);
         setAppointments(aData);
+
+        if (isClient) {
+          // Pre-cargar el cliente logueado
+          const myProfile = await fetchMyClientProfile();
+          setClients([myProfile]);
+          setFormData(prev => ({
+            ...prev,
+            clientId:    myProfile.id,
+            clientName:  myProfile.name || myProfile.id,
+            clientPhone: myProfile.phone,
+          }));
+        } else {
+          const cData = await fetchClients();
+          setClients(cData);
+        }
       } catch (err) {
         const msg = err instanceof Error ? err.message : "Error al conectar con el servidor";
         toast.error(msg);
@@ -60,9 +79,22 @@ export function useAppointments() {
   }, []);
 
   const reloadAppointments = async () => {
-    const data = await fetchAppointments();
+    const data = userRole === "client" ? await fetchMyAppointments() : await fetchAppointments();
     setAppointments(data);
   };
+
+  // ── Sincronizar cliente logueado cuando carga su perfil ──────────────────
+  useEffect(() => {
+    if (userRole === "client" && clients.length > 0) {
+      const myProfile = clients[0];
+      setFormData(prev => ({
+        ...prev,
+        clientId:    prev.clientId    || myProfile.id,
+        clientName:  prev.clientName  || myProfile.name,
+        clientPhone: prev.clientPhone || myProfile.phone,
+      }));
+    }
+  }, [clients, userRole]);
 
   // ── Semana ──
   const getWeekDates = () =>
@@ -155,7 +187,7 @@ export function useAppointments() {
         await updateAppointment(editingAppointment.id, payload);
         toast.success("Cita actualizada");
       } else {
-        await createAppointment(payload);
+        await createAppointment(payload, userRole === "client");
         toast.success("Cita creada exitosamente");
       }
       await reloadAppointments();

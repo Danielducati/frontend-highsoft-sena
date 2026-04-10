@@ -5,6 +5,7 @@ import { ITEMS_PER_PAGE } from "../constants";
 import {
   fetchQuotationsApi, fetchClientsApi, fetchServicesApi,
   createQuotationApi, updateQuotationApi, updateQuotationStatusApi,
+  fetchMyProfileApi,
 } from "../services/quotationsService";
 
 const EMPTY_FORM: QuotationFormData = {
@@ -16,7 +17,7 @@ const EMPTY_FORM: QuotationFormData = {
   discount: "0",
 };
 
-export function useQuotations() {
+export function useQuotations(userRole?: string) {
   const [quotations,         setQuotations]         = useState<Quotation[]>([]);
   const [clients,            setClients]            = useState<any[]>([]);
   const [availableServices,  setAvailableServices]  = useState<any[]>([]);
@@ -30,13 +31,28 @@ export function useQuotations() {
   const [quotationToCancel,  setQuotationToCancel]  = useState<number | null>(null);
   const [currentPage,        setCurrentPage]        = useState(1);
   const [formData,           setFormData]           = useState<QuotationFormData>(EMPTY_FORM);
-  const [filterClient,       setFilterClient]             = useState("all");
+  const [filterClient,       setFilterClient]       = useState("all");
+  const [myClientData,       setMyClientData]       = useState<{ id: number; nombre: string; apellido: string } | null>(null);
 
   useEffect(() => {
     loadQuotations();
-    loadClients();
     loadServices();
+    if (userRole === "client") {
+      loadMyProfile();
+    } else {
+      loadClients();
+    }
   }, []);
+
+  const loadMyProfile = async () => {
+    try {
+      const profile = await fetchMyProfileApi();
+      setMyClientData(profile);
+      setFormData(prev => ({ ...prev, clientId: profile.id.toString() }));
+    } catch {
+      toast.error("Error al cargar tu perfil de cliente");
+    }
+  };
 
   const loadQuotations = async () => {
     try {
@@ -205,6 +221,7 @@ export function useQuotations() {
     confirmCancel, handleEdit, resetForm,
     addService, removeService, updateQuantity,
     calculateSubtotal, calculateTotal,
-    filterClient,setFilterClient,
+    filterClient, setFilterClient,
+    myClientData,
   };
 }

@@ -29,10 +29,22 @@ export function RegisterPage({ onBack, onRegisterSuccess }: RegisterPageProps) {
   if (showSuccess) return <RegisterSuccessScreen />;
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ backgroundColor: "#f5f0e8", fontFamily: "var(--font-display)" }}>
+    <div className="min-h-screen relative" style={{ fontFamily: "var(--font-display)" }}>
+      {/* Imagen de fondo */}
+      <div
+        className="absolute inset-0 bg-cover bg-center"
+        style={{
+          backgroundImage: `url('https://images.unsplash.com/photo-1600334089648-b0d9d3028eb2?w=1600&q=80')`,
+        }}
+      />
+      {/* Overlay */}
+      <div className="absolute inset-0" style={{ backgroundColor: "rgba(15, 35, 20, 0.65)" }} />
+
+      {/* Contenido */}
+      <div className="relative z-10 min-h-screen flex flex-col">
       <div className="flex items-start justify-end px-10 pt-8">
         <button type="button" className="w-8 h-8 inline-flex items-center justify-center rounded-full"
-          style={{ color: "#6b7c6b" }} aria-label="Ayuda">
+          style={{ color: "rgba(255,255,255,0.7)" }} aria-label="Ayuda">
           <HelpCircle className="w-4 h-4" />
         </button>
       </div>
@@ -43,10 +55,10 @@ export function RegisterPage({ onBack, onRegisterSuccess }: RegisterPageProps) {
           {/* Columna izquierda */}
           <div className="flex flex-col justify-center space-y-6">
             <div>
-              <h2 className="text-4xl font-normal mb-3" style={{ color: "#1a3a2a", fontFamily: "var(--font-display)" }}>
+              <h2 className="text-4xl font-normal mb-3" style={{ color: "#ffffff", fontFamily: "var(--font-display)" }}>
                 Bienvenido a Highlife Spa
               </h2>
-              <p className="text-base leading-relaxed" style={{ color: "#6b7c6b", fontFamily: "var(--font-body)" }}>
+              <p className="text-base leading-relaxed" style={{ color: "rgba(255,255,255,0.75)", fontFamily: "var(--font-body)" }}>
                 Crea tu cuenta y accede a los mejores servicios de spa y bienestar.
                 Disfruta de promociones exclusivas y reserva tus tratamientos favoritos.
               </p>
@@ -58,12 +70,12 @@ export function RegisterPage({ onBack, onRegisterSuccess }: RegisterPageProps) {
                 { title: "Ofertas Exclusivas", desc: "Acceso a promociones solo para miembros" },
               ].map(({ title, desc }) => (
                 <div key={title} className="flex gap-4">
-                  <div className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: "#edf7f4" }}>
-                    <span style={{ color: "#1a5c3a", fontSize: "20px" }}>✓</span>
+                  <div className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: "rgba(120,209,189,0.2)", border: "1px solid rgba(120,209,189,0.4)" }}>
+                    <span style={{ color: "#78D1BD", fontSize: "20px" }}>✓</span>
                   </div>
                   <div>
-                    <h3 className="font-semibold text-sm mb-1" style={{ color: "#1a3a2a" }}>{title}</h3>
-                    <p className="text-xs" style={{ color: "#6b7c6b" }}>{desc}</p>
+                    <h3 className="font-semibold text-sm mb-1" style={{ color: "#ffffff" }}>{title}</h3>
+                    <p className="text-xs" style={{ color: "rgba(255,255,255,0.65)" }}>{desc}</p>
                   </div>
                 </div>
               ))}
@@ -216,6 +228,7 @@ export function RegisterPage({ onBack, onRegisterSuccess }: RegisterPageProps) {
           </div>
         </div>
       </div>
+      </div>{/* /relative z-10 */}
     </div>
   );
 }

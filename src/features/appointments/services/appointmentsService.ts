@@ -20,6 +20,23 @@ async function parseJsonOrThrow(res: Response): Promise<unknown> {
   return data;
 }
 
+export async function fetchMyClientProfile(): Promise<{ id: string; name: string; phone: string }> {
+  const res = await fetch(`${API_BASE}/clients/mi-perfil`, { headers: authHeaders() });
+  const data = await parseJsonOrThrow(res) as any;
+  return {
+    id:    data.PK_id_cliente ? String(data.PK_id_cliente) : "",
+    name:  `${data.nombre ?? ""} ${data.apellido ?? ""}`.trim(),
+    phone: data.telefono ?? "",
+  };
+}
+
+export async function fetchMyAppointments(): Promise<Appointment[]> {
+  const res = await fetch(`${API_BASE}/appointments/mis-citas`, { headers: authHeaders() });
+  const data = await parseJsonOrThrow(res);
+  if (!Array.isArray(data)) throw new Error("Respuesta inválida del servidor");
+  return data.map(mapApiToAppointment);
+}
+
 export async function fetchAppointments(): Promise<Appointment[]> {
   const res = await fetch(`${API_BASE}/appointments`, { headers: authHeaders() });
   const data = await parseJsonOrThrow(res);
@@ -42,8 +59,9 @@ export async function fetchClients() {
   return parseJsonOrThrow(res);
 }
 
-export async function createAppointment(payload: any) {
-  const res = await fetch(`${API_BASE}/appointments`, {
+export async function createAppointment(payload: any, isClient = false) {
+  const endpoint = isClient ? `${API_BASE}/appointments/mis-citas` : `${API_BASE}/appointments`;
+  const res = await fetch(endpoint, {
     method:  "POST",
     headers: authHeaders(),
     body:    JSON.stringify(payload),
