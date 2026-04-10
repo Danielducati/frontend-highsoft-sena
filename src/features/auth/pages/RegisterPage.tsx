@@ -133,7 +133,7 @@ export function RegisterPage({ onBack, onRegisterSuccess }: RegisterPageProps) {
                     <Input id="phone" type="tel" value={formData.phone}
                       onChange={(e) => handleChange("phone", e.target.value)}
                       placeholder="3001234567" className="h-10 rounded-lg border-0 text-sm"
-                      style={inputStyle(errors.phone)} disabled={loading} />
+                      style={inputStyle(errors.phone)} disabled={loading} maxLength={10} />
                     <Err msg={errors.phone} />
                   </div>
 
@@ -158,7 +158,7 @@ export function RegisterPage({ onBack, onRegisterSuccess }: RegisterPageProps) {
                       <Input id="cedula" type="text" value={formData.cedula}
                         onChange={(e) => handleChange("cedula", e.target.value)}
                         placeholder="1234567890" className="h-10 rounded-lg border-0 text-sm"
-                        style={inputStyle(errors.cedula)} disabled={loading} />
+                        style={inputStyle(errors.cedula)} disabled={loading} maxLength={15} />
                       <Err msg={errors.cedula} />
                     </div>
                   </div>
