@@ -34,6 +34,7 @@ export interface UserFormData {
   phone:        string;
   roleId:       string;
   image:        string;
+  contrasena?:  string;
 }
 
 export interface UsersModuleProps {

@@ -18,6 +18,8 @@ export function AccessPage({ userRole }: AccessModuleProps) {
     setFilterModule,
     filterAction,
     setFilterAction,
+    filterStatus,
+    setFilterStatus,
     isDialogOpen,
     setIsDialogOpen,
     isViewDialogOpen,
@@ -127,6 +129,25 @@ export function AccessPage({ userRole }: AccessModuleProps) {
             {ACTIONS.map((a) => (
               <option key={a} value={a}>{a}</option>
             ))}
+          </select>
+
+          <select
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value)}
+            style={{
+              padding: "8px 14px",
+              borderRadius: 10,
+              border: "1px solid #d6cfc4",
+              backgroundColor: "#ffffff",
+              color: "#1a3a2a",
+              fontSize: 13,
+              fontFamily: "var(--font-body)",
+              outline: "none",
+            }}
+          >
+            <option value="all">Todos los estados</option>
+            <option value="active">Activos</option>
+            <option value="inactive">Inactivos</option>
           </select>
         </div>
       </div>

@@ -124,6 +124,7 @@ export function useUsers() {
       email,
       phone,
       role: selectedRole.nombre,
+      contrasena: formData.contrasena?.trim() || undefined,
     };
 
     try {
