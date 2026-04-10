@@ -23,9 +23,10 @@ interface SidebarProps {
   onNavigate: (page: string) => void;
   onLogout: () => void;
   userRole: 'admin' | 'employee' | 'client';
+  allowedPages?: string[];
 }
 
-export function Sidebar({ activePage, onNavigate, onLogout, userRole }: SidebarProps) {
+export function Sidebar({ activePage, onNavigate, onLogout, userRole, allowedPages }: SidebarProps) {
   const menuItems = [
     { 
       id: 'dashboard', 
@@ -91,7 +92,7 @@ export function Sidebar({ activePage, onNavigate, onLogout, userRole }: SidebarP
       id: 'users', 
       label: 'Usuarios', 
       icon: UserCog,
-      roles: ['admin']
+      roles: ['admin', 'employee', 'client']
     },
     { 
       id: 'roles', 
@@ -101,7 +102,13 @@ export function Sidebar({ activePage, onNavigate, onLogout, userRole }: SidebarP
     },
   ];
 
-  const visibleItems = menuItems.filter(item => item.roles.includes(userRole));
+  // Admin siempre ve todo. Otros roles solo ven lo que allowedPages indica.
+  const visibleItems = menuItems.filter(item => {
+    if (userRole === "admin") return item.roles.includes("admin");
+    // Para cualquier otro rol, usar estrictamente allowedPages
+    const pages = allowedPages ?? [];
+    return pages.includes(item.id);
+  });
 
   const roleLabels = {
     admin: 'Administrador',
@@ -126,10 +133,10 @@ export function Sidebar({ activePage, onNavigate, onLogout, userRole }: SidebarP
           </div>
           <div>
             <h2 className="tracking-tight leading-none" style={{ color: " #1a3a2a", fontFamily: "var(--font-display)" }}>
-              High Life Spa Peorrotes
+              Highlife Spa
             </h2>
             <p className="text-[10px] tracking-[0.18em] mt-1" style={{ color: " #8a948b", fontFamily: "var(--font-body)" }}>
-              MANAGEMENT SUITE
+              MANAGEMENT SUITE 
             </p>
           </div>
         </div>
@@ -140,6 +147,8 @@ export function Sidebar({ activePage, onNavigate, onLogout, userRole }: SidebarP
         {visibleItems.map((item) => {
           const Icon = item.icon;
           const isActive = activePage === item.id;
+          // "Usuarios" para admin, "Mi Perfil" para empleado y cliente
+          const label = item.id === "users" && userRole !== "admin" ? "Mi Perfil" : item.label;
           
           return (
             <button
@@ -158,29 +167,14 @@ export function Sidebar({ activePage, onNavigate, onLogout, userRole }: SidebarP
               }
             >
               <Icon className="w-4 h-4 flex-shrink-0" />
-              <span className="text-sm" style={{ fontFamily: "var(--font-body)" }}>{item.label}</span>
+              <span className="text-sm" style={{ fontFamily: "var(--font-body)" }}>{label}</span>
             </button>
           );
         })}
       </nav>
 
-      {/* User Info & Logout */}
-      <div className="p-4 space-y-3" style={{ borderTop: "1px solid #ece9e3" }}>
-        {/* User Card */}
-        <div className="flex items-center gap-3 px-3 py-2.5 rounded-lg" style={{ backgroundColor: "#efeee9" }}>
-          <div
-            className="w-8 h-8 rounded-lg flex items-center justify-center"
-            style={{ background: "linear-gradient(135deg, #78D1BD, #5FBFAA)" }}
-          >
-            <UserCircle className="w-5 h-5 text-white" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm truncate" style={{ color: "#1a3a2a", fontFamily: "var(--font-body)" }}>{roleLabels[userRole]}</p>
-            <p className="text-xs" style={{ color: "#8a948b", fontFamily: "var(--font-body)" }}>Sesión activa</p>
-          </div>
-        </div>
-
-        {/* Logout Button */}
+      {/* Logout Button */}
+      <div className="p-4" style={{ borderTop: "1px solid #ece9e3" }}>
         <button
           className="w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200"
           style={{ color: "#6b7c6b" }}

@@ -5,6 +5,8 @@ export interface QuotationItem {
   serviceName: string;
   price: number;
   quantity: number;
+  empleadoId?: number;
+  empleadoName?: string;
 }
 
 export interface Quotation {

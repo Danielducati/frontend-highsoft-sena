@@ -13,7 +13,7 @@ import { ImageWithFallback } from "../../guidelines/figma/ImageWithFallback";
 
 export function EmployeesPage({ userRole }: EmployeesModuleProps) {
   const {
-    employees, loading, saving,
+    employees, categories, loading, saving,
     searchTerm, setSearchTerm,
     filterSpecialty, setFilterSpecialty,
     filterStatus, setFilterStatus,
@@ -29,7 +29,7 @@ export function EmployeesPage({ userRole }: EmployeesModuleProps) {
     categories,
     handleCreateOrUpdate, handleToggleStatus,
     handleDelete, handleEdit,
-    confirmDelete, resetForm,
+    confirmDelete, resetForm, handleResetPassword,
   } = useEmployees();
 
 
@@ -300,31 +300,31 @@ export function EmployeesPage({ userRole }: EmployeesModuleProps) {
                           <Eye className="w-4 h-4" />
                         </button>
 
-                        {employee.isActive && (
-                          <>
-                            <button
-                              onClick={() => handleEdit(employee)}
-                              title="Editar"
-                              className="p-2 rounded-lg transition-colors"
-                              style={{ color: "#6b7c6b" }}
-                              onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#f0ebe3")}
-                              onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
-                            >
-                              <Pencil className="w-4 h-4" />
-                            </button>
+                        <>
+                          <button
+                            onClick={() => employee.isActive && handleEdit(employee)}
+                            title={employee.isActive ? "Editar" : "Activa el empleado para editar"}
+                            disabled={!employee.isActive}
+                            className="p-2 rounded-lg transition-colors"
+                            style={{ color: employee.isActive ? "#6b7c6b" : "#d1d5db", cursor: employee.isActive ? "pointer" : "not-allowed" }}
+                            onMouseEnter={e => { if (employee.isActive) e.currentTarget.style.backgroundColor = "#f0ebe3"; }}
+                            onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
+                          >
+                            <Pencil className="w-4 h-4" />
+                          </button>
 
-                            <button
-                              onClick={() => confirmDelete(employee.id)}
-                              title="Desactivar"
-                              className="p-2 rounded-lg transition-colors"
-                              style={{ color: "#c0392b" }}
-                              onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#fdf0ee")}
-                              onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          </>
-                        )}
+                          <button
+                            onClick={() => employee.isActive && confirmDelete(employee.id)}
+                            title={employee.isActive ? "Eliminar" : "Activa el empleado para eliminar"}
+                            disabled={!employee.isActive}
+                            className="p-2 rounded-lg transition-colors"
+                            style={{ color: employee.isActive ? "#c0392b" : "#d1d5db", cursor: employee.isActive ? "pointer" : "not-allowed" }}
+                            onMouseEnter={e => { if (employee.isActive) e.currentTarget.style.backgroundColor = "#fdf0ee"; }}
+                            onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </>
                       </div>
                     </td>
                   )}
@@ -395,7 +395,6 @@ export function EmployeesPage({ userRole }: EmployeesModuleProps) {
         saving={saving}
         onSubmit={() => handleCreateOrUpdate(formData)}
         onCancel={resetForm}
-        categories={categories}
       />
       <EmployeeViewDialog employee={viewingEmployee} onClose={() => setViewingEmployee(null)} />
       <EmployeeDeleteDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen} onConfirm={handleDelete} />

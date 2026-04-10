@@ -1,6 +1,6 @@
 // src/features/clients/pages/ClientsPage.tsx
 import React from "react";
-import { User, Mail, Phone, Search, Filter, ShoppingBag, Eye, Edit, Trash2 } from "lucide-react";
+import { User, Mail, Phone, Search, Filter, ShoppingBag, Eye, Pencil, Trash2 } from "lucide-react";
 import { SpaPage } from "../../../shared/components/layout/SpaPage";
 import { ClientsModuleProps } from "../types";
 import { ITEMS_PER_PAGE } from "../constants";
@@ -107,12 +107,20 @@ export function ClientsPage({ userRole }: ClientsModuleProps) {
                   >
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3 min-w-0">
-                        <div className="w-9 h-9 rounded-full flex items-center justify-center text-white text-sm flex-shrink-0" style={{ background: "linear-gradient(135deg, #78D1BD, #5FBFAA)" }}>
-                          {client.name.charAt(0)}
+                        <div className="w-9 h-9 rounded-full overflow-hidden flex-shrink-0" style={{ border: "2px solid #c8ead9" }}>
+                          {client.image ? (
+                            <img src={client.image} alt={client.name} className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-white text-sm" style={{ background: "linear-gradient(135deg, #78D1BD, #5FBFAA)" }}>
+                              {client.name.charAt(0)}
+                            </div>
+                          )}
                         </div>
                         <div className="min-w-0">
                           <p className="font-medium text-sm truncate" style={{ color: "#1a3a2a" }}>{client.name}</p>
-                          <p className="text-xs truncate" style={{ color: "#6b7c6b" }}>{client.lastVisit || "Sin visitas"}</p>
+                          {client.numero_documento && (
+                            <p className="text-xs truncate" style={{ color: "#6b7c6b" }}>{client.tipo_documento ? `${client.tipo_documento}: ` : ""}{client.numero_documento}</p>
+                          )}
                         </div>
                       </div>
                     </td>
@@ -199,7 +207,7 @@ export function ClientsPage({ userRole }: ClientsModuleProps) {
                               onMouseEnter={(e) => { if (client.isActive) e.currentTarget.style.backgroundColor = "#f0ebe3"; }}
                               onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
                             >
-                              <Edit className="w-4 h-4" />
+                              <Pencil className="w-4 h-4" />
                             </button>
                             <button
                               onClick={() => client.isActive && confirmDelete(client.id)}

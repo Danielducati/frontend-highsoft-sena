@@ -5,7 +5,11 @@ import { ITEMS_PER_PAGE } from "../constants";
 import {
   fetchQuotationsApi, fetchClientsApi, fetchServicesApi,
   createQuotationApi, updateQuotationApi, updateQuotationStatusApi,
+  fetchMyProfileApi,
 } from "../services/quotationsService";
+
+const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3001";
+const getToken = () => localStorage.getItem("token");
 
 const EMPTY_FORM: QuotationFormData = {
   clientId: "",
@@ -16,10 +20,11 @@ const EMPTY_FORM: QuotationFormData = {
   discount: "0",
 };
 
-export function useQuotations() {
+export function useQuotations(userRole?: string) {
   const [quotations,         setQuotations]         = useState<Quotation[]>([]);
   const [clients,            setClients]            = useState<any[]>([]);
   const [availableServices,  setAvailableServices]  = useState<any[]>([]);
+  const [employees,          setEmployees]          = useState<any[]>([]);
   const [loading,            setLoading]            = useState(true);
   const [searchTerm,         setSearchTerm]         = useState("");
   const [filterStatus,       setFilterStatus]       = useState("all");
@@ -30,13 +35,29 @@ export function useQuotations() {
   const [quotationToCancel,  setQuotationToCancel]  = useState<number | null>(null);
   const [currentPage,        setCurrentPage]        = useState(1);
   const [formData,           setFormData]           = useState<QuotationFormData>(EMPTY_FORM);
-  const [filterClient,       setFilterClient]             = useState("all");
+  const [filterClient,       setFilterClient]       = useState("all");
+  const [myClientData,       setMyClientData]       = useState<{ id: number; nombre: string; apellido: string } | null>(null);
 
   useEffect(() => {
     loadQuotations();
-    loadClients();
     loadServices();
+    loadEmployees();
+    if (userRole === "client") {
+      loadMyProfile();
+    } else {
+      loadClients();
+    }
   }, []);
+
+  const loadMyProfile = async () => {
+    try {
+      const profile = await fetchMyProfileApi();
+      setMyClientData(profile);
+      setFormData(prev => ({ ...prev, clientId: profile.id.toString() }));
+    } catch {
+      toast.error("Error al cargar tu perfil de cliente");
+    }
+  };
 
   const loadQuotations = async () => {
     try {
@@ -59,6 +80,14 @@ export function useQuotations() {
     catch { toast.error("Error al cargar servicios"); }
   };
 
+  const loadEmployees = async () => {
+    try {
+      const res = await fetch(`${API_URL}/employees`, { headers: { Authorization: `Bearer ${getToken()}` } });
+      const data = await res.json();
+      setEmployees(Array.isArray(data) ? data : []);
+    } catch { /* silencioso */ }
+  };
+
   // ── CRUD ──────────────────────────────────────────────────────────────────
   const handleCreate = async () => {
     if (!formData.clientId || formData.selectedServices.length === 0) {
@@ -72,9 +101,11 @@ export function useQuotations() {
       notas:       formData.notes,
       descuento:   parseFloat(formData.discount) || 0,
       servicios:   formData.selectedServices.map(s => ({
-        id_servicio: s.serviceId,
-        precio:      s.price,
-        cantidad:    s.quantity,
+        id_servicio:  s.serviceId,
+        precio:       s.price,
+        cantidad:     s.quantity,
+        empleado_id:  s.empleadoId   ?? null,
+        empleado_name: s.empleadoName ?? null,
       })),
     };
     try {
@@ -146,6 +177,14 @@ export function useQuotations() {
       ),
     });
 
+  const updateServiceEmployee = (serviceId: number, empleadoId: number, empleadoName: string) =>
+    setFormData({
+      ...formData,
+      selectedServices: formData.selectedServices.map(s =>
+        s.serviceId === serviceId ? { ...s, empleadoId, empleadoName } : s
+      ),
+    });
+
   const calculateSubtotal = () =>
     formData.selectedServices.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
@@ -203,8 +242,9 @@ export function useQuotations() {
     totalAmount, pendingCount, approvedCount,
     handleCreate, handleStatusChange, handleCancel,
     confirmCancel, handleEdit, resetForm,
-    addService, removeService, updateQuantity,
+    addService, removeService, updateQuantity, updateServiceEmployee,
     calculateSubtotal, calculateTotal,
-    filterClient,setFilterClient,
+    filterClient, setFilterClient,
+    myClientData, employees,
   };
 }

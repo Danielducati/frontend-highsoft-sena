@@ -66,3 +66,24 @@ export async function deleteEmployeeApi(id: number): Promise<void> {
   });
   if (!res.ok) throw new Error("Error al eliminar empleado");
 }
+
+export async function resetEmployeePasswordApi(id: number, nuevaContrasena: string): Promise<void> {
+  const res = await fetch(`${API_URL}/employees/${id}/reset-password`, {
+    method:  "PATCH",
+    headers: getAuthHeaders(),
+    body:    JSON.stringify({ nuevaContrasena }),
+  });
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.error || "Error al resetear contraseña");
+  }
+}
+
+export async function fetchCategoriesApi(): Promise<{ id: number; nombre: string }[]> {
+  const res = await fetch(`${API_URL}/categories?all=false`, {
+    headers: { Authorization: `Bearer ${getToken()}` },
+  });
+  if (!res.ok) return [];
+  const data = await res.json();
+  return data.map((c: any) => ({ id: c.id, nombre: c.nombre ?? c.name }));
+}

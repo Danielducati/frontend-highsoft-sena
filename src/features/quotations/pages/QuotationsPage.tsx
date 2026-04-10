@@ -1,4 +1,4 @@
-import { FileText, Search, Filter, Eye, Edit, X } from "lucide-react";
+import { FileText, Search, Filter, Eye, Pencil, X } from "lucide-react";
 import { QuotationsModuleProps, QuotationStatus } from "../types";
 import { ITEMS_PER_PAGE, STATUS_COLORS, STATUS_LABELS, STATUS_OPTIONS } from "../constants";
 import { useQuotations } from "../hooks/useQuotations";
@@ -42,10 +42,11 @@ export function QuotationsPage({ userRole }: QuotationsModuleProps) {
     totalAmount, pendingCount, approvedCount,
     handleCreate, handleStatusChange, handleCancel,
     confirmCancel, handleEdit, resetForm,
-    addService, removeService, updateQuantity,
+    addService, removeService, updateQuantity, updateServiceEmployee,
     calculateSubtotal, calculateTotal,
-    filterClient, setFilterClient
-  } = useQuotations();
+    filterClient, setFilterClient,
+    myClientData, employees,
+  } = useQuotations(userRole);
 
   return (
     <div className="min-h-screen p-8" style={{ backgroundColor: "#f5f0e8", fontFamily: "var(--font-body)" }}>
@@ -65,10 +66,13 @@ export function QuotationsPage({ userRole }: QuotationsModuleProps) {
           editingQuotation={editingQuotation}
           formData={formData} setFormData={setFormData}
           clients={clients} availableServices={availableServices}
+          employees={employees}
           calculateSubtotal={calculateSubtotal} calculateTotal={calculateTotal}
-          addService={addService} removeService={removeService} updateQuantity={updateQuantity}
+          addService={addService} removeService={removeService}
+          updateQuantity={updateQuantity} updateServiceEmployee={updateServiceEmployee}
           onSubmit={handleCreate} onCancel={resetForm} onNewClick={resetForm}
           userRole={userRole}
+          myClientData={myClientData}
         />
       </div>
 
@@ -244,7 +248,10 @@ export function QuotationsPage({ userRole }: QuotationsModuleProps) {
                   <td className="px-6 py-4">
                     <p className="text-sm" style={{ color: "#1a3a2a" }}>
                       {q.date
-                        ? new Date(q.date).toLocaleDateString("es-ES", { day: "2-digit", month: "2-digit", year: "numeric" })
+                        ? (() => {
+                            const [y, m, d] = q.date.split("T")[0].split("-");
+                            return `${d}/${m}/${y}`;
+                          })()
                         : "—"}
                     </p>
                   </td>
@@ -264,7 +271,7 @@ export function QuotationsPage({ userRole }: QuotationsModuleProps) {
                             className="p-2 rounded-lg transition-colors" style={{ color: "#6b7c6b" }}
                             onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#f0ebe3")}
                             onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}>
-                            <Edit className="w-4 h-4" />
+                            <Pencil className="w-4 h-4" />
                           </button>
                           {q.status !== "cancelled" && (
                             <button onClick={() => confirmCancel(q.id)} title="Cancelar cotización"

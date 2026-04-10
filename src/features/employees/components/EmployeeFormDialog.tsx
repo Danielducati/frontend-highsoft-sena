@@ -91,8 +91,10 @@ export function EmployeeFormDialog({
   imagePreview, setImagePreview, saving, onSubmit, onCancel, categories,
 }: EmployeeFormDialogProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [touched,      setTouched]      = useState<Partial<Record<keyof EmployeeFormData, boolean>>>({});
-  const [uploadingImg, setUploadingImg] = useState(false);
+  const [touched,        setTouched]        = useState<Partial<Record<keyof EmployeeFormData, boolean>>>({});
+  const [uploadingImg,   setUploadingImg]   = useState(false);
+  const [newPassword,    setNewPassword]    = useState("");
+  const [resettingPass,  setResettingPass]  = useState(false);
 
   const touch = (field: keyof EmployeeFormData) =>
     setTouched(t => ({ ...t, [field]: true }));
@@ -205,20 +207,6 @@ export function EmployeeFormDialog({
             </div>
           </div>
 
-          {/* ── Nombres / Apellidos ── */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-            <Field label="Nombres" field="firstName" required error={liveErrors.firstName}>
-              <input style={s("firstName")} value={formData.firstName} placeholder="Ana María"
-                onChange={e => update("firstName", e.target.value)}
-                onBlur={() => touch("firstName")} />
-            </Field>
-            <Field label="Apellidos" field="lastName" required error={liveErrors.lastName}>
-              <input style={s("lastName")} value={formData.lastName} placeholder="García Pérez"
-                onChange={e => update("lastName", e.target.value)}
-                onBlur={() => touch("lastName")} />
-            </Field>
-          </div>
-
           {/* ── Documento ── */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
             <Field label="Tipo de Documento" field="documentType" required error={liveErrors.documentType}>
@@ -235,6 +223,20 @@ export function EmployeeFormDialog({
               <input style={s("document")} value={formData.document} placeholder="1234567890"
                 onChange={e => update("document", e.target.value)}
                 onBlur={() => touch("document")} />
+            </Field>
+          </div>
+
+          {/* ── Nombres / Apellidos ── */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+            <Field label="Nombres" field="firstName" required error={liveErrors.firstName}>
+              <input style={s("firstName")} value={formData.firstName} placeholder="Ana María"
+                onChange={e => update("firstName", e.target.value)}
+                onBlur={() => touch("firstName")} />
+            </Field>
+            <Field label="Apellidos" field="lastName" required error={liveErrors.lastName}>
+              <input style={s("lastName")} value={formData.lastName} placeholder="García Pérez"
+                onChange={e => update("lastName", e.target.value)}
+                onBlur={() => touch("lastName")} />
             </Field>
           </div>
 
@@ -290,6 +292,41 @@ export function EmployeeFormDialog({
                 Si no ingresas una, se usará "empleado123"
               </p>
             </Field>
+          )}
+
+          {/* ── Reset contraseña (solo edición) ── */}
+          {editingEmployee && onResetPassword && (
+            <div style={{ padding: "14px 16px", borderRadius: 10, border: "1px solid #ede8e0", backgroundColor: "#f5f0e8" }}>
+              <label style={{ ...labelStyle, marginBottom: 8 }}>Cambiar Contraseña</label>
+              <div style={{ display: "flex", gap: 8 }}>
+                <input
+                  type="password"
+                  placeholder="Nueva contraseña (mín. 6 caracteres)"
+                  value={newPassword}
+                  onChange={e => setNewPassword(e.target.value)}
+                  style={{ ...inputOk, flex: 1 }}
+                />
+                <button
+                  type="button"
+                  disabled={resettingPass || newPassword.trim().length < 6}
+                  onClick={async () => {
+                    setResettingPass(true);
+                    await onResetPassword(Number(editingEmployee.id), newPassword.trim());
+                    setNewPassword("");
+                    setResettingPass(false);
+                  }}
+                  style={{
+                    padding: "9px 16px", borderRadius: 10, border: "none",
+                    backgroundColor: newPassword.trim().length >= 6 ? "#1a3a2a" : "#d1d5db",
+                    color: "#fff", fontSize: 13, fontWeight: 600,
+                    fontFamily: "var(--font-body)", cursor: newPassword.trim().length >= 6 ? "pointer" : "not-allowed",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {resettingPass ? "Guardando..." : "Actualizar"}
+                </button>
+              </div>
+            </div>
           )}
 
           {/* ── Botones ── */}

@@ -4,6 +4,7 @@ import { Button } from "../../../shared/ui/button";
 import { Input } from "../../../shared/ui/input";
 import { Label } from "../../../shared/ui/label";
 import { Textarea } from "../../../shared/ui/textarea";
+import { Lock } from "lucide-react";
 import { Permission } from "../types";
 import { parseName } from "../constants";
 
@@ -95,8 +96,15 @@ export function RoleFormDialog({
               </span>
             </div>
 
-            <div className="space-y-3">
-              {Object.entries(groupedPermissions).map(([category, permissions]) => (
+            {Object.keys(groupedPermissions).length === 0 ? (
+              <div className="flex flex-col items-center py-8 rounded-xl border border-dashed border-gray-200 bg-gray-50">
+                <Lock className="w-8 h-8 mb-2 text-gray-300" />
+                <p className="text-sm text-gray-500">Cargando permisos...</p>
+                <p className="text-xs text-gray-400 mt-1">Si esto persiste, recarga la página</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {Object.entries(groupedPermissions).map(([category, permissions]) => (
                 <div key={category} className="border border-gray-200 rounded-xl overflow-hidden">
 
                   {/* Cabecera de categoría con toggle general */}
@@ -159,6 +167,7 @@ export function RoleFormDialog({
                 </div>
               ))}
             </div>
+            )}
           </div>
 
           {/* Botones */}
@@ -168,7 +177,10 @@ export function RoleFormDialog({
             </Button>
             <Button
               onClick={onSubmit}
-              className="bg-gradient-to-r from-[#A78BFA] to-[#8B5CF6] hover:from-[#9870E8] hover:to-[#7C3AED] text-white rounded-lg"
+              style={{ backgroundColor: "#1a3a2a", color: "#ffffff" }}
+              onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#2a5a40")}
+              onMouseLeave={e => (e.currentTarget.style.backgroundColor = "#1a3a2a")}
+              className="rounded-lg"
             >
               {isEditing ? "Actualizar" : "Crear"} Rol
             </Button>

@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { UserRole } from "../types";
-import { ROL_MAP } from "../constants";
-import { loginRequest } from "../services/authService";
+import { resolveUserRole, resolveAllowedPages } from "../constants";
+import { loginRequest, forgotPasswordRequest } from "../services/authService";
 
 export function useLogin(onLogin: (role: UserRole) => void) {
   const [email,        setEmail]        = useState("");
@@ -13,46 +13,50 @@ export function useLogin(onLogin: (role: UserRole) => void) {
   const [forgotPasswordOpen, setForgotPasswordOpen] = useState(false);
   const [recoveryEmail,      setRecoveryEmail]      = useState("");
   const [recoverySuccess,    setRecoverySuccess]    = useState(false);
+  const [recoveryLoading,    setRecoveryLoading]    = useState(false);
 
   const handleLogin = async (e: React.FormEvent) => {
-  e.preventDefault();
-
-  if (!email || !password) {
-    toast.error("Por favor ingresa tu correo y contraseña");
-    return;
-  }
-
-  setLoading(true);
-
-  try {
-    const data = await loginRequest(email, password);
-
-    console.log("🔥 LOGIN DATA:", data);
-
-   
-    // ✅ NORMALIZAR ROL SEGURO
-    const rolBackend = data.usuario?.rol;
-
-    const rolFrontend: UserRole =
-      ROL_MAP?.[rolBackend] ?? "client";
-
-    // ✅ GUARDAR
-    localStorage.setItem("token", data.token);
-    localStorage.setItem("usuario", JSON.stringify(data.usuario));
-
-    toast.success(`¡Bienvenido! Accediendo como ${rolBackend}`);
-
-    onLogin(rolFrontend);
-
-  } catch (err: any) {
-    console.error("❌ ERROR LOGIN:", err);
-    toast.error(err.message ?? "No se pudo conectar con el servidor");
-  } finally {
-    setLoading(false);
-  }
-};
-  const handleForgotPassword = (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!email || !password) {
+      toast.error("Por favor ingresa tu correo y contraseña");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const data = await loginRequest(email, password);
+
+      const rolBackend  = data.usuario?.rol;
+      const permisos    = data.usuario?.permisos ?? [];
+      const rolFrontend: UserRole = resolveUserRole(rolBackend);
+      const allowedPages = resolveAllowedPages(permisos);
+
+      localStorage.setItem("token",        data.token);
+      localStorage.setItem("usuario",      JSON.stringify(data.usuario));
+      localStorage.setItem("permisos",     JSON.stringify(permisos));
+      localStorage.setItem("allowedPages", JSON.stringify(allowedPages));
+
+      toast.success(`¡Bienvenido! Accediendo como ${rolBackend}`);
+
+      // Calcular primera página disponible para pasarla directamente
+      let firstPage: string | undefined;
+      if (rolFrontend !== "admin" && rolFrontend !== "client") {
+        firstPage = allowedPages.find(p => p !== "users") ?? "users";
+      }
+
+      onLogin(rolFrontend, firstPage);
+    } catch (err: any) {
+      console.error("❌ ERROR LOGIN:", err);
+      toast.error(err.message ?? "No se pudo conectar con el servidor");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+
     if (!recoveryEmail) {
       toast.error("Por favor ingresa tu correo electrónico");
       return;
@@ -62,10 +66,17 @@ export function useLogin(onLogin: (role: UserRole) => void) {
       toast.error("Por favor ingresa un correo electrónico válido");
       return;
     }
-    setTimeout(() => {
+
+    setRecoveryLoading(true);
+    try {
+      await forgotPasswordRequest(recoveryEmail);
       setRecoverySuccess(true);
-      toast.success("Correo de recuperación enviado exitosamente");
-    }, 1000);
+      toast.success("Enlace de recuperación enviado a tu correo");
+    } catch (err: any) {
+      toast.error(err.message ?? "No se pudo enviar el correo");
+    } finally {
+      setRecoveryLoading(false);
+    }
   };
 
   const handleCloseRecoveryDialog = () => {
@@ -82,9 +93,9 @@ export function useLogin(onLogin: (role: UserRole) => void) {
     forgotPasswordOpen, setForgotPasswordOpen,
     recoveryEmail, setRecoveryEmail,
     recoverySuccess,
+    recoveryLoading,
     handleLogin,
     handleForgotPassword,
     handleCloseRecoveryDialog,
   };
-  
 }

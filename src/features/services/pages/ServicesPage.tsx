@@ -379,24 +379,26 @@ export function ServicesPage({ userRole }: ServicesModuleProps) {
                       >
                         <Eye className="w-4 h-4" />
                       </button>
-                      {userRole === "admin" && service.isActive && (
+                      {userRole === "admin" && (
                         <>
                           <button
-                            onClick={() => handleEdit(service)}
-                            title="Editar"
+                            onClick={() => service.isActive && handleEdit(service)}
+                            title={service.isActive ? "Editar" : "Activa el servicio para editar"}
+                            disabled={!service.isActive}
                             className="p-2 rounded-lg transition-colors"
-                            style={{ color: "#6b7c6b" }}
-                            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#f0ebe3")}
+                            style={{ color: service.isActive ? "#6b7c6b" : "#d1d5db", cursor: service.isActive ? "pointer" : "not-allowed" }}
+                            onMouseEnter={(e) => { if (service.isActive) e.currentTarget.style.backgroundColor = "#f0ebe3"; }}
                             onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
                           >
                             <Pencil className="w-4 h-4" />
                           </button>
                           <button
-                            onClick={() => confirmDelete(service.id)}
-                            title="Eliminar"
+                            onClick={() => service.isActive && confirmDelete(service.id)}
+                            title={service.isActive ? "Eliminar" : "Activa el servicio para eliminar"}
+                            disabled={!service.isActive}
                             className="p-2 rounded-lg transition-colors"
-                            style={{ color: "#c0392b" }}
-                            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#fdf2f2")}
+                            style={{ color: service.isActive ? "#c0392b" : "#d1d5db", cursor: service.isActive ? "pointer" : "not-allowed" }}
+                            onMouseEnter={(e) => { if (service.isActive) e.currentTarget.style.backgroundColor = "#fdf2f2"; }}
                             onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
                           >
                             <Trash2 className="w-4 h-4" />

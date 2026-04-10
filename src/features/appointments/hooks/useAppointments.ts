@@ -5,7 +5,9 @@ import {
   Appointment, AppointmentService, Client, CurrentService, Employee, FormData, Service,} from "../types";
 import { getMonday, calculateEndTime } from "../utils";
 import {
-  fetchAppointments, fetchServices, fetchEmployees, fetchClients,
+  fetchAppointments, fetchMyAppointments, fetchMyEmployeeAppointments,
+  fetchServices, fetchEmployees, fetchClients,
+  fetchMyClientProfile, fetchMyEmployeeProfile,
   createAppointment, updateAppointment, deleteAppointment,
   cancelAppointment, updateAppointmentStatus,
 } from "../services/appointmentsService";
@@ -17,7 +19,7 @@ const EMPTY_FORM: FormData = {
   date: TODAY, startTime: "", notes: "",
 };
 
-export function useAppointments() {
+export function useAppointments(userRole?: string) {
   const [services,     setServices]     = useState<Service[]>([]);
   const [employees,    setEmployees]    = useState<Employee[]>([]);
   const [clients,      setClients]      = useState<Client[]>([]);
@@ -38,17 +40,48 @@ export function useAppointments() {
   const [formData,         setFormData]         = useState<FormData>(EMPTY_FORM);
   const [selectedServices, setSelectedServices] = useState<AppointmentService[]>([]);
   const [currentService,   setCurrentService]   = useState<CurrentService>({ serviceId: "", employeeId: "" });
+  const [myEmployeeProfile, setMyEmployeeProfile] = useState<{ id: string; name: string; phone: string } | null>(null);
 
   useEffect(() => {
     async function loadAll() {
       try {
-        const [sData, eData, cData, aData] = await Promise.all([
-          fetchServices(), fetchEmployees(), fetchClients(), fetchAppointments(),
+        const isClient   = userRole === "client";
+        const isEmployee = userRole === "employee";
+
+        const [sData, eData, aData] = await Promise.all([
+          fetchServices(),
+          fetchEmployees(),
+          isClient   ? fetchMyAppointments()         :
+          isEmployee ? fetchMyEmployeeAppointments() :
+                       fetchAppointments(),
         ]);
+
         setServices(sData);
         setEmployees(eData);
-        setClients(cData);
         setAppointments(aData);
+
+        if (isClient) {
+          const myProfile = await fetchMyClientProfile();
+          setClients([myProfile]);
+          setFormData(prev => ({
+            ...prev,
+            clientId:    myProfile.id,
+            clientName:  myProfile.name || myProfile.id,
+            clientPhone: myProfile.phone,
+          }));
+        } else if (isEmployee) {
+          // Cargar todos los clientes para que el empleado pueda escoger
+          const [cData, myProfile] = await Promise.all([
+            fetchClients(),
+            fetchMyEmployeeProfile(),
+          ]);
+          setClients(cData);
+          // Guardar el perfil del empleado logueado para pre-asignarlo
+          setMyEmployeeProfile(myProfile);
+        } else {
+          const cData = await fetchClients();
+          setClients(cData);
+        }
       } catch (err) {
         const msg = err instanceof Error ? err.message : "Error al conectar con el servidor";
         toast.error(msg);
@@ -60,9 +93,24 @@ export function useAppointments() {
   }, []);
 
   const reloadAppointments = async () => {
-    const data = await fetchAppointments();
+    const data = userRole === "client"   ? await fetchMyAppointments()         :
+                 userRole === "employee" ? await fetchMyEmployeeAppointments() :
+                                          await fetchAppointments();
     setAppointments(data);
   };
+
+  // ── Sincronizar cliente logueado cuando carga su perfil ──────────────────
+  useEffect(() => {
+    if (userRole === "client" && clients.length > 0) {
+      const myProfile = clients[0];
+      setFormData(prev => ({
+        ...prev,
+        clientId:    prev.clientId    || myProfile.id,
+        clientName:  prev.clientName  || myProfile.name,
+        clientPhone: prev.clientPhone || myProfile.phone,
+      }));
+    }
+  }, [clients, userRole]);
 
   // ── Semana ──
   const getWeekDates = () =>
@@ -95,11 +143,21 @@ export function useAppointments() {
 
   // ── Servicios del formulario ──
   const handleAddService = () => {
-    if (!currentService.serviceId || !currentService.employeeId) {
-      toast.error("Selecciona un servicio y un empleado"); return;
+    if (!currentService.serviceId) {
+      toast.error("Selecciona un servicio"); return;
     }
-    const service  = services.find(s => s.id  === currentService.serviceId);
-    const employee = employees.find(e => e.id === currentService.employeeId);
+
+    // Si es empleado, usar su propio perfil; si no, requerir selección de empleado
+    const effectiveEmployeeId = userRole === "employee" && myEmployeeProfile
+      ? myEmployeeProfile.id
+      : currentService.employeeId;
+
+    if (!effectiveEmployeeId) {
+      toast.error("Selecciona un empleado"); return;
+    }
+
+    const service  = services.find(s => s.id === currentService.serviceId);
+    const employee = employees.find(e => e.id === effectiveEmployeeId);
     if (!service || !employee) return;
 
     const serviceStartTime = selectedServices.length > 0
@@ -134,6 +192,9 @@ export function useAppointments() {
   // ── CRUD ──
   const handleCreateOrUpdate = async () => {
     if (!formData.clientId || !formData.startTime || selectedServices.length === 0) {
+      if (userRole === "client" && !formData.clientId) {
+        toast.error("Cargando tu perfil, intenta de nuevo en un momento"); return;
+      }
       toast.error("Selecciona un cliente, hora y al menos un servicio"); return;
     }
     const hoy = new Date(); hoy.setHours(0, 0, 0, 0);
@@ -160,7 +221,7 @@ export function useAppointments() {
         await updateAppointment(editingAppointment.id, payload);
         toast.success("Cita actualizada");
       } else {
-        await createAppointment(payload);
+        await createAppointment(payload, userRole === "client", userRole === "employee");
         toast.success("Cita creada exitosamente");
       }
       await reloadAppointments();
@@ -313,5 +374,6 @@ export function useAppointments() {
     handleAddService, handleRemoveService,
     handleCreateOrUpdate, handleDelete, handleCancelAppointment,
     handleUpdateStatus, resetForm, handleEdit, handleClientChange,
+    myEmployeeProfile,
   };
 }

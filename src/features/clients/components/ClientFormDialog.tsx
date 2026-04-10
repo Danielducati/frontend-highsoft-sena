@@ -1,5 +1,5 @@
 // src/features/clients/components/ClientFormDialog.tsx
-import React, { useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../../../shared/ui/dialog";
 import { Button } from "../../../shared/ui/button";
 import { Input } from "../../../shared/ui/input";
@@ -111,31 +111,7 @@ export function ClientFormDialog({
             </div>
           </div>
 
-          {/* Nombre / Apellido — solo letras */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="firstName" className="text-gray-900">Nombre *</Label>
-              <Input
-                id="firstName"
-                value={formData.firstName}
-                onChange={e => setFormData({ ...formData, firstName: onlyLetters(e.target.value) })}
-                placeholder="Juan"
-                className="rounded-lg border-gray-200"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="lastName" className="text-gray-900">Apellido *</Label>
-              <Input
-                id="lastName"
-                value={formData.lastName}
-                onChange={e => setFormData({ ...formData, lastName: onlyLetters(e.target.value) })}
-                placeholder="Pérez García"
-                className="rounded-lg border-gray-200"
-              />
-            </div>
-          </div>
-
-          {/* Documento — solo números */}
+          {/* Documento */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label className="text-gray-900">Tipo de Documento *</Label>
@@ -159,6 +135,30 @@ export function ClientFormDialog({
             </div>
           </div>
 
+          {/* Nombre / Apellido */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="firstName" className="text-gray-900">Nombre *</Label>
+              <Input
+                id="firstName"
+                value={formData.firstName}
+                onChange={e => setFormData({ ...formData, firstName: onlyLetters(e.target.value) })}
+                placeholder="Juan"
+                className="rounded-lg border-gray-200"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="lastName" className="text-gray-900">Apellido *</Label>
+              <Input
+                id="lastName"
+                value={formData.lastName}
+                onChange={e => setFormData({ ...formData, lastName: onlyLetters(e.target.value) })}
+                placeholder="Pérez García"
+                className="rounded-lg border-gray-200"
+              />
+            </div>
+          </div>
+
           {/* Teléfono / Email */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
@@ -169,7 +169,7 @@ export function ClientFormDialog({
                 onChange={e => setFormData({ ...formData, phone: onlyPhone(e.target.value) })}
                 placeholder="+57 300 123 4567"
                 className="rounded-lg border-gray-200"
-                maxLength={15}
+                maxLength={10}
               />
             </div>
             <div className="space-y-2">
@@ -202,7 +202,10 @@ export function ClientFormDialog({
             <Button
               onClick={onSubmit}
               disabled={uploadingImg}
-              className="bg-gradient-to-r from-[#78D1BD] to-[#5FBFAA] hover:from-[#6BCAB7] hover:to-[#4FB5A1] text-white rounded-lg"
+              style={{ backgroundColor: "#1a3a2a", color: "#ffffff" }}
+              onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#2a5a40")}
+              onMouseLeave={e => (e.currentTarget.style.backgroundColor = "#1a3a2a")}
+              className="rounded-lg"
             >
               {editingClient ? "Actualizar" : "Crear"} Cliente
             </Button>

@@ -15,19 +15,19 @@ export function SalesChart({ data, periodLabel }: SalesChartProps) {
   return (
     <Card className="border-gray-200 shadow-sm">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-gray-900">
+        <CardTitle className="flex items-center gap-2 text-base font-bold" style={{ color: "#1a3a2a", fontFamily: "var(--font-body)" }}>
           <div className="w-1 h-6 bg-[#78D1BD] rounded-full" />
           Ventas por Mes
         </CardTitle>
 
-        <CardDescription>
+        <CardDescription style={{ color: "#6b7c6b", fontFamily: "var(--font-body)" }}>
           Comparación mensual de ventas — {periodLabel}
         </CardDescription>
       </CardHeader>
 
       <CardContent>
         {data.length === 0 ? (
-          <div className="flex items-center justify-center h-[300px] text-gray-400">
+          <div className="flex items-center justify-center h-[300px]" style={{ color: "#6b7c6b", fontFamily: "var(--font-body)" }}>
             Sin datos para este período
           </div>
         ) : (
@@ -43,14 +43,14 @@ export function SalesChart({ data, periodLabel }: SalesChartProps) {
               <XAxis
                 dataKey="month"
                 stroke="#9CA3AF"
-                style={{ fontSize: "12px" }}
+                style={{ fontSize: "12px", fontFamily: "var(--font-body)" }}
                 axisLine={false}
                 tickLine={false}
               />
 
               <YAxis
                 stroke="#9CA3AF"
-                style={{ fontSize: "12px" }}
+                style={{ fontSize: "12px", fontFamily: "var(--font-body)" }}
                 axisLine={false}
                 tickLine={false}
                 tickFormatter={(value) => `$${value/1000}k`}
@@ -62,7 +62,8 @@ export function SalesChart({ data, periodLabel }: SalesChartProps) {
                   borderRadius: "0.75rem",
                   border: "none",
                   boxShadow: "0 8px 20px rgba(0,0,0,0.08)",
-                  fontSize: "14px"
+                  fontSize: "14px",
+                  fontFamily: "var(--font-body)"
                 }}
               />
 

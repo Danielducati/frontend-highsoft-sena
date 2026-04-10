@@ -3,6 +3,19 @@ import { Quotation, QuotationStatus } from "../types";
 
 const getToken = () => localStorage.getItem("token");
 
+export async function fetchMyProfileApi(): Promise<{ id: number; nombre: string; apellido: string }> {
+  const res = await fetch(`${API_URL}/clients/mi-perfil`, {
+    headers: { Authorization: `Bearer ${getToken()}` },
+  });
+  if (!res.ok) throw new Error("Error al cargar perfil");
+  const data = await res.json();
+  return {
+    id:       data.PK_id_cliente ?? data.id,
+    nombre:   data.nombre,
+    apellido: data.apellido,
+  };
+}
+
 export async function fetchQuotationsApi(): Promise<Quotation[]> {
   const res = await fetch(`${API_URL}/quotations`, {
     headers: { Authorization: `Bearer ${getToken()}` },
