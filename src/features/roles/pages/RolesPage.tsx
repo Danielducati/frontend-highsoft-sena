@@ -165,7 +165,9 @@ export function RolesPage({ userRole }: RolesModuleProps) {
                 </tr>
               </thead>
               <tbody>
-                {filteredRoles.map((role, idx) => (
+                {filteredRoles.map((role, idx) => {
+                  const isAdminRole = role.nombre?.toLowerCase() === "admin" || role.nombre?.toLowerCase() === "administrador";
+                  return (
                   <tr
                     key={role.id}
                     style={{ borderBottom: idx < filteredRoles.length - 1 ? "1px solid #ede8e0" : "none", transition: "background 0.15s" }}
@@ -205,17 +207,14 @@ export function RolesPage({ userRole }: RolesModuleProps) {
                       <div className="flex items-center gap-3">
                         {/* Switch */}
                         <button
-                          onClick={() => handleToggleStatus(role)}
+                          onClick={() => !isAdminRole && handleToggleStatus(role)}
+                          disabled={isAdminRole}
+                          title={isAdminRole ? "No se puede desactivar el rol Administrador" : role.isActive ? "Desactivar" : "Activar"}
                           className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
                           style={{
                             backgroundColor: role.isActive ? "#10b981" : "#d1d5db",
-                            cursor: "pointer",
-                          }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.opacity = "0.9";
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.opacity = "1";
+                            cursor: isAdminRole ? "not-allowed" : "pointer",
+                            opacity: isAdminRole ? 0.5 : 1,
                           }}
                         >
                           <span
@@ -297,7 +296,8 @@ export function RolesPage({ userRole }: RolesModuleProps) {
                       ) : null}
                     </td>
                   </tr>
-                ))}
+                  );
+                })}
               </tbody>
             </table>
           </div>

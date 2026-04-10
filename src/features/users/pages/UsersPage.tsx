@@ -1,6 +1,6 @@
 // src/features/users/pages/UsersPage.tsx
 import { Badge } from "../../../shared/ui/badge";
-import { Plus, Search, Filter, Users as UsersIcon, Shield, Mail, Eye, Pencil, Trash2 } from "lucide-react";
+import { Plus, Search, Filter, Users as UsersIcon, Shield, Mail, Phone, Eye, Pencil, Trash2 } from "lucide-react";
 import { SpaPage } from "../../../shared/components/layout/SpaPage";
 import { UsersModuleProps } from "../types";
 import { ITEMS_PER_PAGE } from "../constants";
@@ -119,7 +119,7 @@ export function UsersPage({ userRole }: UsersModuleProps) {
                           </div>
                           <div className="min-w-0">
                             <p className="font-medium text-sm truncate" style={{ color: "#1a3a2a" }}>{user.name}</p>
-                            <p className="text-xs truncate" style={{ color: "#6b7c6b" }}>{user.phone || "Sin teléfono"}</p>
+                            <p className="text-xs truncate" style={{ color: "#6b7c6b" }}>{user.documentType ? `${user.documentType} ${user.document}` : user.document || "Sin documento"}</p>
                           </div>
                         </div>
                       </td>
@@ -136,9 +136,9 @@ export function UsersPage({ userRole }: UsersModuleProps) {
                             <span className="text-xs truncate" style={{ color: "#1a3a2a" }}>{user.email}</span>
                           </div>
                           {user.phone && (
-                            <div className="flex items-center gap-1.5 min-w-0 pl-0.5">
-                              <span className="text-[10px] flex-shrink-0" style={{ color: "#6b7c6b" }}>📞</span>
-                              <span className="text-xs truncate" style={{ color: "#6b7c6b" }}>{user.phone}</span>
+                            <div className="flex items-center gap-1.5 min-w-0 mt-1">
+                              <Phone className="w-3.5 h-3.5 flex-shrink-0" style={{ color: "#6b7c6b" }} />
+                              <span className="text-xs truncate" style={{ color: "#1a3a2a" }}>{user.phone}</span>
                             </div>
                           )}
                         </div>
@@ -148,8 +148,9 @@ export function UsersPage({ userRole }: UsersModuleProps) {
                       <td className="px-6 py-4">
                         {userRole === "admin" ? (
                           <button
-                            onClick={() => handleToggleStatus(user)}
-                            title={user.isActive ? "Desactivar usuario" : "Activar usuario"}
+                            onClick={() => !isAdmin && handleToggleStatus(user)}
+                            title={isAdmin ? "No se puede desactivar un administrador" : user.isActive ? "Desactivar usuario" : "Activar usuario"}
+                            disabled={isAdmin}
                             style={{
                               position: "relative",
                               display: "inline-flex",
@@ -158,8 +159,9 @@ export function UsersPage({ userRole }: UsersModuleProps) {
                               height: 24,
                               borderRadius: 999,
                               border: "none",
-                              cursor: "pointer",
+                              cursor: isAdmin ? "not-allowed" : "pointer",
                               backgroundColor: user.isActive ? "#1a5c3a" : "#d1d5db",
+                              opacity: isAdmin ? 0.5 : 1,
                               transition: "background 0.2s",
                               padding: 0,
                             }}
