@@ -30,6 +30,10 @@ export function useRoles() {
   const fetchPermissions = async () => {
     try {
       const data = await rolesService.getPermissions();
+      if (!Array.isArray(data) || data.length === 0) {
+        toast.error("No se encontraron permisos. Verifica la base de datos.");
+        return;
+      }
       const mapped: Permission[] = data.map((p) => ({
         id:       String(p.id),
         nombre:   p.nombre,

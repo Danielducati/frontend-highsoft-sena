@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { Employee, EmployeeFormData } from "../types";
-import { ITEMS_PER_PAGE, ROL_MAP } from "../constants";
-import { fetchEmployeesApi, createEmployeeApi, updateEmployeeApi, deleteEmployeeApi } from "../services/employeesService";
+import { ITEMS_PER_PAGE } from "../constants";
+import { fetchEmployeesApi, createEmployeeApi, updateEmployeeApi, deleteEmployeeApi, resetEmployeePasswordApi, fetchCategoriesApi } from "../services/employeesService";
 
 const EMPTY_FORM: EmployeeFormData = {
   firstName: "", lastName: "", documentType: "", document: "",
@@ -11,6 +11,7 @@ const EMPTY_FORM: EmployeeFormData = {
 
 export function useEmployees() {
   const [employees,      setEmployees]      = useState<Employee[]>([]);
+  const [categories,     setCategories]     = useState<{ id: number; nombre: string }[]>([]);
   const [loading,        setLoading]        = useState(true);
   const [saving,         setSaving]         = useState(false);
   const [searchTerm,     setSearchTerm]     = useState("");
@@ -25,7 +26,10 @@ export function useEmployees() {
   const [currentPage,    setCurrentPage]    = useState(1);
   const [formData,       setFormData]       = useState<EmployeeFormData>(EMPTY_FORM);
 
-  useEffect(() => { loadEmployees(); }, []);
+  useEffect(() => {
+    loadEmployees();
+    fetchCategoriesApi().then(setCategories).catch(() => {});
+  }, []);
 
   const loadEmployees = async () => {
     try {
@@ -40,11 +44,35 @@ export function useEmployees() {
   };
 
   const handleCreateOrUpdate = async (data?: EmployeeFormData) => {
-    const d = data ?? formData;  // ← usa los datos pasados o el estado
+    const d = data ?? formData;
     if (!d.firstName || !d.lastName || !d.email || !d.specialty) {
       toast.error("Nombre, apellido, correo y especialidad son requeridos");
       return;
     }
+
+    // Validación local de documento duplicado
+    if (d.documentType && d.document) {
+      const sameDoc = employees.find(e =>
+        (e.tipoDocumento ?? "").toLowerCase() === d.documentType.toLowerCase() &&
+        (e.numeroDocumento ?? "") === d.document.trim() &&
+        (!editingEmployee || String(e.id) !== String(editingEmployee.id))
+      );
+      if (sameDoc) {
+        toast.error(`Ya existe un empleado con ${d.documentType} ${d.document}`);
+        return;
+      }
+    }
+
+    // Validación local de correo duplicado
+    const sameEmail = employees.find(e =>
+      e.email?.toLowerCase() === d.email.trim().toLowerCase() &&
+      (!editingEmployee || String(e.id) !== String(editingEmployee.id))
+    );
+    if (sameEmail) {
+      toast.error("Ya existe un empleado con este correo");
+      return;
+    }
+
     setSaving(true);
     const body = {
       nombre:           d.firstName,
@@ -58,7 +86,6 @@ export function useEmployees() {
       direccion:        d.address      || null,
       foto_perfil:      d.image        || null,
       contrasena:       d.contrasena   || "empleado123",
-      id_rol:           ROL_MAP[d.specialty] || 2,
       Estado:           editingEmployee ? editingEmployee.estado : "Activo",
     };
     try {
@@ -144,6 +171,15 @@ export function useEmployees() {
     setImagePreview("");
   };
 
+  const handleResetPassword = async (id: number, nuevaContrasena: string) => {
+    try {
+      await resetEmployeePasswordApi(id, nuevaContrasena);
+      toast.success("Contraseña actualizada correctamente");
+    } catch (err: any) {
+      toast.error(err.message || "Error al resetear contraseña");
+    }
+  };
+
   // ── Filtros ──
   const filteredEmployees = employees.filter(e => {
     const matchSearch =
@@ -167,7 +203,7 @@ export function useEmployees() {
   const activeEmployees = employees.filter(e => e.isActive).length;
 
   return {
-    employees, loading, saving,
+    employees, categories, loading, saving,
     searchTerm, setSearchTerm,
     filterSpecialty, setFilterSpecialty,
     filterStatus, setFilterStatus,
@@ -182,6 +218,6 @@ export function useEmployees() {
     specialties, activeEmployees,
     handleCreateOrUpdate, handleToggleStatus,
     handleDelete, handleEdit,
-    confirmDelete, resetForm,
+    confirmDelete, resetForm, handleResetPassword,
   };
 }

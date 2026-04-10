@@ -79,11 +79,11 @@ export function NewsTable({ news, userRole, onView, onEdit, onDelete, onUpdateSt
                   ) : <span className="text-xs text-gray-400">—</span>}
                 </td>
 
-                {/* STATUS INTERACTIVO */}
+                {/* STATUS — solo admin puede cambiarlo */}
                 <td className="px-4 py-3">
-                  {userRole === "admin" || userRole === "employee" ? (
-                    <Select 
-                      value={item.status} 
+                  {userRole === "admin" ? (
+                    <Select
+                      value={item.status}
                       onValueChange={(value) => onUpdateStatus(item.id, value)}
                     >
                       <SelectTrigger className={`h-7 w-[120px] text-xs font-semibold rounded-full border-none shadow-none ${getStatusColor(item.status)}`}>
@@ -116,7 +116,7 @@ export function NewsTable({ news, userRole, onView, onEdit, onDelete, onUpdateSt
                       <Eye className="w-4 h-4" />
                     </button>
 
-                    {(userRole === "admin" || userRole === "employee") && (
+                    {userRole === "admin" && (
                       <button
                         onClick={() => onEdit(item)}
                         title="Editar"

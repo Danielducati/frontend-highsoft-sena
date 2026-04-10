@@ -14,6 +14,16 @@ import { CategoryDeleteDialog } from "../components/CategoryDeleteDialog";
 import { Select,SelectTrigger,SelectValue,SelectContent,SelectItem,} from "../../../shared/ui/select";
 
 export function CategoriesPage({ userRole }: CategoriesModuleProps) {
+  // Determinar permisos reales desde localStorage
+  const permisos: string[] = (() => {
+    try { return JSON.parse(localStorage.getItem("permisos") ?? "[]"); } catch { return []; }
+  })();
+  const isAdmin      = userRole === "admin";
+  const canCreate    = isAdmin || permisos.some(p => p.startsWith("categorias.crear") || p === "categorias.crear");
+  const canEdit      = isAdmin || permisos.some(p => p === "categorias.editar");
+  const canDelete    = isAdmin || permisos.some(p => p === "categorias.eliminar");
+  const canToggle    = isAdmin || permisos.some(p => p === "categorias.editar");
+  const showActions  = canCreate || canEdit || canDelete;
   const {
     categories, loading,
     searchTerm, handleSearchChange,
@@ -91,6 +101,7 @@ export function CategoriesPage({ userRole }: CategoriesModuleProps) {
           onSubmit={handleCreateOrUpdate}
           onNewClick={handleNewClick}
           userRole={userRole}
+          canCreate={canCreate}
         />
       </div>
 
@@ -212,7 +223,7 @@ export function CategoriesPage({ userRole }: CategoriesModuleProps) {
                   { label: "NOMBRE",    key: "name"           },
                   { label: "SERVICIOS", key: "servicesCount"  },
                   { label: "ESTADO",    key: null             },
-                  ...(userRole === "admin" ? [{ label: "ACCIONES", key: null }] : []),
+                  ...(showActions ? [{ label: "ACCIONES", key: null }] : []),
                 ].map(({ label, key }) => (
                   <th
                     key={label}
@@ -272,80 +283,58 @@ export function CategoriesPage({ userRole }: CategoriesModuleProps) {
 
                   {/* Estado */}
                   <td className="px-6 py-4">
-                    {userRole === "admin" ? (
+                    {canToggle ? (
                       <div className="flex items-center gap-2">
                         <Switch
                           checked={category.isActive}
                           onCheckedChange={() => handleToggleStatus(category)}
-                          style={
-                            category.isActive
-                              ? { backgroundColor: "#4caf82" }
-                              : { backgroundColor: "#9ca3af" }
-                          }
+                          style={category.isActive ? { backgroundColor: "#4caf82" } : { backgroundColor: "#9ca3af" }}
                         />
-                        <span
-                          className="text-xs font-semibold tracking-wide uppercase"
-                          style={{ color: category.isActive ? "#1a5c3a" : "#9ca3af" }}
-                        >
+                        <span className="text-xs font-semibold tracking-wide uppercase"
+                          style={{ color: category.isActive ? "#1a5c3a" : "#9ca3af" }}>
                           {category.isActive ? "Activo" : "Inactivo"}
                         </span>
                       </div>
                     ) : (
-                      <span
-                        className="inline-flex px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wide"
-                        style={
-                          category.isActive
-                            ? { backgroundColor: "#edf7f4", color: "#1a5c3a" }
-                            : { backgroundColor: "#f3f4f6", color: "#9ca3af" }
-                        }
-                      >
+                      <span className="inline-flex px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wide"
+                        style={category.isActive
+                          ? { backgroundColor: "#edf7f4", color: "#1a5c3a" }
+                          : { backgroundColor: "#f3f4f6", color: "#9ca3af" }}>
                         {category.isActive ? "Activo" : "Inactivo"}
                       </span>
                     )}
                   </td>
 
                   {/* Acciones */}
-                  {userRole === "admin" && (
+                  {showActions && (
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-1">
-                        {/* Ver detalle (SIEMPRE visible) */}
-                        <button
-                          onClick={() => handleViewDetail(category)}
-                          title="Ver detalle"
-                          className="p-2 rounded-lg transition-colors"
-                          style={{ color: "#6b7c6b" }}
+                        <button onClick={() => handleViewDetail(category)} title="Ver detalle"
+                          className="p-2 rounded-lg transition-colors" style={{ color: "#6b7c6b" }}
                           onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#f0ebe3")}
-                          onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
-                        >
+                          onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}>
                           <Eye className="w-4 h-4" />
                         </button>
-
-                        {/* EDITAR Y ELIMINAR SIEMPRE VISIBLES */}
-                        <>
-                          <button
-                            onClick={() => category.isActive && handleEdit(category)}
+                        {canEdit && (
+                          <button onClick={() => category.isActive && handleEdit(category)}
                             title={category.isActive ? "Editar" : "Activa la categoría para editar"}
-                            disabled={!category.isActive}
-                            className="p-2 rounded-lg transition-colors"
+                            disabled={!category.isActive} className="p-2 rounded-lg transition-colors"
                             style={{ color: category.isActive ? "#6b7c6b" : "#d1d5db", cursor: category.isActive ? "pointer" : "not-allowed" }}
                             onMouseEnter={e => { if (category.isActive) e.currentTarget.style.backgroundColor = "#f0ebe3"; }}
-                            onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
-                          >
+                            onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}>
                             <Pencil className="w-4 h-4" />
                           </button>
-
-                          <button
-                            onClick={() => category.isActive && handleDeleteClick(category.id)}
+                        )}
+                        {canDelete && (
+                          <button onClick={() => category.isActive && handleDeleteClick(category.id)}
                             title={category.isActive ? "Eliminar" : "Activa la categoría para eliminar"}
-                            disabled={!category.isActive}
-                            className="p-2 rounded-lg transition-colors"
+                            disabled={!category.isActive} className="p-2 rounded-lg transition-colors"
                             style={{ color: category.isActive ? "#c0392b" : "#d1d5db", cursor: category.isActive ? "pointer" : "not-allowed" }}
                             onMouseEnter={e => { if (category.isActive) e.currentTarget.style.backgroundColor = "#fdf0ee"; }}
-                            onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
-                          >
+                            onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}>
                             <Trash2 className="w-4 h-4" />
                           </button>
-                        </>
+                        )}
                       </div>
                     </td>
                   )}

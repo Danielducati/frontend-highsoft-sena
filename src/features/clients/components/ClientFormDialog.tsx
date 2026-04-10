@@ -111,31 +111,7 @@ export function ClientFormDialog({
             </div>
           </div>
 
-          {/* Nombre / Apellido — solo letras */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="firstName" className="text-gray-900">Nombre *</Label>
-              <Input
-                id="firstName"
-                value={formData.firstName}
-                onChange={e => setFormData({ ...formData, firstName: onlyLetters(e.target.value) })}
-                placeholder="Juan"
-                className="rounded-lg border-gray-200"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="lastName" className="text-gray-900">Apellido *</Label>
-              <Input
-                id="lastName"
-                value={formData.lastName}
-                onChange={e => setFormData({ ...formData, lastName: onlyLetters(e.target.value) })}
-                placeholder="Pérez García"
-                className="rounded-lg border-gray-200"
-              />
-            </div>
-          </div>
-
-          {/* Documento — solo números */}
+          {/* Documento */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label className="text-gray-900">Tipo de Documento *</Label>
@@ -155,6 +131,30 @@ export function ClientFormDialog({
                 placeholder="1234567890"
                 className="rounded-lg border-gray-200"
                 maxLength={20}
+              />
+            </div>
+          </div>
+
+          {/* Nombre / Apellido */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="firstName" className="text-gray-900">Nombre *</Label>
+              <Input
+                id="firstName"
+                value={formData.firstName}
+                onChange={e => setFormData({ ...formData, firstName: onlyLetters(e.target.value) })}
+                placeholder="Juan"
+                className="rounded-lg border-gray-200"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="lastName" className="text-gray-900">Apellido *</Label>
+              <Input
+                id="lastName"
+                value={formData.lastName}
+                onChange={e => setFormData({ ...formData, lastName: onlyLetters(e.target.value) })}
+                placeholder="Pérez García"
+                className="rounded-lg border-gray-200"
               />
             </div>
           </div>
