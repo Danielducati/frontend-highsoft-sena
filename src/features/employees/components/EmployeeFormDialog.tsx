@@ -2,7 +2,7 @@ import { useRef, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "../../../shared/ui/dialog";
 import { Upload, ImageIcon, X, Loader2 } from "lucide-react";
 import { Employee, EmployeeFormData } from "../types";
-import { DOCUMENT_TYPES, SPECIALTIES } from "../constants";
+import { DOCUMENT_TYPES } from "../constants";
 import { ImageWithFallback } from "../../guidelines/figma/ImageWithFallback";
 import { toast } from "sonner";
 import { uploadImage } from "../../../shared/utils/uploadImage";
@@ -18,6 +18,7 @@ interface EmployeeFormDialogProps {
   saving: boolean;
   onSubmit: (data: EmployeeFormData) => void;
   onCancel: () => void;
+  categories: { value: string; label: string }[];
 }
 
 const inputBase: React.CSSProperties = {
@@ -87,7 +88,7 @@ function Field({ label, field, required, children, error }: FieldProps) {
 
 export function EmployeeFormDialog({
   isOpen, onOpenChange, editingEmployee, formData, setFormData,
-  imagePreview, setImagePreview, saving, onSubmit, onCancel,
+  imagePreview, setImagePreview, saving, onSubmit, onCancel, categories,
 }: EmployeeFormDialogProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [touched,      setTouched]      = useState<Partial<Record<keyof EmployeeFormData, boolean>>>({});
@@ -264,7 +265,7 @@ export function EmployeeFormDialog({
                 onChange={e => update("specialty", e.target.value)}
                 onBlur={() => touch("specialty")}>
                 <option value="">Selecciona especialidad</option>
-                {SPECIALTIES.map(({ value, label }) => (
+                {categories.map(({ value, label }) => (
                   <option key={value} value={value}>{label}</option>
                 ))}
               </select>

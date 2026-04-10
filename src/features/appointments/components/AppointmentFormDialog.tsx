@@ -130,11 +130,16 @@ export function AppointmentFormDialog({
                   disabled={!currentService.serviceId}>
                   <SelectTrigger><SelectValue placeholder="Selecciona empleado" /></SelectTrigger>
                   <SelectContent>
-                    {employees.length === 0 ? (
-                      <SelectItem value="empty" disabled>No hay empleados</SelectItem>
-                    ) : getEmployeesByCategory(
-                        services.find(s => s.id === currentService.serviceId)?.category ?? ""
-                      ).map(e => (
+                    {(() => {
+                      const category = services.find(s => s.id === currentService.serviceId)?.category ?? "";
+                      const filtered = getEmployeesByCategory(category);
+                      if (!currentService.serviceId) {
+                        return <SelectItem value="empty" disabled>Primero selecciona un servicio</SelectItem>;
+                      }
+                      if (filtered.length === 0) {
+                        return <SelectItem value="empty" disabled>No hay empleados para esta especialidad</SelectItem>;
+                      }
+                      return filtered.map(e => (
                         <SelectItem key={e.id} value={e.id}>
                           <div className="flex items-center gap-2">
                             <div className="w-3 h-3 rounded-full" style={{ backgroundColor: e.color }} />
@@ -142,8 +147,8 @@ export function AppointmentFormDialog({
                             {e.specialty && <span className="text-xs text-gray-400">• {e.specialty}</span>}
                           </div>
                         </SelectItem>
-                      ))
-                    }
+                      ));
+                    })()}
                   </SelectContent>
                 </Select>
               </div>

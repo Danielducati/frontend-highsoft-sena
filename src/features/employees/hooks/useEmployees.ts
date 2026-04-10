@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import { Employee, EmployeeFormData } from "../types";
 import { ITEMS_PER_PAGE, ROL_MAP } from "../constants";
 import { fetchEmployeesApi, createEmployeeApi, updateEmployeeApi, deleteEmployeeApi } from "../services/employeesService";
+import { fetchCategoriesApi } from "../../categories/services/categoriesService";
 
 const EMPTY_FORM: EmployeeFormData = {
   firstName: "", lastName: "", documentType: "", document: "",
@@ -11,6 +12,7 @@ const EMPTY_FORM: EmployeeFormData = {
 
 export function useEmployees() {
   const [employees,      setEmployees]      = useState<Employee[]>([]);
+  const [categories,     setCategories]     = useState<{ value: string; label: string }[]>([]);
   const [loading,        setLoading]        = useState(true);
   const [saving,         setSaving]         = useState(false);
   const [searchTerm,     setSearchTerm]     = useState("");
@@ -25,7 +27,10 @@ export function useEmployees() {
   const [currentPage,    setCurrentPage]    = useState(1);
   const [formData,       setFormData]       = useState<EmployeeFormData>(EMPTY_FORM);
 
-  useEffect(() => { loadEmployees(); }, []);
+  useEffect(() => {
+    loadEmployees();
+    loadCategories();
+  }, []);
 
   const loadEmployees = async () => {
     try {
@@ -36,6 +41,18 @@ export function useEmployees() {
       toast.error("Error al cargar empleados");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadCategories = async () => {
+    try {
+      const data = await fetchCategoriesApi();
+      const activas = data
+        .filter(c => c.isActive)
+        .map(c => ({ value: c.name, label: c.name }));
+      setCategories(activas);
+    } catch {
+      toast.error("Error al cargar especialidades");
     }
   };
 
@@ -180,6 +197,7 @@ export function useEmployees() {
     currentPage, setCurrentPage, totalPages,
     filteredEmployees, paginatedEmployees,
     specialties, activeEmployees,
+    categories,
     handleCreateOrUpdate, handleToggleStatus,
     handleDelete, handleEdit,
     confirmDelete, resetForm,
