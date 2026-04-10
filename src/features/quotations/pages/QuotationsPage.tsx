@@ -1,4 +1,4 @@
-import { FileText, Search, Filter, Eye, Edit, X } from "lucide-react";
+import { FileText, Search, Filter, Eye, Pencil, X } from "lucide-react";
 import { QuotationsModuleProps, QuotationStatus } from "../types";
 import { ITEMS_PER_PAGE, STATUS_COLORS, STATUS_LABELS, STATUS_OPTIONS } from "../constants";
 import { useQuotations } from "../hooks/useQuotations";
@@ -44,8 +44,9 @@ export function QuotationsPage({ userRole }: QuotationsModuleProps) {
     confirmCancel, handleEdit, resetForm,
     addService, removeService, updateQuantity,
     calculateSubtotal, calculateTotal,
-    filterClient, setFilterClient
-  } = useQuotations();
+    filterClient, setFilterClient,
+    myClientData,
+  } = useQuotations(userRole);
 
   return (
     <div className="min-h-screen p-8" style={{ backgroundColor: "#f5f0e8", fontFamily: "var(--font-body)" }}>
@@ -69,6 +70,7 @@ export function QuotationsPage({ userRole }: QuotationsModuleProps) {
           addService={addService} removeService={removeService} updateQuantity={updateQuantity}
           onSubmit={handleCreate} onCancel={resetForm} onNewClick={resetForm}
           userRole={userRole}
+          myClientData={myClientData}
         />
       </div>
 
@@ -264,7 +266,7 @@ export function QuotationsPage({ userRole }: QuotationsModuleProps) {
                             className="p-2 rounded-lg transition-colors" style={{ color: "#6b7c6b" }}
                             onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#f0ebe3")}
                             onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}>
-                            <Edit className="w-4 h-4" />
+                            <Pencil className="w-4 h-4" />
                           </button>
                           {q.status !== "cancelled" && (
                             <button onClick={() => confirmCancel(q.id)} title="Cancelar cotización"

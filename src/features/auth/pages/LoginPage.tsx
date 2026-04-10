@@ -24,15 +24,27 @@ export function LoginPage({ onLogin, onBack }: LoginPageProps) {
 
   return (
     <div
-      className="min-h-screen"
-      style={{ backgroundColor: "#f5f0e8", fontFamily: "var(--font-body)" }}
+      className="min-h-screen relative"
+      style={{ fontFamily: "var(--font-body)" }}
     >
+      {/* Imagen de fondo */}
+      <div
+        className="absolute inset-0 bg-cover bg-center"
+        style={{
+          backgroundImage: `url('https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=1600&q=80')`,
+        }}
+      />
+      {/* Overlay */}
+      <div className="absolute inset-0" style={{ backgroundColor: "rgba(15, 35, 20, 0.62)" }} />
+
+      {/* Contenido */}
+      <div className="relative z-10 min-h-screen flex flex-col">
       {/* Top bar */}
       <div className="flex items-start justify-end px-10 pt-8">
         <button
           type="button"
           className="w-8 h-8 inline-flex items-center justify-center rounded-full"
-          style={{ color: "#6b7c6b" }}
+          style={{ color: "rgba(255,255,255,0.7)" }}
           aria-label="Ayuda"
         >
           <HelpCircle className="w-4 h-4" />
@@ -40,15 +52,15 @@ export function LoginPage({ onLogin, onBack }: LoginPageProps) {
       </div>
 
       {/* Center card */}
-      <div className="flex items-center justify-center px-4 py-10">
+      <div className="flex flex-1 items-center justify-center px-4 py-10">
         <Card
-          className="border shadow-lg"
+          className="border shadow-2xl"
           style={{
             width: "100%",
             maxWidth: 420,
-            backgroundColor: "#ffffff",
-            borderColor: "#ede8e0",
-            borderRadius: 16,
+            backgroundColor: "rgba(255,255,255,0.97)",
+            borderColor: "rgba(255,255,255,0.2)",
+            borderRadius: 20,
           }}
         >
           <CardHeader className="text-center pb-2">
@@ -184,6 +196,7 @@ export function LoginPage({ onLogin, onBack }: LoginPageProps) {
         recoveryLoading={recoveryLoading}
         onSubmit={handleForgotPassword}
       />
+      </div>{/* /relative z-10 */}
     </div>
   );
 }

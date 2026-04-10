@@ -320,32 +320,32 @@ export function CategoriesPage({ userRole }: CategoriesModuleProps) {
                           <Eye className="w-4 h-4" />
                         </button>
 
-                        {/* SOLO SI ESTÁ ACTIVA */}
-                        {category.isActive && (
-                          <>
-                            <button
-                              onClick={() => handleEdit(category)}
-                              title="Editar"
-                              className="p-2 rounded-lg transition-colors"
-                              style={{ color: "#6b7c6b" }}
-                              onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#f0ebe3")}
-                              onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
-                            >
-                              <Pencil className="w-4 h-4" />
-                            </button>
+                        {/* EDITAR Y ELIMINAR SIEMPRE VISIBLES */}
+                        <>
+                          <button
+                            onClick={() => category.isActive && handleEdit(category)}
+                            title={category.isActive ? "Editar" : "Activa la categoría para editar"}
+                            disabled={!category.isActive}
+                            className="p-2 rounded-lg transition-colors"
+                            style={{ color: category.isActive ? "#6b7c6b" : "#d1d5db", cursor: category.isActive ? "pointer" : "not-allowed" }}
+                            onMouseEnter={e => { if (category.isActive) e.currentTarget.style.backgroundColor = "#f0ebe3"; }}
+                            onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
+                          >
+                            <Pencil className="w-4 h-4" />
+                          </button>
 
-                            <button
-                              onClick={() => handleDeleteClick(category.id)}
-                              title="Eliminar"
-                              className="p-2 rounded-lg transition-colors"
-                              style={{ color: "#c0392b" }}
-                              onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#fdf0ee")}
-                              onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          </>
-                        )}
+                          <button
+                            onClick={() => category.isActive && handleDeleteClick(category.id)}
+                            title={category.isActive ? "Eliminar" : "Activa la categoría para eliminar"}
+                            disabled={!category.isActive}
+                            className="p-2 rounded-lg transition-colors"
+                            style={{ color: category.isActive ? "#c0392b" : "#d1d5db", cursor: category.isActive ? "pointer" : "not-allowed" }}
+                            onMouseEnter={e => { if (category.isActive) e.currentTarget.style.backgroundColor = "#fdf0ee"; }}
+                            onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </>
                       </div>
                     </td>
                   )}

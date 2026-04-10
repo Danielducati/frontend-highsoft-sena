@@ -97,7 +97,7 @@ export function AppointmentsPage({ userRole }: AppointmentsModuleProps) {
     handleAddService, handleRemoveService,
     handleCreateOrUpdate, handleDelete, handleCancelAppointment,
     handleUpdateStatus, resetForm, handleEdit, handleClientChange,
-  } = useAppointments();
+  } = useAppointments(userRole);
 
   const EMPTY_FORM = {
     clientId: "", clientName: "", clientPhone: "",
@@ -501,6 +501,7 @@ export function AppointmentsPage({ userRole }: AppointmentsModuleProps) {
           onClientChange={handleClientChange}
           onSubmit={handleCreateOrUpdate}
           onCancel={resetForm}
+          userRole={userRole}
         />
         <DeleteAppointmentDialog
           open={deleteDialogOpen}
