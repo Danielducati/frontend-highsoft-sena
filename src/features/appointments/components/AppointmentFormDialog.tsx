@@ -139,33 +139,32 @@ export function AppointmentFormDialog({
               </div>
               <div className="space-y-2">
                 <Label>Empleado</Label>
-                {userRole === "employee" && myEmployeeProfile ? (
-                  <div className="h-10 px-3 flex items-center rounded-md border border-input bg-[#edf7f4] text-sm font-medium text-[#1a5c3a]">
-                    {myEmployeeProfile.name || "Cargando..."}
-                  </div>
-                ) : (
-                  <Select value={currentService.employeeId}
-                    onValueChange={v => setCurrentService({ ...currentService, employeeId: v })}
-                    disabled={!currentService.serviceId}>
-                    <SelectTrigger><SelectValue placeholder="Selecciona empleado" /></SelectTrigger>
-                    <SelectContent>
-                      {employees.length === 0 ? (
-                        <SelectItem value="empty" disabled>No hay empleados</SelectItem>
-                      ) : getEmployeesByCategory(
-                          services.find(s => s.id === currentService.serviceId)?.category ?? ""
-                        ).map(e => (
-                          <SelectItem key={e.id} value={e.id}>
-                            <div className="flex items-center gap-2">
-                              <div className="w-3 h-3 rounded-full" style={{ backgroundColor: e.color }} />
-                              <span>{e.name}</span>
-                              {e.specialty && <span className="text-xs text-gray-400">• {e.specialty}</span>}
-                            </div>
-                          </SelectItem>
-                        ))
+                <Select value={currentService.employeeId}
+                  onValueChange={v => setCurrentService({ ...currentService, employeeId: v })}
+                  disabled={!currentService.serviceId}>
+                  <SelectTrigger><SelectValue placeholder="Selecciona empleado" /></SelectTrigger>
+                  <SelectContent>
+                    {(() => {
+                      const category = services.find(s => s.id === currentService.serviceId)?.category ?? "";
+                      const filtered = getEmployeesByCategory(category);
+                      if (!currentService.serviceId) {
+                        return <SelectItem value="empty" disabled>Primero selecciona un servicio</SelectItem>;
                       }
-                    </SelectContent>
-                  </Select>
-                )}
+                      if (filtered.length === 0) {
+                        return <SelectItem value="empty" disabled>No hay empleados para esta especialidad</SelectItem>;
+                      }
+                      return filtered.map(e => (
+                        <SelectItem key={e.id} value={e.id}>
+                          <div className="flex items-center gap-2">
+                            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: e.color }} />
+                            <span>{e.name}</span>
+                            {e.specialty && <span className="text-xs text-gray-400">• {e.specialty}</span>}
+                          </div>
+                        </SelectItem>
+                      ));
+                    })()}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 

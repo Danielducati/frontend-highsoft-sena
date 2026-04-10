@@ -18,8 +18,8 @@ interface EmployeeFormDialogProps {
   saving: boolean;
   onSubmit: (data: EmployeeFormData) => void;
   onCancel: () => void;
-  onResetPassword?: (id: number, nuevaContrasena: string) => void;
-  categories?: { id: number; nombre: string }[];
+  categories: { value: string; label: string }[];
+  onResetPassword?: (id: number, password: string) => Promise<void>;
 }
 
 const inputBase: React.CSSProperties = {
@@ -89,8 +89,7 @@ function Field({ label, field, required, children, error }: FieldProps) {
 
 export function EmployeeFormDialog({
   isOpen, onOpenChange, editingEmployee, formData, setFormData,
-  imagePreview, setImagePreview, saving, onSubmit, onCancel, onResetPassword,
-  categories = [],
+  imagePreview, setImagePreview, saving, onSubmit, onCancel, categories, onResetPassword,
 }: EmployeeFormDialogProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [touched,        setTouched]        = useState<Partial<Record<keyof EmployeeFormData, boolean>>>({});
@@ -269,8 +268,8 @@ export function EmployeeFormDialog({
                 onChange={e => update("specialty", e.target.value)}
                 onBlur={() => touch("specialty")}>
                 <option value="">Selecciona especialidad</option>
-                {categories.map(c => (
-                  <option key={c.id} value={c.nombre}>{c.nombre}</option>
+                {categories.map(({ value, label }) => (
+                  <option key={value} value={value}>{label}</option>
                 ))}
               </select>
             </Field>

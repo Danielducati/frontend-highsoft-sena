@@ -9,14 +9,6 @@ export const ROL_MAP: Record<string, number> = {
   Manicurista: 8,
 };
 
-export const SPECIALTIES = [
-  { value: "Barbero",     label: "Barbero"      },
-  { value: "Estilista",   label: "Estilista"    },
-  { value: "Manicurista", label: "Manicurista"  },
-  { value: "Cosmetologa", label: "Cosmetóloga"  },
-  { value: "Masajista",   label: "Masajista"    },
-];
-
 export const DOCUMENT_TYPES = [
   { value: "CC",  label: "Cédula de Ciudadanía"  },
   { value: "CE",  label: "Cédula de Extranjería"  },
