@@ -135,7 +135,7 @@ export function UserFormDialog({
                 onChange={(e) => setFormData({ ...formData, phone: onlyPhone(e.target.value) })}
                 placeholder="+57 300 123 4567"
                 className="rounded-lg border-gray-200"
-                maxLength={15}
+                maxLength={10}
               />
             </div>
           </div>
