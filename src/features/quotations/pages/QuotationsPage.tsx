@@ -42,10 +42,10 @@ export function QuotationsPage({ userRole }: QuotationsModuleProps) {
     totalAmount, pendingCount, approvedCount,
     handleCreate, handleStatusChange, handleCancel,
     confirmCancel, handleEdit, resetForm,
-    addService, removeService, updateQuantity,
+    addService, removeService, updateQuantity, updateServiceEmployee,
     calculateSubtotal, calculateTotal,
     filterClient, setFilterClient,
-    myClientData,
+    myClientData, employees,
   } = useQuotations(userRole);
 
   return (

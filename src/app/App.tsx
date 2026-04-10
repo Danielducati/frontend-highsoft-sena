@@ -16,6 +16,7 @@ import { ServicesModule }    from "../features/services/ServicesModule";
 import { CategoriesModule }  from "../features/categories/CategoriesModule";
 import { NewsModule }        from "../features/news/NewsModule";
 import { AppointmentsModule } from "../features/appointments/AppointmentsModule";
+import { ClientAppointmentsPage } from "../features/appointments/pages/ClientAppointmentsPage";
 import { SchedulesModule }   from "../features/schedules/SchedulesModule";
 import { QuotationsModule }  from "../features/quotations/QuotationsModule";
 import { SalesModule }       from "../features/sales/SalesModule";
@@ -55,14 +56,24 @@ export default function App() {
 
   const [currentPage, setCurrentPage] = useState<Page>(getInitialPage);
   const [userRole,    setUserRole]    = useState<UserRole>(null);
+  const [userName,    setUserName]    = useState<string>("");
+  const [userPhoto,   setUserPhoto]   = useState<string>("");
 
   const handleLogin = (role: "admin" | "employee" | "client") => {
+    const stored = localStorage.getItem("usuario");
+    if (stored) {
+      const u = JSON.parse(stored);
+      setUserName(`${u.nombre ?? ""} ${u.apellido ?? ""}`.trim() || u.correo || "");
+      setUserPhoto(u.foto ?? "");
+    }
     setUserRole(role);
     setCurrentPage(role === "client" || role === "employee" ? "appointments" : "dashboard");
   };
 
   const handleLogout = () => {
     setUserRole(null);
+    setUserName("");
+    setUserPhoto("");
     setCurrentPage("landing");
   };
 
@@ -102,7 +113,7 @@ export default function App() {
       <Sidebar activePage={currentPage} onNavigate={handleNavigate} onLogout={handleLogout} userRole={userRole} />
 
       <div className="flex-1 flex flex-col ml-64" style={{ backgroundColor: "#f5f0e8" }}>
-        <Header userRole={userRole} />
+        <Header userRole={userRole} userName={userName} userPhoto={userPhoto} />
 
         <main className="flex-1 overflow-y-auto p-8" style={{ backgroundColor: "#f5f0e8" }}>
 
@@ -122,7 +133,8 @@ export default function App() {
           {currentPage === "services" && (userRole === "admin" || userRole === "employee") && <ServicesModule userRole={userRole} />}
 
           {/* ── Todos los roles ──────────────────────────────────── */}
-          {currentPage === "appointments" && <AppointmentsModule userRole={userRole} />}
+          {currentPage === "appointments" && userRole === "client" && <ClientAppointmentsPage />}
+          {currentPage === "appointments" && userRole !== "client" && <AppointmentsModule userRole={userRole} />}
           {currentPage === "users"        && <UsersModule        userRole={userRole} />}
 
         </main>

@@ -194,7 +194,13 @@ export function ServiceFormDialog({
 
           <div className="flex justify-end gap-3 pt-4 border-t">
             <Button variant="outline" onClick={onCancel}>Cancelar</Button>
-            <Button onClick={onSubmit} disabled={uploading} className="bg-gradient-to-r from-[#78D1BD] to-[#5FBFAA] hover:from-[#6BCAB7] hover:to-[#4FB5A1] text-white">
+            <Button
+              onClick={onSubmit}
+              disabled={uploading}
+              style={{ backgroundColor: "#1a3a2a", color: "#ffffff" }}
+              onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#2a5a40")}
+              onMouseLeave={e => (e.currentTarget.style.backgroundColor = "#1a3a2a")}
+            >
               <Save className="w-4 h-4 mr-2" />
               {editingService ? "Guardar Cambios" : "Crear Servicio"}
             </Button>

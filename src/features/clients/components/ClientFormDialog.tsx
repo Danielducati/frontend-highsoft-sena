@@ -1,5 +1,5 @@
 // src/features/clients/components/ClientFormDialog.tsx
-import React, { useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../../../shared/ui/dialog";
 import { Button } from "../../../shared/ui/button";
 import { Input } from "../../../shared/ui/input";
@@ -202,7 +202,10 @@ export function ClientFormDialog({
             <Button
               onClick={onSubmit}
               disabled={uploadingImg}
-              className="bg-gradient-to-r from-[#78D1BD] to-[#5FBFAA] hover:from-[#6BCAB7] hover:to-[#4FB5A1] text-white rounded-lg"
+              style={{ backgroundColor: "#1a3a2a", color: "#ffffff" }}
+              onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#2a5a40")}
+              onMouseLeave={e => (e.currentTarget.style.backgroundColor = "#1a3a2a")}
+              className="rounded-lg"
             >
               {editingClient ? "Actualizar" : "Crear"} Cliente
             </Button>

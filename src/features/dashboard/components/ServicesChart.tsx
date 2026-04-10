@@ -26,7 +26,7 @@ export function ServicesChart({ data, periodLabel }: ServicesChartProps) {
             <PieChart>
               <Pie data={data} cx="50%" cy="50%" labelLine={false}
                 label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                outerRadius={100} dataKey="value">
+                innerRadius={55} outerRadius={95} dataKey="value">
                 {data.map((_, index) => (
                   // Colores de cada parte del pastel estan en el archivo de constants.ts
                   <Cell key={index} fill={COLORS[index % COLORS.length]} />
