@@ -60,3 +60,18 @@ export async function deleteUserApi(id: number): Promise<void> {
   });
   if (!res.ok) throw new Error("Error al eliminar usuario");
 }
+
+export async function uploadUserPhotoApi(file: File): Promise<string> {
+  const formData = new FormData();
+  formData.append("image", file);
+  formData.append("folder", "highsoft/users");
+
+  const res = await fetch(`${API_URL}/api/upload/image`, {
+    method:  "POST",
+    headers: { Authorization: `Bearer ${getToken()}` },
+    body:    formData,
+  });
+  if (!res.ok) throw new Error("Error al subir la imagen");
+  const data = await res.json();
+  return data.url as string;
+}
