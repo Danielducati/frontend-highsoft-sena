@@ -23,9 +23,10 @@ interface SidebarProps {
   onNavigate: (page: string) => void;
   onLogout: () => void;
   userRole: 'admin' | 'employee' | 'client';
+  allowedPages?: string[];
 }
 
-export function Sidebar({ activePage, onNavigate, onLogout, userRole }: SidebarProps) {
+export function Sidebar({ activePage, onNavigate, onLogout, userRole, allowedPages }: SidebarProps) {
   const menuItems = [
     { 
       id: 'dashboard', 
@@ -91,7 +92,7 @@ export function Sidebar({ activePage, onNavigate, onLogout, userRole }: SidebarP
       id: 'users', 
       label: 'Usuarios', 
       icon: UserCog,
-      roles: ['admin']
+      roles: ['admin', 'employee', 'client']
     },
     { 
       id: 'roles', 
@@ -101,7 +102,13 @@ export function Sidebar({ activePage, onNavigate, onLogout, userRole }: SidebarP
     },
   ];
 
-  const visibleItems = menuItems.filter(item => item.roles.includes(userRole));
+  // Admin siempre ve todo. Otros roles solo ven lo que allowedPages indica.
+  const visibleItems = menuItems.filter(item => {
+    if (userRole === "admin") return item.roles.includes("admin");
+    // Para cualquier otro rol, usar estrictamente allowedPages
+    const pages = allowedPages ?? [];
+    return pages.includes(item.id);
+  });
 
   const roleLabels = {
     admin: 'Administrador',
@@ -140,6 +147,8 @@ export function Sidebar({ activePage, onNavigate, onLogout, userRole }: SidebarP
         {visibleItems.map((item) => {
           const Icon = item.icon;
           const isActive = activePage === item.id;
+          // "Usuarios" para admin, "Mi Perfil" para empleado y cliente
+          const label = item.id === "users" && userRole !== "admin" ? "Mi Perfil" : item.label;
           
           return (
             <button
@@ -158,7 +167,7 @@ export function Sidebar({ activePage, onNavigate, onLogout, userRole }: SidebarP
               }
             >
               <Icon className="w-4 h-4 flex-shrink-0" />
-              <span className="text-sm" style={{ fontFamily: "var(--font-body)" }}>{item.label}</span>
+              <span className="text-sm" style={{ fontFamily: "var(--font-body)" }}>{label}</span>
             </button>
           );
         })}

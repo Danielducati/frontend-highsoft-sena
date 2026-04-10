@@ -38,7 +38,10 @@ export function QuotationViewDialog({ quotation, onClose }: QuotationViewDialogP
           </DialogTitle>
           <DialogDescription style={{ color: "#6b7c6b", fontSize: 13 }}>
             {quotation?.date
-              ? new Date(quotation.date).toLocaleDateString("es-ES", { day: "numeric", month: "long", year: "numeric" })
+              ? (() => {
+                  const [y, m, d] = quotation.date.split("T")[0].split("-");
+                  return `${d}/${m}/${y}`;
+                })()
               : "—"}
           </DialogDescription>
         </DialogHeader>
@@ -70,15 +73,22 @@ export function QuotationViewDialog({ quotation, onClose }: QuotationViewDialogP
                 {quotation.items?.map((item, i) => (
                   <div key={i} style={{
                     padding: "12px 16px", borderRadius: 10, backgroundColor: "#ffffff",
-                    border: "1px solid #ede8e0", display: "flex", justifyContent: "space-between", alignItems: "center",
+                    border: "1px solid #ede8e0",
                   }}>
-                    <div>
-                      <p style={{ fontSize: 14, color: "#1a3a2a", fontWeight: 500 }}>{item.serviceName}</p>
-                      <p style={{ fontSize: 12, color: "#6b7c6b", marginTop: 2 }}>Cantidad: {item.quantity}</p>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                      <div>
+                        <p style={{ fontSize: 14, color: "#1a3a2a", fontWeight: 500 }}>{item.serviceName}</p>
+                        <p style={{ fontSize: 12, color: "#6b7c6b", marginTop: 2 }}>Cantidad: {item.quantity}</p>
+                        {item.empleadoName && (
+                          <p style={{ fontSize: 12, color: "#5FBFAA", marginTop: 2 }}>
+                            👤 {item.empleadoName}
+                          </p>
+                        )}
+                      </div>
+                      <span style={{ fontSize: 14, fontWeight: 600, color: "#1a3a2a" }}>
+                        ${(item.price * item.quantity).toLocaleString("es-CO")}
+                      </span>
                     </div>
-                    <span style={{ fontSize: 14, fontWeight: 600, color: "#1a3a2a" }}>
-                      ${(item.price * item.quantity).toLocaleString("es-CO")}
-                    </span>
                   </div>
                 ))}
               </div>

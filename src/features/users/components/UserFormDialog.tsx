@@ -70,29 +70,7 @@ export function UserFormDialog({
             </div>
           </div>
 
-          {/* Nombre / Apellido — solo letras */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>Nombre *</Label>
-              <Input
-                value={formData.firstName}
-                onChange={(e) => setFormData({ ...formData, firstName: onlyLetters(e.target.value) })}
-                placeholder="Juan"
-                className="rounded-lg border-gray-200"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Apellido *</Label>
-              <Input
-                value={formData.lastName}
-                onChange={(e) => setFormData({ ...formData, lastName: onlyLetters(e.target.value) })}
-                placeholder="Pérez"
-                className="rounded-lg border-gray-200"
-              />
-            </div>
-          </div>
-
-          {/* Documento — solo números */}
+          {/* Documento */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Tipo de Documento *</Label>
@@ -111,6 +89,28 @@ export function UserFormDialog({
                 placeholder="1234567890"
                 className="rounded-lg border-gray-200"
                 maxLength={20}
+              />
+            </div>
+          </div>
+
+          {/* Nombre / Apellido */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>Nombre *</Label>
+              <Input
+                value={formData.firstName}
+                onChange={(e) => setFormData({ ...formData, firstName: onlyLetters(e.target.value) })}
+                placeholder="Juan"
+                className="rounded-lg border-gray-200"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Apellido *</Label>
+              <Input
+                value={formData.lastName}
+                onChange={(e) => setFormData({ ...formData, lastName: onlyLetters(e.target.value) })}
+                placeholder="Pérez"
+                className="rounded-lg border-gray-200"
               />
             </div>
           </div>

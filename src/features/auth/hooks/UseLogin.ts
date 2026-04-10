@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { UserRole } from "../types";
-import { ROL_MAP } from "../constants";
+import { resolveUserRole, resolveAllowedPages } from "../constants";
 import { loginRequest, forgotPasswordRequest } from "../services/authService";
 
 export function useLogin(onLogin: (role: UserRole) => void) {
@@ -28,13 +28,24 @@ export function useLogin(onLogin: (role: UserRole) => void) {
       const data = await loginRequest(email, password);
 
       const rolBackend  = data.usuario?.rol;
-      const rolFrontend: UserRole = ROL_MAP?.[rolBackend] ?? "client";
+      const permisos    = data.usuario?.permisos ?? [];
+      const rolFrontend: UserRole = resolveUserRole(rolBackend);
+      const allowedPages = resolveAllowedPages(permisos);
 
-      localStorage.setItem("token",   data.token);
-      localStorage.setItem("usuario", JSON.stringify(data.usuario));
+      localStorage.setItem("token",        data.token);
+      localStorage.setItem("usuario",      JSON.stringify(data.usuario));
+      localStorage.setItem("permisos",     JSON.stringify(permisos));
+      localStorage.setItem("allowedPages", JSON.stringify(allowedPages));
 
       toast.success(`¡Bienvenido! Accediendo como ${rolBackend}`);
-      onLogin(rolFrontend);
+
+      // Calcular primera página disponible para pasarla directamente
+      let firstPage: string | undefined;
+      if (rolFrontend !== "admin" && rolFrontend !== "client") {
+        firstPage = allowedPages.find(p => p !== "users") ?? "users";
+      }
+
+      onLogin(rolFrontend, firstPage);
     } catch (err: any) {
       console.error("❌ ERROR LOGIN:", err);
       toast.error(err.message ?? "No se pudo conectar con el servidor");
