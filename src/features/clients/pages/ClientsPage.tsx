@@ -107,8 +107,14 @@ export function ClientsPage({ userRole }: ClientsModuleProps) {
                   >
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3 min-w-0">
-                        <div className="w-9 h-9 rounded-full flex items-center justify-center text-white text-sm flex-shrink-0" style={{ background: "linear-gradient(135deg, #78D1BD, #5FBFAA)" }}>
-                          {client.name.charAt(0)}
+                        <div className="w-9 h-9 rounded-full overflow-hidden flex-shrink-0" style={{ border: "2px solid #c8ead9" }}>
+                          {client.image ? (
+                            <img src={client.image} alt={client.name} className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-white text-sm" style={{ background: "linear-gradient(135deg, #78D1BD, #5FBFAA)" }}>
+                              {client.name.charAt(0)}
+                            </div>
+                          )}
                         </div>
                         <div className="min-w-0">
                           <p className="font-medium text-sm truncate" style={{ color: "#1a3a2a" }}>{client.name}</p>

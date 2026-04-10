@@ -8,6 +8,7 @@ import {
   fetchUsersApi, fetchRolesApi,
   createUserApi, updateUserApi,
   toggleUserStatusApi, deleteUserApi,
+  uploadUserPhotoApi,
 } from "../services/usersService";
 
 const EMAIL_RE   = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -26,6 +27,7 @@ export function useUsers() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [userToDelete,     setUserToDelete]     = useState<number | null>(null);
   const [imagePreview,     setImagePreview]     = useState("");
+  const [selectedFile,     setSelectedFile]     = useState<File | null>(null);
   const [formData,         setFormData]         = useState<UserFormData>({ ...EMPTY_FORM });
   const [currentPage,      setCurrentPage]      = useState(1);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -114,7 +116,7 @@ export function useUsers() {
       return;
     }
 
-    const body = {
+    const body: Record<string, any> = {
       firstName,
       lastName,
       documentType,
@@ -125,6 +127,14 @@ export function useUsers() {
     };
 
     try {
+      if (selectedFile) {
+        try {
+          body.photo = await uploadUserPhotoApi(selectedFile);
+        } catch {
+          toast.error("Error al subir la imagen, se guardará sin foto");
+        }
+      }
+
       if (editingUser) {
         await updateUserApi(editingUser.id, body);
         toast.success("Usuario actualizado");
@@ -191,6 +201,7 @@ export function useUsers() {
       roleId:       String(user.roleId ?? user.rolId ?? ""),
       image:        "",
     });
+    setSelectedFile(null);
     setImagePreview(user.photo || "");
     setIsDialogOpen(true);
   };
@@ -200,6 +211,7 @@ export function useUsers() {
     setEditingUser(null);
     setFormData({ ...EMPTY_FORM });
     setImagePreview("");
+    setSelectedFile(null);
   };
 
   // ── Imagen ────────────────────────────────────────────────────────────────
@@ -210,6 +222,7 @@ export function useUsers() {
       toast.error(`La imagen no debe superar los ${MAX_IMAGE_SIZE_MB}MB`);
       return;
     }
+    setSelectedFile(file);
     const reader = new FileReader();
     reader.onloadend = () => {
       const result = reader.result as string;
@@ -221,6 +234,7 @@ export function useUsers() {
 
   const clearImage = () => {
     setImagePreview("");
+    setSelectedFile(null);
     setFormData(prev => ({ ...prev, image: "" }));
   };
 

@@ -122,22 +122,7 @@ export function useClients() {
       if (editingClient) {
         // PUT /clients/:id
         const updated = await clientsApi.update(editingClient.id, payload);
-        // Fusionar con el cliente original para no perder campos que el backend no devuelve
-        const merged: Client = {
-          ...editingClient,
-          ...updated,
-          firstName:        payload.firstName,
-          lastName:         payload.lastName,
-          name:             `${payload.firstName} ${payload.lastName}`.trim(),
-          email:            payload.email,
-          phone:            payload.phone,
-          address:          payload.address,
-          tipo_documento:   payload.documentType,
-          numero_documento: payload.document,
-          image:            payload.image || editingClient.image,
-          isActive:         editingClient.isActive, // preservar estado original
-        };
-        setClients(prev => prev.map(c => c.id === editingClient.id ? merged : c));
+        setClients(prev => prev.map(c => c.id === editingClient.id ? updated : c));
         toast.success("Cliente actualizado exitosamente");
       } else {
         // POST /clients
