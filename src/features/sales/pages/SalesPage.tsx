@@ -106,7 +106,7 @@ export function SalesPage({ userRole }: SalesModuleProps) {
   const handleSubmit = async () => { const ok = await registerSale(formData, saleType); if (ok) resetForm(); };
 
   return (
-    <div className="min-h-screen p-8" style={{ backgroundColor: "#f5f0e8", fontFamily: "var(--font-body)" }}>
+    <div className="min-h-screen p-8" style={{ backgroundColor: "var(--bg-app)", fontFamily: "var(--font-body)" }}>
 
       {/* ── Header ── */}
       <div className="flex justify-between items-start mb-8">
