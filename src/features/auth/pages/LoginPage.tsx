@@ -2,12 +2,14 @@ import { Button } from "../../../shared/ui/button";
 import { Input } from "../../../shared/ui/input";
 import { Label } from "../../../shared/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../../shared/ui/card";
-import { Eye, EyeOff, HelpCircle, Loader2 } from "lucide-react";
+import { Eye, EyeOff, HelpCircle, Loader2} from "lucide-react";
 import { ForgotPasswordDialog } from "../components/Forgotpassworddialog";
 import { LoginPageProps } from "../types";
-import { useLogin } from "../hooks/Uselogin";
+import { useLogin } from "../hooks/UseLogin";
 
-export function LoginPage({ onLogin, onBack }: LoginPageProps) {
+
+
+export function LoginPage({ onLogin, onBack, onRegister }: LoginPageProps) {
   const {
     email, setEmail,
     password, setPassword,
@@ -173,9 +175,18 @@ export function LoginPage({ onLogin, onBack }: LoginPageProps) {
               </Button>
 
               <div className="pt-2 text-center space-y-1.5">
-                <div className="tracking-[0.25em] text-xs" style={{ color: "#1a3a2a" }}>
-                  HIGHLIFE SPA
-                </div>
+                <p className="text-xs" style={{ color: "#6b7c6b", fontFamily: "var(--font-body)" }}>
+                  ¿No tienes cuenta?{" "}
+                  <button
+                    type="button"
+                    onClick={onRegister}
+                    className="underline-offset-4 hover:underline font-semibold"
+                    style={{ color: "#1a3a2a", fontFamily: "var(--font-body)", background: "none", border: "none", cursor: "pointer", fontSize: "inherit" }}
+                    disabled={loading}
+                  >
+                    Regístrate
+                  </button>
+                </p>
                 <button
                   type="button"
                   onClick={onBack}
