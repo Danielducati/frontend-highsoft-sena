@@ -1,4 +1,7 @@
 import { useState } from "react";
+import { Button } from "../../../shared/ui/button";
+import { Input } from "../../../shared/ui/input";
+import { Label } from "../../../shared/ui/label";
 import { Loader2, XCircle } from "lucide-react";
 import { Appointment, SaleFormData, SaleItem } from "../types";
 import { PAYMENT_METHODS } from "../constants";
@@ -23,27 +26,6 @@ interface SaleFormProps {
   onRemoveService:     (id: number) => void;
 }
 
-const inputStyle: React.CSSProperties = {
-  width: "100%", padding: "9px 14px", borderRadius: 10,
-  border: "1px solid #d6cfc4", backgroundColor: "#faf7f2",
-  color: "#1a3a2a", fontSize: 14, fontFamily: "var(--font-body)",
-  outline: "none", boxSizing: "border-box",
-};
-
-const inputErr: React.CSSProperties = {
-  ...inputStyle, border: "1px solid #c0392b", backgroundColor: "#fdf8f7",
-};
-
-const labelStyle: React.CSSProperties = {
-  display: "block", fontSize: 11, fontWeight: 600,
-  letterSpacing: "0.08em", textTransform: "uppercase",
-  color: "#6b7c6b", marginBottom: 5, fontFamily: "var(--font-body)",
-};
-
-const errorStyle: React.CSSProperties = {
-  fontSize: 11, color: "#c0392b", marginTop: 3, fontFamily: "var(--font-body)",
-};
-
 type Errors = { client?: string; services?: string; payment?: string; appointment?: string };
 
 function validateDirect(data: SaleFormData): Errors {
@@ -53,15 +35,15 @@ function validateDirect(data: SaleFormData): Errors {
   } else {
     if (!data.clienteId) e.client = "Selecciona un cliente.";
   }
-  if (data.selectedServices.length === 0)  e.services = "Agrega al menos un servicio.";
-  if (!data.paymentMethod)                 e.payment  = "Selecciona un método de pago.";
+  if (data.selectedServices.length === 0) e.services = "Agrega al menos un servicio.";
+  if (!data.paymentMethod)                e.payment  = "Selecciona un método de pago.";
   return e;
 }
 
 function validateAppointment(data: SaleFormData): Errors {
   const e: Errors = {};
-  if (!data.appointmentId)  e.appointment = "Selecciona una cita.";
-  if (!data.paymentMethod)  e.payment     = "Selecciona un método de pago.";
+  if (!data.appointmentId) e.appointment = "Selecciona una cita.";
+  if (!data.paymentMethod) e.payment     = "Selecciona un método de pago.";
   return e;
 }
 
@@ -75,7 +57,6 @@ export function SaleForm({
   const [pendingServiceId,  setPendingServiceId]  = useState<string>("");
   const [pendingEmployeeId, setPendingEmployeeId] = useState<string>("");
 
-  // Empleados filtrados según la categoría del servicio seleccionado
   const filteredEmployees = (() => {
     if (!pendingServiceId) return employees;
     const service = availableServices.find(s => s.id === parseInt(pendingServiceId));
@@ -104,25 +85,24 @@ export function SaleForm({
     onSubmit();
   };
 
-  // Tab style helper
-  const tabBtn = (active: boolean): React.CSSProperties => ({
-    flex: 1, padding: "8px 16px", borderRadius: 8, border: "none",
-    fontSize: 13, fontWeight: 600, fontFamily: "var(--font-body)", cursor: "pointer",
-    transition: "all 0.15s",
-    ...(active
-      ? { backgroundColor: "#1a3a2a", color: "#ffffff" }
-      : { backgroundColor: "transparent", color: "#6b7c6b" }),
-  });
+  const selectCls = (hasError?: boolean) =>
+    `w-full rounded-lg border px-3 py-2 text-sm bg-white text-gray-900 outline-none ${hasError ? "border-red-500 bg-red-50" : "border-gray-200"}`;
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 18, marginTop: 12 }}>
+    <div className="space-y-5 mt-4">
 
       {/* Tabs */}
-      <div style={{ display: "flex", gap: 4, padding: 4, borderRadius: 12, backgroundColor: "#f0ebe3" }}>
-        <button style={tabBtn(saleType === "direct")} onClick={() => onSaleTypeChange("direct")}>
+      <div className="flex rounded-lg border border-gray-200 overflow-hidden">
+        <button
+          className={`flex-1 py-2 px-4 text-sm font-semibold transition-all border-r border-gray-200 ${saleType === "direct" ? "bg-gray-100 text-gray-900" : "bg-white text-gray-500 hover:bg-gray-50"}`}
+          onClick={() => onSaleTypeChange("direct")}
+        >
           Venta Directa
         </button>
-        <button style={tabBtn(saleType === "appointment")} onClick={() => onSaleTypeChange("appointment")}>
+        <button
+          className={`flex-1 py-2 px-4 text-sm font-semibold transition-all ${saleType === "appointment" ? "bg-gray-100 text-gray-900" : "bg-white text-gray-500 hover:bg-gray-50"}`}
+          onClick={() => onSaleTypeChange("appointment")}
+        >
           Desde Cita
         </button>
       </div>
@@ -131,11 +111,8 @@ export function SaleForm({
       {saleType === "direct" && (
         <>
           {/* Toggle cliente no registrado */}
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between",
-            padding: "10px 14px", borderRadius: 10, backgroundColor: "#f0ebe3", border: "1px solid #e0d8ce" }}>
-            <span style={{ fontSize: 13, color: "#1a3a2a", fontFamily: "var(--font-body)", fontWeight: 500 }}>
-              Cliente no registrado
-            </span>
+          <div className="flex items-center justify-between rounded-lg border border-gray-200 bg-gray-50 px-4 py-3">
+            <span className="text-sm font-medium text-gray-900">Cliente no registrado</span>
             <button
               type="button"
               onClick={() => setFormData(prev => ({
@@ -145,143 +122,163 @@ export function SaleForm({
                 guestDocType: "", guestDoc: "", guestFirstName: "",
                 guestLastName: "", guestEmail: "", guestPhone: "",
               }))}
-              style={{
-                position: "relative", display: "inline-flex", alignItems: "center",
-                width: 40, height: 22, borderRadius: 999, border: "none", cursor: "pointer",
-                backgroundColor: formData.guestMode ? "#1a3a2a" : "#9ca3af", transition: "background 0.2s", padding: 0,
-              }}
+              className="relative inline-flex items-center w-10 h-6 rounded-full border-0 cursor-pointer transition-colors"
+              style={{ backgroundColor: formData.guestMode ? "#1a3a2a" : "#9ca3af", padding: 0 }}
             >
-              <span style={{
-                position: "absolute", left: formData.guestMode ? 20 : 2,
-                width: 18, height: 18, borderRadius: "50%", backgroundColor: "#fff",
-                boxShadow: "0 1px 3px rgba(0,0,0,0.2)", transition: "left 0.2s",
-              }} />
+              <span
+                className="absolute w-4 h-4 rounded-full bg-white shadow transition-all"
+                style={{ left: formData.guestMode ? "22px" : "2px" }}
+              />
             </button>
           </div>
 
           {/* Cliente registrado */}
           {!formData.guestMode && (
-            <div>
-              <label style={labelStyle}>Cliente <span style={{ color: "#c0392b" }}>*</span></label>
-              <select style={liveErr.client ? inputErr : inputStyle}
+            <div className="space-y-2">
+              <Label className="text-gray-900">Cliente *</Label>
+              <select
+                className={selectCls(!!liveErr.client)}
                 value={formData.clienteId}
                 onChange={e => setFormData(prev => ({ ...prev, clienteId: e.target.value }))}
-                onBlur={() => touch("client")}>
+                onBlur={() => touch("client")}
+              >
                 <option value="">Seleccionar cliente</option>
                 {clients.map(c => <option key={c.id} value={c.id.toString()}>{c.name}</option>)}
               </select>
-              {liveErr.client && <p style={errorStyle}>⚠ {liveErr.client}</p>}
+              {liveErr.client && <p className="text-xs text-red-500">⚠ {liveErr.client}</p>}
             </div>
           )}
 
           {/* Cliente ocasional */}
           {formData.guestMode && (
-            <div style={{ display: "flex", flexDirection: "column", gap: 12,
-              padding: "14px 16px", borderRadius: 10, border: "1px solid #d6cfc4", backgroundColor: "#faf7f2" }}>
-              <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase",
-                color: "#6b7c6b", fontFamily: "var(--font-body)", margin: 0 }}>Datos del cliente ocasional</p>
+            <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 space-y-3">
+              <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">Datos del cliente ocasional</p>
 
-              {/* Tipo doc + Número (+ DV si NIT) */}
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-                <div>
-                  <label style={labelStyle}>Tipo de Documento</label>
-                  <select style={inputStyle} value={formData.guestDocType ?? ""}
+              {/* Tipo doc + Número */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-gray-900">Tipo de Documento</Label>
+                  <select
+                    className={selectCls()}
+                    value={formData.guestDocType ?? ""}
                     onChange={e => setFormData(prev => ({
-                      ...prev,
-                      guestDocType: e.target.value,
+                      ...prev, guestDocType: e.target.value,
                       guestDoc: "", guestFirstName: "", guestLastName: "",
-                    }))}>
+                    }))}
+                  >
                     <option value="">Seleccionar</option>
                     {["CC","CE","TI","PP","NIT"].map(t => <option key={t} value={t}>{t}</option>)}
                   </select>
                 </div>
-                <div>
-                  <label style={labelStyle}>
+                <div className="space-y-2">
+                  <Label className="text-gray-900">
                     {formData.guestDocType === "NIT" ? "NIT" : "Número de Documento"}
-                  </label>
-                  <div style={{ display: "flex", gap: 6 }}>
-                    <input style={{ ...inputStyle, flex: 1 }} value={formData.guestDoc ?? ""}
+                  </Label>
+                  <div className="flex gap-2">
+                    <Input
+                      className="rounded-lg border-gray-200 flex-1"
+                      value={formData.guestDoc ?? ""}
                       onChange={e => setFormData(prev => ({ ...prev, guestDoc: e.target.value.replace(/\D/g,"") }))}
                       placeholder={formData.guestDocType === "NIT" ? "900123456" : "1234567890"}
-                      maxLength={20} />
+                      maxLength={20}
+                    />
                     {formData.guestDocType === "NIT" && (
-                      <input
-                        style={{ ...inputStyle, width: 52, textAlign: "center", padding: "9px 6px" }}
+                      <Input
+                        className="rounded-lg border-gray-200 w-16 text-center"
                         value={formData.guestDV ?? ""}
                         onChange={e => setFormData(prev => ({ ...prev, guestDV: e.target.value.replace(/\D/g,"") }))}
-                        placeholder="DV" maxLength={1} title="Dígito de verificación"
+                        placeholder="DV"
+                        maxLength={1}
+                        title="Dígito de verificación"
                       />
                     )}
                   </div>
                   {formData.guestDocType === "NIT" && (
-                    <p style={{ fontSize: 10, color: "#9ca3af", marginTop: 3, fontFamily: "var(--font-body)" }}>
-                      NIT + dígito de verificación
-                    </p>
+                    <p className="text-xs text-gray-400">NIT + dígito de verificación</p>
                   )}
                 </div>
               </div>
 
-              {/* Razón Social / Representante Legal (NIT) o Nombre / Apellido */}
+              {/* Razón Social / Nombre */}
               {formData.guestDocType === "NIT" ? (
                 <>
-                  <div>
-                    <label style={labelStyle}>Razón Social <span style={{ color: "#c0392b" }}>*</span></label>
-                    <input style={liveErr.client ? inputErr : inputStyle}
+                  <div className="space-y-2">
+                    <Label className="text-gray-900">Razón Social *</Label>
+                    <Input
+                      className={`rounded-lg ${liveErr.client ? "border-red-500 bg-red-50" : "border-gray-200"}`}
                       value={formData.guestFirstName ?? ""}
                       onChange={e => setFormData(prev => ({ ...prev, guestFirstName: e.target.value }))}
-                      placeholder="Empresa S.A.S." onBlur={() => touch("client")} />
+                      placeholder="Empresa S.A.S."
+                      onBlur={() => touch("client")}
+                    />
                   </div>
-                  <div>
-                    <label style={labelStyle}>Representante Legal</label>
-                    <input style={inputStyle}
+                  <div className="space-y-2">
+                    <Label className="text-gray-900">Representante Legal</Label>
+                    <Input
+                      className="rounded-lg border-gray-200"
                       value={formData.guestLastName ?? ""}
                       onChange={e => setFormData(prev => ({ ...prev, guestLastName: e.target.value }))}
-                      placeholder="Nombre completo del representante" />
+                      placeholder="Nombre completo del representante"
+                    />
                   </div>
                 </>
               ) : (
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-                  <div>
-                    <label style={labelStyle}>Nombre <span style={{ color: "#c0392b" }}>*</span></label>
-                    <input style={liveErr.client ? inputErr : inputStyle}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label className="text-gray-900">Nombre *</Label>
+                    <Input
+                      className={`rounded-lg ${liveErr.client ? "border-red-500 bg-red-50" : "border-gray-200"}`}
                       value={formData.guestFirstName ?? ""}
                       onChange={e => setFormData(prev => ({ ...prev, guestFirstName: e.target.value }))}
-                      placeholder="Juan" onBlur={() => touch("client")} />
+                      placeholder="Juan"
+                      onBlur={() => touch("client")}
+                    />
                   </div>
-                  <div>
-                    <label style={labelStyle}>Apellido</label>
-                    <input style={inputStyle} value={formData.guestLastName ?? ""}
+                  <div className="space-y-2">
+                    <Label className="text-gray-900">Apellido</Label>
+                    <Input
+                      className="rounded-lg border-gray-200"
+                      value={formData.guestLastName ?? ""}
                       onChange={e => setFormData(prev => ({ ...prev, guestLastName: e.target.value }))}
-                      placeholder="Pérez" />
+                      placeholder="Pérez"
+                    />
                   </div>
                 </div>
               )}
 
               {/* Email + Teléfono */}
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-                <div>
-                  <label style={labelStyle}>Correo</label>
-                  <input style={inputStyle} type="email" value={formData.guestEmail ?? ""}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-gray-900">Correo</Label>
+                  <Input
+                    type="email"
+                    className="rounded-lg border-gray-200"
+                    value={formData.guestEmail ?? ""}
                     onChange={e => setFormData(prev => ({ ...prev, guestEmail: e.target.value }))}
-                    placeholder="correo@ejemplo.com" />
+                    placeholder="correo@ejemplo.com"
+                  />
                 </div>
-                <div>
-                  <label style={labelStyle}>Teléfono</label>
-                  <input style={inputStyle} value={formData.guestPhone ?? ""}
+                <div className="space-y-2">
+                  <Label className="text-gray-900">Teléfono</Label>
+                  <Input
+                    className="rounded-lg border-gray-200"
+                    value={formData.guestPhone ?? ""}
                     onChange={e => setFormData(prev => ({ ...prev, guestPhone: e.target.value.replace(/\D/g,"") }))}
-                    placeholder="3001234567" maxLength={10} />
+                    placeholder="3001234567"
+                    maxLength={10}
+                  />
                 </div>
               </div>
-              {liveErr.client && <p style={errorStyle}>⚠ {liveErr.client}</p>}
+              {liveErr.client && <p className="text-xs text-red-500">⚠ {liveErr.client}</p>}
             </div>
           )}
 
           {/* Agregar servicio + empleado */}
-          <div>
-            <label style={labelStyle}>Agregar Servicio <span style={{ color: "#c0392b" }}>*</span></label>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 8 }}>
+          <div className="space-y-2">
+            <Label className="text-gray-900">Agregar Servicio *</Label>
+            <div className="grid grid-cols-2 gap-4">
               <select
-                style={liveErr.services ? inputErr : inputStyle}
+                className={selectCls(!!liveErr.services)}
                 value={pendingServiceId}
                 onChange={e => { setPendingServiceId(e.target.value); setPendingEmployeeId(""); }}
                 onBlur={() => touch("services")}
@@ -292,7 +289,7 @@ export function SaleForm({
                 ))}
               </select>
               <select
-                style={inputStyle}
+                className={selectCls()}
                 value={pendingEmployeeId}
                 onChange={e => setPendingEmployeeId(e.target.value)}
                 disabled={!pendingServiceId}
@@ -311,7 +308,7 @@ export function SaleForm({
                 ))}
               </select>
             </div>
-            <button
+            <Button
               type="button"
               disabled={!pendingServiceId}
               onClick={() => {
@@ -320,46 +317,42 @@ export function SaleForm({
                 setPendingServiceId("");
                 setPendingEmployeeId("");
               }}
-              style={{
-                width: "100%", padding: "9px 14px", borderRadius: 10, border: "none",
-                backgroundColor: pendingServiceId ? "#1a3a2a" : "#d1d5db",
-                color: "#ffffff", fontSize: 13, fontWeight: 600,
-                fontFamily: "var(--font-body)", cursor: pendingServiceId ? "pointer" : "not-allowed",
-              }}
+              className="w-full rounded-lg"
+              style={{ backgroundColor: pendingServiceId ? "#1a3a2a" : undefined, color: pendingServiceId ? "#ffffff" : undefined }}
             >
               + Agregar servicio
-            </button>
-            {liveErr.services && <p style={errorStyle}>⚠ {liveErr.services}</p>}
+            </Button>
+            {liveErr.services && <p className="text-xs text-red-500">⚠ {liveErr.services}</p>}
           </div>
 
           {/* Lista servicios */}
           {formData.selectedServices.length > 0 && (
-            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            <div className="space-y-2">
               {formData.selectedServices.map(item => (
-                <div key={item.serviceId} style={{
-                  padding: "12px 16px", borderRadius: 10, backgroundColor: "#ffffff",
-                  border: "1px solid #ede8e0", display: "flex", alignItems: "center", justifyContent: "space-between",
-                }}>
+                <div key={item.serviceId} className="rounded-lg border border-gray-200 bg-white px-4 py-3 flex items-center justify-between">
                   <div>
-                    <p style={{ fontSize: 14, color: "#1a3a2a", fontWeight: 500 }}>{item.serviceName}</p>
-                    <p style={{ fontSize: 12, color: "#6b7c6b" }}>
+                    <p className="text-sm font-medium text-gray-900">{item.serviceName}</p>
+                    <p className="text-xs text-gray-500">
                       ${item.price?.toLocaleString("es-CO")} c/u
                       {item.employeeName && ` • ${item.employeeName}`}
                     </p>
                   </div>
-                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                    <input type="number" min="1" value={item.quantity}
+                  <div className="flex items-center gap-2">
+                    <Input
+                      type="number"
+                      min="1"
+                      value={item.quantity}
                       onChange={e => onUpdateQuantity(item.serviceId, parseInt(e.target.value))}
-                      style={{ ...inputStyle, width: 60, padding: "4px 8px", textAlign: "center" }} />
-                    <span style={{ fontSize: 14, fontWeight: 600, color: "#1a3a2a", minWidth: 70, textAlign: "right" }}>
+                      className="w-16 text-center rounded-lg border-gray-200 px-2 py-1 text-sm"
+                    />
+                    <span className="text-sm font-semibold text-gray-900 min-w-[70px] text-right">
                       ${(item.price * item.quantity).toLocaleString("es-CO")}
                     </span>
-                    <button onClick={() => onRemoveService(item.serviceId)} style={{
-                      width: 28, height: 28, borderRadius: 6, border: "none",
-                      backgroundColor: "#fdf0ee", color: "#c0392b", cursor: "pointer",
-                      display: "flex", alignItems: "center", justifyContent: "center",
-                    }}>
-                      <XCircle style={{ width: 14, height: 14 }} />
+                    <button
+                      onClick={() => onRemoveService(item.serviceId)}
+                      className="w-7 h-7 rounded-md flex items-center justify-center bg-red-50 text-red-500 hover:bg-red-100 transition-colors border-0"
+                    >
+                      <XCircle className="w-3.5 h-3.5" />
                     </button>
                   </div>
                 </div>
@@ -375,12 +368,14 @@ export function SaleForm({
       {/* ── DESDE CITA ── */}
       {saleType === "appointment" && (
         <>
-          <div>
-            <label style={labelStyle}>Seleccionar Cita <span style={{ color: "#c0392b" }}>*</span></label>
-            <select style={liveErr.appointment ? inputErr : inputStyle}
+          <div className="space-y-2">
+            <Label className="text-gray-900">Seleccionar Cita *</Label>
+            <select
+              className={selectCls(!!liveErr.appointment)}
               value={formData.appointmentId?.toString() || ""}
               onChange={e => onAppointmentSelect(e.target.value)}
-              onBlur={() => touch("appointment")}>
+              onBlur={() => touch("appointment")}
+            >
               <option value="">Buscar cita...</option>
               {appointments.length === 0
                 ? <option disabled value="">No hay citas activas</option>
@@ -390,15 +385,15 @@ export function SaleForm({
                   </option>
                 ))}
             </select>
-            {liveErr.appointment && <p style={errorStyle}>⚠ {liveErr.appointment}</p>}
+            {liveErr.appointment && <p className="text-xs text-red-500">⚠ {liveErr.appointment}</p>}
           </div>
 
           {formData.appointmentId && formData.selectedServices.length > 0 && (
-            <div style={{ padding: "12px 16px", borderRadius: 10, backgroundColor: "#ffffff", border: "1px solid #ede8e0" }}>
+            <div className="rounded-lg border border-gray-200 bg-white px-4 py-3 space-y-1">
               {formData.selectedServices.map(item => (
-                <div key={item.serviceId} style={{ display: "flex", justifyContent: "space-between", fontSize: 14 }}>
-                  <span style={{ color: "#1a3a2a" }}>{item.serviceName}</span>
-                  <span style={{ color: "#1a3a2a", fontWeight: 600 }}>${(item.price * item.quantity).toLocaleString("es-CO")}</span>
+                <div key={item.serviceId} className="flex justify-between text-sm">
+                  <span className="text-gray-900">{item.serviceName}</span>
+                  <span className="font-semibold text-gray-900">${(item.price * item.quantity).toLocaleString("es-CO")}</span>
                 </div>
               ))}
             </div>
@@ -407,9 +402,9 @@ export function SaleForm({
           {formData.appointmentId && (
             <>
               <PaymentFields formData={formData} setFormData={setFormData} error={liveErr.payment} onBlur={() => touch("payment")} />
-              <div style={{ padding: "12px 16px", borderRadius: 10, backgroundColor: "#edf7f4", border: "1px solid #c8ead9", display: "flex", justifyContent: "space-between" }}>
-                <span style={{ color: "#1a3a2a", fontSize: 14 }}>Total estimado</span>
-                <span style={{ color: "#1a5c3a", fontSize: 18, fontWeight: 700 }}>
+              <div className="rounded-lg border border-gray-200 bg-white px-4 py-3 flex justify-between items-center">
+                <span className="text-sm text-gray-900">Total estimado</span>
+                <span className="text-lg font-bold text-gray-900">
                   ${calcTotal(formData.selectedServices, formData.discount).toLocaleString("es-CO")}
                 </span>
               </div>
@@ -419,24 +414,21 @@ export function SaleForm({
       )}
 
       {/* Botones */}
-      <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, paddingTop: 8, borderTop: "1px solid #ede8e0" }}>
-        <button onClick={onCancel} style={{
-          padding: "9px 18px", borderRadius: 10, border: "1px solid #d6cfc4",
-          backgroundColor: "transparent", color: "#1a3a2a", fontSize: 14,
-          fontFamily: "var(--font-body)", cursor: "pointer",
-        }}>Cancelar</button>
-        <button onClick={handleSubmit} disabled={saving} style={{
-          padding: "9px 20px", borderRadius: 10, border: "none",
-          backgroundColor: saving ? "#9ca3af" : "#1a3a2a",
-          color: "#ffffff", fontSize: 14, fontWeight: 600,
-          fontFamily: "var(--font-body)", cursor: saving ? "not-allowed" : "pointer",
-          display: "flex", alignItems: "center", gap: 8,
-        }}
+      <div className="flex justify-end gap-3 pt-4 border-t">
+        <Button variant="outline" onClick={onCancel} className="rounded-lg border-gray-300">
+          Cancelar
+        </Button>
+        <Button
+          onClick={handleSubmit}
+          disabled={saving}
+          style={{ backgroundColor: saving ? undefined : "#1a3a2a", color: saving ? undefined : "#ffffff" }}
           onMouseEnter={e => { if (!saving) e.currentTarget.style.backgroundColor = "#2a5a40"; }}
-          onMouseLeave={e => { if (!saving) e.currentTarget.style.backgroundColor = "#1a3a2a"; }}>
-          {saving && <Loader2 style={{ width: 14, height: 14, animation: "spin 1s linear infinite" }} />}
+          onMouseLeave={e => { if (!saving) e.currentTarget.style.backgroundColor = "#1a3a2a"; }}
+          className="rounded-lg"
+        >
+          {saving && <Loader2 className="w-3.5 h-3.5 mr-2 animate-spin" />}
           {saving ? "Registrando..." : "Registrar Venta"}
-        </button>
+        </Button>
       </div>
     </div>
   );
@@ -450,33 +442,32 @@ function PaymentFields({ formData, setFormData, error, onBlur }: {
   error?: string;
   onBlur?: () => void;
 }) {
-  const inputStyle: React.CSSProperties = {
-    width: "100%", padding: "9px 14px", borderRadius: 10, border: "1px solid #d6cfc4",
-    backgroundColor: "#faf7f2", color: "#1a3a2a", fontSize: 14,
-    fontFamily: "var(--font-body)", outline: "none", boxSizing: "border-box",
-  };
-  const labelStyle: React.CSSProperties = {
-    display: "block", fontSize: 11, fontWeight: 600, letterSpacing: "0.08em",
-    textTransform: "uppercase", color: "#6b7c6b", marginBottom: 5, fontFamily: "var(--font-body)",
-  };
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-      <div>
-        <label style={labelStyle}>Descuento ($)</label>
-        <input type="number" step="0.01" min="0" style={inputStyle}
-          value={formData.discount} placeholder="0"
-          onChange={e => setFormData(prev => ({ ...prev, discount: e.target.value }))} />
+    <div className="grid grid-cols-2 gap-4">
+      <div className="space-y-2">
+        <Label className="text-gray-900">Descuento ($)</Label>
+        <Input
+          type="number"
+          step="0.01"
+          min="0"
+          value={formData.discount}
+          placeholder="0"
+          onChange={e => setFormData(prev => ({ ...prev, discount: e.target.value }))}
+          className="rounded-lg border-gray-200"
+        />
       </div>
-      <div>
-        <label style={labelStyle}>Método de Pago <span style={{ color: "#c0392b" }}>*</span></label>
-        <select style={error ? { ...inputStyle, border: "1px solid #c0392b", backgroundColor: "#fdf8f7" } : inputStyle}
+      <div className="space-y-2">
+        <Label className="text-gray-900">Método de Pago *</Label>
+        <select
+          className={`w-full rounded-lg border px-3 py-2 text-sm bg-white text-gray-900 outline-none ${error ? "border-red-500 bg-red-50" : "border-gray-200"}`}
           value={formData.paymentMethod}
           onChange={e => setFormData(prev => ({ ...prev, paymentMethod: e.target.value }))}
-          onBlur={onBlur}>
+          onBlur={onBlur}
+        >
           <option value="">Seleccionar método</option>
           {PAYMENT_METHODS.map(m => <option key={m} value={m}>{m}</option>)}
         </select>
-        {error && <p style={{ fontSize: 11, color: "#c0392b", marginTop: 3, fontFamily: "var(--font-body)" }}>⚠ {error}</p>}
+        {error && <p className="text-xs text-red-500">⚠ {error}</p>}
       </div>
     </div>
   );
@@ -486,20 +477,20 @@ function Totals({ items, discount }: { items: SaleItem[]; discount: string }) {
   const subtotal = calcSubtotal(items);
   const desc = parseFloat(discount) || 0;
   return (
-    <div style={{ padding: "14px 16px", borderRadius: 12, backgroundColor: "#f0ebe3", display: "flex", flexDirection: "column", gap: 8 }}>
-      <div style={{ display: "flex", justifyContent: "space-between" }}>
-        <span style={{ color: "#6b7c6b", fontSize: 14, fontFamily: "var(--font-body)" }}>Subtotal</span>
-        <span style={{ color: "#1a3a2a", fontSize: 14, fontFamily: "var(--font-body)" }}>${subtotal.toLocaleString("es-CO")}</span>
+    <div className="rounded-lg bg-gray-100 px-4 py-3 space-y-2">
+      <div className="flex justify-between text-sm text-gray-600">
+        <span>Subtotal</span>
+        <span>${subtotal.toLocaleString("es-CO")}</span>
       </div>
       {desc > 0 && (
-        <div style={{ display: "flex", justifyContent: "space-between" }}>
-          <span style={{ color: "#1a5c3a", fontSize: 14, fontFamily: "var(--font-body)" }}>Descuento</span>
-          <span style={{ color: "#1a5c3a", fontSize: 14, fontFamily: "var(--font-body)" }}>-${desc.toLocaleString("es-CO")}</span>
+        <div className="flex justify-between text-sm text-emerald-700">
+          <span>Descuento</span>
+          <span>-${desc.toLocaleString("es-CO")}</span>
         </div>
       )}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid #d6cfc4", paddingTop: 10 }}>
-        <span style={{ color: "#1a3a2a", fontSize: 15, fontFamily: "var(--font-body)", fontWeight: 600 }}>Total</span>
-        <span style={{ color: "#1a3a2a", fontSize: 20, fontWeight: 700, fontFamily: "var(--font-body)" }}>
+      <div className="flex justify-between items-center border-t border-gray-200 pt-2">
+        <span className="text-sm font-semibold text-gray-900">Total</span>
+        <span className="text-xl font-bold text-gray-900">
           ${calcTotal(items, discount).toLocaleString("es-CO")}
         </span>
       </div>
