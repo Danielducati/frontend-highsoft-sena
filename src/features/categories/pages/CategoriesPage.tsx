@@ -76,7 +76,7 @@ export function CategoriesPage({ userRole }: CategoriesModuleProps) {
   return (
     <div
       className="min-h-screen p-8"
-      style={{ backgroundColor: "#f5f0e8", fontFamily: "var(--font-body)" }}
+      style={{ backgroundColor: "var(--bg-app)", fontFamily: "var(--font-body)" }}
     >
       {/* ── Header ── */}
       <div className="flex justify-between items-start mb-8">

@@ -40,7 +40,7 @@ const errorStyle: React.CSSProperties = {
 };
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const PHONE_RE = /^[+\d\s\-()\\.]{7,20}$/;
+const PHONE_RE = /^\d{10}$/;
 const DOC_RE   = /^\d{5,15}$/;
 
 type Errors = Partial<Record<keyof EmployeeFormData, string>>;
@@ -53,7 +53,7 @@ function validate(data: EmployeeFormData, isNew: boolean): Errors {
   else if (data.lastName.trim().length < 2) e.lastName = "Debe tener al menos 2 caracteres.";
   if (!data.email.trim()) e.email = "El correo es obligatorio.";
   else if (!EMAIL_RE.test(data.email.trim())) e.email = "Correo inválido. Ej: nombre@dominio.com";
-  if (data.phone && !PHONE_RE.test(data.phone.trim())) e.phone = "Teléfono inválido.";
+  if (data.phone && !PHONE_RE.test(data.phone.trim())) e.phone = "El teléfono debe tener exactamente 10 dígitos.";
   if (!data.city?.trim()) e.city = "La ciudad es obligatoria.";
   if (!data.specialty) e.specialty = "Selecciona una especialidad.";
 
@@ -251,7 +251,7 @@ export function EmployeeFormDialog({
             </Field>
             <Field label="Teléfono" field="phone" error={liveErrors.phone}>
               <input style={s("phone")} value={formData.phone} placeholder="+57 310 123 4567"
-                onChange={e => update("phone", e.target.value)}
+                onChange={e => update("phone", e.target.value.replace(/\D/g, "").slice(0, 10))}
                 onBlur={() => touch("phone")} />
             </Field>
           </div>

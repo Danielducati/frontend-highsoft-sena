@@ -11,7 +11,7 @@ export function SpaPage({ title, subtitle, action, icon, children }: SpaPageProp
   return (
     <div
       className="min-h-screen -m-8 p-8"
-      style={{ backgroundColor: "#f5f0e8", fontFamily: "var(--font-body)" }}
+      style={{ backgroundColor: "var(--bg-app)", fontFamily: "var(--font-body)" }}
     >
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
         <div>
