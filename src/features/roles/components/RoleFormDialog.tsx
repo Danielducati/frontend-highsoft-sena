@@ -4,6 +4,7 @@ import { Button } from "../../../shared/ui/button";
 import { Input } from "../../../shared/ui/input";
 import { Label } from "../../../shared/ui/label";
 import { Textarea } from "../../../shared/ui/textarea";
+import { Lock } from "lucide-react";
 import { Permission } from "../types";
 import { parseName } from "../constants";
 
@@ -22,8 +23,40 @@ export function RoleFormDialog({
   formData, setFormData, groupedPermissions,
 }: Props) {
 
-  const handleToggle = (id: string) => {
+  // Devuelve el permiso "ver" de una categoría si existe
+  const getViewPermission = (permissions: Permission[]) =>
+    permissions.find(p => p.nombre.split(".")[1] === "ver");
+
+  // ¿Está habilitado el permiso "ver" de su categoría?
+  const isViewEnabled = (permission: Permission, permissions: Permission[]) => {
+    const action = permission.nombre.split(".")[1];
+    if (action === "ver") return true; // "ver" siempre habilitado
+    const viewPerm = getViewPermission(permissions);
+    if (!viewPerm) return true; // si no hay "ver" en la categoría, no restringir
+    return formData.permisosIds.includes(Number(viewPerm.id));
+  };
+
+  const handleToggle = (id: string, permissions: Permission[]) => {
     const numId = Number(id);
+    const permission = permissions.find(p => Number(p.id) === numId);
+    if (!permission) return;
+
+    const action = permission.nombre.split(".")[1];
+    const viewPerm = getViewPermission(permissions);
+
+    // Si intenta activar un permiso que no es "ver" y "ver" no está activo → ignorar
+    if (action !== "ver" && viewPerm && !formData.permisosIds.includes(Number(viewPerm.id))) return;
+
+    // Si está desactivando "ver", también desactiva todos los demás de la categoría
+    if (action === "ver" && formData.permisosIds.includes(numId)) {
+      const categoryIds = permissions.map(p => Number(p.id));
+      setFormData((prev: any) => ({
+        ...prev,
+        permisosIds: prev.permisosIds.filter((id: number) => !categoryIds.includes(id)),
+      }));
+      return;
+    }
+
     setFormData((prev: any) => ({
       ...prev,
       permisosIds: prev.permisosIds.includes(numId)
@@ -33,14 +66,22 @@ export function RoleFormDialog({
   };
 
   const handleToggleAll = (permissions: Permission[]) => {
-    const ids     = permissions.map(p => Number(p.id));
-    const allOn   = ids.every(id => formData.permisosIds.includes(id));
-    setFormData((prev: any) => ({
-      ...prev,
-      permisosIds: allOn
-        ? prev.permisosIds.filter((id: number) => !ids.includes(id))
-        : [...new Set([...prev.permisosIds, ...ids])],
-    }));
+    const ids   = permissions.map(p => Number(p.id));
+    const allOn = ids.every(id => formData.permisosIds.includes(id));
+
+    if (allOn) {
+      // Desactivar todos (incluyendo "ver")
+      setFormData((prev: any) => ({
+        ...prev,
+        permisosIds: prev.permisosIds.filter((id: number) => !ids.includes(id)),
+      }));
+    } else {
+      // Activar todos — solo si "ver" existe en la categoría (se activa junto con los demás)
+      setFormData((prev: any) => ({
+        ...prev,
+        permisosIds: [...new Set([...prev.permisosIds, ...ids])],
+      }));
+    }
   };
 
   const categoryActive = (permissions: Permission[]) =>
@@ -95,8 +136,15 @@ export function RoleFormDialog({
               </span>
             </div>
 
-            <div className="space-y-3">
-              {Object.entries(groupedPermissions).map(([category, permissions]) => (
+            {Object.keys(groupedPermissions).length === 0 ? (
+              <div className="flex flex-col items-center py-8 rounded-xl border border-dashed border-gray-200 bg-gray-50">
+                <Lock className="w-8 h-8 mb-2 text-gray-300" />
+                <p className="text-sm text-gray-500">Cargando permisos...</p>
+                <p className="text-xs text-gray-400 mt-1">Si esto persiste, recarga la página</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {Object.entries(groupedPermissions).map(([category, permissions]) => (
                 <div key={category} className="border border-gray-200 rounded-xl overflow-hidden">
 
                   {/* Cabecera de categoría con toggle general */}
@@ -124,7 +172,7 @@ export function RoleFormDialog({
 
                     {/* Toggle general de categoría */}
                     <div className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors
-                      ${categoryActive(permissions) ? "bg-purple-500" : "bg-gray-300"}`}>
+                      ${categoryActive(permissions) ? "bg-purple-500" : "bg-gray-400"}`}>
                       <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow transition-transform
                         ${categoryActive(permissions) ? "translate-x-4" : "translate-x-1"}`}
                       />
@@ -134,22 +182,33 @@ export function RoleFormDialog({
                   {/* Permisos individuales */}
                   <div className="divide-y divide-gray-50">
                     {permissions.map((permission) => {
-                      const isOn = formData.permisosIds.includes(Number(permission.id));
+                      const isOn      = formData.permisosIds.includes(Number(permission.id));
+                      const enabled   = isViewEnabled(permission, permissions);
+                      const action    = permission.nombre.split(".")[1];
                       return (
                         <div
                           key={permission.id}
-                          onClick={() => handleToggle(permission.id)}
-                          className="flex items-center justify-between px-4 py-2.5 cursor-pointer hover:bg-gray-50 transition-colors"
+                          onClick={() => enabled && handleToggle(permission.id, permissions)}
+                          className="flex items-center justify-between px-4 py-2.5 transition-colors"
+                          style={{ cursor: enabled ? "pointer" : "not-allowed", opacity: enabled ? 1 : 0.4 }}
+                          onMouseEnter={e => { if (enabled) e.currentTarget.style.backgroundColor = "#f9fafb"; }}
+                          onMouseLeave={e => { e.currentTarget.style.backgroundColor = "transparent"; }}
+                          title={!enabled ? `Activa el permiso "Ver" primero` : undefined}
                         >
-                          <span className={`text-sm ${isOn ? "text-gray-900" : "text-gray-500"}`}>
-                            {parseName(permission.nombre)}
-                          </span>
+                          <div className="flex items-center gap-2">
+                            <span className={`text-sm ${isOn ? "text-gray-900" : "text-gray-500"}`}>
+                              {parseName(permission.nombre)}
+                            </span>
+                            {action !== "ver" && !enabled && (
+                              <span className="text-xs text-amber-500">requiere Ver</span>
+                            )}
+                          </div>
 
                           {/* Toggle individual */}
                           <div className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors
-                            ${isOn ? "bg-purple-500" : "bg-gray-200"}`}>
+                            ${isOn && enabled ? "bg-purple-500" : enabled ? "bg-gray-400" : "bg-gray-300"}`}>
                             <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow transition-transform
-                              ${isOn ? "translate-x-4" : "translate-x-1"}`}
+                              ${isOn && enabled ? "translate-x-4" : "translate-x-1"}`}
                             />
                           </div>
                         </div>
@@ -159,6 +218,7 @@ export function RoleFormDialog({
                 </div>
               ))}
             </div>
+            )}
           </div>
 
           {/* Botones */}

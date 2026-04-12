@@ -169,7 +169,7 @@ export async function registerRequest(payload: {
 export type UserRole = "admin" | "employee" | "client";
 
 export interface LoginPageProps {
-  onLogin: (role: UserRole) => void;
+  onLogin: (role: UserRole, firstPage?: string) => void;
   onBack: () => void;
 }
 

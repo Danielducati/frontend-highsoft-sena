@@ -66,8 +66,10 @@ export function QuotationsPage({ userRole }: QuotationsModuleProps) {
           editingQuotation={editingQuotation}
           formData={formData} setFormData={setFormData}
           clients={clients} availableServices={availableServices}
+          employees={employees}
           calculateSubtotal={calculateSubtotal} calculateTotal={calculateTotal}
-          addService={addService} removeService={removeService} updateQuantity={updateQuantity}
+          addService={addService} removeService={removeService}
+          updateQuantity={updateQuantity} updateServiceEmployee={updateServiceEmployee}
           onSubmit={handleCreate} onCancel={resetForm} onNewClick={resetForm}
           userRole={userRole}
           myClientData={myClientData}
@@ -246,7 +248,10 @@ export function QuotationsPage({ userRole }: QuotationsModuleProps) {
                   <td className="px-6 py-4">
                     <p className="text-sm" style={{ color: "#1a3a2a" }}>
                       {q.date
-                        ? new Date(q.date).toLocaleDateString("es-ES", { day: "2-digit", month: "2-digit", year: "numeric" })
+                        ? (() => {
+                            const [y, m, d] = q.date.split("T")[0].split("-");
+                            return `${d}/${m}/${y}`;
+                          })()
                         : "—"}
                     </p>
                   </td>

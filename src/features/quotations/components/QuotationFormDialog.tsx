@@ -19,11 +19,13 @@ interface QuotationFormDialogProps {
   setFormData: (d: QuotationFormData) => void;
   clients: any[];
   availableServices: any[];
+  employees: any[];
   calculateSubtotal: () => number;
   calculateTotal: () => number;
   addService: (id: number) => void;
   removeService: (id: number) => void;
   updateQuantity: (id: number, qty: number) => void;
+  updateServiceEmployee: (serviceId: number, empleadoId: number, empleadoName: string) => void;
   onSubmit: () => void;
   onCancel: () => void;
   onNewClick: () => void;
@@ -60,8 +62,8 @@ function validate(data: QuotationFormData): Errors {
 
 export function QuotationFormDialog({
   isOpen, onOpenChange, editingQuotation, formData, setFormData,
-  clients, availableServices, calculateSubtotal, calculateTotal,
-  addService, removeService, updateQuantity,
+  clients, availableServices, employees, calculateSubtotal, calculateTotal,
+  addService, removeService, updateQuantity, updateServiceEmployee,
   onSubmit, onCancel, onNewClick, userRole, myClientData,
 }: QuotationFormDialogProps) {
   const [touched, setTouched] = useState<Partial<Record<keyof Errors, boolean>>>({});
@@ -184,29 +186,53 @@ export function QuotationFormDialog({
                 {formData.selectedServices.map(item => (
                   <div key={item.serviceId} style={{
                     padding: "12px 16px", borderRadius: 10, backgroundColor: "#ffffff",
-                    border: "1px solid #ede8e0", display: "flex", alignItems: "center", justifyContent: "space-between",
+                    border: "1px solid #ede8e0",
                   }}>
-                    <div>
-                      <p style={{ fontSize: 14, color: "#1a3a2a", fontWeight: 500 }}>{item.serviceName}</p>
-                      <p style={{ fontSize: 12, color: "#6b7c6b" }}>${item.price?.toLocaleString("es-CO")} c/u</p>
-                    </div>
-                    <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                        <label style={{ ...labelStyle, marginBottom: 0, fontSize: 10 }}>Cant:</label>
-                        <input type="number" min="1" value={item.quantity}
-                          onChange={e => updateQuantity(item.serviceId, parseInt(e.target.value))}
-                          style={{ ...inputOk, width: 60, padding: "4px 8px", textAlign: "center" }} />
+                    {/* Fila superior: nombre + cantidad + precio + eliminar */}
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <p style={{ fontSize: 14, color: "#1a3a2a", fontWeight: 500 }}>{item.serviceName}</p>
+                        <p style={{ fontSize: 12, color: "#6b7c6b" }}>${item.price?.toLocaleString("es-CO")} c/u</p>
                       </div>
-                      <span style={{ fontSize: 14, color: "#1a3a2a", fontWeight: 600, minWidth: 80, textAlign: "right" }}>
-                        ${(item.price * item.quantity).toLocaleString("es-CO")}
-                      </span>
-                      <button onClick={() => removeService(item.serviceId)} style={{
-                        width: 28, height: 28, borderRadius: 6, border: "none",
-                        backgroundColor: "#fdf0ee", color: "#c0392b", cursor: "pointer",
-                        display: "flex", alignItems: "center", justifyContent: "center",
-                      }}>
-                        <X style={{ width: 14, height: 14 }} />
-                      </button>
+                      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                          <label style={{ ...labelStyle, marginBottom: 0, fontSize: 10 }}>Cant:</label>
+                          <input type="number" min="1" value={item.quantity}
+                            onChange={e => updateQuantity(item.serviceId, parseInt(e.target.value))}
+                            style={{ ...inputOk, width: 60, padding: "4px 8px", textAlign: "center" }} />
+                        </div>
+                        <span style={{ fontSize: 14, color: "#1a3a2a", fontWeight: 600, minWidth: 80, textAlign: "right" }}>
+                          ${(item.price * item.quantity).toLocaleString("es-CO")}
+                        </span>
+                        <button onClick={() => removeService(item.serviceId)} style={{
+                          width: 28, height: 28, borderRadius: 6, border: "none",
+                          backgroundColor: "#fdf0ee", color: "#c0392b", cursor: "pointer",
+                          display: "flex", alignItems: "center", justifyContent: "center",
+                        }}>
+                          <X style={{ width: 14, height: 14 }} />
+                        </button>
+                      </div>
+                    </div>
+                    {/* Fila inferior: selector de empleado */}
+                    <div style={{ marginTop: 8 }}>
+                      <label style={{ ...labelStyle, fontSize: 10, marginBottom: 4 }}>Empleado asignado</label>
+                      <select
+                        style={{ ...inputOk, fontSize: 13, padding: "6px 10px" }}
+                        value={item.empleadoId?.toString() ?? ""}
+                        onChange={e => {
+                          const emp = employees.find(em => em.id.toString() === e.target.value);
+                          if (emp) updateServiceEmployee(item.serviceId, Number(emp.id), emp.name ?? `${emp.nombre} ${emp.apellido}`);
+                          else updateServiceEmployee(item.serviceId, 0, "");
+                        }}
+                      >
+                        <option value="">Sin asignar</option>
+                        {employees.filter(em => em.isActive !== false && em.estado !== "Inactivo").map(em => (
+                          <option key={em.id} value={em.id.toString()}>
+                            {em.name ?? `${em.nombre ?? ""} ${em.apellido ?? ""}`.trim()}
+                            {em.specialty || em.especialidad ? ` — ${em.specialty ?? em.especialidad}` : ""}
+                          </option>
+                        ))}
+                      </select>
                     </div>
                   </div>
                 ))}

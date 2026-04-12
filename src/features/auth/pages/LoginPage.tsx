@@ -29,9 +29,13 @@ export function LoginPage({ onLogin, onBack }: LoginPageProps) {
     >
       {/* Imagen de fondo */}
       <div
-        className="absolute inset-0 bg-cover bg-center"
+        className="absolute inset-0"
         style={{
           backgroundImage: `url('https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=1600&q=80')`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+          backgroundAttachment: "fixed",
         }}
       />
       {/* Overlay */}

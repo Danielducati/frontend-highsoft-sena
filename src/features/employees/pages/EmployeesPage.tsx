@@ -13,7 +13,7 @@ import { ImageWithFallback } from "../../guidelines/figma/ImageWithFallback";
 
 export function EmployeesPage({ userRole }: EmployeesModuleProps) {
   const {
-    employees, loading, saving,
+    employees, categories, loading, saving,
     searchTerm, setSearchTerm,
     filterSpecialty, setFilterSpecialty,
     filterStatus, setFilterStatus,
@@ -28,7 +28,7 @@ export function EmployeesPage({ userRole }: EmployeesModuleProps) {
     specialties, activeEmployees,
     handleCreateOrUpdate, handleToggleStatus,
     handleDelete, handleEdit,
-    confirmDelete, resetForm,
+    confirmDelete, resetForm, handleResetPassword,
   } = useEmployees();
 
 
@@ -394,6 +394,8 @@ export function EmployeesPage({ userRole }: EmployeesModuleProps) {
         saving={saving}
         onSubmit={() => handleCreateOrUpdate(formData)}
         onCancel={resetForm}
+        categories={categories}
+        onResetPassword={handleResetPassword}
       />
       <EmployeeViewDialog employee={viewingEmployee} onClose={() => setViewingEmployee(null)} />
       <EmployeeDeleteDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen} onConfirm={handleDelete} />

@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { Upload, Image as ImageIcon, X } from "lucide-react";
 import { ImageWithFallback } from "../../guidelines/figma/ImageWithFallback";
 import { User, Role, UserFormData } from "../types";
-import { DOCUMENT_TYPES, DEFAULT_PASSWORD } from "../constants";
+import { DOCUMENT_TYPES } from "../constants";
 
 // ── Helpers de validación ─────────────────────────────────────
 const onlyLetters = (v: string) => v.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]/g, "");
@@ -70,29 +70,7 @@ export function UserFormDialog({
             </div>
           </div>
 
-          {/* Nombre / Apellido — solo letras */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>Nombre *</Label>
-              <Input
-                value={formData.firstName}
-                onChange={(e) => setFormData({ ...formData, firstName: onlyLetters(e.target.value) })}
-                placeholder="Juan"
-                className="rounded-lg border-gray-200"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Apellido *</Label>
-              <Input
-                value={formData.lastName}
-                onChange={(e) => setFormData({ ...formData, lastName: onlyLetters(e.target.value) })}
-                placeholder="Pérez"
-                className="rounded-lg border-gray-200"
-              />
-            </div>
-          </div>
-
-          {/* Documento — solo números */}
+          {/* Documento */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Tipo de Documento *</Label>
@@ -111,6 +89,28 @@ export function UserFormDialog({
                 placeholder="1234567890"
                 className="rounded-lg border-gray-200"
                 maxLength={20}
+              />
+            </div>
+          </div>
+
+          {/* Nombre / Apellido */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>Nombre *</Label>
+              <Input
+                value={formData.firstName}
+                onChange={(e) => setFormData({ ...formData, firstName: onlyLetters(e.target.value) })}
+                placeholder="Juan"
+                className="rounded-lg border-gray-200"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Apellido *</Label>
+              <Input
+                value={formData.lastName}
+                onChange={(e) => setFormData({ ...formData, lastName: onlyLetters(e.target.value) })}
+                placeholder="Pérez"
+                className="rounded-lg border-gray-200"
               />
             </div>
           </div>
@@ -156,9 +156,19 @@ export function UserFormDialog({
           </div>
 
           {!editingUser && (
-            <p className="text-xs text-gray-500 bg-gray-50 p-3 rounded-lg">
-              La contraseña inicial será <strong>{DEFAULT_PASSWORD}</strong>. El usuario podrá cambiarla después.
-            </p>
+            <div className="space-y-2">
+              <Label>Contraseña</Label>
+              <Input
+                type="password"
+                value={formData.contrasena ?? ""}
+                onChange={e => setFormData({ ...formData, contrasena: e.target.value })}
+                placeholder="Por defecto: número de documento"
+                className="rounded-lg border-gray-200"
+              />
+              <p className="text-xs text-gray-400">
+                Si no ingresas una, se usará el número de documento como contraseña.
+              </p>
+            </div>
           )}
 
           <div className="flex justify-end gap-3 pt-4 border-t">

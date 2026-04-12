@@ -10,6 +10,7 @@ export function usePermissions() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterModule, setFilterModule] = useState("all");
   const [filterAction, setFilterAction] = useState("all");
+  const [filterStatus, setFilterStatus] = useState("all");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [editingPermission, setEditingPermission] = useState<AccessPermission | null>(null);
@@ -27,7 +28,11 @@ export function usePermissions() {
       permission.description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesModule = filterModule === "all" || permission.module === filterModule;
     const matchesAction = filterAction === "all" || permission.action === filterAction;
-    return matchesSearch && matchesModule && matchesAction;
+    const matchesStatus =
+      filterStatus === "all" ||
+      (filterStatus === "active"   &&  permission.isActive) ||
+      (filterStatus === "inactive" && !permission.isActive);
+    return matchesSearch && matchesModule && matchesAction && matchesStatus;
   });
 
   const handleCreateOrUpdate = () => {
@@ -138,6 +143,8 @@ export function usePermissions() {
     setFilterModule,
     filterAction,
     setFilterAction,
+    filterStatus,
+    setFilterStatus,
     isDialogOpen,
     setIsDialogOpen,
     isViewDialogOpen,

@@ -101,9 +101,11 @@ export function useQuotations(userRole?: string) {
       notas:       formData.notes,
       descuento:   parseFloat(formData.discount) || 0,
       servicios:   formData.selectedServices.map(s => ({
-        id_servicio: s.serviceId,
-        precio:      s.price,
-        cantidad:    s.quantity,
+        id_servicio:  s.serviceId,
+        precio:       s.price,
+        cantidad:     s.quantity,
+        empleado_id:  s.empleadoId   ?? null,
+        empleado_name: s.empleadoName ?? null,
       })),
     };
     try {

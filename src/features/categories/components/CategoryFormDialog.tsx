@@ -11,12 +11,14 @@ interface CategoryFormDialogProps {
   onSubmit: () => void;
   onNewClick: () => void;
   userRole: string;
+  canCreate?: boolean;
 }
 
 export function CategoryFormDialog({
-  isOpen, onOpenChange, editingCategory, formData, setFormData, onSubmit, onNewClick, userRole,
+  isOpen, onOpenChange, editingCategory, formData, setFormData, onSubmit, onNewClick, userRole, canCreate,
 }: CategoryFormDialogProps) {
-  if (userRole !== "admin") return null;
+  const hasAccess = userRole === "admin" || canCreate;
+  if (!hasAccess) return null;
 
   const inputStyle: React.CSSProperties = {
     width: "100%",
