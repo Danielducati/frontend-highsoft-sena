@@ -174,7 +174,7 @@ export default function App() {
   );
 
   if (currentPage === "login") return (
-    <><LoginPage onLogin={handleLogin} onBack={() => setCurrentPage("landing")} /><Toaster /></>
+    <><LoginPage onLogin={handleLogin} onBack={() => setCurrentPage("landing")} onRegister={() => setCurrentPage("register")} /><Toaster /></>
   );
 
   if (currentPage === "register") return (

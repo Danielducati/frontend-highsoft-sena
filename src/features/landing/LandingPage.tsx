@@ -217,7 +217,7 @@ export function LandingPage({ onNavigate }: LandingPageProps) {
           <div className="hl-contact-card">
             <div className="hl-contact-card__icon"><Phone size={20} /></div>
             <h3>Teléfono</h3>
-            <p>+57 (604) 123-4567</p>
+            <p>+57 323 2875383</p>
           </div>
           <div className="hl-contact-card">
             <div className="hl-contact-card__icon"><Mail size={20} /></div>
@@ -237,7 +237,7 @@ export function LandingPage({ onNavigate }: LandingPageProps) {
         <div className="hl-footer__brand">
           <div className="hl-footer__logo">High Life Spa</div>
           <p>Tu destino de bienestar y lujo en Medellín.</p>
-          <p className="hl-footer__copy">© 2025 HIGHLIFE SPA &amp; BAR. Todos los derechos reservados.</p>
+          <p className="hl-footer__copy">© 2026 HIGHLIFE SPA &amp; BAR. Todos los derechos reservados.</p>
         </div>
 
         <div className="hl-footer__col">
@@ -250,15 +250,15 @@ export function LandingPage({ onNavigate }: LandingPageProps) {
 
         <div className="hl-footer__col">
           <p className="hl-footer__label">HORARIOS</p>
-          <span>Lunes - Viernes: 9AM - 9PM</span>
-          <span>Sábado: 10AM - 8PM</span>
-          <span>Domingo: 10AM - 6PM</span>
+          <span>Lunes - Viernes: 8:30AM - 5:30PM</span>
+          <span>Sábado: 8:30AM - 5:30PM</span>
+          <span>Domingo: 8:30AM - 5:30PM</span>
         </div>
 
         <div className="hl-footer__col">
           <p className="hl-footer__label">SÍGUENOS</p>
           <div className="hl-footer__social">
-            <button className="hl-footer__social-btn"><Facebook size={16} /></button>
+            <button className="hl-footer__social-btn" ><Facebook size={16} /></button>
             <button className="hl-footer__social-btn"><Instagram size={16} /></button>
             <button className="hl-footer__social-btn"><Twitter size={16} /></button>
           </div>

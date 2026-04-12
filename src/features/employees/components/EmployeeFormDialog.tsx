@@ -1,6 +1,11 @@
 import { useRef, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "../../../shared/ui/dialog";
-import { Upload, ImageIcon, X, Loader2 } from "lucide-react";
+import { Button } from "../../../shared/ui/button";
+import { Input } from "../../../shared/ui/input";
+import { Label } from "../../../shared/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../shared/ui/select";
+import { Avatar, AvatarFallback } from "../../../shared/ui/avatar";
+import { Upload, Image as ImageIcon, X, Loader2 } from "lucide-react";
 import { Employee, EmployeeFormData } from "../types";
 import { DOCUMENT_TYPES } from "../constants";
 import { ImageWithFallback } from "../../guidelines/figma/ImageWithFallback";
@@ -22,23 +27,6 @@ interface EmployeeFormDialogProps {
   onResetPassword?: (id: number, password: string) => Promise<void>;
 }
 
-const inputBase: React.CSSProperties = {
-  width: "100%", padding: "9px 14px", borderRadius: 10,
-  backgroundColor: "#faf7f2", color: "#1a3a2a", fontSize: 14,
-  fontFamily: "var(--font-body)", outline: "none", boxSizing: "border-box",
-  transition: "border-color 0.15s",
-};
-const inputOk:  React.CSSProperties = { ...inputBase, border: "1px solid #d6cfc4" };
-const inputErr: React.CSSProperties = { ...inputBase, border: "1px solid #c0392b", backgroundColor: "#fdf8f7" };
-const labelStyle: React.CSSProperties = {
-  display: "block", fontSize: 11, fontWeight: 600,
-  letterSpacing: "0.08em", textTransform: "uppercase",
-  color: "#6b7c6b", marginBottom: 5, fontFamily: "var(--font-body)",
-};
-const errorStyle: React.CSSProperties = {
-  fontSize: 11, color: "#c0392b", marginTop: 3, fontFamily: "var(--font-body)",
-};
-
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PHONE_RE = /^\d{10}$/;
 const DOC_RE   = /^\d{5,15}$/;
@@ -56,35 +44,11 @@ function validate(data: EmployeeFormData, isNew: boolean): Errors {
   if (data.phone && !PHONE_RE.test(data.phone.trim())) e.phone = "El teléfono debe tener exactamente 10 dígitos.";
   if (!data.city?.trim()) e.city = "La ciudad es obligatoria.";
   if (!data.specialty) e.specialty = "Selecciona una especialidad.";
-
-  // ✅ Ahora son obligatorios
   if (!data.documentType) e.documentType = "Selecciona el tipo de documento.";
   if (!data.document.trim()) e.document = "El número de documento es obligatorio.";
   else if (!DOC_RE.test(data.document.trim())) e.document = "Solo números, entre 5 y 15 dígitos.";
-
   if (isNew && data.contrasena && data.contrasena.length < 6) e.contrasena = "Mínimo 6 caracteres.";
   return e;
-}
-
-// ── Field FUERA del componente para evitar re-renders ─────────────────────
-interface FieldProps {
-  label: string;
-  field: keyof EmployeeFormData;
-  required?: boolean;
-  children: React.ReactNode;
-  error?: string;
-}
-
-function Field({ label, field, required, children, error }: FieldProps) {
-  return (
-    <div>
-      <label style={labelStyle}>
-        {label}{required && <span style={{ color: "#c0392b", marginLeft: 2 }}>*</span>}
-      </label>
-      {children}
-      {error && <p style={errorStyle}>⚠ {error}</p>}
-    </div>
-  );
 }
 
 export function EmployeeFormDialog({
@@ -92,10 +56,10 @@ export function EmployeeFormDialog({
   imagePreview, setImagePreview, saving, onSubmit, onCancel, categories, onResetPassword,
 }: EmployeeFormDialogProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [touched,        setTouched]        = useState<Partial<Record<keyof EmployeeFormData, boolean>>>({});
-  const [uploadingImg,   setUploadingImg]   = useState(false);
-  const [newPassword,    setNewPassword]    = useState("");
-  const [resettingPass,  setResettingPass]  = useState(false);
+  const [touched,       setTouched]       = useState<Partial<Record<keyof EmployeeFormData, boolean>>>({});
+  const [uploadingImg,  setUploadingImg]  = useState(false);
+  const [newPassword,   setNewPassword]   = useState("");
+  const [resettingPass, setResettingPass] = useState(false);
 
   const touch = (field: keyof EmployeeFormData) =>
     setTouched(t => ({ ...t, [field]: true }));
@@ -105,9 +69,6 @@ export function EmployeeFormDialog({
   (Object.keys(touched) as Array<keyof EmployeeFormData>).forEach(k => {
     if (touched[k] && allErrs[k]) liveErrors[k] = allErrs[k];
   });
-
-  const s = (field: keyof EmployeeFormData) =>
-    liveErrors[field] ? inputErr : inputOk;
 
   const update = (field: keyof EmployeeFormData, value: string) =>
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -150,164 +111,252 @@ export function EmployeeFormDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent style={{
-        backgroundColor: "#faf7f2", borderRadius: 16, border: "1px solid #ede8e0",
-        padding: 32, maxWidth: 600, maxHeight: "90vh", overflowY: "auto", fontFamily: "var(--font-body)",
-      }}>
+      <DialogContent className="hl-form-dialog rounded-xl max-w-2xl max-h-[90vh] overflow-y-auto border-gray-200 shadow-lg">
         <DialogHeader>
-          <DialogTitle style={{ fontFamily: "var(--font-body)", fontSize: 22, color: "#1a3a2a", fontWeight: 700 }}>
+          <DialogTitle className="text-gray-900">
             {editingEmployee ? "Editar Empleado" : "Nuevo Empleado"}
           </DialogTitle>
-          <DialogDescription style={{ color: "#6b7c6b", fontSize: 13 }}>
-            {editingEmployee ? "Actualiza la información del empleado" : "Ingresa los datos del nuevo empleado. Los campos con * son obligatorios."}
+          <DialogDescription className="text-gray-600">
+            {editingEmployee
+              ? "Actualiza la información del empleado"
+              : "Ingresa los datos del nuevo empleado. Los campos con * son obligatorios."}
           </DialogDescription>
         </DialogHeader>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: 16, marginTop: 12 }}>
+        <div className="space-y-5 mt-4">
 
-          {/* ── Foto ── */}
-          <div>
-            <label style={labelStyle}>Foto de Perfil</label>
-            <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-              <div style={{ position: "relative" }}>
-                <div style={{
-                  width: 72, height: 72, borderRadius: "50%", overflow: "hidden",
-                  border: "2px solid #d6cfc4", backgroundColor: "#edf7f4",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                }}>
-                  {uploadingImg
-                    ? <Loader2 style={{ width: 24, height: 24, color: "#9ca3af" }} />
-                    : imagePreview
-                      ? <ImageWithFallback src={imagePreview} alt="Preview" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                      : <ImageIcon style={{ width: 28, height: 28, color: "#9ca3af" }} />
-                  }
-                </div>
+          {/* Foto */}
+          <div className="space-y-2">
+            <Label className="text-gray-900">Foto de Perfil</Label>
+            <div className="flex items-center gap-4">
+              <div className="relative">
+                <Avatar className="w-20 h-20 ring-2 ring-gray-200">
+                  {uploadingImg ? (
+                    <AvatarFallback className="bg-gray-100">
+                      <Loader2 className="w-6 h-6 text-gray-400 animate-spin" />
+                    </AvatarFallback>
+                  ) : imagePreview ? (
+                    <ImageWithFallback src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
+                  ) : (
+                    <AvatarFallback className="bg-gradient-to-br from-[#60A5FA] to-[#3B82F6] text-white text-xl">
+                      <ImageIcon className="w-8 h-8" />
+                    </AvatarFallback>
+                  )}
+                </Avatar>
                 {imagePreview && !uploadingImg && (
-                  <button onClick={() => { setImagePreview(""); setFormData(p => ({ ...p, image: "" })); }} style={{
-                    position: "absolute", top: -4, right: -4, width: 20, height: 20,
-                    borderRadius: "50%", backgroundColor: "#c0392b", color: "#fff",
-                    border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
-                  }}>
-                    <X style={{ width: 12, height: 12 }} />
+                  <button
+                    onClick={() => { setImagePreview(""); setFormData(p => ({ ...p, image: "" })); }}
+                    className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-600 transition-colors"
+                  >
+                    <X className="w-4 h-4" />
                   </button>
                 )}
               </div>
-              <div style={{ flex: 1 }}>
-                <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} style={{ display: "none" }} />
-                <button type="button" onClick={() => fileInputRef.current?.click()} disabled={uploadingImg} style={{
-                  ...inputOk, display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-                  cursor: uploadingImg ? "not-allowed" : "pointer", opacity: uploadingImg ? 0.7 : 1,
-                }}>
+              <div className="flex-1">
+                <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={uploadingImg}
+                  onClick={() => fileInputRef.current?.click()}
+                  className="w-full rounded-lg border-gray-200"
+                >
                   {uploadingImg
-                    ? <><Loader2 style={{ width: 14, height: 14 }} /> Subiendo...</>
-                    : <><Upload style={{ width: 14, height: 14 }} /> Subir Imagen</>
+                    ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Subiendo...</>
+                    : <><Upload className="w-4 h-4 mr-2" />{imagePreview ? "Cambiar Imagen" : "Subir Imagen"}</>
                   }
-                </button>
-                <p style={{ fontSize: 11, color: "#9ca3af", marginTop: 4 }}>JPG, PNG o WEBP (máx. 5MB)</p>
+                </Button>
+                <p className="text-xs text-gray-500 mt-1">JPG, PNG o WEBP (máx. 5MB)</p>
               </div>
             </div>
           </div>
 
-          {/* ── Documento ── */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-            <Field label="Tipo de Documento" field="documentType" required error={liveErrors.documentType}>
-              <select style={s("documentType")} value={formData.documentType}
-                onChange={e => update("documentType", e.target.value)}
-                onBlur={() => touch("documentType")}>
-                <option value="">Selecciona tipo</option>
-                {DOCUMENT_TYPES.map(({ value, label }) => (
-                  <option key={value} value={value}>{label}</option>
-                ))}
-              </select>
-            </Field>
-            <Field label="Número de Documento" field="document" required error={liveErrors.document}>
-              <input style={s("document")} value={formData.document} placeholder="1234567890"
+          {/* Documento */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label className="text-gray-900">Tipo de Documento *</Label>
+              <Select
+                value={formData.documentType}
+                onValueChange={v => { update("documentType", v); touch("documentType"); }}
+              >
+                <SelectTrigger className={`rounded-lg ${liveErrors.documentType ? "border-red-500" : "border-gray-200"}`}>
+                  <SelectValue placeholder="Selecciona tipo" />
+                </SelectTrigger>
+                <SelectContent>
+                  {DOCUMENT_TYPES.map(({ value, label }) => (
+                    <SelectItem key={value} value={value}>{label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {liveErrors.documentType && (
+                <p className="text-xs text-red-500">⚠ {liveErrors.documentType}</p>
+              )}
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="document" className="text-gray-900">Número de Documento *</Label>
+              <Input
+                id="document"
+                value={formData.document}
                 onChange={e => update("document", e.target.value)}
-                onBlur={() => touch("document")} />
-            </Field>
+                onBlur={() => touch("document")}
+                placeholder="1234567890"
+                className={`rounded-lg ${liveErrors.document ? "border-red-500" : "border-gray-200"}`}
+                maxLength={15}
+              />
+              {liveErrors.document && (
+                <p className="text-xs text-red-500">⚠ {liveErrors.document}</p>
+              )}
+            </div>
           </div>
 
-          {/* ── Nombres / Apellidos ── */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-            <Field label="Nombres" field="firstName" required error={liveErrors.firstName}>
-              <input style={s("firstName")} value={formData.firstName} placeholder="Ana María"
+          {/* Nombres / Apellidos */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="firstName" className="text-gray-900">Nombres *</Label>
+              <Input
+                id="firstName"
+                value={formData.firstName}
                 onChange={e => update("firstName", e.target.value)}
-                onBlur={() => touch("firstName")} />
-            </Field>
-            <Field label="Apellidos" field="lastName" required error={liveErrors.lastName}>
-              <input style={s("lastName")} value={formData.lastName} placeholder="García Pérez"
+                onBlur={() => touch("firstName")}
+                placeholder="Ana María"
+                className={`rounded-lg ${liveErrors.firstName ? "border-red-500" : "border-gray-200"}`}
+              />
+              {liveErrors.firstName && (
+                <p className="text-xs text-red-500">⚠ {liveErrors.firstName}</p>
+              )}
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="lastName" className="text-gray-900">Apellidos *</Label>
+              <Input
+                id="lastName"
+                value={formData.lastName}
                 onChange={e => update("lastName", e.target.value)}
-                onBlur={() => touch("lastName")} />
-            </Field>
+                onBlur={() => touch("lastName")}
+                placeholder="García Pérez"
+                className={`rounded-lg ${liveErrors.lastName ? "border-red-500" : "border-gray-200"}`}
+              />
+              {liveErrors.lastName && (
+                <p className="text-xs text-red-500">⚠ {liveErrors.lastName}</p>
+              )}
+            </div>
           </div>
 
-          {/* ── Correo / Teléfono ── */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-            <Field label="Correo" field="email" required error={liveErrors.email}>
-              <input style={s("email")} type="email" value={formData.email}
-                placeholder="empleado@highlifespa.com"
+          {/* Correo / Teléfono */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="email" className="text-gray-900">Correo *</Label>
+              <Input
+                id="email"
+                type="email"
+                value={formData.email}
                 onChange={e => update("email", e.target.value)}
-                onBlur={() => touch("email")} />
-            </Field>
-            <Field label="Teléfono" field="phone" error={liveErrors.phone}>
-              <input style={s("phone")} value={formData.phone} placeholder="+57 310 123 4567"
+                onBlur={() => touch("email")}
+                placeholder="empleado@highlifespa.com"
+                className={`rounded-lg ${liveErrors.email ? "border-red-500" : "border-gray-200"}`}
+              />
+              {liveErrors.email && (
+                <p className="text-xs text-red-500">⚠ {liveErrors.email}</p>
+              )}
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="phone" className="text-gray-900">Teléfono</Label>
+              <Input
+                id="phone"
+                value={formData.phone}
                 onChange={e => update("phone", e.target.value.replace(/\D/g, "").slice(0, 10))}
-                onBlur={() => touch("phone")} />
-            </Field>
+                onBlur={() => touch("phone")}
+                placeholder="+57 310 123 4567"
+                className={`rounded-lg ${liveErrors.phone ? "border-red-500" : "border-gray-200"}`}
+                maxLength={10}
+              />
+              {liveErrors.phone && (
+                <p className="text-xs text-red-500">⚠ {liveErrors.phone}</p>
+              )}
+            </div>
           </div>
 
-          {/* ── Ciudad / Especialidad ── */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-            <Field label="Ciudad" field="city" required error={liveErrors.city}>
-              <input style={s("city")} value={formData.city} placeholder="Medellín"
+          {/* Ciudad / Especialidad */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="city" className="text-gray-900">Ciudad *</Label>
+              <Input
+                id="city"
+                value={formData.city}
                 onChange={e => update("city", e.target.value)}
-                onBlur={() => touch("city")} />
-            </Field>
-            <Field label="Especialidad" field="specialty" required error={liveErrors.specialty}>
-              <select style={s("specialty")} value={formData.specialty}
-                onChange={e => update("specialty", e.target.value)}
-                onBlur={() => touch("specialty")}>
-                <option value="">Selecciona especialidad</option>
-                {categories.map(({ value, label }) => (
-                  <option key={value} value={value}>{label}</option>
-                ))}
-              </select>
-            </Field>
+                onBlur={() => touch("city")}
+                placeholder="Medellín"
+                className={`rounded-lg ${liveErrors.city ? "border-red-500" : "border-gray-200"}`}
+              />
+              {liveErrors.city && (
+                <p className="text-xs text-red-500">⚠ {liveErrors.city}</p>
+              )}
+            </div>
+            <div className="space-y-2">
+              <Label className="text-gray-900">Especialidad *</Label>
+              <Select
+                value={formData.specialty}
+                onValueChange={v => { update("specialty", v); touch("specialty"); }}
+              >
+                <SelectTrigger className={`rounded-lg ${liveErrors.specialty ? "border-red-500" : "border-gray-200"}`}>
+                  <SelectValue placeholder="Selecciona especialidad" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories.map(({ value, label }) => (
+                    <SelectItem key={value} value={value}>{label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {liveErrors.specialty && (
+                <p className="text-xs text-red-500">⚠ {liveErrors.specialty}</p>
+              )}
+            </div>
           </div>
 
-          {/* ── Dirección ── */}
-          <Field label="Dirección" field="address" error={liveErrors.address}>
-            <input style={s("address")} value={formData.address} placeholder="Calle 123 #45-67"
+          {/* Dirección */}
+          <div className="space-y-2">
+            <Label htmlFor="address" className="text-gray-900">Dirección</Label>
+            <Input
+              id="address"
+              value={formData.address}
               onChange={e => update("address", e.target.value)}
-              onBlur={() => touch("address")} />
-          </Field>
+              placeholder="Calle 123 #45-67"
+              className="rounded-lg border-gray-200"
+            />
+          </div>
 
-          {/* ── Contraseña (solo nuevo) ── */}
+          {/* Contraseña (solo nuevo) */}
           {!editingEmployee && (
-            <Field label="Contraseña inicial" field="contrasena" error={liveErrors.contrasena}>
-              <input style={s("contrasena")} type="password" value={formData.contrasena}
-                placeholder="Por defecto: número de documento"
+            <div className="space-y-2">
+              <Label htmlFor="contrasena" className="text-gray-900">Contraseña inicial</Label>
+              <Input
+                id="contrasena"
+                type="password"
+                value={formData.contrasena}
                 onChange={e => update("contrasena", e.target.value)}
-                onBlur={() => touch("contrasena")} />
-              <p style={{ fontSize: 11, color: "#9ca3af", marginTop: 4 }}>
-                Si no ingresas una, se usará el número de documento como contraseña.
-              </p>
-            </Field>
+                onBlur={() => touch("contrasena")}
+                placeholder="Por defecto: número de documento"
+                className={`rounded-lg ${liveErrors.contrasena ? "border-red-500" : "border-gray-200"}`}
+              />
+              {liveErrors.contrasena
+                ? <p className="text-xs text-red-500">⚠ {liveErrors.contrasena}</p>
+                : <p className="text-xs text-gray-400">Si no ingresas una, se usará el número de documento como contraseña.</p>
+              }
+            </div>
           )}
 
-          {/* ── Reset contraseña (solo edición) ── */}
+          {/* Reset contraseña (solo edición) */}
           {editingEmployee && onResetPassword && (
-            <div style={{ padding: "14px 16px", borderRadius: 10, border: "1px solid #ede8e0", backgroundColor: "#f5f0e8" }}>
-              <label style={{ ...labelStyle, marginBottom: 8 }}>Cambiar Contraseña</label>
-              <div style={{ display: "flex", gap: 8 }}>
-                <input
+            <div className="p-4 rounded-lg border border-gray-200 bg-gray-50 space-y-2">
+              <Label className="text-gray-900">Cambiar Contraseña</Label>
+              <div className="flex gap-2">
+                <Input
                   type="password"
                   placeholder="Nueva contraseña (mín. 6 caracteres)"
                   value={newPassword}
                   onChange={e => setNewPassword(e.target.value)}
-                  style={{ ...inputOk, flex: 1 }}
+                  className="rounded-lg border-gray-200 flex-1"
                 />
-                <button
+                <Button
                   type="button"
                   disabled={resettingPass || newPassword.trim().length < 6}
                   onClick={async () => {
@@ -316,40 +365,33 @@ export function EmployeeFormDialog({
                     setNewPassword("");
                     setResettingPass(false);
                   }}
-                  style={{
-                    padding: "9px 16px", borderRadius: 10, border: "none",
-                    backgroundColor: newPassword.trim().length >= 6 ? "#1a3a2a" : "#d1d5db",
-                    color: "#fff", fontSize: 13, fontWeight: 600,
-                    fontFamily: "var(--font-body)", cursor: newPassword.trim().length >= 6 ? "pointer" : "not-allowed",
-                    whiteSpace: "nowrap",
-                  }}
+                  style={{ backgroundColor: "#1a3a2a", color: "#ffffff" }}
+                  onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#2a5a40")}
+                  onMouseLeave={e => (e.currentTarget.style.backgroundColor = "#1a3a2a")}
+                  className="rounded-lg whitespace-nowrap"
                 >
                   {resettingPass ? "Guardando..." : "Actualizar"}
-                </button>
+                </Button>
               </div>
             </div>
           )}
 
-          {/* ── Botones ── */}
-          <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, paddingTop: 8 }}>
-            <button onClick={handleCancel} style={{
-              padding: "9px 18px", borderRadius: 10, border: "1px solid #d6cfc4",
-              backgroundColor: "transparent", color: "#1a3a2a", fontSize: 14,
-              fontFamily: "var(--font-body)", cursor: "pointer",
-            }}>Cancelar</button>
-            <button onClick={handleSubmit} disabled={saving || uploadingImg} style={{
-              padding: "9px 20px", borderRadius: 10, border: "none",
-              backgroundColor: (saving || uploadingImg) ? "#9ca3af" : "#1a3a2a",
-              color: "#ffffff", fontSize: 14, fontWeight: 600,
-              fontFamily: "var(--font-body)", cursor: (saving || uploadingImg) ? "not-allowed" : "pointer",
-              display: "flex", alignItems: "center", gap: 8,
-            }}
-              onMouseEnter={e => { if (!saving && !uploadingImg) e.currentTarget.style.backgroundColor = "#2a5a40"; }}
-              onMouseLeave={e => { if (!saving && !uploadingImg) e.currentTarget.style.backgroundColor = "#1a3a2a"; }}
+          {/* Botones */}
+          <div className="flex justify-end gap-3 pt-4 border-t">
+            <Button variant="outline" onClick={handleCancel} className="rounded-lg border-gray-300">
+              Cancelar
+            </Button>
+            <Button
+              onClick={handleSubmit}
+              disabled={saving || uploadingImg}
+              style={{ backgroundColor: "#1a3a2a", color: "#ffffff" }}
+              onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#2a5a40")}
+              onMouseLeave={e => (e.currentTarget.style.backgroundColor = "#1a3a2a")}
+              className="rounded-lg"
             >
-              {saving && <Loader2 style={{ width: 14, height: 14 }} />}
+              {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
               {saving ? "Guardando..." : `${editingEmployee ? "Actualizar" : "Crear"} Empleado`}
-            </button>
+            </Button>
           </div>
         </div>
       </DialogContent>

@@ -3,6 +3,7 @@ export type UserRole = "admin" | "employee" | "client";
 export interface LoginPageProps {
   onLogin: (role: UserRole, firstPage?: string) => void;
   onBack: () => void;
+  onRegister?: () => void;
 }
 
 export interface RegisterPageProps {
