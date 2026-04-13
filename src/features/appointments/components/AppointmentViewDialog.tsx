@@ -107,11 +107,13 @@ export function AppointmentViewDialog({
                   <Trash2 className="w-4 h-4 mr-2" />Eliminar
                 </Button>
               )}
-              <Button variant="outline"
-                onClick={() => { onEdit(apt); onClose(); }}
-                className="border-[#FBBF24] text-[#FBBF24] hover:bg-[#FBBF24]/10">
-                <Edit className="w-4 h-4 mr-2" />Editar
-              </Button>
+              {userRole !== "client" && (
+                <Button variant="outline"
+                  onClick={() => { onEdit(apt); onClose(); }}
+                  className="border-[#FBBF24] text-[#FBBF24] hover:bg-[#FBBF24]/10">
+                  <Edit className="w-4 h-4 mr-2" />Editar
+                </Button>
+              )}
               <Button
                 onClick={onClose}
                 style={{ backgroundColor: "#1a3a2a", color: "#ffffff" }}
