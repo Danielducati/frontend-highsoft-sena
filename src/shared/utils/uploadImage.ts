@@ -8,9 +8,14 @@ const getToken = () => localStorage.getItem("token") ?? "";
  * Devuelve la URL pública de la imagen.
  */
 export async function uploadImage(file: File): Promise<string> {
-if (file.size > 5_000_000) {
+  const ALLOWED_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp", "image/gif"];
+  if (!ALLOWED_TYPES.includes(file.type)) {
+    throw new Error("Solo se permiten imágenes (JPG, PNG, WEBP, GIF)");
+  }
+
+  if (file.size > 5_000_000) {
     throw new Error("La imagen no debe superar los 5MB");
-}
+  }
 
 const formData = new FormData();
 formData.append("image", file);

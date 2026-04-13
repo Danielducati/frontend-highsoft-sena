@@ -56,13 +56,13 @@ export function useAppointments(userRole?: string) {
                        fetchAppointments(),
         ]);
 
-        setServices(sData);
-        setEmployees(eData);
+        setServices(sData as Service[]);
+        setEmployees(eData as Employee[]);
         setAppointments(aData);
 
         if (isClient) {
           const myProfile = await fetchMyClientProfile();
-          setClients([myProfile]);
+          setClients([{ id: Number(myProfile.id) || 0, name: myProfile.name, phone: myProfile.phone }]);
           setFormData(prev => ({
             ...prev,
             clientId:    myProfile.id,
@@ -70,17 +70,15 @@ export function useAppointments(userRole?: string) {
             clientPhone: myProfile.phone,
           }));
         } else if (isEmployee) {
-          // Cargar todos los clientes para que el empleado pueda escoger
           const [cData, myProfile] = await Promise.all([
             fetchClients(),
             fetchMyEmployeeProfile(),
           ]);
-          setClients(cData);
-          // Guardar el perfil del empleado logueado para pre-asignarlo
+          setClients(cData as Client[]);
           setMyEmployeeProfile(myProfile);
         } else {
           const cData = await fetchClients();
-          setClients(cData);
+          setClients(cData as Client[]);
         }
       } catch (err) {
         const msg = err instanceof Error ? err.message : "Error al conectar con el servidor";
@@ -105,7 +103,7 @@ export function useAppointments(userRole?: string) {
       const myProfile = clients[0];
       setFormData(prev => ({
         ...prev,
-        clientId:    prev.clientId    || myProfile.id,
+        clientId:    prev.clientId    || String(myProfile.id),
         clientName:  prev.clientName  || myProfile.name,
         clientPhone: prev.clientPhone || myProfile.phone,
       }));
@@ -189,11 +187,24 @@ export function useAppointments(userRole?: string) {
     setSelectedServices(next);
   };
 
+  // Cuando cambia la hora de inicio, recalcular los startTime de todos los servicios
+  const handleStartTimeChange = (newTime: string) => {
+    setFormData(prev => ({ ...prev, startTime: newTime }));
+    if (selectedServices.length > 0) {
+      setSelectedServices(prev => prev.map((s, i, arr) => ({
+        ...s,
+        startTime: i === 0
+          ? newTime
+          : calculateEndTime(arr[i - 1].startTime, arr[i - 1].duration),
+      })));
+    }
+  };
+
   // ── CRUD ──
   const handleCreateOrUpdate = async () => {
     if (!formData.clientId || !formData.startTime || selectedServices.length === 0) {
       if (userRole === "client" && !formData.clientId) {
-        toast.error("Cargando tu perfil, intenta de nuevo en un momento"); return;
+        toast.error("Tu perfil aún está cargando, espera un momento e intenta de nuevo"); return;
       }
       toast.error("Selecciona un cliente, hora y al menos un servicio"); return;
     }
@@ -206,7 +217,8 @@ export function useAppointments(userRole?: string) {
     const payload = {
       cliente:   Number(formData.clientId),
       fecha:     formData.date.toISOString().split("T")[0],
-      hora:      formData.startTime,
+      // Usar la hora del primer servicio agregado, no la del selector (puede haber cambiado)
+      hora:      selectedServices.length > 0 ? selectedServices[0].startTime : formData.startTime,
       notas:     formData.notes || null,
       servicios: selectedServices.map(s => ({
         servicio:         Number(s.serviceId),
@@ -218,7 +230,7 @@ export function useAppointments(userRole?: string) {
 
     try {
       if (editingAppointment) {
-        await updateAppointment(editingAppointment.id, payload);
+        await updateAppointment(editingAppointment.id, payload, userRole === "client");
         toast.success("Cita actualizada");
       } else {
         await createAppointment(payload, userRole === "client", userRole === "employee");
@@ -248,7 +260,7 @@ export function useAppointments(userRole?: string) {
   const handleCancelAppointment = async () => {
     if (!appointmentToCancel) return;
     try {
-      await cancelAppointment(appointmentToCancel);
+      await cancelAppointment(appointmentToCancel, userRole === "client");
       setAppointments(prev =>
         prev.map(a => a.id === appointmentToCancel ? { ...a, status: "cancelled" as const } : a)
       );
@@ -277,7 +289,13 @@ export function useAppointments(userRole?: string) {
   const resetForm = () => {
     setIsDialogOpen(false);
     setEditingAppointment(null);
-    setFormData(EMPTY_FORM);
+    // Para clientes, preservar su clientId/Name/Phone
+    setFormData(prev => ({
+      ...EMPTY_FORM,
+      clientId:    userRole === "client" ? prev.clientId    : "",
+      clientName:  userRole === "client" ? prev.clientName  : "",
+      clientPhone: userRole === "client" ? prev.clientPhone : "",
+    }));
     setSelectedServices([]);
     setCurrentService({ serviceId: "", employeeId: "" });
   };
@@ -374,6 +392,7 @@ export function useAppointments(userRole?: string) {
     handleAddService, handleRemoveService,
     handleCreateOrUpdate, handleDelete, handleCancelAppointment,
     handleUpdateStatus, resetForm, handleEdit, handleClientChange,
+    handleStartTimeChange,
     myEmployeeProfile,
   };
 }

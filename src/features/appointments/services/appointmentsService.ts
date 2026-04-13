@@ -93,8 +93,11 @@ export async function createAppointment(payload: any, isClient = false, isEmploy
   return res.json();
 }
 
-export async function updateAppointment(id: number, payload: any) {
-  const res = await fetch(`${API_BASE}/appointments/${id}`, {
+export async function updateAppointment(id: number, payload: any, isClient = false) {
+  const endpoint = isClient
+    ? `${API_BASE}/appointments/mis-citas/${id}`
+    : `${API_BASE}/appointments/${id}`;
+  const res = await fetch(endpoint, {
     method:  "PUT",
     headers: authHeaders(),
     body:    JSON.stringify(payload),
@@ -118,9 +121,13 @@ export async function deleteAppointment(id: number) {
   return res.json();
 }
 
-export async function cancelAppointment(id: number) {
-  const res = await fetch(`${API_BASE}/appointments/${id}/cancel`, {
-    method:  "PATCH",
+export async function cancelAppointment(id: number, isClient = false) {
+  const endpoint = isClient
+    ? `${API_BASE}/appointments/mis-citas/${id}/cancel`
+    : `${API_BASE}/appointments/${id}/cancel`;
+  const method = isClient ? "POST" : "PATCH";
+  const res = await fetch(endpoint, {
+    method,
     headers: authHeaders(),
   });
   if (!res.ok) throw new Error("Error al cancelar cita");

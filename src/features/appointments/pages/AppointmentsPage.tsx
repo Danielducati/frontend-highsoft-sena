@@ -97,6 +97,7 @@ export function AppointmentsPage({ userRole }: AppointmentsModuleProps) {
     handleAddService, handleRemoveService,
     handleCreateOrUpdate, handleDelete, handleCancelAppointment,
     handleUpdateStatus, resetForm, handleEdit, handleClientChange,
+    handleStartTimeChange,
     myEmployeeProfile,
   } = useAppointments(userRole);
 
@@ -104,7 +105,6 @@ export function AppointmentsPage({ userRole }: AppointmentsModuleProps) {
     clientId: "", clientName: "", clientPhone: "",
     date: new Date(), startTime: "", notes: "",
   };
-
   const firstSlotMin = toMin(TIME_SLOTS[0]);
   const totalHeight  = TIME_SLOTS.length * ROW_HEIGHT;
 
@@ -416,7 +416,15 @@ export function AppointmentsPage({ userRole }: AppointmentsModuleProps) {
                                   }}
                                   onClick={() => {
                                     if (!past) {
-                                      setFormData({ ...EMPTY_FORM, date, startTime: time });
+                                      setFormData(prev => ({
+                                        ...EMPTY_FORM,
+                                        // Preservar clientId/Name/Phone si es cliente
+                                        clientId:    prev.clientId    || "",
+                                        clientName:  prev.clientName  || "",
+                                        clientPhone: prev.clientPhone || "",
+                                        date,
+                                        startTime: time,
+                                      }));
                                       setIsDialogOpen(true);
                                     }
                                   }}
@@ -507,6 +515,7 @@ export function AppointmentsPage({ userRole }: AppointmentsModuleProps) {
           onAddService={handleAddService}
           onRemoveService={handleRemoveService}
           onClientChange={handleClientChange}
+          onStartTimeChange={handleStartTimeChange}
           onSubmit={handleCreateOrUpdate}
           onCancel={resetForm}
           userRole={userRole}
