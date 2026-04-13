@@ -134,7 +134,13 @@ export function useAppointments(userRole?: string) {
     return d < hoy;
   };
 
-  const getEmployeesByCategory = (_category: string) => employees;
+  const getEmployeesByCategory = (category: string) => {
+    if (!category) return employees;
+    const filtered = employees.filter(
+      e => e.specialty?.toLowerCase().trim() === category.toLowerCase().trim()
+    );
+    return filtered.length > 0 ? filtered : employees;
+  };
 
   // ── Servicios del formulario ──
   const handleAddService = () => {

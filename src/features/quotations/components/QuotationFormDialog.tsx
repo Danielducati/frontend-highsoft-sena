@@ -216,23 +216,34 @@ export function QuotationFormDialog({
                     {/* Fila inferior: selector de empleado */}
                     <div style={{ marginTop: 8 }}>
                       <label style={{ ...labelStyle, fontSize: 10, marginBottom: 4 }}>Empleado asignado</label>
-                      <select
-                        style={{ ...inputOk, fontSize: 13, padding: "6px 10px" }}
-                        value={item.empleadoId?.toString() ?? ""}
-                        onChange={e => {
-                          const emp = employees.find(em => em.id.toString() === e.target.value);
-                          if (emp) updateServiceEmployee(item.serviceId, Number(emp.id), emp.name ?? `${emp.nombre} ${emp.apellido}`);
-                          else updateServiceEmployee(item.serviceId, 0, "");
-                        }}
-                      >
-                        <option value="">Sin asignar</option>
-                        {employees.filter(em => em.isActive !== false && em.estado !== "Inactivo").map(em => (
-                          <option key={em.id} value={em.id.toString()}>
-                            {em.name ?? `${em.nombre ?? ""} ${em.apellido ?? ""}`.trim()}
-                            {em.specialty || em.especialidad ? ` — ${em.specialty ?? em.especialidad}` : ""}
-                          </option>
-                        ))}
-                      </select>
+                      {(() => {
+                        const svc = availableServices.find(s => s.id === item.serviceId);
+                        const cat = (svc?.category ?? svc?.categoria ?? "").toLowerCase().trim();
+                        const activeEmps = employees.filter(em => em.isActive !== false && em.estado !== "Inactivo");
+                        const byCategory = cat
+                          ? activeEmps.filter(em => (em.specialty ?? em.especialidad ?? "").toLowerCase().trim() === cat)
+                          : activeEmps;
+                        const empList = byCategory.length > 0 ? byCategory : activeEmps;
+                        return (
+                          <select
+                            style={{ ...inputOk, fontSize: 13, padding: "6px 10px" }}
+                            value={item.empleadoId?.toString() ?? ""}
+                            onChange={e => {
+                              const emp = employees.find(em => em.id.toString() === e.target.value);
+                              if (emp) updateServiceEmployee(item.serviceId, Number(emp.id), emp.name ?? `${emp.nombre} ${emp.apellido}`);
+                              else updateServiceEmployee(item.serviceId, 0, "");
+                            }}
+                          >
+                            <option value="">Sin asignar</option>
+                            {empList.map(em => (
+                              <option key={em.id} value={em.id.toString()}>
+                                {em.name ?? `${em.nombre ?? ""} ${em.apellido ?? ""}`.trim()}
+                                {em.specialty || em.especialidad ? ` — ${em.specialty ?? em.especialidad}` : ""}
+                              </option>
+                            ))}
+                          </select>
+                        );
+                      })()}
                     </div>
                   </div>
                 ))}

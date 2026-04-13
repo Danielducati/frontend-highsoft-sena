@@ -76,7 +76,16 @@ export function useQuotations(userRole?: string) {
   };
 
   const loadServices = async () => {
-    try { setAvailableServices(await fetchServicesApi()); }
+    try {
+      const data = await fetchServicesApi();
+      setAvailableServices(data.map((s: any) => ({
+        ...s,
+        id:       s.id,
+        name:     s.name     ?? s.nombre   ?? "",
+        category: s.category ?? s.categoria ?? "",
+        price:    s.price    ?? s.precio    ?? 0,
+      })));
+    }
     catch { toast.error("Error al cargar servicios"); }
   };
 
@@ -84,7 +93,16 @@ export function useQuotations(userRole?: string) {
     try {
       const res = await fetch(`${API_URL}/employees`, { headers: { Authorization: `Bearer ${getToken()}` } });
       const data = await res.json();
-      setEmployees(Array.isArray(data) ? data : []);
+      const list = Array.isArray(data) ? data : [];
+      setEmployees(list.map((e: any) => ({
+        id:          e.id,
+        name:        e.name ?? `${e.nombre ?? ""} ${e.apellido ?? ""}`.trim(),
+        specialty:   e.specialty ?? e.especialidad ?? "",
+        especialidad: e.especialidad ?? e.specialty ?? "",
+        isActive:    e.isActive !== undefined ? e.isActive : e.estado === "Activo",
+        estado:      e.estado ?? "Activo",
+        color:       e.color ?? "#78D1BD",
+      })));
     } catch { /* silencioso */ }
   };
 
