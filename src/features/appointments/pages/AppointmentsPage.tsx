@@ -370,6 +370,15 @@ export function AppointmentsPage({ userRole }: AppointmentsModuleProps) {
                       const dayApts = getAptsByDate(date);
                       const past    = isPastDate(date);
 
+                      // Slot bloqueado: día pasado O (hoy y hora ya pasó)
+                      const isSlotBlocked = (time: string): boolean => {
+                        if (past) return true;
+                        if (!isToday(date)) return false;
+                        const now = new Date();
+                        const [h, m] = time.split(":").map(Number);
+                        return h * 60 + m <= now.getHours() * 60 + now.getMinutes();
+                      };
+
                       // Para cada franja, indica si hay citas solapadas
                       const slotHasApts = (time: string): boolean => {
                         const slotMin = toMin(time);
@@ -398,12 +407,13 @@ export function AppointmentsPage({ userRole }: AppointmentsModuleProps) {
                           {TIME_SLOTS.map(time => {
                             const hasApts = slotHasApts(time);
                             const top     = ((toMin(time) - firstSlotMin) / 30) * ROW_HEIGHT;
+                            const blocked = isSlotBlocked(time);
 
                             return (
                               <div key={time}>
                                 <div
                                   className={`absolute transition-colors group ${
-                                    !past
+                                    !blocked
                                       ? "hover:bg-[#1a3a2a]/5 cursor-pointer"
                                       : "cursor-not-allowed"
                                   }`}
@@ -413,12 +423,12 @@ export function AppointmentsPage({ userRole }: AppointmentsModuleProps) {
                                     width:  hasApts ? FREE_LANE_PX : "100%",
                                     height: ROW_HEIGHT,
                                     zIndex: 5,
+                                    backgroundColor: blocked && !past ? "rgba(0,0,0,0.03)" : undefined,
                                   }}
                                   onClick={() => {
-                                    if (!past) {
+                                    if (!blocked) {
                                       setFormData(prev => ({
                                         ...EMPTY_FORM,
-                                        // Preservar clientId/Name/Phone si es cliente
                                         clientId:    prev.clientId    || "",
                                         clientName:  prev.clientName  || "",
                                         clientPhone: prev.clientPhone || "",

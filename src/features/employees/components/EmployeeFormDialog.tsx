@@ -197,7 +197,7 @@ export function EmployeeFormDialog({
               <Input
                 id="document"
                 value={formData.document}
-                onChange={e => update("document", e.target.value)}
+                onChange={e => update("document", e.target.value.replace(/\D/g, ""))}
                 onBlur={() => touch("document")}
                 placeholder="1234567890"
                 className={`rounded-lg ${liveErrors.document ? "border-red-500" : "border-gray-200"}`}

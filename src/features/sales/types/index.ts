@@ -17,7 +17,6 @@ export interface Sale {
   metodo_pago: string;
   descuento:   number;
   Total:       number;
-  Iva:         number;
   Fecha:       string;
   Estado:      string;
 }

@@ -56,10 +56,6 @@ export function SaleDetailDialog({ sale, onClose }: SaleDetailDialogProps) {
               <span style={{ color: "#6b7c6b", fontSize: 14 }}>Subtotal</span>
               <span style={{ color: "#1a3a2a", fontSize: 14 }}>${(sale.Subtotal || 0).toLocaleString("es-CO")}</span>
             </div>
-            <div style={{ display: "flex", justifyContent: "space-between" }}>
-              <span style={{ color: "#6b7c6b", fontSize: 14 }}>IVA (19%)</span>
-              <span style={{ color: "#1a3a2a", fontSize: 14 }}>${(sale.Iva || 0).toLocaleString("es-CO")}</span>
-            </div>
             {sale.descuento > 0 && (
               <div style={{ display: "flex", justifyContent: "space-between" }}>
                 <span style={{ color: "#1a5c3a", fontSize: 14 }}>Descuento</span>

@@ -143,7 +143,8 @@ export function useSchedules() {
 
   const handleEdit = (schedule: WeeklySchedule) => {
     setEditingSchedule(schedule);
-    setFormWeekStart(new Date(schedule.weekStartDate + "T00:00:00"));
+    // Usar T12:00:00 para evitar que el offset local desplace el día
+    setFormWeekStart(new Date(schedule.weekStartDate + "T12:00:00"));
     setFormData({ employeeId: schedule.employeeId, daySchedules: [...schedule.daySchedules] });
     setIsDialogOpen(true);
   };

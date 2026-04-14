@@ -29,6 +29,11 @@ const labelStyle: React.CSSProperties = {
 export function EmployeeProfilePage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Leer el rol real del usuario para mostrar/ocultar campos específicos de empleado
+  const storedUser = (() => { try { return JSON.parse(localStorage.getItem("usuario") ?? "{}"); } catch { return {}; } })();
+  const rolReal: string = (storedUser?.rol ?? "").toLowerCase();
+  const esEmpleadoBase = rolReal === "empleado" || rolReal === "employee";
+
   const [loading,      setLoading]      = useState(true);
   const [saving,       setSaving]       = useState(false);
   const [uploadingImg, setUploadingImg] = useState(false);
@@ -93,13 +98,12 @@ export function EmployeeProfilePage() {
   };
 
   const handleSave = async () => {
-    if (!empId) return;
     if (!form.firstName.trim() || !form.lastName.trim() || !form.email.trim()) {
       toast.error("Nombre, apellido y correo son obligatorios"); return;
     }
     setSaving(true);
     try {
-      const res = await fetch(`${API_URL}/employees/${empId}`, {
+      const res = await fetch(`${API_URL}/employees/mi-perfil`, {
         method: "PUT",
         headers: authHeaders(),
         body: JSON.stringify({
@@ -107,7 +111,6 @@ export function EmployeeProfilePage() {
           apellido:         form.lastName,
           tipo_documento:   form.documentType || null,
           numero_documento: form.document     || null,
-          correo:           form.email,
           telefono:         form.phone        || null,
           ciudad:           form.city         || null,
           direccion:        form.address      || null,
@@ -118,6 +121,16 @@ export function EmployeeProfilePage() {
       if (!res.ok) {
         const err = await res.json();
         throw new Error(err.error ?? "Error al guardar");
+      }
+      // Actualizar foto en localStorage para que el Header la refleje
+      if (form.image) {
+        try {
+          const stored = JSON.parse(localStorage.getItem("usuario") ?? "{}");
+          stored.foto = form.image;
+          localStorage.setItem("usuario", JSON.stringify(stored));
+          // Disparar evento para que App.tsx recargue el userPhoto
+          window.dispatchEvent(new Event("usuario-updated"));
+        } catch { /* silencioso */ }
       }
       toast.success("Perfil actualizado correctamente");
     } catch (err: any) {
@@ -226,7 +239,7 @@ export function EmployeeProfilePage() {
             </div>
             <div>
               <label style={labelStyle}>Número de Documento</label>
-              <input style={inputStyle} value={form.document} onChange={e => setForm(f => ({ ...f, document: e.target.value }))} placeholder="1234567890" />
+              <input style={inputStyle} value={form.document} onChange={e => setForm(f => ({ ...f, document: e.target.value.replace(/\D/g, "") }))} placeholder="1234567890" />
             </div>
           </div>
 
@@ -241,18 +254,20 @@ export function EmployeeProfilePage() {
             </div>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+          <div style={{ display: "grid", gridTemplateColumns: esEmpleadoBase ? "1fr 1fr" : "1fr", gap: 12 }}>
             <div>
               <label style={labelStyle}>Ciudad</label>
               <input style={inputStyle} value={form.city} onChange={e => setForm(f => ({ ...f, city: e.target.value }))} placeholder="Medellín" />
             </div>
-            <div>
-              <label style={labelStyle}>Especialidad</label>
-              <select style={inputStyle} value={form.specialty} onChange={e => setForm(f => ({ ...f, specialty: e.target.value }))}>
-                <option value="">Selecciona especialidad</option>
-                {categories.map(c => <option key={c.id} value={c.nombre}>{c.nombre}</option>)}
-              </select>
-            </div>
+            {esEmpleadoBase && (
+              <div>
+                <label style={labelStyle}>Especialidad</label>
+                <select style={inputStyle} value={form.specialty} onChange={e => setForm(f => ({ ...f, specialty: e.target.value }))}>
+                  <option value="">Selecciona especialidad</option>
+                  {categories.map(c => <option key={c.id} value={c.nombre}>{c.nombre}</option>)}
+                </select>
+              </div>
+            )}
           </div>
 
           <div>

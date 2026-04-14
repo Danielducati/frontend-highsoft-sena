@@ -147,7 +147,7 @@ export function SchedulesPage({ userRole }: SchedulesModuleProps) {
                 <tbody className="divide-y divide-gray-200">
                   {filteredSchedules.map((schedule) => {
                     // ← FIX 1: convertir string a Date para getWeekDays
-                    const weekDays = getWeekDays(new Date(schedule.weekStartDate + "T00:00:00"));
+                    const weekDays = getWeekDays(new Date(schedule.weekStartDate + "T12:00:00"));
                     return (
                       <tr key={schedule.id} className="hover:bg-gray-50/50 transition-colors">
                         <td className="px-4 py-3">

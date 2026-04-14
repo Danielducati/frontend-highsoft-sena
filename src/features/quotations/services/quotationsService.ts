@@ -26,7 +26,7 @@ export async function fetchQuotationsApi(): Promise<Quotation[]> {
 
 export async function fetchClientsApi(): Promise<any[]> {
   const token = getToken();
-  const res = await fetch(`${API_URL}/clients`, {
+  const res = await fetch(`${API_URL}/clients/para-citas`, {
     headers: { Authorization: `Bearer ${token}` },
   });
   if (!res.ok) throw new Error("Error al cargar clientes");
@@ -43,6 +43,15 @@ export async function fetchServicesApi(): Promise<any[]> {
   });
   if (!res.ok) throw new Error("Error al cargar servicios");
   return res.json();
+}
+
+export async function fetchMyEmployeeServicesApi(): Promise<any[]> {
+  const res = await fetch(`${API_URL}/employees/mis-servicios`, {
+    headers: { Authorization: `Bearer ${getToken()}` },
+  });
+  if (!res.ok) return [];
+  const data = await res.json();
+  return Array.isArray(data) ? data : [];
 }
 
 export async function createQuotationApi(body: any): Promise<void> {

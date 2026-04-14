@@ -25,7 +25,6 @@ function mapSale(s: any): Sale {
     metodo_pago: capitalize(s.metodo_pago ?? s.metodoPago ?? ""),
     descuento:   Number(s.descuento ?? 0),
     Total:       Number(s.Total     ?? s.total   ?? 0),
-    Iva:         Number(s.Iva       ?? s.iva     ?? 0),
     Fecha:       s.Fecha       ?? s.fecha        ?? null,
     Estado:      s.Estado      ?? s.estado       ?? "Activo",
   };

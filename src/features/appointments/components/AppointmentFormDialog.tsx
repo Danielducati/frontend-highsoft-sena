@@ -122,12 +122,16 @@ export function AppointmentFormDialog({
                       formData.date.getMonth()    === now.getMonth()    &&
                       formData.date.getDate()     === now.getDate();
                     const currentMin = now.getHours() * 60 + now.getMinutes();
-                    return TIME_SLOTS.filter(t => {
-                      if (!isToday) return true;
+                    return TIME_SLOTS.map(t => {
                       const [h, m] = t.split(":").map(Number);
-                      return h * 60 + m > currentMin;
+                      const isPast = isToday && h * 60 + m <= currentMin;
+                      return (
+                        <SelectItem key={t} value={t} disabled={isPast}>
+                          {t}{isPast ? " (pasado)" : ""}
+                        </SelectItem>
+                      );
                     });
-                  })().map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                  })()}
                 </SelectContent>
               </Select>
             </div>
@@ -143,45 +147,54 @@ export function AppointmentFormDialog({
                   onValueChange={v => setCurrentService({ serviceId: v, employeeId: "" })}>
                   <SelectTrigger><SelectValue placeholder="Selecciona servicio" /></SelectTrigger>
                   <SelectContent>
-                    {services.map(s => (
-                      <SelectItem key={s.id} value={s.id}>
-                        <div className="flex flex-col">
-                          <span>{s.name}</span>
-                          <span className="text-xs text-gray-500">{s.category} • {s.duration} min</span>
-                        </div>
-                      </SelectItem>
-                    ))}
+                    {services.length === 0
+                      ? <SelectItem value="empty" disabled>Sin servicios disponibles</SelectItem>
+                      : services.map(s => (
+                          <SelectItem key={s.id} value={s.id}>
+                            <div className="flex flex-col">
+                              <span>{s.name}</span>
+                              <span className="text-xs text-gray-500">{s.category} • {s.duration} min</span>
+                            </div>
+                          </SelectItem>
+                        ))
+                    }
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-2">
                 <Label>Empleado</Label>
-                <Select value={currentService.employeeId}
-                  onValueChange={v => setCurrentService({ ...currentService, employeeId: v })}
-                  disabled={!currentService.serviceId}>
-                  <SelectTrigger><SelectValue placeholder="Selecciona empleado" /></SelectTrigger>
-                  <SelectContent>
-                    {(() => {
-                      const category = services.find(s => s.id === currentService.serviceId)?.category ?? "";
-                      const filtered = getEmployeesByCategory(category);
-                      if (!currentService.serviceId) {
-                        return <SelectItem value="empty" disabled>Primero selecciona un servicio</SelectItem>;
-                      }
-                      if (filtered.length === 0) {
-                        return <SelectItem value="empty" disabled>No hay empleados para esta especialidad</SelectItem>;
-                      }
-                      return filtered.map(e => (
-                        <SelectItem key={e.id} value={e.id}>
-                          <div className="flex items-center gap-2">
-                            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: e.color }} />
-                            <span>{e.name}</span>
-                            {e.specialty && <span className="text-xs text-gray-400">• {e.specialty}</span>}
-                          </div>
-                        </SelectItem>
-                      ));
-                    })()}
-                  </SelectContent>
-                </Select>
+                {userRole === "employee" && myEmployeeProfile ? (
+                  <div className="h-10 px-3 flex items-center rounded-md border border-input bg-[#edf7f4] text-sm font-medium text-[#1a5c3a]">
+                    {myEmployeeProfile.name}
+                  </div>
+                ) : (
+                  <Select value={currentService.employeeId}
+                    onValueChange={v => setCurrentService({ ...currentService, employeeId: v })}
+                    disabled={!currentService.serviceId}>
+                    <SelectTrigger><SelectValue placeholder="Selecciona empleado" /></SelectTrigger>
+                    <SelectContent>
+                      {(() => {
+                        const category = services.find(s => s.id === currentService.serviceId)?.category ?? "";
+                        const filtered = getEmployeesByCategory(category);
+                        if (!currentService.serviceId) {
+                          return <SelectItem value="empty" disabled>Primero selecciona un servicio</SelectItem>;
+                        }
+                        if (filtered.length === 0) {
+                          return <SelectItem value="empty" disabled>No hay empleados para esta especialidad</SelectItem>;
+                        }
+                        return filtered.map(e => (
+                          <SelectItem key={e.id} value={e.id}>
+                            <div className="flex items-center gap-2">
+                              <div className="w-3 h-3 rounded-full" style={{ backgroundColor: e.color }} />
+                              <span>{e.name}</span>
+                              {e.specialty && <span className="text-xs text-gray-400">• {e.specialty}</span>}
+                            </div>
+                          </SelectItem>
+                        ));
+                      })()}
+                    </SelectContent>
+                  </Select>
+                )}
               </div>
             </div>
 
