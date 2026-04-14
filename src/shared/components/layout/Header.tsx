@@ -147,7 +147,7 @@ export function Header({ userRole, userName, userPhoto, onLogout }: HeaderProps)
 
   return (
     <header
-      className="h-16 sticky top-0 z-40 flex items-center justify-between px-8"
+      className="h-16 sticky top-0 z-50 flex items-center justify-between px-8"
       style={{ backgroundColor: "var(--bg-app)", borderBottom: "1px solid #e8e2d8" }}
     >
       {/* Saludo */}
@@ -199,7 +199,7 @@ export function Header({ userRole, userName, userPhoto, onLogout }: HeaderProps)
               position: "absolute", top: "calc(100% + 8px)", right: 0,
               width: 340, borderRadius: 14, backgroundColor: "#ffffff",
               border: "1px solid #ede8e0", boxShadow: "0 8px 24px rgba(0,0,0,0.10)",
-              zIndex: 100, overflow: "hidden", fontFamily: "var(--font-body)",
+              zIndex: 9999, overflow: "hidden", fontFamily: "var(--font-body)",
             }}>
               {/* Header del dropdown */}
               <div style={{
@@ -325,7 +325,7 @@ export function Header({ userRole, userName, userPhoto, onLogout }: HeaderProps)
               position: "absolute", top: "calc(100% + 8px)", right: 0,
               minWidth: 180, borderRadius: 12, backgroundColor: "#ffffff",
               border: "1px solid #ede8e0", boxShadow: "0 8px 24px rgba(0,0,0,0.10)",
-              zIndex: 100, overflow: "hidden", fontFamily: "var(--font-body)",
+              zIndex: 9999, overflow: "hidden", fontFamily: "var(--font-body)",
             }}>
               <div style={{ padding: "12px 16px", borderBottom: "1px solid #ede8e0" }}>
                 <p style={{ fontSize: 13, fontWeight: 600, color: "#1a3a2a", margin: 0 }}>{displayName}</p>

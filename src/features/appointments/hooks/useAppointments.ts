@@ -6,7 +6,8 @@ import {
 import { getMonday, calculateEndTime } from "../utils";
 import {
   fetchAppointments, fetchMyAppointments, fetchMyEmployeeAppointments,
-  fetchServices, fetchEmployees, fetchClients,
+  fetchServices, fetchMyEmployeeServices, fetchEmployees, fetchEmployeesByDate, fetchClients,
+  fetchClientsForAppointments,
   fetchMyClientProfile, fetchMyEmployeeProfile,
   createAppointment, updateAppointment, deleteAppointment,
   cancelAppointment, updateAppointmentStatus,
@@ -40,7 +41,7 @@ export function useAppointments(userRole?: string) {
   const [formData,         setFormData]         = useState<FormData>(EMPTY_FORM);
   const [selectedServices, setSelectedServices] = useState<AppointmentService[]>([]);
   const [currentService,   setCurrentService]   = useState<CurrentService>({ serviceId: "", employeeId: "" });
-  const [myEmployeeProfile, setMyEmployeeProfile] = useState<{ id: string; name: string; phone: string } | null>(null);
+  const [myEmployeeProfile, setMyEmployeeProfile] = useState<{ id: string; name: string; phone: string; specialty: string } | null>(null);
 
   useEffect(() => {
     async function loadAll() {
@@ -49,13 +50,14 @@ export function useAppointments(userRole?: string) {
         const isEmployee = userRole === "employee";
 
         const [sData, eData, aData] = await Promise.all([
-          fetchServices(),
+          isEmployee ? fetchMyEmployeeServices() : fetchServices(),
           fetchEmployees(),
           isClient   ? fetchMyAppointments()         :
           isEmployee ? fetchMyEmployeeAppointments() :
                        fetchAppointments(),
         ]);
 
+        // Si el empleado no tiene servicios asignados, no mostrar ninguno
         setServices(sData as Service[]);
         setEmployees(eData as Employee[]);
         setAppointments(aData);
@@ -71,13 +73,13 @@ export function useAppointments(userRole?: string) {
           }));
         } else if (isEmployee) {
           const [cData, myProfile] = await Promise.all([
-            fetchClients(),
+            fetchClientsForAppointments(),
             fetchMyEmployeeProfile(),
           ]);
           setClients(cData as Client[]);
           setMyEmployeeProfile(myProfile);
         } else {
-          const cData = await fetchClients();
+          const cData = await fetchClientsForAppointments();
           setClients(cData as Client[]);
         }
       } catch (err) {
@@ -89,6 +91,18 @@ export function useAppointments(userRole?: string) {
     }
     loadAll();
   }, []);
+
+  // Cargar empleados disponibles cuando cambia la fecha del formulario o se abre el dialog
+  useEffect(() => {
+    if (!isDialogOpen) return;
+    const date = formData.date ?? new Date();
+    const fechaStr = date instanceof Date
+      ? `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,"0")}-${String(date.getDate()).padStart(2,"0")}`
+      : String(date).split("T")[0];
+    fetchEmployeesByDate(fechaStr)
+      .then(data => setEmployees(data))
+      .catch(() => setEmployees([]));
+  }, [formData.date, isDialogOpen]);
 
   const reloadAppointments = async () => {
     const data = userRole === "client"   ? await fetchMyAppointments()         :
@@ -134,8 +148,8 @@ export function useAppointments(userRole?: string) {
 
   const getEmployeesByCategory = (category: string) => {
     if (!category) return employees;
-    return employees.filter(e =>
-      e.specialty.toLowerCase() === category.toLowerCase()
+    return employees.filter(
+      e => (e.specialty ?? "").toLowerCase().trim() === category.toLowerCase().trim()
     );
   };
 
@@ -155,7 +169,11 @@ export function useAppointments(userRole?: string) {
     }
 
     const service  = services.find(s => s.id === currentService.serviceId);
-    const employee = employees.find(e => e.id === effectiveEmployeeId);
+    // Para empleado logueado, usar su perfil directamente si no está en la lista
+    const employee = employees.find(e => e.id === effectiveEmployeeId)
+      ?? (userRole === "employee" && myEmployeeProfile && myEmployeeProfile.id === effectiveEmployeeId
+          ? { id: myEmployeeProfile.id, name: myEmployeeProfile.name, specialty: myEmployeeProfile.specialty, color: "#78D1BD" }
+          : undefined);
     if (!service || !employee) return;
 
     const serviceStartTime = selectedServices.length > 0

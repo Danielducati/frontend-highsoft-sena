@@ -31,13 +31,14 @@ export async function fetchMyClientProfile(): Promise<{ id: string; name: string
   };
 }
 
-export async function fetchMyEmployeeProfile(): Promise<{ id: string; name: string; phone: string }> {
+export async function fetchMyEmployeeProfile(): Promise<{ id: string; name: string; phone: string; specialty: string }> {
   const res = await fetch(`${API_BASE}/employees/mi-perfil`, { headers: authHeaders() });
   const data = await parseJsonOrThrow(res) as any;
   return {
-    id:    data.id ? String(data.id) : "",
-    name:  data.name ?? `${data.nombre ?? ""} ${data.apellido ?? ""}`.trim(),
-    phone: data.phone ?? data.telefono ?? "",
+    id:        data.id ? String(data.id) : "",
+    name:      data.name ?? `${data.nombre ?? ""} ${data.apellido ?? ""}`.trim(),
+    phone:     data.phone ?? data.telefono ?? "",
+    specialty: data.specialty ?? data.especialidad ?? "",
   };
 }
 
@@ -67,13 +68,36 @@ export async function fetchServices() {
   return parseJsonOrThrow(res);
 }
 
+export async function fetchMyEmployeeServices(): Promise<{ id: string; name: string; category: string; duration: number; price: number }[]> {
+  const res  = await fetch(`${API_BASE}/employees/mis-servicios`, { headers: authHeaders() });
+  if (!res.ok) return [];
+  const data = await res.json();
+  return Array.isArray(data) ? data : [];
+}
+
 export async function fetchEmployees() {
   const res = await fetch(`${API_BASE}/employees`, { headers: authHeaders() });
   return parseJsonOrThrow(res);
 }
 
+export async function fetchEmployeesByDate(fecha: string): Promise<{ id: string; name: string; specialty: string; color: string }[]> {
+  const res  = await fetch(`${API_BASE}/employees/disponibles?fecha=${fecha}`, { headers: authHeaders() });
+  const data = await parseJsonOrThrow(res) as any[];
+  return data.map((e: any) => ({
+    id:        String(e.id),
+    name:      e.name      ?? `${e.nombre ?? ""} ${e.apellido ?? ""}`.trim(),
+    specialty: e.specialty ?? e.especialidad ?? "",
+    color:     e.color     ?? "#78D1BD",
+  }));
+}
+
 export async function fetchClients() {
   const res = await fetch(`${API_BASE}/clients`, { headers: authHeaders() });
+  return parseJsonOrThrow(res);
+}
+
+export async function fetchClientsForAppointments() {
+  const res = await fetch(`${API_BASE}/clients/para-citas`, { headers: authHeaders() });
   return parseJsonOrThrow(res);
 }
 

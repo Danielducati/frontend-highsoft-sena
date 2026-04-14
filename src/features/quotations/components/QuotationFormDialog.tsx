@@ -208,26 +208,43 @@ export function QuotationFormDialog({
                         </button>
                       </div>
                     </div>
-                    {/* Empleado asignado */}
+                    {/* Empleado asignado — filtrado por categoría del servicio */}
                     <div className="space-y-1">
                       <Label className="text-xs text-gray-600">Empleado asignado</Label>
-                      <select
-                        className="w-full rounded-lg border border-gray-200 px-3 py-1.5 text-sm bg-white text-gray-900 outline-none"
-                        value={item.empleadoId?.toString() ?? ""}
-                        onChange={e => {
-                          const emp = employees.find(em => em.id.toString() === e.target.value);
-                          if (emp) updateServiceEmployee(item.serviceId, Number(emp.id), emp.name ?? `${emp.nombre} ${emp.apellido}`);
-                          else updateServiceEmployee(item.serviceId, 0, "");
-                        }}
-                      >
-                        <option value="">Sin asignar</option>
-                        {employees.filter(em => em.isActive !== false && em.estado !== "Inactivo").map(em => (
-                          <option key={em.id} value={em.id.toString()}>
-                            {em.name ?? `${em.nombre ?? ""} ${em.apellido ?? ""}`.trim()}
-                            {em.specialty || em.especialidad ? ` — ${em.specialty ?? em.especialidad}` : ""}
-                          </option>
-                        ))}
-                      </select>
+                      {(() => {
+                        const active = employees.filter(
+                          em => em.isActive !== false && em.estado !== "Inactivo"
+                        );
+                        // Si solo hay un empleado (rol employee), mostrarlo siempre sin filtrar
+                        const empList = active.length === 1 ? active : (() => {
+                          const svc = availableServices.find(s => String(s.id) === String(item.serviceId));
+                          const cat = (svc?.category ?? "").toLowerCase().trim();
+                          console.log("[QuotationForm] serviceId:", item.serviceId, "svc:", svc?.name, "cat:", cat, "employees:", active.map(e => e.specialty));
+                          if (!cat) return active;
+                          return active.filter(
+                            em => (em.specialty ?? em.especialidad ?? "").toLowerCase().trim() === cat
+                          );
+                        })();
+                        return (
+                          <select
+                            className="w-full rounded-lg border border-gray-200 px-3 py-1.5 text-sm bg-white text-gray-900 outline-none"
+                            value={item.empleadoId?.toString() ?? ""}
+                            onChange={e => {
+                              const emp = employees.find(em => em.id.toString() === e.target.value);
+                              if (emp) updateServiceEmployee(item.serviceId, Number(emp.id), emp.name ?? `${emp.nombre} ${emp.apellido}`);
+                              else updateServiceEmployee(item.serviceId, 0, "");
+                            }}
+                          >
+                            <option value="">Sin asignar</option>
+                            {empList.map(em => (
+                              <option key={em.id} value={em.id.toString()}>
+                                {em.name ?? `${em.nombre ?? ""} ${em.apellido ?? ""}`.trim()}
+                                {em.specialty || em.especialidad ? ` — ${em.specialty ?? em.especialidad}` : ""}
+                              </option>
+                            ))}
+                          </select>
+                        );
+                      })()}
                     </div>
                   </div>
                 ))}
