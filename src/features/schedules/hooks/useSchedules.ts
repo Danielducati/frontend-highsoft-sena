@@ -122,6 +122,25 @@ export function useSchedules() {
     }
   };
 
+  const handleRenewWeek = async (schedule: WeeklySchedule) => {
+    const [y, m, d] = schedule.weekStartDate.split("-").map(Number);
+    const nextMonday = new Date(Date.UTC(y, m - 1, d + 7));
+    const nextWeekStartDate = nextMonday.toISOString().split("T")[0];
+    try {
+      // Primero eliminar la semana actual, luego crear con la nueva fecha
+      await schedulesApi.remove(schedule.employeeId, schedule.weekStartDate);
+      await schedulesApi.create({
+        employeeId:    schedule.employeeId,
+        weekStartDate: nextWeekStartDate,
+        daySchedules:  schedule.daySchedules,
+      });
+      toast.success(`Semana actualizada al ${nextWeekStartDate}`);
+      await reload();
+    } catch (err: any) {
+      toast.error(err.message ?? "Error al actualizar semana");
+    }
+  };
+
   const handleDelete = async () => {
     if (!scheduleToDelete) return;
     try {
@@ -187,7 +206,7 @@ export function useSchedules() {
     formWeekDays,
     goToPreviousWeek, goToNextWeek,
     toggleDay, updateDaySchedule,
-    handleCreateOrUpdate, handleDelete,
+    handleCreateOrUpdate, handleDelete, handleRenewWeek,
     confirmDelete, handleEdit, handleViewDetail,
     resetForm, clearFilters,
   };
