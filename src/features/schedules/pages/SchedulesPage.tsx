@@ -4,7 +4,7 @@ import { Button } from "../../../shared/ui/button";
 import { Input } from "../../../shared/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../shared/ui/select";
 import { Badge } from "../../../shared/ui/badge";
-import { Plus, Search, X, Calendar, User, Clock, Eye, Pencil, Trash2 } from "lucide-react";
+import { Plus, Search, X, Calendar, User, Clock, Eye, Pencil, Trash2, RefreshCw } from "lucide-react";
 import { SchedulesModuleProps } from "../types";
 import { useSchedules } from "../hooks/useSchedules";
 import { ScheduleFormDialog } from "../components/ScheduleFormDialog";
@@ -27,7 +27,7 @@ export function SchedulesPage({ userRole }: SchedulesModuleProps) {
     formWeekDays,
     goToPreviousWeek, goToNextWeek,
     toggleDay, updateDaySchedule,
-    handleCreateOrUpdate, handleDelete,
+    handleCreateOrUpdate, handleDelete, handleRenewWeek,
     confirmDelete, handleEdit, handleViewDetail,
     resetForm, clearFilters,
   } = useSchedules();
@@ -196,6 +196,16 @@ export function SchedulesPage({ userRole }: SchedulesModuleProps) {
                         {userRole === "admin" && (
                           <td className="px-4 py-3">
                           <div className="flex items-center justify-center gap-1">
+                            <button
+                              onClick={() => handleRenewWeek(schedule)}
+                              title="Renovar a siguiente semana"
+                              className="p-2 rounded-lg transition-colors"
+                              style={{ color: "#1a5c3a" }}
+                              onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#edf7f4")}
+                              onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
+                            >
+                              <RefreshCw className="w-4 h-4" />
+                            </button>
                             <button
                               onClick={() => handleViewDetail(schedule)}
                               title="Ver detalles"
