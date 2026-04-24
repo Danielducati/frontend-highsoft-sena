@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "../../../shared/ui/dialog";
 import { Button } from "../../../shared/ui/button";
 import { Input } from "../../../shared/ui/input";
@@ -40,12 +40,75 @@ type Errors = { clientId?: string; date?: string; services?: string; discount?: 
 
 function validate(data: QuotationFormData): Errors {
   const e: Errors = {};
-  if (!data.clientId)                                          e.clientId = "Selecciona un cliente.";
+  if (!data.guestMode && !data.clientId)                       e.clientId = "Selecciona un cliente.";
+  if (data.guestMode && !data.guestFirstName?.trim())          e.clientId = "El nombre del cliente es obligatorio.";
   if (!data.date)                                              e.date     = "La fecha es obligatoria.";
   if (data.selectedServices.length === 0)                      e.services = "Agrega al menos un servicio.";
   if (data.discount && isNaN(Number(data.discount)))           e.discount = "El descuento debe ser un número.";
   if (Number(data.discount) < 0)                               e.discount = "El descuento no puede ser negativo.";
   return e;
+}
+
+function QuotClientSearch({ clients, selectedId, onSelect, error, onBlur }: {
+  clients: any[];
+  selectedId: string;
+  onSelect: (id: string) => void;
+  error?: string;
+  onBlur?: () => void;
+}) {
+  const [search, setSearch] = React.useState("");
+  const [open,   setOpen]   = React.useState(false);
+
+  const filtered = clients.filter(c => {
+    const name = c.name ?? `${c.nombre ?? ""} ${c.apellido ?? ""}`.trim();
+    return name.toLowerCase().includes(search.toLowerCase());
+  });
+
+  const selected = clients.find(c => String(c.id) === selectedId);
+  const selectedName = selected ? (selected.name ?? `${selected.nombre ?? ""} ${selected.apellido ?? ""}`.trim()) : "";
+
+  return (
+    <div className="space-y-2">
+      <Label className="text-gray-900">Cliente *</Label>
+      <div className="relative">
+        <input
+          type="text"
+          placeholder={selectedName || "Buscar cliente por nombre..."}
+          value={search}
+          onChange={e => { setSearch(e.target.value); setOpen(true); }}
+          onFocus={() => setOpen(true)}
+          onBlur={() => { setTimeout(() => setOpen(false), 150); onBlur?.(); }}
+          className={`w-full rounded-lg border px-3 py-2 text-sm bg-white text-gray-900 outline-none ${
+            error ? "border-red-500 bg-red-50" : selected ? "border-[#78D1BD] bg-[#edf7f4]" : "border-gray-200"
+          }`}
+        />
+        {open && (
+          <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-56 overflow-y-auto">
+            {filtered.length === 0 ? (
+              <div className="px-3 py-2 text-sm text-gray-400">
+                {clients.length === 0 ? "No hay clientes" : "Sin resultados"}
+              </div>
+            ) : filtered.map(c => {
+              const name = c.name ?? `${c.nombre ?? ""} ${c.apellido ?? ""}`.trim();
+              return (
+                <button
+                  key={c.id}
+                  type="button"
+                  onMouseDown={() => { onSelect(String(c.id)); setSearch(""); setOpen(false); }}
+                  className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 transition-colors ${
+                    String(c.id) === selectedId ? "bg-[#edf7f4] text-[#1a5c3a] font-medium" : "text-gray-900"
+                  }`}
+                >
+                  {name}
+                </button>
+              );
+            })}
+          </div>
+        )}
+      </div>
+      {error && <p className="text-xs text-red-500">⚠ {error}</p>}
+    </div>
+  );
 }
 
 export function QuotationFormDialog({
@@ -104,27 +167,87 @@ export function QuotationFormDialog({
 
           {/* Cliente */}
           <div className="space-y-2">
-            <Label className="text-gray-900">Cliente *</Label>
             {userRole === "client" && myClientData ? (
-              <div className="rounded-lg border border-gray-200 px-3 py-2 text-sm bg-emerald-50 text-emerald-800 font-medium">
-                {myClientData.nombre} {myClientData.apellido}
+              <div>
+                <Label className="text-gray-900">Cliente</Label>
+                <div className="rounded-lg border border-gray-200 px-3 py-2 text-sm bg-emerald-50 text-emerald-800 font-medium mt-1">
+                  {myClientData.nombre} {myClientData.apellido}
+                </div>
               </div>
             ) : (
-              <select
-                className={`w-full rounded-lg border px-3 py-2 text-sm bg-white text-gray-900 outline-none focus:ring-2 focus:ring-offset-0 ${liveErrors.clientId ? "border-red-500 bg-red-50" : "border-gray-200"}`}
-                value={formData.clientId}
-                onChange={e => setFormData({ ...formData, clientId: e.target.value })}
-                onBlur={() => touch("clientId")}
-              >
-                <option value="">Selecciona un cliente</option>
-                {clients.filter(c => c.id != null).map(c => (
-                  <option key={c.id} value={c.id.toString()}>
-                    {c.name ?? `${c.nombre ?? ""} ${c.apellido ?? ""}`.trim()}
-                  </option>
-                ))}
-              </select>
+              <>
+                {/* Toggle cliente no registrado */}
+                <div className="flex items-center justify-between rounded-lg border border-gray-200 bg-gray-50 px-4 py-3">
+                  <span className="text-sm font-medium text-gray-900">Cliente no registrado</span>
+                  <button
+                    type="button"
+                    onClick={() => setFormData({ ...formData, guestMode: !formData.guestMode, clientId: "" })}
+                    className="relative inline-flex items-center w-10 h-6 rounded-full border-0 cursor-pointer transition-colors"
+                    style={{ backgroundColor: formData.guestMode ? "#1a3a2a" : "#9ca3af", padding: 0 }}
+                  >
+                    <span className="absolute w-4 h-4 rounded-full bg-white shadow transition-all"
+                      style={{ left: formData.guestMode ? "22px" : "2px" }} />
+                  </button>
+                </div>
+
+                {!formData.guestMode ? (
+                  <QuotClientSearch
+                    clients={clients}
+                    selectedId={formData.clientId}
+                    onSelect={id => setFormData({ ...formData, clientId: id })}
+                    error={liveErrors.clientId}
+                    onBlur={() => touch("clientId")}
+                  />
+                ) : (
+                  <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 space-y-3">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">Datos del cliente ocasional</p>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <Label className="text-gray-900">Nombre *</Label>
+                        <input
+                          className={`w-full rounded-lg border px-3 py-2 text-sm bg-white text-gray-900 outline-none ${liveErrors.clientId ? "border-red-500" : "border-gray-200"}`}
+                          value={formData.guestFirstName ?? ""}
+                          onChange={e => setFormData({ ...formData, guestFirstName: e.target.value })}
+                          placeholder="Juan"
+                          onBlur={() => touch("clientId")}
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-gray-900">Apellido</Label>
+                        <input
+                          className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm bg-white text-gray-900 outline-none"
+                          value={formData.guestLastName ?? ""}
+                          onChange={e => setFormData({ ...formData, guestLastName: e.target.value })}
+                          placeholder="Pérez"
+                        />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <Label className="text-gray-900">Teléfono</Label>
+                        <input
+                          className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm bg-white text-gray-900 outline-none"
+                          value={formData.guestPhone ?? ""}
+                          onChange={e => setFormData({ ...formData, guestPhone: e.target.value.replace(/\D/g, "") })}
+                          placeholder="3001234567"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-gray-900">Correo</Label>
+                        <input
+                          type="email"
+                          className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm bg-white text-gray-900 outline-none"
+                          value={formData.guestEmail ?? ""}
+                          onChange={e => setFormData({ ...formData, guestEmail: e.target.value })}
+                          placeholder="correo@ejemplo.com"
+                        />
+                      </div>
+                    </div>
+                    {liveErrors.clientId && <p className="text-xs text-red-500">⚠ {liveErrors.clientId}</p>}
+                  </div>
+                )}
+              </>
             )}
-            {liveErrors.clientId && <p className="text-xs text-red-500">⚠ {liveErrors.clientId}</p>}
           </div>
 
           {/* Fecha y Hora */}
@@ -212,19 +335,35 @@ export function QuotationFormDialog({
                     <div className="space-y-1">
                       <Label className="text-xs text-gray-600">Empleado asignado</Label>
                       {(() => {
+                        // Normalizar string para comparación (quitar acentos, espacios, minúsculas)
+                        const normalize = (str: string) => 
+                          str.toLowerCase()
+                            .normalize("NFD")
+                            .replace(/[\u0300-\u036f]/g, "")
+                            .trim()
+                            .replace(/\s+/g, "");
+
                         const active = employees.filter(
                           em => em.isActive !== false && em.estado !== "Inactivo"
                         );
+                        
                         // Si solo hay un empleado (rol employee), mostrarlo siempre sin filtrar
                         const empList = active.length === 1 ? active : (() => {
                           const svc = availableServices.find(s => String(s.id) === String(item.serviceId));
-                          const cat = (svc?.category ?? "").toLowerCase().trim();
-                          console.log("[QuotationForm] serviceId:", item.serviceId, "svc:", svc?.name, "cat:", cat, "employees:", active.map(e => e.specialty));
+                          const cat = normalize(svc?.category ?? "");
+                          
                           if (!cat) return active;
-                          return active.filter(
-                            em => (em.specialty ?? em.especialidad ?? "").toLowerCase().trim() === cat
-                          );
+                          
+                          // Filtrar empleados cuya especialidad coincida con la categoría del servicio
+                          const filtered = active.filter(em => {
+                            const empSpec = normalize(em.specialty ?? em.especialidad ?? "");
+                            return empSpec === cat;
+                          });
+                          
+                          // Si no hay empleados con esa especialidad, mostrar todos los activos
+                          return filtered.length > 0 ? filtered : active;
                         })();
+                        
                         return (
                           <select
                             className="w-full rounded-lg border border-gray-200 px-3 py-1.5 text-sm bg-white text-gray-900 outline-none"

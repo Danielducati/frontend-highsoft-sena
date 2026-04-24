@@ -5,23 +5,57 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 interface SalesChartProps {
   data: { month: string; ventas: number; servicios: number }[];
   periodLabel: string;
+  period: string;
 }
 
-export function SalesChart({ data, periodLabel }: SalesChartProps) {
+export function SalesChart({ data, periodLabel, period }: SalesChartProps) {
 
   const formatMoney = (value: number) =>
-    `$${value.toLocaleString()}`;
+    `${value.toLocaleString()}`;
+
+  // Determinar el título y descripción según el período
+  const getChartInfo = () => {
+    switch (period) {
+      case "7days":
+        return {
+          title: "Ventas por Día",
+          description: "Comparación diaria de ventas"
+        };
+      case "30days":
+        return {
+          title: "Ventas Mensuales",
+          description: "Comparación mensual de ventas"
+        };
+      case "90days":
+        return {
+          title: "Ventas Semestrales",
+          description: "Comparación semestral de ventas"
+        };
+      case "year":
+        return {
+          title: "Ventas Anuales",
+          description: "Comparación anual de ventas"
+        };
+      default:
+        return {
+          title: "Ventas por Período",
+          description: "Comparación de ventas"
+        };
+    }
+  };
+
+  const chartInfo = getChartInfo();
 
   return (
     <Card className="border-gray-200 shadow-sm">
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-base font-bold" style={{ color: "#1a3a2a", fontFamily: "var(--font-body)" }}>
           <div className="w-1 h-6 bg-[#78D1BD] rounded-full" />
-          Ventas por Mes
+          {chartInfo.title}
         </CardTitle>
 
         <CardDescription style={{ color: "#6b7c6b", fontFamily: "var(--font-body)" }}>
-          Comparación mensual de ventas — {periodLabel}
+          {chartInfo.description} — {periodLabel}
         </CardDescription>
       </CardHeader>
 
@@ -53,7 +87,7 @@ export function SalesChart({ data, periodLabel }: SalesChartProps) {
                 style={{ fontSize: "12px", fontFamily: "var(--font-body)" }}
                 axisLine={false}
                 tickLine={false}
-                tickFormatter={(value) => `$${value/1000}k`}
+                tickFormatter={(value) => `${value/1000}k`}
               />
 
               <Tooltip

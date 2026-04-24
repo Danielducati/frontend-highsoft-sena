@@ -33,3 +33,6 @@ status:       EmployeeNews["status"];
 export interface NewsModuleProps {
 userRole: "admin" | "employee" | "client";
 }
+
+// Re-export tipos del nuevo sistema
+export type { NewsFormDataV2, EmployeeSchedule, DaySchedule, WeekDay } from "./schedule";

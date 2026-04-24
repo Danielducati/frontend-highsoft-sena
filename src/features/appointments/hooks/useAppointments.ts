@@ -292,6 +292,13 @@ export function useAppointments(userRole?: string) {
   };
 
   const handleUpdateStatus = async (appointmentId: number, status: Appointment["status"]) => {
+    // Prevenir cambio de estado si la cita está completada
+    const appointment = appointments.find(a => a.id === appointmentId);
+    if (appointment?.status === "completed") {
+      toast.error("No se puede cambiar el estado de una cita completada");
+      return;
+    }
+
     try {
       await updateAppointmentStatus(appointmentId, status);
       setAppointments(prev => prev.map(a => a.id === appointmentId ? { ...a, status } : a));

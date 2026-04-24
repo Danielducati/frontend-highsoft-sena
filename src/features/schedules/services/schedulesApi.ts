@@ -1,22 +1,29 @@
 // schedules/services/schedulesApi.ts
-const API = "http://localhost:3001";
+const API = import.meta.env.VITE_API_URL ?? "http://localhost:3001";
 
 const authHeaders = () => ({
 "Content-Type": "application/json",
 Authorization: `Bearer ${localStorage.getItem("token") ?? ""}`,
 });
 
+async function throwIfError(res: Response, fallback: string): Promise<void> {
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error(body.error ?? fallback);
+  }
+}
+
 export const schedulesApi = {
 
 getAll: async () => {
     const res = await fetch(`${API}/schedules`, { headers: authHeaders() });
-    if (!res.ok) throw new Error("Error al cargar horarios");
+    await throwIfError(res, "Error al cargar horarios");
     return res.json();
 },
 
 getEmployees: async () => {
     const res = await fetch(`${API}/employees`, { headers: authHeaders() });
-    if (!res.ok) throw new Error("Error al cargar empleados");
+    await throwIfError(res, "Error al cargar empleados");
     const data = await res.json();
     return data.map((e: any) => ({
     id:        String(e.id ?? e.PK_id_empleado),
@@ -35,10 +42,7 @@ create: async (payload: {
     headers: authHeaders(),
     body:    JSON.stringify(payload),
     });
-    if (!res.ok) {
-    const err = await res.json();
-    throw new Error(err.error ?? "Error al crear horario");
-    }
+    await throwIfError(res, "Error al crear horario");
     return res.json();
 },
 
@@ -52,10 +56,7 @@ update: async (
     headers: authHeaders(),
     body:    JSON.stringify({ daySchedules }),
     });
-    if (!res.ok) {
-    const err = await res.json();
-    throw new Error(err.error ?? "Error al actualizar horario");
-    }
+    await throwIfError(res, "Error al actualizar horario");
     return res.json();
 },
 
@@ -64,7 +65,7 @@ remove: async (employeeId: string, weekStartDate: string) => {
     method:  "DELETE",
     headers: authHeaders(),
     });
-    if (!res.ok) throw new Error("Error al eliminar horario");
+    await throwIfError(res, "Error al eliminar horario");
     return res.json();
 },
 };
