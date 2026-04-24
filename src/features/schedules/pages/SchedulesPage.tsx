@@ -1,19 +1,24 @@
 //frontend-highsoft-sena\src\features\schedules\pages\SchedulesPage.tsx
+import { useState } from "react";
 import { Card, CardContent } from "../../../shared/ui/card";
 import { Button } from "../../../shared/ui/button";
 import { Input } from "../../../shared/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../shared/ui/select";
 import { Badge } from "../../../shared/ui/badge";
-import { Plus, Search, X, Calendar, User, Clock, Eye, Pencil, Trash2, RefreshCw } from "lucide-react";
+import { Plus, Search, X, Calendar, User, Clock, Eye, Pencil, Trash2, RefreshCw, History } from "lucide-react";
 import { SchedulesModuleProps } from "../types";
 import { useSchedules } from "../hooks/useSchedules";
 import { ScheduleFormDialog } from "../components/ScheduleFormDialog";
 import { ScheduleDetailDialog } from "../components/ScheduleDetailDialog";
 import { ScheduleDeleteDialog } from "../components/ScheduleDeleteDialog";
+import { ScheduleHistoryDialog } from "../components/ScheduleHistoryDialog";
 import { formatWeekRange, getWeekDays, getDayBadgeColor, getDayLabel } from "../utils";
 import { SpaPage } from "../../../shared/components/layout/SpaPage";
 
 export function SchedulesPage({ userRole }: SchedulesModuleProps) {
+  const [historyDialogOpen, setHistoryDialogOpen] = useState(false);
+  const [historyEmployee, setHistoryEmployee] = useState<{ id: string; name: string; weekStart?: string } | null>(null);
+
   const {
     filteredSchedules, employees,
     isDialogOpen, setIsDialogOpen,
@@ -31,6 +36,16 @@ export function SchedulesPage({ userRole }: SchedulesModuleProps) {
     confirmDelete, handleEdit, handleViewDetail,
     resetForm, clearFilters,
   } = useSchedules();
+
+  // Función para abrir el historial de un empleado
+  const handleViewHistory = (schedule: any) => {
+    setHistoryEmployee({
+      id: schedule.employeeId,
+      name: schedule.employeeName,
+      weekStart: schedule.weekStartDate
+    });
+    setHistoryDialogOpen(true);
+  };
 
   return (
     <SpaPage
@@ -197,6 +212,16 @@ export function SchedulesPage({ userRole }: SchedulesModuleProps) {
                           <td className="px-4 py-3">
                           <div className="flex items-center justify-center gap-1">
                             <button
+                              onClick={() => handleViewHistory(schedule)}
+                              title="Ver historial"
+                              className="p-2 rounded-lg transition-colors"
+                              style={{ color: "#78D1BD" }}
+                              onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#edf7f4")}
+                              onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
+                            >
+                              <History className="w-4 h-4" />
+                            </button>
+                            <button
                               onClick={() => handleRenewWeek(schedule)}
                               title="Renovar a siguiente semana"
                               className="p-2 rounded-lg transition-colors"
@@ -276,6 +301,13 @@ export function SchedulesPage({ userRole }: SchedulesModuleProps) {
         open={deleteDialogOpen}
         onOpenChange={setDeleteDialogOpen}
         onConfirm={handleDelete}
+      />
+      <ScheduleHistoryDialog
+        isOpen={historyDialogOpen}
+        onOpenChange={setHistoryDialogOpen}
+        employeeId={historyEmployee?.id || ""}
+        employeeName={historyEmployee?.name || ""}
+        weekStartDate={historyEmployee?.weekStart}
       />
       </div>
     </SpaPage>

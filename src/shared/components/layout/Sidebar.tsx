@@ -114,7 +114,7 @@ export function Sidebar({ activePage, onNavigate, onLogout, userRole, allowedPag
     <aside
       className="w-64 flex flex-col h-screen fixed left-0 top-0"
       // Color de fondo de la sidebar
-      style={{ backgroundColor: " #b7b7b7ff", borderRight: "2px solid #e8e6e1" }}
+      style={{ backgroundColor: " #c4c3c3ff", borderRight: "2px solid #e8e6e1" }}
     >
       {/* Logo Section */}
       <div className="px-5 py-4" style={{ borderBottom: "1px solid #ece9e3" }}>
@@ -157,7 +157,7 @@ export function Sidebar({ activePage, onNavigate, onLogout, userRole, allowedPag
               style={
                 isActive
                   ? { backgroundColor: "#0f5b43" }
-                  : { color: "#6b7c6b" }
+                  : { color: "#7c6b6bff" }
               }
             >
               <Icon className="w-4 h-4 flex-shrink-0" />

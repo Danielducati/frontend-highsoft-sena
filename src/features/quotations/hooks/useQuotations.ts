@@ -1,14 +1,13 @@
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { Quotation, QuotationFormData, QuotationItem, QuotationStatus } from "../types";
-import { ITEMS_PER_PAGE } from "../constants";
+import { ITEMS_PER_PAGE, API_URL } from "../constants";
 import {
   fetchQuotationsApi, fetchClientsApi, fetchServicesApi, fetchMyEmployeeServicesApi,
   createQuotationApi, updateQuotationApi, updateQuotationStatusApi,
   fetchMyProfileApi,
 } from "../services/quotationsService";
 
-const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3001";
 const getToken = () => localStorage.getItem("token");
 
 async function fetchMyEmployeeProfileApi(): Promise<{ id: string; name: string; specialty: string }> {
@@ -128,6 +127,7 @@ export function useQuotations(userRole?: string) {
   const loadEmployees = async () => {
     try {
       const res  = await fetch(`${API_URL}/employees`, { headers: { Authorization: `Bearer ${getToken()}` } });
+      if (!res.ok) throw new Error("Error al cargar empleados");
       const data = await res.json();
       const list = Array.isArray(data) ? data : [];
       setEmployees(list.map((e: any) => ({
@@ -138,29 +138,48 @@ export function useQuotations(userRole?: string) {
         estado:    e.estado ?? "Activo",
         color:     e.color ?? "#78D1BD",
       })));
-    } catch { /* silencioso */ }
+    } catch (error) {
+      console.error("Error al cargar empleados:", error);
+      toast.error("No se pudieron cargar los empleados");
+    }
   };
 
   // ── CRUD ──────────────────────────────────────────────────────────────────
   const handleCreate = async () => {
-    if (!formData.clientId || formData.selectedServices.length === 0) {
-      toast.error("Por favor selecciona un cliente y al menos un servicio");
+    if (!formData.guestMode && !formData.clientId) {
+      toast.error("Por favor selecciona un cliente o ingresa los datos del cliente ocasional");
       return;
     }
-    const body = {
-      id_cliente:  parseInt(formData.clientId),
+    if (formData.guestMode && !formData.guestFirstName?.trim()) {
+      toast.error("El nombre del cliente es obligatorio");
+      return;
+    }
+    if (formData.selectedServices.length === 0) {
+      toast.error("Por favor agrega al menos un servicio");
+      return;
+    }
+    const body: any = {
+      id_cliente:  formData.guestMode ? null : parseInt(formData.clientId),
       fecha:       formData.date,
       hora_inicio: formData.startTime || null,
       notas:       formData.notes,
       descuento:   parseFloat(formData.discount) || 0,
       servicios:   formData.selectedServices.map(s => ({
-        id_servicio:  s.serviceId,
-        precio:       s.price,
-        cantidad:     s.quantity,
-        empleado_id:  s.empleadoId   ?? null,
+        id_servicio:   s.serviceId,
+        precio:        s.price,
+        cantidad:      s.quantity,
+        empleado_id:   s.empleadoId   ?? null,
         empleado_name: s.empleadoName ?? null,
       })),
     };
+    if (formData.guestMode) {
+      body.clienteOcasional = {
+        firstName: formData.guestFirstName?.trim(),
+        lastName:  formData.guestLastName?.trim()  || "",
+        email:     formData.guestEmail?.trim()     || null,
+        phone:     formData.guestPhone?.trim()     || null,
+      };
+    }
     try {
       if (editingQuotation) {
         await updateQuotationApi(editingQuotation.id, body);
@@ -267,7 +286,7 @@ export function useQuotations(userRole?: string) {
   const resetForm = () => {
     setIsDialogOpen(false);
     setEditingQuotation(null);
-    setFormData({ ...EMPTY_FORM, date: new Date().toISOString().split("T")[0] });
+    setFormData({ ...EMPTY_FORM, date: new Date().toISOString().split("T")[0], guestMode: false, guestFirstName: "", guestLastName: "", guestPhone: "", guestEmail: "" });
   };
 
   // ── Filtros / paginación ───────────────────────────────────────────────────

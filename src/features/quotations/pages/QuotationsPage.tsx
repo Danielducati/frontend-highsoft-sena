@@ -294,72 +294,53 @@ export function QuotationsPage({ userRole }: QuotationsModuleProps) {
 
       {/* ── Paginación ── */}
       {totalPages > 1 && (
-        <div className="flex flex-col sm:flex-row gap-3 mb-6" style={{ fontFamily: "var(--font-body)" }}>
-
-        {/* BUSCADOR */}
-        <div className="flex items-center gap-2 px-4 py-2 rounded-full border flex-1"
-          style={{ backgroundColor: "#ffffff", borderColor: "#d6cfc4", maxWidth: 340 }}>
-          <Search className="w-4 h-4 flex-shrink-0" style={{ color: "#6b7c6b" }} />
-          <input
-            placeholder="Buscar por cliente..."
-            value={searchTerm}
-            onChange={e => { setSearchTerm(e.target.value); setCurrentPage(1); }}
-            className="bg-transparent outline-none text-sm w-full"
-            style={{ color: "#1a3a2a" }}
-          />
+        <div className="flex justify-between items-center mt-6 px-2" style={{ fontFamily: "var(--font-body)" }}>
+          <p className="text-sm" style={{ color: "#6b7c6b" }}>
+            Mostrando {startIndex + 1} - {Math.min(startIndex + ITEMS_PER_PAGE, filteredQuotations.length)} de {filteredQuotations.length} cotizaciones
+          </p>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+              disabled={currentPage === 1}
+              className="px-4 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              style={{
+                backgroundColor: currentPage === 1 ? "#f3f4f6" : "#ffffff",
+                color: currentPage === 1 ? "#9ca3af" : "#1a3a2a",
+                border: "1px solid #d6cfc4",
+              }}
+            >
+              Anterior
+            </button>
+            <div className="flex items-center gap-1">
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                <button
+                  key={page}
+                  onClick={() => setCurrentPage(page)}
+                  className="w-10 h-10 rounded-lg text-sm font-medium transition-colors"
+                  style={{
+                    backgroundColor: currentPage === page ? "#1a3a2a" : "#ffffff",
+                    color: currentPage === page ? "#ffffff" : "#1a3a2a",
+                    border: currentPage === page ? "none" : "1px solid #d6cfc4",
+                  }}
+                >
+                  {page}
+                </button>
+              ))}
+            </div>
+            <button
+              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+              disabled={currentPage === totalPages}
+              className="px-4 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              style={{
+                backgroundColor: currentPage === totalPages ? "#f3f4f6" : "#ffffff",
+                color: currentPage === totalPages ? "#9ca3af" : "#1a3a2a",
+                border: "1px solid #d6cfc4",
+              }}
+            >
+              Siguiente
+            </button>
+          </div>
         </div>
-      
-        {/* FILTRO CLIENTE */}
-        <div className="flex items-center gap-2">
-          <Filter className="w-4 h-4" style={{ color: "#6b7c6b" }} />
-          <select
-            value={filterClient}
-            onChange={e => { setFilterClient(e.target.value); setCurrentPage(1); }}
-            style={{
-              padding: "8px 14px",
-              borderRadius: 10,
-              border: "1px solid #d6cfc4",
-              backgroundColor: "#ffffff",
-              color: "#1a3a2a",
-              fontSize: 13,
-              fontFamily: "var(--font-body)",
-              outline: "none",
-            }}
-          >
-            <option value="all">Todos los clientes</option>
-            {clients.map(client => (
-              <option key={client.id} value={client.id}>
-                {client.name}
-              </option>
-            ))}
-          </select>
-        </div>
-      
-        {/* FILTRO ESTADO */}
-        <div className="flex items-center gap-2">
-          <Filter className="w-4 h-4" style={{ color: "#6b7c6b" }} />
-          <select
-            value={filterStatus}
-            onChange={e => { setFilterStatus(e.target.value); setCurrentPage(1); }}
-            style={{
-              padding: "8px 14px",
-              borderRadius: 10,
-              border: "1px solid #d6cfc4",
-              backgroundColor: "#ffffff",
-              color: "#1a3a2a",
-              fontSize: 13,
-              fontFamily: "var(--font-body)",
-              outline: "none",
-            }}
-          >
-            <option value="all">Todos los estados</option>
-            {STATUS_OPTIONS.map(({ value, label }) => (
-              <option key={value} value={value}>{label}</option>
-            ))}
-          </select>
-        </div>
-      
-      </div>
       )}
 
       {/* ── Dialogs ── */}

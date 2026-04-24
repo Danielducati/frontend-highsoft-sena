@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { Button } from "../../../shared/ui/button";
 import { Input } from "../../../shared/ui/input";
 import { Label } from "../../../shared/ui/label";
@@ -45,6 +45,99 @@ function validateAppointment(data: SaleFormData): Errors {
   if (!data.appointmentId) e.appointment = "Selecciona una cita.";
   if (!data.paymentMethod) e.payment     = "Selecciona un método de pago.";
   return e;
+}
+
+// ── Sub-componentes (definidos ANTES de SaleForm para evitar errores de hoisting con SWC) ──
+
+function ClientSearch({ clients, selectedId, onSelect, error, onBlur }: {
+  clients: any[];
+  selectedId: string;
+  onSelect: (id: string) => void;
+  error?: string;
+  onBlur?: () => void;
+}) {
+  const [search, setSearch] = React.useState("");
+  const [open,   setOpen]   = React.useState(false);
+  const filtered = clients.filter(c => (c.name ?? "").toLowerCase().includes(search.toLowerCase()));
+  const selected = clients.find(c => String(c.id) === selectedId);
+  return (
+    <div className="space-y-2">
+      <Label className="text-gray-900">Cliente *</Label>
+      <div className="relative">
+        <input type="text"
+          placeholder={selected ? selected.name : "Buscar cliente por nombre..."}
+          value={search}
+          onChange={e => { setSearch(e.target.value); setOpen(true); }}
+          onFocus={() => setOpen(true)}
+          onBlur={() => { setTimeout(() => setOpen(false), 150); onBlur?.(); }}
+          className={`w-full rounded-lg border px-3 py-2 text-sm bg-white text-gray-900 outline-none ${error ? "border-red-500 bg-red-50" : selected ? "border-[#78D1BD] bg-[#edf7f4]" : "border-gray-200"}`}
+        />
+        {open && (
+          <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-56 overflow-y-auto">
+            {filtered.length === 0
+              ? <div className="px-3 py-2 text-sm text-gray-400">{clients.length === 0 ? "No hay clientes" : "Sin resultados"}</div>
+              : filtered.map(c => (
+                <button key={c.id} type="button"
+                  onMouseDown={() => { onSelect(String(c.id)); setSearch(""); setOpen(false); }}
+                  className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 transition-colors ${String(c.id) === selectedId ? "bg-[#edf7f4] text-[#1a5c3a] font-medium" : "text-gray-900"}`}>
+                  {c.name}
+                </button>
+              ))}
+          </div>
+        )}
+      </div>
+      {error && <p className="text-xs text-red-500">⚠ {error}</p>}
+    </div>
+  );
+}
+
+function AppointmentSearch({ appointments, selectedId, onSelect, error, onBlur }: {
+  appointments: any[];
+  selectedId: number | null;
+  onSelect: (id: string) => void;
+  error?: string;
+  onBlur?: () => void;
+}) {
+  const [search, setSearch] = React.useState("");
+  const [open,   setOpen]   = React.useState(false);
+  const filtered = appointments.filter(a => {
+    const q = search.toLowerCase();
+    return a.clientName?.toLowerCase().includes(q) || a.service?.toLowerCase().includes(q) ||
+      (a.date ? new Date(a.date).toLocaleDateString("es-ES") : "").includes(q);
+  });
+  const selected = appointments.find(a => a.id === selectedId);
+  return (
+    <div className="space-y-2">
+      <Label className="text-gray-900">Seleccionar Cita *</Label>
+      <div className="relative">
+        <input type="text"
+          placeholder={selected ? `${selected.clientName} — ${selected.service}` : "Buscar por cliente, servicio o fecha..."}
+          value={search}
+          onChange={e => { setSearch(e.target.value); setOpen(true); }}
+          onFocus={() => setOpen(true)}
+          onBlur={() => { setTimeout(() => setOpen(false), 150); onBlur?.(); }}
+          className={`w-full rounded-lg border px-3 py-2 text-sm bg-white text-gray-900 outline-none ${error ? "border-red-500 bg-red-50" : selected ? "border-[#78D1BD] bg-[#edf7f4]" : "border-gray-200"}`}
+        />
+        {open && (
+          <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-56 overflow-y-auto">
+            {filtered.length === 0
+              ? <div className="px-3 py-2 text-sm text-gray-400">{appointments.length === 0 ? "No hay citas pendientes" : "Sin resultados"}</div>
+              : filtered.map(a => (
+                <button key={a.id} type="button"
+                  onMouseDown={() => { onSelect(String(a.id)); setSearch(""); setOpen(false); }}
+                  className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 transition-colors ${a.id === selectedId ? "bg-[#edf7f4] text-[#1a5c3a] font-medium" : "text-gray-900"}`}>
+                  <span className="font-medium">{a.clientName}</span>
+                  <span className="text-gray-500"> — {a.service}</span>
+                  <span className="text-xs text-gray-400 ml-2">{a.date ? new Date(a.date).toLocaleDateString("es-ES") : ""} {a.time}</span>
+                  {a.price > 0 && <span className="float-right text-xs font-semibold text-[#1a5c3a]">${a.price.toLocaleString("es-CO")}</span>}
+                </button>
+              ))}
+          </div>
+        )}
+      </div>
+      {error && <p className="text-xs text-red-500">⚠ {error}</p>}
+    </div>
+  );
 }
 
 export function SaleForm({
@@ -134,19 +227,13 @@ export function SaleForm({
 
           {/* Cliente registrado */}
           {!formData.guestMode && (
-            <div className="space-y-2">
-              <Label className="text-gray-900">Cliente *</Label>
-              <select
-                className={selectCls(!!liveErr.client)}
-                value={formData.clienteId}
-                onChange={e => setFormData(prev => ({ ...prev, clienteId: e.target.value }))}
-                onBlur={() => touch("client")}
-              >
-                <option value="">Seleccionar cliente</option>
-                {clients.map(c => <option key={c.id} value={c.id.toString()}>{c.name}</option>)}
-              </select>
-              {liveErr.client && <p className="text-xs text-red-500">⚠ {liveErr.client}</p>}
-            </div>
+            <ClientSearch
+              clients={clients}
+              selectedId={formData.clienteId ? String(formData.clienteId) : ""}
+              onSelect={id => setFormData(prev => ({ ...prev, clienteId: id }))}
+              error={liveErr.client}
+              onBlur={() => touch("client")}
+            />
           )}
 
           {/* Cliente ocasional */}
@@ -368,25 +455,13 @@ export function SaleForm({
       {/* ── DESDE CITA ── */}
       {saleType === "appointment" && (
         <>
-          <div className="space-y-2">
-            <Label className="text-gray-900">Seleccionar Cita *</Label>
-            <select
-              className={selectCls(!!liveErr.appointment)}
-              value={formData.appointmentId?.toString() || ""}
-              onChange={e => onAppointmentSelect(e.target.value)}
-              onBlur={() => touch("appointment")}
-            >
-              <option value="">Buscar cita...</option>
-              {appointments.length === 0
-                ? <option disabled value="">No hay citas activas</option>
-                : appointments.map(a => (
-                  <option key={a.id} value={a.id.toString()}>
-                    {a.clientName} — {a.service} ({a.date ? new Date(a.date).toLocaleDateString("es-ES") : ""} {a.time})
-                  </option>
-                ))}
-            </select>
-            {liveErr.appointment && <p className="text-xs text-red-500">⚠ {liveErr.appointment}</p>}
-          </div>
+          <AppointmentSearch
+            appointments={appointments}
+            selectedId={formData.appointmentId}
+            onSelect={onAppointmentSelect}
+            error={liveErr.appointment}
+            onBlur={() => touch("appointment")}
+          />
 
           {formData.appointmentId && formData.selectedServices.length > 0 && (
             <div className="rounded-lg border border-gray-200 bg-white px-4 py-3 space-y-1">
@@ -434,7 +509,7 @@ export function SaleForm({
   );
 }
 
-// ── Sub-componentes ──────────────────────────────────────────────────────────
+// ── PaymentFields y Totals ────────────────────────────────────────────────────
 
 function PaymentFields({ formData, setFormData, error, onBlur }: {
   formData: SaleFormData;

@@ -246,24 +246,31 @@ export function AppointmentsPage({ userRole }: AppointmentsModuleProps) {
                         <>
                           <button
                             onClick={() => handleEdit(apt)}
-                            title="Editar"
+                            disabled={apt.status === "completed"}
+                            title={apt.status === "completed" ? "No se puede editar una cita completada" : "Editar"}
                             className="p-2 rounded-lg transition-colors"
-                            style={{ color: "#6b7c6b" }}
-                            onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#f0ebe3")}
+                            style={{
+                              color: apt.status === "completed" ? "#d1d5db" : "#6b7c6b",
+                              cursor: apt.status === "completed" ? "not-allowed" : "pointer",
+                            }}
+                            onMouseEnter={e => { if (apt.status !== "completed") e.currentTarget.style.backgroundColor = "#f0ebe3"; }}
                             onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
                           >
                             <Pencil className="w-4 h-4" />
                           </button>
                           <button
                             onClick={() => { setAppointmentToCancel(apt.id); setCancelDialogOpen(true); }}
-                            disabled={apt.status === "cancelled"}
-                            title="Cancelar"
+                            disabled={apt.status === "cancelled" || apt.status === "completed"}
+                            title={
+                              apt.status === "completed" ? "No se puede cancelar una cita completada" :
+                              apt.status === "cancelled" ? "Cita ya cancelada" : "Cancelar"
+                            }
                             className="p-2 rounded-lg transition-colors"
                             style={{
-                              color: apt.status === "cancelled" ? "#d1d5db" : "#c0392b",
-                              cursor: apt.status === "cancelled" ? "not-allowed" : "pointer",
+                              color: (apt.status === "cancelled" || apt.status === "completed") ? "#d1d5db" : "#c0392b",
+                              cursor: (apt.status === "cancelled" || apt.status === "completed") ? "not-allowed" : "pointer",
                             }}
-                            onMouseEnter={e => { if (apt.status !== "cancelled") e.currentTarget.style.backgroundColor = "#fdf0ee"; }}
+                            onMouseEnter={e => { if (apt.status !== "cancelled" && apt.status !== "completed") e.currentTarget.style.backgroundColor = "#fdf0ee"; }}
                             onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
                           >
                             <Trash2 className="w-4 h-4" />

@@ -1,4 +1,4 @@
-//components/NewsForm.tsx
+// src/features/news/components/NewsFormV2.tsx
 import { useState, useEffect } from "react";
 import { Label } from "../../../shared/ui/label";
 import { Textarea } from "../../../shared/ui/textarea";
@@ -16,123 +16,140 @@ import {
   Tag, 
   ChevronLeft, 
   ChevronRight,
-  Info
+  AlertTriangle,
+  Info,
+  CheckCircle
 } from "lucide-react";
 
 import { NEWS_TYPES, TIME_SLOTS } from "../constants";
-import { Employee, EmployeeNews, NewsFormData } from "../types";
+import { Employee } from "../types";
+import { NewsFormDataV2, WeekDay, EmployeeSchedule } from "../types/schedule";
+import { scheduleService } from "../services/scheduleService";
 
-interface NewsFormProps {
-  formData:    NewsFormData;
-  setFormData: React.Dispatch<React.SetStateAction<NewsFormData>>;
-  employees:   Employee[];
-  editingNews: EmployeeNews | null;
-  onSubmit:    () => void;
-  onCancel:    () => void;
+interface NewsFormV2Props {
+  formData: NewsFormDataV2;
+  setFormData: React.Dispatch<React.SetStateAction<NewsFormDataV2>>;
+  employees: Employee[];
+  editingNews: any | null;
+  onSubmit: () => void;
+  onCancel: () => void;
 }
 
-// Mock data para horarios semanales (temporal hasta integrar con backend)
-const mockEmployeeSchedules = {
-  "1": {
-    name: "Juan Pérez",
-    schedule: [
-      { day: 0, name: "Lunes", short: "Lun", hours: "08:00-17:00", available: true },
-      { day: 1, name: "Martes", short: "Mar", hours: "08:00-17:00", available: true },
-      { day: 2, name: "Miércoles", short: "Mié", hours: "08:00-17:00", available: true },
-      { day: 3, name: "Jueves", short: "Jue", hours: "08:00-17:00", available: true },
-      { day: 4, name: "Viernes", short: "Vie", hours: "08:00-17:00", available: true },
-      { day: 5, name: "Sábado", short: "Sáb", hours: "", available: false },
-      { day: 6, name: "Domingo", short: "Dom", hours: "", available: false },
-    ]
-  },
-  "2": {
-    name: "María García",
-    schedule: [
-      { day: 0, name: "Lunes", short: "Lun", hours: "09:00-18:00", available: true },
-      { day: 1, name: "Martes", short: "Mar", hours: "09:00-18:00", available: true },
-      { day: 2, name: "Miércoles", short: "Mié", hours: "09:00-18:00", available: true },
-      { day: 3, name: "Jueves", short: "Jue", hours: "09:00-18:00", available: true },
-      { day: 4, name: "Viernes", short: "Vie", hours: "09:00-18:00", available: true },
-      { day: 5, name: "Sábado", short: "Sáb", hours: "08:00-14:00", available: true },
-      { day: 6, name: "Domingo", short: "Dom", hours: "", available: false },
-    ]
-  },
-  "3": {
-    name: "Carlos López",
-    schedule: [
-      { day: 0, name: "Lunes", short: "Lun", hours: "", available: false },
-      { day: 1, name: "Martes", short: "Mar", hours: "14:00-22:00", available: true },
-      { day: 2, name: "Miércoles", short: "Mié", hours: "14:00-22:00", available: true },
-      { day: 3, name: "Jueves", short: "Jue", hours: "14:00-22:00", available: true },
-      { day: 4, name: "Viernes", short: "Vie", hours: "14:00-22:00", available: true },
-      { day: 5, name: "Sábado", short: "Sáb", hours: "14:00-22:00", available: true },
-      { day: 6, name: "Domingo", short: "Dom", hours: "14:00-22:00", available: true },
-    ]
-  }
-};
-
-export function NewsForm({ formData, setFormData, employees, editingNews, onSubmit, onCancel }: NewsFormProps) {
-  const [selectedWeekStart, setSelectedWeekStart] = useState(() => {
-    // Obtener el lunes de la semana actual
-    const today = new Date();
-    const dayOfWeek = today.getDay();
-    const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
-    const monday = new Date(today);
-    monday.setDate(today.getDate() + mondayOffset);
-    return monday.toISOString().split('T')[0];
+export function NewsFormV2({ 
+  formData, 
+  setFormData, 
+  employees, 
+  editingNews, 
+  onSubmit, 
+  onCancel 
+}: NewsFormV2Props) {
+  const [weekDays, setWeekDays] = useState<WeekDay[]>([]);
+  const [employeeSchedule, setEmployeeSchedule] = useState<EmployeeSchedule | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [validation, setValidation] = useState<{ isValid: boolean; errors: string[]; warnings: string[] }>({
+    isValid: true,
+    errors: [],
+    warnings: []
   });
-  
-  const [selectedDays, setSelectedDays] = useState<number[]>([]);
-  const [affectationType, setAffectationType] = useState<"full_day" | "partial_hours">("full_day");
-  const [employeeSchedule, setEmployeeSchedule] = useState<any>(null);
+
+  // Cargar horario del empleado cuando cambie la selección
+  useEffect(() => {
+    if (formData.employeeId && formData.selectedWeekStart) {
+      loadEmployeeSchedule();
+    }
+  }, [formData.employeeId, formData.selectedWeekStart]);
+
+  // Validar selección cuando cambien los días o horarios
+  useEffect(() => {
+    if (weekDays.length > 0) {
+      const validationResult = scheduleService.validateScheduleSelection(
+        formData.selectedDays,
+        weekDays,
+        formData.startTime,
+        formData.endTime
+      );
+      setValidation(validationResult);
+    }
+  }, [formData.selectedDays, formData.startTime, formData.endTime, weekDays]);
+
+  const loadEmployeeSchedule = async () => {
+    setLoading(true);
+    try {
+      const schedule = await scheduleService.getWeekSchedule(
+        formData.employeeId, 
+        formData.selectedWeekStart
+      );
+      
+      setEmployeeSchedule(schedule);
+      
+      const days = scheduleService.generateWeekDays(formData.selectedWeekStart, schedule || undefined);
+      setWeekDays(days);
+      
+      // Limpiar días seleccionados si no están disponibles
+      const availableDayIndices = days.filter(d => d.available).map(d => d.dayIndex);
+      const validSelectedDays = formData.selectedDays.filter(dayIndex => 
+        availableDayIndices.includes(dayIndex)
+      );
+      
+      if (validSelectedDays.length !== formData.selectedDays.length) {
+        setFormData(prev => ({ ...prev, selectedDays: validSelectedDays }));
+      }
+      
+    } catch (error) {
+      console.error("Error loading employee schedule:", error);
+      setWeekDays(scheduleService.generateWeekDays(formData.selectedWeekStart));
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleEmployeeChange = (empId: string) => {
     const emp = employees.find(e => String(e.id) === empId);
     if (emp) {
-      setFormData(prev => ({ ...prev, employeeId: String(emp.id), employeeName: emp.name }));
-      setEmployeeSchedule(mockEmployeeSchedules[empId as keyof typeof mockEmployeeSchedules] || null);
-      setSelectedDays([]);
-    }
-  };
-
-  const handleWeekNavigation = (direction: 'prev' | 'next') => {
-    const currentDate = new Date(selectedWeekStart);
-    const offset = direction === 'prev' ? -7 : 7;
-    currentDate.setDate(currentDate.getDate() + offset);
-    setSelectedWeekStart(currentDate.toISOString().split('T')[0]);
-  };
-
-  const handleDayToggle = (dayIndex: number) => {
-    const isSelected = selectedDays.includes(dayIndex);
-    const newSelectedDays = isSelected
-      ? selectedDays.filter(d => d !== dayIndex)
-      : [...selectedDays, dayIndex];
-    
-    setSelectedDays(newSelectedDays);
-    
-    // Actualizar formData con la primera fecha seleccionada
-    if (newSelectedDays.length > 0) {
-      const firstDayIndex = Math.min(...newSelectedDays);
-      const weekStart = new Date(selectedWeekStart);
-      const selectedDate = new Date(weekStart);
-      selectedDate.setDate(weekStart.getDate() + firstDayIndex);
-      
       setFormData(prev => ({ 
         ...prev, 
-        date: selectedDate.toISOString().split('T')[0],
-        fechaFinal: newSelectedDays.length > 1 ? 
-          (() => {
-            const lastDayIndex = Math.max(...newSelectedDays);
-            const lastDate = new Date(weekStart);
-            lastDate.setDate(weekStart.getDate() + lastDayIndex);
-            return lastDate.toISOString().split('T')[0];
-          })() : ""
+        employeeId: String(emp.id), 
+        employeeName: emp.name,
+        selectedDays: [],
+        startTime: "",
+        endTime: ""
       }));
     }
   };
 
+  const handleWeekNavigation = (direction: 'prev' | 'next') => {
+    const newWeekStart = direction === 'prev' 
+      ? scheduleService.getPreviousWeek(formData.selectedWeekStart)
+      : scheduleService.getNextWeek(formData.selectedWeekStart);
+    
+    setFormData(prev => ({ 
+      ...prev, 
+      selectedWeekStart: newWeekStart,
+      selectedDays: []
+    }));
+  };
+
+  const handleDayToggle = (dayIndex: number) => {
+    const isSelected = formData.selectedDays.includes(dayIndex);
+    const newSelectedDays = isSelected
+      ? formData.selectedDays.filter(d => d !== dayIndex)
+      : [...formData.selectedDays, dayIndex];
+    
+    setFormData(prev => ({ ...prev, selectedDays: newSelectedDays }));
+  };
+
+  const handleAffectationTypeChange = (type: NewsFormDataV2['affectationType']) => {
+    setFormData(prev => ({ 
+      ...prev, 
+      affectationType: type,
+      // Limpiar horarios si no es parcial
+      startTime: type === 'partial_hours' ? prev.startTime : "",
+      endTime: type === 'partial_hours' ? prev.endTime : ""
+    }));
+  };
+
   const getWeekRangeLabel = () => {
-    const startDate = new Date(selectedWeekStart);
+    const startDate = new Date(formData.selectedWeekStart);
     const endDate = new Date(startDate);
     endDate.setDate(startDate.getDate() + 6);
     
@@ -158,13 +175,6 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
     ];
     return colors[dayIndex] || colors[0];
   };
-
-  // Actualizar horarios cuando cambie el tipo de afectación
-  useEffect(() => {
-    if (affectationType === "full_day") {
-      setFormData(prev => ({ ...prev, startTime: "", endTime: "" }));
-    }
-  }, [affectationType, setFormData]);
 
   return (
     <div className="space-y-6">
@@ -214,12 +224,12 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
       </div>
 
       {/* Horario Semanal del Empleado */}
-      {formData.employeeId && employeeSchedule && (
+      {formData.employeeId && (
         <Card className="border-gray-200">
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2 text-base">
               <Calendar className="w-4 h-4 text-[#78D1BD]" />
-              Horario Semanal - {employeeSchedule.name}
+              Horario Semanal - {formData.employeeName}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -240,7 +250,7 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
                   {getWeekRangeLabel()}
                 </p>
                 <p className="text-xs text-gray-500">
-                  Semana del {selectedWeekStart}
+                  Semana del {formData.selectedWeekStart}
                 </p>
               </div>
               
@@ -256,57 +266,74 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
             </div>
 
             {/* Días de la Semana */}
-            <div className="space-y-3">
-              <Label className="text-sm font-medium">
-                Selecciona los días afectados por la novedad:
-              </Label>
-              
-              {employeeSchedule.schedule.map((day: any) => (
-                <div key={day.day} className="space-y-2">
-                  <div className="flex items-center gap-3">
-                    <Checkbox
-                      id={`day-${day.day}`}
-                      checked={selectedDays.includes(day.day)}
-                      onCheckedChange={() => handleDayToggle(day.day)}
-                      disabled={!day.available}
-                    />
-                    
-                    <label 
-                      htmlFor={`day-${day.day}`}
-                      className={`flex items-center gap-2 cursor-pointer select-none ${
-                        !day.available ? 'opacity-50' : ''
-                      }`}
-                    >
-                      <Badge 
-                        variant="secondary" 
-                        className={`text-xs ${getDayBadgeColor(day.day)}`}
+            {loading ? (
+              <div className="text-center py-8 text-gray-500">
+                Cargando horario del empleado...
+              </div>
+            ) : weekDays.length === 0 ? (
+              <Alert>
+                <Info className="h-4 w-4" />
+                <AlertDescription>
+                  No se encontró horario para este empleado en la semana seleccionada.
+                </AlertDescription>
+              </Alert>
+            ) : (
+              <div className="space-y-3">
+                <Label className="text-sm font-medium">
+                  Selecciona los días afectados por la novedad:
+                </Label>
+                
+                {weekDays.map((day) => (
+                  <div key={day.dayIndex} className="space-y-2">
+                    <div className="flex items-center gap-3">
+                      <Checkbox
+                        id={`day-${day.dayIndex}`}
+                        checked={formData.selectedDays.includes(day.dayIndex)}
+                        onCheckedChange={() => handleDayToggle(day.dayIndex)}
+                        disabled={!day.available}
+                      />
+                      
+                      <label 
+                        htmlFor={`day-${day.dayIndex}`}
+                        className={`flex items-center gap-2 cursor-pointer select-none ${
+                          !day.available ? 'opacity-50' : ''
+                        }`}
                       >
-                        {day.short}
-                      </Badge>
-                      
-                      <span className="text-sm font-medium">
-                        {day.name}
-                      </span>
-                      
-                      {day.available ? (
-                        <div className="flex items-center gap-1 text-xs text-gray-600">
-                          <Clock className="w-3 h-3" />
-                          {day.hours}
-                        </div>
-                      ) : (
-                        <span className="text-xs text-gray-400">Sin horario</span>
-                      )}
-                    </label>
+                        <Badge 
+                          variant="secondary" 
+                          className={`text-xs ${getDayBadgeColor(day.dayIndex)}`}
+                        >
+                          {day.dayShort}
+                        </Badge>
+                        
+                        <span className="text-sm font-medium">
+                          {day.dayName}
+                        </span>
+                        
+                        <span className="text-xs text-gray-500">
+                          {day.date}
+                        </span>
+                        
+                        {day.schedule ? (
+                          <div className="flex items-center gap-1 text-xs text-gray-600">
+                            <Clock className="w-3 h-3" />
+                            {day.schedule.startTime} - {day.schedule.endTime}
+                          </div>
+                        ) : (
+                          <span className="text-xs text-gray-400">Sin horario</span>
+                        )}
+                      </label>
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
       )}
 
       {/* Tipo de Afectación */}
-      {selectedDays.length > 0 && (
+      {formData.selectedDays.length > 0 && (
         <div className="space-y-3">
           <Label className="text-sm font-medium">Tipo de Afectación:</Label>
           
@@ -317,8 +344,8 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
                 id="full_day"
                 name="affectationType"
                 value="full_day"
-                checked={affectationType === 'full_day'}
-                onChange={(e) => setAffectationType(e.target.value as any)}
+                checked={formData.affectationType === 'full_day'}
+                onChange={(e) => handleAffectationTypeChange(e.target.value as any)}
                 className="text-[#78D1BD]"
               />
               <label htmlFor="full_day" className="text-sm">
@@ -332,8 +359,8 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
                 id="partial_hours"
                 name="affectationType"
                 value="partial_hours"
-                checked={affectationType === 'partial_hours'}
-                onChange={(e) => setAffectationType(e.target.value as any)}
+                checked={formData.affectationType === 'partial_hours'}
+                onChange={(e) => handleAffectationTypeChange(e.target.value as any)}
                 className="text-[#78D1BD]"
               />
               <label htmlFor="partial_hours" className="text-sm">
@@ -345,7 +372,7 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
       )}
 
       {/* Selección de Horarios (solo si es parcial) */}
-      {affectationType === 'partial_hours' && (
+      {formData.affectationType === 'partial_hours' && (
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label className="flex items-center gap-2">
@@ -395,28 +422,55 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
         </div>
       )}
 
-      {/* Resumen de Selección */}
-      {selectedDays.length > 0 && employeeSchedule && (
+      {/* Validaciones */}
+      {validation.errors.length > 0 && (
+        <Alert variant="destructive">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertDescription>
+            <ul className="list-disc list-inside space-y-1">
+              {validation.errors.map((error, index) => (
+                <li key={index}>{error}</li>
+              ))}
+            </ul>
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {validation.warnings.length > 0 && (
         <Alert>
           <Info className="h-4 w-4" />
+          <AlertDescription>
+            <ul className="list-disc list-inside space-y-1">
+              {validation.warnings.map((warning, index) => (
+                <li key={index}>{warning}</li>
+              ))}
+            </ul>
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {/* Resumen de Selección */}
+      {formData.selectedDays.length > 0 && validation.isValid && (
+        <Alert>
+          <CheckCircle className="h-4 w-4" />
           <AlertDescription>
             <div className="space-y-1">
               <p className="font-medium">Resumen de la novedad:</p>
               <p>
                 <strong>Días afectados:</strong> {
-                  selectedDays
-                    .map(dayIndex => employeeSchedule.schedule[dayIndex]?.name)
+                  formData.selectedDays
+                    .map(dayIndex => weekDays[dayIndex]?.dayName)
                     .join(', ')
                 }
               </p>
-              {affectationType === 'partial_hours' && formData.startTime && formData.endTime && (
+              {formData.affectationType === 'partial_hours' && formData.startTime && formData.endTime && (
                 <p>
                   <strong>Horario:</strong> {formData.startTime} - {formData.endTime}
                 </p>
               )}
               <p>
                 <strong>Tipo:</strong> {
-                  affectationType === 'full_day' ? 'Día completo' : 'Horario específico'
+                  formData.affectationType === 'full_day' ? 'Día completo' : 'Horario específico'
                 }
               </p>
             </div>
@@ -447,7 +501,7 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
         <Button 
           variant="default" 
           onClick={onSubmit}
-          disabled={selectedDays.length === 0 || !formData.description.trim()}
+          disabled={!validation.isValid || !formData.description.trim()}
         >
           {editingNews ? "Actualizar" : "Crear"} Novedad
         </Button>

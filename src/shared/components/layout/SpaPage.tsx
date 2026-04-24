@@ -22,7 +22,7 @@ export function SpaPage({ title, subtitle, action, icon, children }: SpaPageProp
             {title}
           </h1>
           {subtitle ? (
-            <p className="text-sm" style={{ color: "#6b7c6b", fontFamily: "var(--font-body)" }}>
+            <p className="text-sm" style={{ color: "#7c6b6bff", fontFamily: "var(--font-body)" }}>
               {subtitle}
             </p>
           ) : null}
