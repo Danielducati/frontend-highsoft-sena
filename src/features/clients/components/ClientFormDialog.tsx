@@ -115,7 +115,16 @@ export function ClientFormDialog({
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label className="text-gray-900">Tipo de Documento *</Label>
-              <Select value={formData.documentType} onValueChange={v => setFormData({ ...formData, documentType: v })}>
+              <Select
+                value={formData.documentType}
+                onValueChange={v => setFormData({
+                  ...formData,
+                  documentType: v,
+                  // Limpiar campos NIT al cambiar tipo
+                  razonSocial: "", representanteLegal: "", digitoVerificacion: "",
+                  firstName: "", lastName: "",
+                })}
+              >
                 <SelectTrigger className="rounded-lg border-gray-200"><SelectValue placeholder="Seleccionar tipo" /></SelectTrigger>
                 <SelectContent>
                   {DOCUMENT_TYPES.map(({ value, label }) => <SelectItem key={value} value={value}>{label}</SelectItem>)}
@@ -123,41 +132,83 @@ export function ClientFormDialog({
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="document" className="text-gray-900">Número de Documento *</Label>
-              <Input
-                id="document"
-                value={formData.document}
-                onChange={e => setFormData({ ...formData, document: onlyNumbers(e.target.value) })}
-                placeholder="1234567890"
-                className="rounded-lg border-gray-200"
-                maxLength={20}
-              />
+              <Label htmlFor="document" className="text-gray-900">
+                {formData.documentType === "NIT" ? "NIT *" : "Número de Documento *"}
+              </Label>
+              <div className="flex gap-2">
+                <Input
+                  id="document"
+                  value={formData.document}
+                  onChange={e => setFormData({ ...formData, document: onlyNumbers(e.target.value) })}
+                  placeholder={formData.documentType === "NIT" ? "900123456" : "1234567890"}
+                  className="rounded-lg border-gray-200"
+                  maxLength={20}
+                />
+                {formData.documentType === "NIT" && (
+                  <Input
+                    value={formData.digitoVerificacion ?? ""}
+                    onChange={e => setFormData({ ...formData, digitoVerificacion: onlyNumbers(e.target.value) })}
+                    placeholder="DV"
+                    className="rounded-lg border-gray-200 w-16 text-center"
+                    maxLength={1}
+                    title="Dígito de verificación"
+                  />
+                )}
+              </div>
+              {formData.documentType === "NIT" && (
+                <p className="text-xs text-gray-400">Ingresa el NIT y el dígito de verificación (DV)</p>
+              )}
             </div>
           </div>
 
-          {/* Nombre / Apellido */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="firstName" className="text-gray-900">Nombre *</Label>
-              <Input
-                id="firstName"
-                value={formData.firstName}
-                onChange={e => setFormData({ ...formData, firstName: onlyLetters(e.target.value) })}
-                placeholder="Juan"
-                className="rounded-lg border-gray-200"
-              />
+          {/* Nombre / Apellido — o Razón Social / Representante Legal para NIT */}
+          {formData.documentType === "NIT" ? (
+            <>
+              <div className="space-y-2">
+                <Label htmlFor="razonSocial" className="text-gray-900">Razón Social *</Label>
+                <Input
+                  id="razonSocial"
+                  value={formData.razonSocial ?? ""}
+                  onChange={e => setFormData({ ...formData, razonSocial: e.target.value })}
+                  placeholder="Empresa S.A.S."
+                  className="rounded-lg border-gray-200"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="representanteLegal" className="text-gray-900">Representante Legal *</Label>
+                <Input
+                  id="representanteLegal"
+                  value={formData.representanteLegal ?? ""}
+                  onChange={e => setFormData({ ...formData, representanteLegal: onlyLetters(e.target.value) })}
+                  placeholder="Nombre completo del representante"
+                  className="rounded-lg border-gray-200"
+                />
+              </div>
+            </>
+          ) : (
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="firstName" className="text-gray-900">Nombre *</Label>
+                <Input
+                  id="firstName"
+                  value={formData.firstName}
+                  onChange={e => setFormData({ ...formData, firstName: onlyLetters(e.target.value) })}
+                  placeholder="Juan"
+                  className="rounded-lg border-gray-200"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="lastName" className="text-gray-900">Apellido *</Label>
+                <Input
+                  id="lastName"
+                  value={formData.lastName}
+                  onChange={e => setFormData({ ...formData, lastName: onlyLetters(e.target.value) })}
+                  placeholder="Pérez García"
+                  className="rounded-lg border-gray-200"
+                />
+              </div>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="lastName" className="text-gray-900">Apellido *</Label>
-              <Input
-                id="lastName"
-                value={formData.lastName}
-                onChange={e => setFormData({ ...formData, lastName: onlyLetters(e.target.value) })}
-                placeholder="Pérez García"
-                className="rounded-lg border-gray-200"
-              />
-            </div>
-          </div>
+          )}
 
           {/* Teléfono / Email */}
           <div className="grid grid-cols-2 gap-4">
@@ -196,6 +247,22 @@ export function ClientFormDialog({
               className="rounded-lg border-gray-200"
             />
           </div>
+
+          {/* Contraseña (solo al crear) */}
+          {!editingClient && (
+            <div className="space-y-2">
+              <Label htmlFor="contrasena" className="text-gray-900">Contraseña</Label>
+              <Input
+                id="contrasena"
+                type="password"
+                value={formData.contrasena ?? ""}
+                onChange={e => setFormData({ ...formData, contrasena: e.target.value })}
+                placeholder="Por defecto: número de documento"
+                className="rounded-lg border-gray-200"
+              />
+              <p className="text-xs text-gray-400">Si no ingresas una, se usará el número de documento como contraseña.</p>
+            </div>
+          )}
 
           <div className="flex justify-end gap-3 pt-4 border-t">
             <Button variant="outline" onClick={onCancel} className="rounded-lg border-gray-300">Cancelar</Button>

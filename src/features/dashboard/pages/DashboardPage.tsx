@@ -97,6 +97,7 @@ export function DashboardPage() {
                 <SalesChart
                   data={data.salesData ?? []}
                   periodLabel={periodLabel}
+                  period={period}
                 />
               </div>
               <ServicesChart

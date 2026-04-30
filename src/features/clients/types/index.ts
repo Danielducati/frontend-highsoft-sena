@@ -21,14 +21,19 @@ export interface Client {
 }
 
 export interface ClientFormData {
-  firstName:    string;
-  lastName:     string;
-  documentType: string;
-  document:     string;
-  email:        string;
-  phone:        string;
-  address:      string;
-  image:        string;
+  firstName:          string;
+  lastName:           string;
+  documentType:       string;
+  document:           string;
+  email:              string;
+  phone:              string;
+  address:            string;
+  image:              string;
+  contrasena?:        string;
+  // Campos exclusivos NIT
+  razonSocial?:       string;
+  representanteLegal?: string;
+  digitoVerificacion?: string;
 }
 
 export interface ClientsModuleProps {

@@ -4,9 +4,10 @@ export const API_URL = "http://localhost:3001";
 
 export const PAYMENT_METHODS = [
   "Efectivo",
-  "Tarjeta de Crédito",
-  "Tarjeta de Débito",
+  "Tarjeta",
   "Transferencia",
+  "Nequi",
+  "Daviplata",
 ] as const;
 
 export const EMPTY_FORM: SaleFormData = {
@@ -18,4 +19,12 @@ export const EMPTY_FORM: SaleFormData = {
   selectedServices: [],
   discount:         "0",
   paymentMethod:    "Efectivo",
+  guestMode:        false,
+  guestDocType:     "",
+  guestDoc:         "",
+  guestDV:          "",
+  guestFirstName:   "",
+  guestLastName:    "",
+  guestEmail:       "",
+  guestPhone:       "",
 };

@@ -75,19 +75,27 @@ export function AppointmentViewDialog({
 
             <div>
               <p className="text-xs text-gray-600 mb-2">Estado</p>
-              <div className="flex gap-2 flex-wrap">
-                {(["pending", "completed", "cancelled"] as const).map(s => (
-                  <button key={s}
-                    onClick={() => onUpdateStatus(apt.id, s)}
-                    className={`px-3 py-1.5 rounded-lg text-xs transition-all ${
-                      apt.status === s
-                        ? getStatusColor(s) + " ring-2 ring-offset-2"
-                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                    }`}>
-                    {getStatusLabel(s)}
-                  </button>
-                ))}
-              </div>
+              {apt.status === "completed" ? (
+                <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                  <p className="text-sm text-gray-700">
+                    Esta cita está <span className="font-semibold text-blue-700">completada</span> y no se puede modificar su estado.
+                  </p>
+                </div>
+              ) : (
+                <div className="flex gap-2 flex-wrap">
+                  {(["pending", "completed", "cancelled"] as const).map(s => (
+                    <button key={s}
+                      onClick={() => onUpdateStatus(apt.id, s)}
+                      className={`px-3 py-1.5 rounded-lg text-xs transition-all ${
+                        apt.status === s
+                          ? getStatusColor(s) + " ring-2 ring-offset-2"
+                          : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                      }`}>
+                      {getStatusLabel(s)}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
             {apt.notes && (
@@ -100,18 +108,20 @@ export function AppointmentViewDialog({
             )}
 
             <div className="flex justify-end gap-2 pt-4 border-t border-gray-200">
-              {userRole === "admin" && (
+              {userRole === "admin" && apt.status !== "completed" && (
                 <Button variant="outline"
                   onClick={() => { onDeleteRequest(apt.id); onClose(); }}
                   className="border-[#F87171] text-[#F87171] hover:bg-[#F87171]/10">
                   <Trash2 className="w-4 h-4 mr-2" />Eliminar
                 </Button>
               )}
-              <Button variant="outline"
-                onClick={() => { onEdit(apt); onClose(); }}
-                className="border-[#FBBF24] text-[#FBBF24] hover:bg-[#FBBF24]/10">
-                <Edit className="w-4 h-4 mr-2" />Editar
-              </Button>
+              {userRole !== "client" && apt.status !== "completed" && (
+                <Button variant="outline"
+                  onClick={() => { onEdit(apt); onClose(); }}
+                  className="border-[#FBBF24] text-[#FBBF24] hover:bg-[#FBBF24]/10">
+                  <Edit className="w-4 h-4 mr-2" />Editar
+                </Button>
+              )}
               <Button
                 onClick={onClose}
                 style={{ backgroundColor: "#1a3a2a", color: "#ffffff" }}

@@ -5,7 +5,9 @@ export function getMondayOfWeek(date: Date): Date {
   const d = new Date(date);
   const day = d.getDay();
   const diff = d.getDate() - day + (day === 0 ? -6 : 1);
-  return new Date(d.setDate(diff));
+  const monday = new Date(d.setDate(diff));
+  monday.setHours(12, 0, 0, 0); // mediodía local para evitar offset
+  return monday;
 }
 
 /** Retorna los 7 días de la semana empezando en `monday` */
@@ -13,13 +15,14 @@ export function getWeekDays(monday: Date): Date[] {
   return Array.from({ length: 7 }, (_, i) => {
     const day = new Date(monday);
     day.setDate(monday.getDate() + i);
+    day.setHours(12, 0, 0, 0);
     return day;
   });
 }
 
 /** Formatea el rango de una semana: "3 nov - 9 nov 2025" */
 export function formatWeekRange(weekStart: Date | string): string {
-  const date = typeof weekStart === "string" ? new Date(weekStart + "T00:00:00") : weekStart;
+  const date = typeof weekStart === "string" ? new Date(weekStart + "T12:00:00") : weekStart;
   const days  = getWeekDays(date);
   const start = days[0];
   const end   = days[6];

@@ -28,12 +28,26 @@ export function useLogin(onLogin: (role: UserRole) => void) {
       const data = await loginRequest(email, password);
 
       const rolBackend  = data.usuario?.rol;
-      const permisos    = data.usuario?.permisos ?? [];
       const rolFrontend: UserRole = resolveUserRole(rolBackend);
-      const allowedPages = resolveAllowedPages(permisos);
 
-      localStorage.setItem("token",        data.token);
-      localStorage.setItem("usuario",      JSON.stringify(data.usuario));
+      // Guardar token primero para poder llamar /auth/me
+      localStorage.setItem("token",   data.token);
+      localStorage.setItem("usuario", JSON.stringify(data.usuario));
+
+      // Obtener permisos reales desde /auth/me
+      let permisos: string[] = [];
+      try {
+        const meRes = await fetch(
+          `${import.meta.env.VITE_API_URL ?? "http://localhost:3001"}/auth/me`,
+          { headers: { Authorization: `Bearer ${data.token}` } }
+        );
+        if (meRes.ok) {
+          const meData = await meRes.json();
+          permisos = meData.permisos ?? [];
+        }
+      } catch { /* usar permisos vacíos si falla */ }
+
+      const allowedPages = resolveAllowedPages(permisos);
       localStorage.setItem("permisos",     JSON.stringify(permisos));
       localStorage.setItem("allowedPages", JSON.stringify(allowedPages));
 

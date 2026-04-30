@@ -25,18 +25,21 @@ export const ROL_MAP: Record<string, UserRole> = {
 
 // Qué páginas habilita cada prefijo de permiso
 export const PERMISO_PAGINA: Record<string, string> = {
-  "dashboard":    "dashboard",
-  "citas":        "appointments",
-  "clientes":     "clients",
-  "empleados":    "employees",
-  "ventas":       "ventas",
-  "servicios":    "services",
-  "categorias":   "categories",
-  "novedades":    "news",
-  "horarios":     "schedules",
-  "cotizaciones": "quotations",
-  "roles":        "roles",
-  "usuarios":     "users",
+  "dashboard":      "dashboard",
+  "citas":          "appointments",
+  "clientes":       "clients",
+  "empleados":      "employees",
+  "ventas":         "sales",
+  "ventas_detalle": "sales",
+  "servicios":      "services",
+  "categorias":     "categories",
+  "novedades":      "news",
+  "horarios":       "schedules",
+  "cotizaciones":   "quotations",
+  "roles":          "roles",
+  "usuarios":       "users",
+  "reportes":       "dashboard",
+  "configuracion":  "settings",
 };
 
 /**
@@ -55,11 +58,29 @@ export function resolveUserRole(rolBackend: string): UserRole {
 
 export function resolveAllowedPages(permisos: string[]): string[] {
   const pages = new Set<string>();
-  // Siempre puede ver su perfil
   pages.add("users");
 
+  // Mapa para permisos legacy (sin punto, con mayúscula)
+  const LEGACY_MAP: Record<string, string> = {
+    "dashboard":  "dashboard",
+    "usuarios":   "users",
+    "empleados":  "employees",
+    "servicios":  "services",
+    "clientes":   "clients",
+    "citas":      "appointments",
+    "ventas":     "sales",
+    "reportes":   "dashboard",
+  };
+
   for (const p of permisos) {
-    const prefix = p.split(".")[0];
+    if (!p.includes(".")) {
+      // Permiso legacy — comparar en minúsculas
+      const page = LEGACY_MAP[p.toLowerCase()];
+      if (page) pages.add(page);
+      continue;
+    }
+    // Permiso moderno (con punto)
+    const prefix = p.split(".")[0].toLowerCase();
     const page   = PERMISO_PAGINA[prefix];
     if (page) pages.add(page);
   }

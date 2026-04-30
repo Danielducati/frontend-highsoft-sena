@@ -26,6 +26,7 @@ interface Props {
   onAddService: () => void;
   onRemoveService: (i: number) => void;
   onClientChange: (id: string) => void;
+  onStartTimeChange?: (time: string) => void;
   onSubmit: () => void;
   onCancel: () => void;
   userRole?: string;
@@ -36,7 +37,7 @@ export function AppointmentFormDialog({
   isOpen, onOpenChange, editingAppointment, formData, setFormData,
   selectedServices, currentService, setCurrentService,
   services, employees, clients, getEmployeesByCategory,
-  onAddService, onRemoveService, onClientChange, onSubmit, onCancel, userRole,
+  onAddService, onRemoveService, onClientChange, onStartTimeChange, onSubmit, onCancel, userRole,
   myEmployeeProfile,
 }: Props) {
   return (
@@ -62,7 +63,8 @@ export function AppointmentFormDialog({
                 </span>
                 <span className="text-gray-400">•</span>
                 <Clock className="w-4 h-4 text-[#78D1BD]" />
-                <span>{formData.startTime}</span>
+                {/* Mostrar la hora del primer servicio ya agregado, o la hora seleccionada si no hay servicios */}
+                <span>{selectedServices.length > 0 ? selectedServices[0].startTime : formData.startTime}</span>
               </div>
             </div>
           )}
@@ -102,15 +104,34 @@ export function AppointmentFormDialog({
               <Label>Fecha *</Label>
               <Input type="date"
                 min={new Date().toISOString().split("T")[0]}
-                value={formData.date.toISOString().split("T")[0]}
+                value={`${formData.date.getFullYear()}-${String(formData.date.getMonth()+1).padStart(2,"0")}-${String(formData.date.getDate()).padStart(2,"0")}`}
                 onChange={e => setFormData({ ...formData, date: new Date(e.target.value + "T00:00:00") })} />
             </div>
             <div className="space-y-2">
               <Label>Hora de Inicio *</Label>
-              <Select value={formData.startTime} onValueChange={v => setFormData({ ...formData, startTime: v })}>
+              <Select value={formData.startTime} onValueChange={v => {
+                if (onStartTimeChange) onStartTimeChange(v);
+                else setFormData({ ...formData, startTime: v });
+              }}>
                 <SelectTrigger><SelectValue placeholder="Selecciona hora" /></SelectTrigger>
                 <SelectContent>
-                  {TIME_SLOTS.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                  {(() => {
+                    const now = new Date();
+                    const isToday =
+                      formData.date.getFullYear() === now.getFullYear() &&
+                      formData.date.getMonth()    === now.getMonth()    &&
+                      formData.date.getDate()     === now.getDate();
+                    const currentMin = now.getHours() * 60 + now.getMinutes();
+                    return TIME_SLOTS.map(t => {
+                      const [h, m] = t.split(":").map(Number);
+                      const isPast = isToday && h * 60 + m <= currentMin;
+                      return (
+                        <SelectItem key={t} value={t} disabled={isPast}>
+                          {t}{isPast ? " (pasado)" : ""}
+                        </SelectItem>
+                      );
+                    });
+                  })()}
                 </SelectContent>
               </Select>
             </div>
@@ -126,14 +147,17 @@ export function AppointmentFormDialog({
                   onValueChange={v => setCurrentService({ serviceId: v, employeeId: "" })}>
                   <SelectTrigger><SelectValue placeholder="Selecciona servicio" /></SelectTrigger>
                   <SelectContent>
-                    {services.map(s => (
-                      <SelectItem key={s.id} value={s.id}>
-                        <div className="flex flex-col">
-                          <span>{s.name}</span>
-                          <span className="text-xs text-gray-500">{s.category} • {s.duration} min</span>
-                        </div>
-                      </SelectItem>
-                    ))}
+                    {services.length === 0
+                      ? <SelectItem value="empty" disabled>Sin servicios disponibles</SelectItem>
+                      : services.map(s => (
+                          <SelectItem key={s.id} value={s.id}>
+                            <div className="flex flex-col">
+                              <span>{s.name}</span>
+                              <span className="text-xs text-gray-500">{s.category} • {s.duration} min</span>
+                            </div>
+                          </SelectItem>
+                        ))
+                    }
                   </SelectContent>
                 </Select>
               </div>
@@ -141,7 +165,7 @@ export function AppointmentFormDialog({
                 <Label>Empleado</Label>
                 {userRole === "employee" && myEmployeeProfile ? (
                   <div className="h-10 px-3 flex items-center rounded-md border border-input bg-[#edf7f4] text-sm font-medium text-[#1a5c3a]">
-                    {myEmployeeProfile.name || "Cargando..."}
+                    {myEmployeeProfile.name}
                   </div>
                 ) : (
                   <Select value={currentService.employeeId}
@@ -149,11 +173,16 @@ export function AppointmentFormDialog({
                     disabled={!currentService.serviceId}>
                     <SelectTrigger><SelectValue placeholder="Selecciona empleado" /></SelectTrigger>
                     <SelectContent>
-                      {employees.length === 0 ? (
-                        <SelectItem value="empty" disabled>No hay empleados</SelectItem>
-                      ) : getEmployeesByCategory(
-                          services.find(s => s.id === currentService.serviceId)?.category ?? ""
-                        ).map(e => (
+                      {(() => {
+                        const category = services.find(s => s.id === currentService.serviceId)?.category ?? "";
+                        const filtered = getEmployeesByCategory(category);
+                        if (!currentService.serviceId) {
+                          return <SelectItem value="empty" disabled>Primero selecciona un servicio</SelectItem>;
+                        }
+                        if (filtered.length === 0) {
+                          return <SelectItem value="empty" disabled>No hay empleados para esta especialidad</SelectItem>;
+                        }
+                        return filtered.map(e => (
                           <SelectItem key={e.id} value={e.id}>
                             <div className="flex items-center gap-2">
                               <div className="w-3 h-3 rounded-full" style={{ backgroundColor: e.color }} />
@@ -161,8 +190,8 @@ export function AppointmentFormDialog({
                               {e.specialty && <span className="text-xs text-gray-400">• {e.specialty}</span>}
                             </div>
                           </SelectItem>
-                        ))
-                      }
+                        ));
+                      })()}
                     </SelectContent>
                   </Select>
                 )}
@@ -202,8 +231,8 @@ export function AppointmentFormDialog({
                 <div className="p-2 bg-blue-50 border border-blue-200 rounded-lg">
                   <p className="text-xs text-blue-700">
                     Duración total: {selectedServices.reduce((sum, s) => sum + s.duration, 0)} min
-                    {formData.startTime && ` • Finaliza: ${calculateEndTime(
-                      formData.startTime,
+                    {selectedServices[0]?.startTime && ` • Finaliza: ${calculateEndTime(
+                      selectedServices[0].startTime,
                       selectedServices.reduce((sum, s) => sum + s.duration, 0)
                     )}`}
                   </p>

@@ -20,7 +20,7 @@ export function ClientAppointmentsPage() {
     getEmployeesByCategory,
     handleAddService, handleRemoveService,
     handleCreateOrUpdate, handleCancelAppointment,
-    resetForm, handleClientChange,
+    resetForm, handleClientChange, handleStartTimeChange,
   } = useAppointments("client");
 
   const [filterStatus, setFilterStatus] = useState("all");
@@ -198,6 +198,7 @@ export function ClientAppointmentsPage() {
         onAddService={handleAddService}
         onRemoveService={handleRemoveService}
         onClientChange={handleClientChange}
+        onStartTimeChange={handleStartTimeChange}
         onSubmit={handleCreateOrUpdate}
         onCancel={resetForm}
         userRole="client"

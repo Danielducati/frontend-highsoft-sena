@@ -48,8 +48,7 @@ const BASE_ALLOWED_PAGES: Record<string, Page[]> = {
 function getAllowedPages(userRole: UserRole): Page[] {
   if (!userRole) return [];
   if (userRole === "admin") return BASE_ALLOWED_PAGES.admin;
-  if (userRole === "client") return BASE_ALLOWED_PAGES.client;
-  // Para employee y roles personalizados, leer las páginas calculadas al login
+  // Para employee y client, leer las páginas calculadas al login desde permisos del backend
   try {
     const stored = localStorage.getItem("allowedPages");
     if (stored) {
@@ -57,7 +56,8 @@ function getAllowedPages(userRole: UserRole): Page[] {
       if (pages.length > 0) return pages;
     }
   } catch {}
-  // Sin allowedPages guardado → solo perfil (token viejo, necesita re-login)
+  // Fallback si no hay allowedPages guardado
+  if (userRole === "client") return BASE_ALLOWED_PAGES.client;
   return ["users"];
 }
 
@@ -75,7 +75,7 @@ function AppContent({ currentPage, userRole }: { currentPage: Page; userRole: No
       {currentPage === "roles"        && can("roles")        && <RolesModule       userRole={userRole} />}
       {currentPage === "settings"     && can("settings")     && <SettingsModule    userRole={userRole} />}
       {currentPage === "news"         && can("news")         && <NewsModule        userRole={userRole} />}
-      {currentPage === "sales"        && can("ventas")       && <SalesModule       userRole={userRole} />}
+      {currentPage === "sales"        && can("sales")        && <SalesModule       userRole={userRole} />}
       {currentPage === "clients"      && can("clients")      && <ClientsModule     userRole={userRole} />}
       {currentPage === "services"     && can("services")     && <ServicesModule    userRole={userRole} />}
       {currentPage === "appointments" && userRole === "client"  && <ClientAppointmentsPage />}
@@ -100,9 +100,24 @@ export default function App() {
   // Contador para forzar re-render cuando cambian los permisos
   const [permVersion, setPermVersion] = useState(0);
 
+  // Escuchar actualizaciones de perfil (foto) desde páginas internas
+  useEffect(() => {
+    const handler = () => {
+      try {
+        const stored = JSON.parse(localStorage.getItem("usuario") ?? "{}");
+        if (stored.foto) setUserPhoto(stored.foto);
+        if (stored.nombre || stored.apellido) {
+          setUserName(`${stored.nombre ?? ""} ${stored.apellido ?? ""}`.trim() || stored.correo || "");
+        }
+      } catch { /* silencioso */ }
+    };
+    window.addEventListener("usuario-updated", handler);
+    return () => window.removeEventListener("usuario-updated", handler);
+  }, []);
+
   // Recargar permisos desde el backend cada 60 segundos mientras hay sesión activa
   useEffect(() => {
-    if (!userRole || userRole === "admin" || userRole === "client") return;
+    if (!userRole || userRole === "admin") return;
 
     const reload = async () => {
       const token = localStorage.getItem("token");
@@ -174,11 +189,11 @@ export default function App() {
   );
 
   if (currentPage === "login") return (
-    <><LoginPage onLogin={handleLogin} onBack={() => setCurrentPage("landing")} /><Toaster /></>
+    <><LoginPage onLogin={handleLogin} onBack={() => setCurrentPage("landing")} onRegister={() => setCurrentPage("register")} /><Toaster /></>
   );
 
   if (currentPage === "register") return (
-    <><RegisterPage onBack={() => setCurrentPage("landing")} onRegisterSuccess={() => setCurrentPage("landing")} /><Toaster /></>
+    <><RegisterPage onBack={() => setCurrentPage("login")} onRegisterSuccess={() => setCurrentPage("login")} /><Toaster /></>
   );
 
   if (currentPage === "reset-password") return (
@@ -191,10 +206,10 @@ export default function App() {
     <div className="flex h-screen overflow-hidden">
       <Sidebar key={permVersion} activePage={currentPage} onNavigate={handleNavigate} onLogout={handleLogout} userRole={userRole} allowedPages={getAllowedPages(userRole)} />
 
-      <div className="flex-1 flex flex-col ml-64" style={{ backgroundColor: "#f5f0e8" }}>
-        <Header userRole={userRole} userName={userName} userPhoto={userPhoto} />
+      <div className="flex-1 flex flex-col ml-64" style={{ backgroundColor: "var(--bg-app)" }}>
+        <Header userRole={userRole} userName={userName} userPhoto={userPhoto} onLogout={handleLogout} />
 
-        <main className="flex-1 overflow-y-auto p-8" style={{ backgroundColor: "#f5f0e8" }}>
+        <main className="flex-1 overflow-y-auto p-8" style={{ backgroundColor: "var(--bg-app)" }}>
           <AppContent currentPage={currentPage} userRole={userRole} />
         </main>
       </div>

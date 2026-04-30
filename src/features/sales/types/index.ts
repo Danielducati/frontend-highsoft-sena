@@ -3,6 +3,8 @@ export interface SaleItem {
   serviceName: string;
   price:       number;
   quantity:    number;
+  employeeId?:   number | null;
+  employeeName?: string;
 }
 
 export interface Sale {
@@ -15,7 +17,6 @@ export interface Sale {
   metodo_pago: string;
   descuento:   number;
   Total:       number;
-  Iva:         number;
   Fecha:       string;
   Estado:      string;
 }
@@ -67,6 +68,15 @@ export interface SaleFormData {
   selectedServices: SaleItem[];
   discount:         string;
   paymentMethod:    string;
+  // Cliente ocasional (no registrado)
+  guestMode?:       boolean;
+  guestDocType?:    string;
+  guestDoc?:        string;
+  guestDV?:         string;
+  guestFirstName?:  string;
+  guestLastName?:   string;
+  guestEmail?:      string;
+  guestPhone?:      string;
 }
 
 export interface SalesModuleProps {

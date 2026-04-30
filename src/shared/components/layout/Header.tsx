@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Bell, Calendar, Clock, X, CheckCheck } from "lucide-react";
+import { Bell, Calendar, Clock, X, CheckCheck, LogOut } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "../../ui/avatar";
 import { Badge } from "../../ui/badge";
 
@@ -7,6 +7,7 @@ interface HeaderProps {
   userRole: 'admin' | 'employee' | 'client';
   userName?: string;
   userPhoto?: string;
+  onLogout?: () => void;
 }
 
 interface Notification {
@@ -89,10 +90,12 @@ async function fetchUpcomingAppointments(userRole: string): Promise<Notification
     .sort((a, b) => a.daysUntil - b.daysUntil);
 }
 
-export function Header({ userRole, userName, userPhoto }: HeaderProps) {
+export function Header({ userRole, userName, userPhoto, onLogout }: HeaderProps) {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [open,          setOpen]          = useState(false);
+  const [avatarOpen,    setAvatarOpen]    = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const avatarRef   = useRef<HTMLDivElement>(null);
 
   const unread = notifications.filter(n => !n.read).length;
 
@@ -112,6 +115,9 @@ export function Header({ userRole, userName, userPhoto }: HeaderProps) {
     const handler = (e: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
         setOpen(false);
+      }
+      if (avatarRef.current && !avatarRef.current.contains(e.target as Node)) {
+        setAvatarOpen(false);
       }
     };
     document.addEventListener("mousedown", handler);
@@ -141,8 +147,8 @@ export function Header({ userRole, userName, userPhoto }: HeaderProps) {
 
   return (
     <header
-      className="h-16 sticky top-0 z-40 flex items-center justify-between px-8"
-      style={{ backgroundColor: "#f5f0e8", borderBottom: "1px solid #e8e2d8" }}
+      className="h-16 sticky top-0 z-50 flex items-center justify-between px-8"
+      style={{ backgroundColor: "var(--bg-app)", borderBottom: "1px solid #e8e2d8" }}
     >
       {/* Saludo */}
       <div className="flex items-center gap-6 flex-1">
@@ -193,7 +199,7 @@ export function Header({ userRole, userName, userPhoto }: HeaderProps) {
               position: "absolute", top: "calc(100% + 8px)", right: 0,
               width: 340, borderRadius: 14, backgroundColor: "#ffffff",
               border: "1px solid #ede8e0", boxShadow: "0 8px 24px rgba(0,0,0,0.10)",
-              zIndex: 100, overflow: "hidden", fontFamily: "var(--font-body)",
+              zIndex: 9999, overflow: "hidden", fontFamily: "var(--font-body)",
             }}>
               {/* Header del dropdown */}
               <div style={{
@@ -220,7 +226,7 @@ export function Header({ userRole, userName, userPhoto }: HeaderProps) {
                     border: "none", cursor: "pointer", padding: "2px 6px",
                     borderRadius: 6,
                   }}
-                    onMouseEnter={e => e.currentTarget.style.backgroundColor = "#f5f0e8"}
+                    onMouseEnter={e => e.currentTarget.style.backgroundColor = "var(--bg-app)"}
                     onMouseLeave={e => e.currentTarget.style.backgroundColor = "transparent"}
                   >
                     <CheckCheck style={{ width: 13, height: 13 }} />
@@ -249,7 +255,7 @@ export function Header({ userRole, userName, userPhoto }: HeaderProps) {
                       backgroundColor: n.read ? "transparent" : "#faf7f2",
                       transition: "background 0.15s",
                     }}
-                    onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#f5f0e8")}
+                    onMouseEnter={e => (e.currentTarget.style.backgroundColor = "var(--bg-app)")}
                     onMouseLeave={e => (e.currentTarget.style.backgroundColor = n.read ? "transparent" : "#faf7f2")}
                   >
                     {/* Ícono con color de urgencia */}
@@ -300,14 +306,46 @@ export function Header({ userRole, userName, userPhoto }: HeaderProps) {
           )}
         </div>
 
-        {/* Avatar */}
-        <div className="flex items-center gap-3 pl-2">
-          <Avatar className="w-9 h-9">
-            {userPhoto && <AvatarImage src={userPhoto} alt={displayName} className="object-cover" />}
-            <AvatarFallback style={{ background: "linear-gradient(135deg, #1a3a2a, #2a5a40)", color: "#fff" }}>
-              {displayName.charAt(0).toUpperCase()}
-            </AvatarFallback>
-          </Avatar>
+        {/* Avatar con dropdown de logout */}
+        <div ref={avatarRef} style={{ position: "relative" }}>
+          <button
+            onClick={() => setAvatarOpen(o => !o)}
+            style={{ background: "none", border: "none", cursor: "pointer", padding: 0, borderRadius: "50%" }}
+          >
+            <Avatar className="w-9 h-9">
+              {userPhoto && <AvatarImage src={userPhoto} alt={displayName} className="object-cover" />}
+              <AvatarFallback style={{ background: "linear-gradient(135deg, #1a3a2a, #2a5a40)", color: "#fff" }}>
+                {displayName.charAt(0).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+          </button>
+
+          {avatarOpen && (
+            <div style={{
+              position: "absolute", top: "calc(100% + 8px)", right: 0,
+              minWidth: 180, borderRadius: 12, backgroundColor: "#ffffff",
+              border: "1px solid #ede8e0", boxShadow: "0 8px 24px rgba(0,0,0,0.10)",
+              zIndex: 9999, overflow: "hidden", fontFamily: "var(--font-body)",
+            }}>
+              <div style={{ padding: "12px 16px", borderBottom: "1px solid #ede8e0" }}>
+                <p style={{ fontSize: 13, fontWeight: 600, color: "#1a3a2a", margin: 0 }}>{displayName}</p>
+                <p style={{ fontSize: 11, color: "#6b7c6b", margin: "2px 0 0" }}>{rolLabel}</p>
+              </div>
+              <button
+                onClick={() => { setAvatarOpen(false); onLogout?.(); }}
+                style={{
+                  width: "100%", display: "flex", alignItems: "center", gap: 10,
+                  padding: "10px 16px", border: "none", backgroundColor: "transparent",
+                  cursor: "pointer", fontSize: 13, color: "#b14b3d", fontFamily: "var(--font-body)",
+                }}
+                onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#fdf2f2")}
+                onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
+              >
+                <LogOut style={{ width: 15, height: 15 }} />
+                Cerrar Sesión
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </header>

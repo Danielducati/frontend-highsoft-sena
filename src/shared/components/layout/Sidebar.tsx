@@ -9,13 +9,7 @@ import {
   FileText,
   ShoppingCart,
   Users,
-  Settings, 
-  LogOut,
-  UserCircle,
-  Shield,
-  UserCog,
-  Briefcase
-} from "lucide-react";
+  Settings,LogOut,UserCircle,Shield,UserCog,Briefcase} from "lucide-react";
 import { cn } from "../../ui/utils";
 
 interface SidebarProps {
@@ -120,7 +114,7 @@ export function Sidebar({ activePage, onNavigate, onLogout, userRole, allowedPag
     <aside
       className="w-64 flex flex-col h-screen fixed left-0 top-0"
       // Color de fondo de la sidebar
-      style={{ backgroundColor: " #f5f0e8", borderRight: "2px solid #e8e6e1" }}
+      style={{ backgroundColor: " #c4c3c3ff", borderRight: "2px solid #e8e6e1" }}
     >
       {/* Logo Section */}
       <div className="px-5 py-4" style={{ borderBottom: "1px solid #ece9e3" }}>
@@ -163,7 +157,7 @@ export function Sidebar({ activePage, onNavigate, onLogout, userRole, allowedPag
               style={
                 isActive
                   ? { backgroundColor: "#0f5b43" }
-                  : { color: "#6b7c6b" }
+                  : { color: "#7c6b6bff" }
               }
             >
               <Icon className="w-4 h-4 flex-shrink-0" />
@@ -175,22 +169,6 @@ export function Sidebar({ activePage, onNavigate, onLogout, userRole, allowedPag
 
       {/* Logout Button */}
       <div className="p-4" style={{ borderTop: "1px solid #ece9e3" }}>
-        <button
-          className="w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200"
-          style={{ color: "#6b7c6b" }}
-          onClick={onLogout}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = "#f5e8e6";
-            e.currentTarget.style.color = "#b14b3d";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = "transparent";
-            e.currentTarget.style.color = "#6b7c6b";
-          }}
-        >
-          <LogOut className="w-4 h-4" />
-          <span className="text-sm" style={{ fontFamily: "var(--font-body)" }}>Cerrar Sesión</span>
-        </button>
       </div>
     </aside>
   );

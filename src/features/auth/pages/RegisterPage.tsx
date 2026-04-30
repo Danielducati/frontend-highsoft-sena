@@ -32,13 +32,17 @@ export function RegisterPage({ onBack, onRegisterSuccess }: RegisterPageProps) {
     <div className="min-h-screen relative" style={{ fontFamily: "var(--font-display)" }}>
       {/* Imagen de fondo */}
       <div
-        className="absolute inset-0 bg-cover bg-center"
+        className="absolute inset-0"
         style={{
           backgroundImage: `url('https://images.unsplash.com/photo-1600334089648-b0d9d3028eb2?w=1600&q=80')`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+          backgroundAttachment: "fixed",
         }}
       />
       {/* Overlay */}
-      <div className="absolute inset-0" style={{ backgroundColor: "rgba(15, 35, 20, 0.65)" }} />
+      <div className="absolute inset-0" style={{ backgroundColor: "rgba(15, 35, 20, 0.65)", backgroundAttachment: "fixed" }} />
 
       {/* Contenido */}
       <div className="relative z-10 min-h-screen flex flex-col">

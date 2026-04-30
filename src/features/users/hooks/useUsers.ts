@@ -3,7 +3,6 @@ import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { User, Role, UserFormData } from "../types";
 import { ITEMS_PER_PAGE, MAX_IMAGE_SIZE_MB, EMPTY_FORM } from "../constants";
-import { splitFullName } from "../utils";
 import {
   fetchUsersApi, fetchRolesApi,
   createUserApi, updateUserApi,
@@ -124,6 +123,7 @@ export function useUsers() {
       email,
       phone,
       role: selectedRole.nombre,
+      contrasena: formData.contrasena?.trim() || undefined,
     };
 
     try {
@@ -190,10 +190,9 @@ export function useUsers() {
 
   const handleEdit = (user: User) => {
     setEditingUser(user);
-    const { firstName, lastName } = splitFullName(user.name);
     setFormData({
-      firstName,
-      lastName,
+      firstName:    user.firstName || user.name.split(" ")[0],
+      lastName:     user.lastName  || user.name.split(" ").slice(1).join(" "),
       documentType: user.documentType || "",
       document:     user.document     || "",
       email:        user.email,

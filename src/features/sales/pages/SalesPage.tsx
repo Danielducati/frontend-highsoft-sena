@@ -11,7 +11,7 @@ import { Sale, SaleFormData, SalesModuleProps } from "../types";
 import { toast } from "sonner";
 
 export function SalesPage({ userRole }: SalesModuleProps) {
-  const { sales, appointments, availableServices, clients, loading, saving, registerSale } = useSales();
+  const { sales, appointments, availableServices, clients, employees, loading, saving, registerSale } = useSales();
 
   const [searchTerm,     setSearchTerm]    = useState("");
   const [filterPayment,  setFilterPayment] = useState("all");
@@ -28,15 +28,16 @@ export function SalesPage({ userRole }: SalesModuleProps) {
 
 
   const filteredSales = sales.filter(s => {
+    const clienteName = (s.Cliente ?? "").toLowerCase();
     const matchesSearch =
-      s.Cliente?.toLowerCase().includes(searchTerm.toLowerCase());
-  
+      !searchTerm || clienteName.includes(searchTerm.toLowerCase());
+
     const matchesPayment =
       filterPayment === "all" || s.metodo_pago === filterPayment;
-  
+
     const matchesClient =
-      filterClient === "all" || s.Cliente?.toString() === filterClient;
-  
+      filterClient === "all" || s.Cliente === filterClient;
+
     return matchesSearch && matchesPayment && matchesClient;
   });
 
@@ -70,16 +71,27 @@ export function SalesPage({ userRole }: SalesModuleProps) {
     toast.success(`Cita seleccionada: ${appt.clientName}`);
   };
 
-  const handleAddService = (serviceId: number) => {
-    const service = availableServices.find(s => s.id === serviceId);
+  const handleAddService = (serviceId: number, employeeId?: number) => {
+    const service  = availableServices.find(s => s.id === serviceId);
     if (!service) return;
+    const employee = employees.find(e => Number(e.id) === employeeId);
     const existing = formData.selectedServices.findIndex(s => s.serviceId === serviceId);
     if (existing >= 0) {
       const updated = [...formData.selectedServices];
       updated[existing].quantity += 1;
       setFormData(prev => ({ ...prev, selectedServices: updated }));
     } else {
-      setFormData(prev => ({ ...prev, selectedServices: [...prev.selectedServices, { serviceId: service.id, serviceName: service.name, price: service.price, quantity: 1 }] }));
+      setFormData(prev => ({
+        ...prev,
+        selectedServices: [...prev.selectedServices, {
+          serviceId:    service.id,
+          serviceName:  service.name,
+          price:        service.price,
+          quantity:     1,
+          employeeId:   employeeId ?? null,
+          employeeName: employee?.name ?? "",
+        }],
+      }));
     }
   };
 
@@ -94,7 +106,7 @@ export function SalesPage({ userRole }: SalesModuleProps) {
   const handleSubmit = async () => { const ok = await registerSale(formData, saleType); if (ok) resetForm(); };
 
   return (
-    <div className="min-h-screen p-8" style={{ backgroundColor: "#f5f0e8", fontFamily: "var(--font-body)" }}>
+    <div className="min-h-screen p-8" style={{ backgroundColor: "var(--bg-app)", fontFamily: "var(--font-body)" }}>
 
       {/* ── Header ── */}
       <div className="flex justify-between items-start mb-8">
@@ -137,7 +149,7 @@ export function SalesPage({ userRole }: SalesModuleProps) {
                 formData={formData} setFormData={setFormData}
                 saleType={saleType} onSaleTypeChange={handleSaleTypeChange}
                 appointments={appointments} availableServices={availableServices}
-                clients={clients} saving={saving}
+                clients={clients} employees={employees} saving={saving}
                 onSubmit={handleSubmit} onCancel={resetForm}
                 onAppointmentSelect={handleAppointmentSelect}
                 onAddService={handleAddService}

@@ -1,15 +1,27 @@
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { Quotation, QuotationFormData, QuotationItem, QuotationStatus } from "../types";
-import { ITEMS_PER_PAGE } from "../constants";
+import { ITEMS_PER_PAGE, API_URL } from "../constants";
 import {
-  fetchQuotationsApi, fetchClientsApi, fetchServicesApi,
+  fetchQuotationsApi, fetchClientsApi, fetchServicesApi, fetchMyEmployeeServicesApi,
   createQuotationApi, updateQuotationApi, updateQuotationStatusApi,
   fetchMyProfileApi,
 } from "../services/quotationsService";
 
-const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3001";
 const getToken = () => localStorage.getItem("token");
+
+async function fetchMyEmployeeProfileApi(): Promise<{ id: string; name: string; specialty: string }> {
+  const res = await fetch(`${API_URL}/employees/mi-perfil`, {
+    headers: { Authorization: `Bearer ${getToken()}` },
+  });
+  if (!res.ok) throw new Error("Error al cargar perfil de empleado");
+  const data = await res.json();
+  return {
+    id:        String(data.id),
+    name:      data.name ?? `${data.nombre ?? ""} ${data.apellido ?? ""}`.trim(),
+    specialty: data.specialty ?? data.especialidad ?? "",
+  };
+}
 
 const EMPTY_FORM: QuotationFormData = {
   clientId: "",
@@ -37,15 +49,39 @@ export function useQuotations(userRole?: string) {
   const [formData,           setFormData]           = useState<QuotationFormData>(EMPTY_FORM);
   const [filterClient,       setFilterClient]       = useState("all");
   const [myClientData,       setMyClientData]       = useState<{ id: number; nombre: string; apellido: string } | null>(null);
+  const [myEmployeeData,     setMyEmployeeData]     = useState<{ id: string; name: string; specialty: string } | null>(null);
 
   useEffect(() => {
     loadQuotations();
-    loadServices();
-    loadEmployees();
     if (userRole === "client") {
+      loadServices();
       loadMyProfile();
-    } else {
+    } else if (userRole === "employee") {
       loadClients();
+      Promise.all([fetchMyEmployeeServicesApi(), fetchMyEmployeeProfileApi()])
+        .then(async ([svcData, emp]) => {
+          const list = Array.isArray(svcData) ? svcData : [];
+          setAvailableServices(list.map((s: any) => ({
+            id:       s.id,
+            name:     s.name     ?? s.nombre    ?? "",
+            category: s.category ?? s.categoria ?? "",
+            price:    s.price    ?? s.precio    ?? 0,
+          })));
+          setMyEmployeeData(emp);
+          setEmployees([{
+            id:        emp.id,
+            name:      emp.name,
+            specialty: emp.specialty,
+            isActive:  true,
+            estado:    "Activo",
+            color:     "#78D1BD",
+          }]);
+        })
+        .catch(() => { loadServices(); loadEmployees(); });
+    } else {
+      loadServices();
+      loadClients();
+      loadEmployees();
     }
   }, []);
 
@@ -78,6 +114,7 @@ export function useQuotations(userRole?: string) {
   const loadServices = async () => {
     try {
       const data = await fetchServicesApi();
+<<<<<<< HEAD
       setAvailableServices(data.map((s: any) => ({
         ...s,
         id:       s.id,
@@ -87,14 +124,26 @@ export function useQuotations(userRole?: string) {
       })));
     }
     catch { toast.error("Error al cargar servicios"); }
+=======
+      const list = Array.isArray(data) ? data : [];
+      setAvailableServices(list.map((s: any) => ({
+        id:       s.id,
+        name:     s.name     ?? s.nombre    ?? "",
+        category: s.category ?? s.categoria ?? "",
+        price:    s.price    ?? s.precio    ?? 0,
+      })));
+    } catch { toast.error("Error al cargar servicios"); }
+>>>>>>> 288f5e76285091fd6c996c8805994b54e9a10ffd
   };
 
   const loadEmployees = async () => {
     try {
-      const res = await fetch(`${API_URL}/employees`, { headers: { Authorization: `Bearer ${getToken()}` } });
+      const res  = await fetch(`${API_URL}/employees`, { headers: { Authorization: `Bearer ${getToken()}` } });
+      if (!res.ok) throw new Error("Error al cargar empleados");
       const data = await res.json();
       const list = Array.isArray(data) ? data : [];
       setEmployees(list.map((e: any) => ({
+<<<<<<< HEAD
         id:          e.id,
         name:        e.name ?? `${e.nombre ?? ""} ${e.apellido ?? ""}`.trim(),
         specialty:   e.specialty ?? e.especialidad ?? "",
@@ -104,28 +153,57 @@ export function useQuotations(userRole?: string) {
         color:       e.color ?? "#78D1BD",
       })));
     } catch { /* silencioso */ }
+=======
+        id:        e.id,
+        name:      e.name ?? `${e.nombre ?? ""} ${e.apellido ?? ""}`.trim(),
+        specialty: e.specialty ?? e.especialidad ?? "",
+        isActive:  e.isActive !== undefined ? e.isActive : e.estado === "Activo",
+        estado:    e.estado ?? "Activo",
+        color:     e.color ?? "#78D1BD",
+      })));
+    } catch (error) {
+      console.error("Error al cargar empleados:", error);
+      toast.error("No se pudieron cargar los empleados");
+    }
+>>>>>>> 288f5e76285091fd6c996c8805994b54e9a10ffd
   };
 
   // ── CRUD ──────────────────────────────────────────────────────────────────
   const handleCreate = async () => {
-    if (!formData.clientId || formData.selectedServices.length === 0) {
-      toast.error("Por favor selecciona un cliente y al menos un servicio");
+    if (!formData.guestMode && !formData.clientId) {
+      toast.error("Por favor selecciona un cliente o ingresa los datos del cliente ocasional");
       return;
     }
-    const body = {
-      id_cliente:  parseInt(formData.clientId),
+    if (formData.guestMode && !formData.guestFirstName?.trim()) {
+      toast.error("El nombre del cliente es obligatorio");
+      return;
+    }
+    if (formData.selectedServices.length === 0) {
+      toast.error("Por favor agrega al menos un servicio");
+      return;
+    }
+    const body: any = {
+      id_cliente:  formData.guestMode ? null : parseInt(formData.clientId),
       fecha:       formData.date,
       hora_inicio: formData.startTime || null,
       notas:       formData.notes,
       descuento:   parseFloat(formData.discount) || 0,
       servicios:   formData.selectedServices.map(s => ({
-        id_servicio:  s.serviceId,
-        precio:       s.price,
-        cantidad:     s.quantity,
-        empleado_id:  s.empleadoId   ?? null,
+        id_servicio:   s.serviceId,
+        precio:        s.price,
+        cantidad:      s.quantity,
+        empleado_id:   s.empleadoId   ?? null,
         empleado_name: s.empleadoName ?? null,
       })),
     };
+    if (formData.guestMode) {
+      body.clienteOcasional = {
+        firstName: formData.guestFirstName?.trim(),
+        lastName:  formData.guestLastName?.trim()  || "",
+        email:     formData.guestEmail?.trim()     || null,
+        phone:     formData.guestPhone?.trim()     || null,
+      };
+    }
     try {
       if (editingQuotation) {
         await updateQuotationApi(editingQuotation.id, body);
@@ -165,20 +243,27 @@ export function useQuotations(userRole?: string) {
 
   // ── Servicios en el formulario ─────────────────────────────────────────────
   const addService = (serviceId: number) => {
-    const service = availableServices.find(s => s.id === serviceId);
+    const service = availableServices.find(s => String(s.id) === String(serviceId));
     if (!service) return;
-    const existingIdx = formData.selectedServices.findIndex(s => s.serviceId === serviceId);
+    const existingIdx = formData.selectedServices.findIndex(s => String(s.serviceId) === String(serviceId));
     if (existingIdx >= 0) {
       const updated = [...formData.selectedServices];
       updated[existingIdx].quantity += 1;
       setFormData({ ...formData, selectedServices: updated });
       toast.success("Cantidad actualizada");
     } else {
+      // Si es empleado, asignarlo automáticamente
+      const newItem: QuotationItem = {
+        serviceId:    service.id,
+        serviceName:  service.name,
+        price:        service.price,
+        quantity:     1,
+        empleadoId:   myEmployeeData ? Number(myEmployeeData.id) : undefined,
+        empleadoName: myEmployeeData?.name ?? undefined,
+      };
       setFormData({
         ...formData,
-        selectedServices: [...formData.selectedServices, {
-          serviceId: service.id, serviceName: service.name, price: service.price, quantity: 1,
-        }],
+        selectedServices: [...formData.selectedServices, newItem],
       });
       toast.success("Servicio agregado");
     }
@@ -225,7 +310,7 @@ export function useQuotations(userRole?: string) {
   const resetForm = () => {
     setIsDialogOpen(false);
     setEditingQuotation(null);
-    setFormData({ ...EMPTY_FORM, date: new Date().toISOString().split("T")[0] });
+    setFormData({ ...EMPTY_FORM, date: new Date().toISOString().split("T")[0], guestMode: false, guestFirstName: "", guestLastName: "", guestPhone: "", guestEmail: "" });
   };
 
   // ── Filtros / paginación ───────────────────────────────────────────────────

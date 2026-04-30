@@ -1,4 +1,7 @@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../../../shared/ui/dialog";
+import { Button } from "../../../shared/ui/button";
+import { Input } from "../../../shared/ui/input";
+import { Label } from "../../../shared/ui/label";
 import { Plus } from "lucide-react";
 import { Category, CategoryFormData } from "../types";
 
@@ -20,49 +23,12 @@ export function CategoryFormDialog({
   const hasAccess = userRole === "admin" || canCreate;
   if (!hasAccess) return null;
 
-  const inputStyle: React.CSSProperties = {
-    width: "100%",
-    padding: "10px 14px",
-    borderRadius: 10,
-    border: "1px solid #d6cfc4",
-    backgroundColor: "#faf7f2",
-    color: "#1a3a2a",
-    fontSize: 14,
-    fontFamily: "var(--font-body)",
-    outline: "none",
-  };
-
-  const labelStyle: React.CSSProperties = {
-    display: "block",
-    fontSize: 12,
-    fontWeight: 600,
-    letterSpacing: "0.08em",
-    textTransform: "uppercase",
-    color: "#6b7c6b",
-    marginBottom: 6,
-    fontFamily: "var(--font-body)",
-  };
-
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>
         <button
           onClick={onNewClick}
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 8,
-            padding: "10px 20px",
-            borderRadius: 10,
-            backgroundColor: "#1a3a2a",
-            color: "#ffffff",
-            fontSize: 14,
-            fontWeight: 600,
-            fontFamily: "var(--font-body)",
-            border: "none",
-            cursor: "pointer",
-            transition: "background 0.2s",
-          }}
+          style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "10px 20px", borderRadius: 10, backgroundColor: "#1a3a2a", color: "#ffffff", fontSize: 14, fontWeight: 600, fontFamily: "var(--font-body)", border: "none", cursor: "pointer" }}
           onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#2a5a40")}
           onMouseLeave={e => (e.currentTarget.style.backgroundColor = "#1a3a2a")}
         >
@@ -71,120 +37,74 @@ export function CategoryFormDialog({
         </button>
       </DialogTrigger>
 
-      <DialogContent
-        className="hl-form-dialog"
-        style={{
-          backgroundColor: "#faf7f2",
-          borderRadius: 16,
-          border: "1px solid #ede8e0",
-          padding: 32,
-          maxWidth: 480,
-          fontFamily: "var(--font-body)",
-        }}
-      >
+      <DialogContent className="hl-form-dialog rounded-xl max-w-2xl max-h-[90vh] overflow-y-auto border-gray-200 shadow-lg">
         <DialogHeader>
-          <DialogTitle
-            style={{
-              fontFamily: "var(--font-body)",
-              fontSize: 22,
-              color: "#1a3a2a",
-              fontWeight: 700,
-            }}
-          >
+          <DialogTitle className="text-gray-900">
             {editingCategory ? "Editar Categoría" : "Nueva Categoría"}
           </DialogTitle>
-          <DialogDescription style={{ color: "#6b7c6b", fontSize: 13 }}>
-            {editingCategory
-              ? "Actualiza la información de la categoría"
-              : "Crea una nueva categoría de servicios"}
+          <DialogDescription className="text-gray-600">
+            {editingCategory ? "Actualiza la información de la categoría" : "Crea una nueva categoría de servicios"}
           </DialogDescription>
         </DialogHeader>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: 18, marginTop: 8 }}>
+        <div className="space-y-5 mt-4">
           {/* Nombre */}
-          <div>
-            <label style={labelStyle}>Nombre *</label>
-            <input
-              style={inputStyle}
+          <div className="space-y-2">
+            <Label htmlFor="cat-name" className="text-gray-900">Nombre *</Label>
+            <Input
+              id="cat-name"
               value={formData.name}
               onChange={e => setFormData({ ...formData, name: e.target.value })}
               placeholder="Ej: Masajes"
+              className="rounded-lg border-gray-200"
             />
           </div>
 
           {/* Descripción */}
-          <div>
-            <label style={labelStyle}>Descripción</label>
-            <input
-              style={inputStyle}
+          <div className="space-y-2">
+            <Label htmlFor="cat-desc" className="text-gray-900">Descripción</Label>
+            <Input
+              id="cat-desc"
               value={formData.description}
               onChange={e => setFormData({ ...formData, description: e.target.value })}
               placeholder="Describe la categoría..."
+              className="rounded-lg border-gray-200"
             />
           </div>
 
           {/* Color */}
-          <div>
-            <label style={labelStyle}>Color de Identificación</label>
-            <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+          <div className="space-y-2">
+            <Label className="text-gray-900">Color de Identificación</Label>
+            <div className="flex gap-3 items-center">
               <input
                 type="color"
                 value={formData.color}
                 onChange={e => setFormData({ ...formData, color: e.target.value })}
-                style={{
-                  width: 44,
-                  height: 44,
-                  padding: 2,
-                  borderRadius: 8,
-                  border: "1px solid #d6cfc4",
-                  backgroundColor: "#faf7f2",
-                  cursor: "pointer",
-                }}
+                className="w-11 h-11 p-0.5 rounded-lg border border-gray-200 bg-white cursor-pointer"
               />
-              <input
-                style={{ ...inputStyle, flex: 1 }}
+              <Input
                 value={formData.color}
                 onChange={e => setFormData({ ...formData, color: e.target.value })}
                 placeholder="#78D1BD"
+                className="rounded-lg border-gray-200 flex-1"
               />
             </div>
           </div>
 
           {/* Botones */}
-          <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, paddingTop: 8 }}>
-            <button
-              onClick={() => onOpenChange(false)}
-              style={{
-                padding: "9px 18px",
-                borderRadius: 10,
-                border: "1px solid #d6cfc4",
-                backgroundColor: "transparent",
-                color: "#1a3a2a",
-                fontSize: 14,
-                fontFamily: "var(--font-body)",
-                cursor: "pointer",
-              }}
-            >
+          <div className="flex justify-end gap-3 pt-4 border-t">
+            <Button variant="outline" onClick={() => onOpenChange(false)} className="rounded-lg border-gray-300">
               Cancelar
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={onSubmit}
-              style={{
-                padding: "9px 18px",
-                borderRadius: 10,
-                border: "none",
-                backgroundColor: "#1a3a2a",
-                color: "#ffffff",
-                fontSize: 14,
-                fontWeight: 600,
-                fontFamily: "var(--font-body)",
-                cursor: "pointer",
-              }}
+              style={{ backgroundColor: "#1a3a2a", color: "#ffffff" }}
               onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#2a5a40")}
               onMouseLeave={e => (e.currentTarget.style.backgroundColor = "#1a3a2a")}
+              className="rounded-lg"
             >
               {editingCategory ? "Actualizar" : "Crear Categoría"}
-            </button>
+            </Button>
           </div>
         </div>
       </DialogContent>

@@ -6,7 +6,8 @@ import {
 import { getMonday, calculateEndTime } from "../utils";
 import {
   fetchAppointments, fetchMyAppointments, fetchMyEmployeeAppointments,
-  fetchServices, fetchEmployees, fetchClients,
+  fetchServices, fetchMyEmployeeServices, fetchEmployees, fetchEmployeesByDate, fetchClients,
+  fetchClientsForAppointments,
   fetchMyClientProfile, fetchMyEmployeeProfile,
   createAppointment, updateAppointment, deleteAppointment,
   cancelAppointment, updateAppointmentStatus,
@@ -40,7 +41,7 @@ export function useAppointments(userRole?: string) {
   const [formData,         setFormData]         = useState<FormData>(EMPTY_FORM);
   const [selectedServices, setSelectedServices] = useState<AppointmentService[]>([]);
   const [currentService,   setCurrentService]   = useState<CurrentService>({ serviceId: "", employeeId: "" });
-  const [myEmployeeProfile, setMyEmployeeProfile] = useState<{ id: string; name: string; phone: string } | null>(null);
+  const [myEmployeeProfile, setMyEmployeeProfile] = useState<{ id: string; name: string; phone: string; specialty: string } | null>(null);
 
   useEffect(() => {
     async function loadAll() {
@@ -49,20 +50,21 @@ export function useAppointments(userRole?: string) {
         const isEmployee = userRole === "employee";
 
         const [sData, eData, aData] = await Promise.all([
-          fetchServices(),
+          isEmployee ? fetchMyEmployeeServices() : fetchServices(),
           fetchEmployees(),
           isClient   ? fetchMyAppointments()         :
           isEmployee ? fetchMyEmployeeAppointments() :
                        fetchAppointments(),
         ]);
 
-        setServices(sData);
-        setEmployees(eData);
+        // Si el empleado no tiene servicios asignados, no mostrar ninguno
+        setServices(sData as Service[]);
+        setEmployees(eData as Employee[]);
         setAppointments(aData);
 
         if (isClient) {
           const myProfile = await fetchMyClientProfile();
-          setClients([myProfile]);
+          setClients([{ id: Number(myProfile.id) || 0, name: myProfile.name, phone: myProfile.phone }]);
           setFormData(prev => ({
             ...prev,
             clientId:    myProfile.id,
@@ -70,17 +72,15 @@ export function useAppointments(userRole?: string) {
             clientPhone: myProfile.phone,
           }));
         } else if (isEmployee) {
-          // Cargar todos los clientes para que el empleado pueda escoger
           const [cData, myProfile] = await Promise.all([
-            fetchClients(),
+            fetchClientsForAppointments(),
             fetchMyEmployeeProfile(),
           ]);
-          setClients(cData);
-          // Guardar el perfil del empleado logueado para pre-asignarlo
+          setClients(cData as Client[]);
           setMyEmployeeProfile(myProfile);
         } else {
-          const cData = await fetchClients();
-          setClients(cData);
+          const cData = await fetchClientsForAppointments();
+          setClients(cData as Client[]);
         }
       } catch (err) {
         const msg = err instanceof Error ? err.message : "Error al conectar con el servidor";
@@ -91,6 +91,18 @@ export function useAppointments(userRole?: string) {
     }
     loadAll();
   }, []);
+
+  // Cargar empleados disponibles cuando cambia la fecha del formulario o se abre el dialog
+  useEffect(() => {
+    if (!isDialogOpen) return;
+    const date = formData.date ?? new Date();
+    const fechaStr = date instanceof Date
+      ? `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,"0")}-${String(date.getDate()).padStart(2,"0")}`
+      : String(date).split("T")[0];
+    fetchEmployeesByDate(fechaStr)
+      .then(data => setEmployees(data))
+      .catch(() => setEmployees([]));
+  }, [formData.date, isDialogOpen]);
 
   const reloadAppointments = async () => {
     const data = userRole === "client"   ? await fetchMyAppointments()         :
@@ -105,7 +117,7 @@ export function useAppointments(userRole?: string) {
       const myProfile = clients[0];
       setFormData(prev => ({
         ...prev,
-        clientId:    prev.clientId    || myProfile.id,
+        clientId:    prev.clientId    || String(myProfile.id),
         clientName:  prev.clientName  || myProfile.name,
         clientPhone: prev.clientPhone || myProfile.phone,
       }));
@@ -136,10 +148,16 @@ export function useAppointments(userRole?: string) {
 
   const getEmployeesByCategory = (category: string) => {
     if (!category) return employees;
+<<<<<<< HEAD
     const filtered = employees.filter(
       e => e.specialty?.toLowerCase().trim() === category.toLowerCase().trim()
     );
     return filtered.length > 0 ? filtered : employees;
+=======
+    return employees.filter(
+      e => (e.specialty ?? "").toLowerCase().trim() === category.toLowerCase().trim()
+    );
+>>>>>>> 288f5e76285091fd6c996c8805994b54e9a10ffd
   };
 
   // ── Servicios del formulario ──
@@ -158,7 +176,11 @@ export function useAppointments(userRole?: string) {
     }
 
     const service  = services.find(s => s.id === currentService.serviceId);
-    const employee = employees.find(e => e.id === effectiveEmployeeId);
+    // Para empleado logueado, usar su perfil directamente si no está en la lista
+    const employee = employees.find(e => e.id === effectiveEmployeeId)
+      ?? (userRole === "employee" && myEmployeeProfile && myEmployeeProfile.id === effectiveEmployeeId
+          ? { id: myEmployeeProfile.id, name: myEmployeeProfile.name, specialty: myEmployeeProfile.specialty, color: "#78D1BD" }
+          : undefined);
     if (!service || !employee) return;
 
     const serviceStartTime = selectedServices.length > 0
@@ -190,11 +212,24 @@ export function useAppointments(userRole?: string) {
     setSelectedServices(next);
   };
 
+  // Cuando cambia la hora de inicio, recalcular los startTime de todos los servicios
+  const handleStartTimeChange = (newTime: string) => {
+    setFormData(prev => ({ ...prev, startTime: newTime }));
+    if (selectedServices.length > 0) {
+      setSelectedServices(prev => prev.map((s, i, arr) => ({
+        ...s,
+        startTime: i === 0
+          ? newTime
+          : calculateEndTime(arr[i - 1].startTime, arr[i - 1].duration),
+      })));
+    }
+  };
+
   // ── CRUD ──
   const handleCreateOrUpdate = async () => {
     if (!formData.clientId || !formData.startTime || selectedServices.length === 0) {
       if (userRole === "client" && !formData.clientId) {
-        toast.error("Cargando tu perfil, intenta de nuevo en un momento"); return;
+        toast.error("Tu perfil aún está cargando, espera un momento e intenta de nuevo"); return;
       }
       toast.error("Selecciona un cliente, hora y al menos un servicio"); return;
     }
@@ -207,7 +242,8 @@ export function useAppointments(userRole?: string) {
     const payload = {
       cliente:   Number(formData.clientId),
       fecha:     formData.date.toISOString().split("T")[0],
-      hora:      formData.startTime,
+      // Usar la hora del primer servicio agregado, no la del selector (puede haber cambiado)
+      hora:      selectedServices.length > 0 ? selectedServices[0].startTime : formData.startTime,
       notas:     formData.notes || null,
       servicios: selectedServices.map(s => ({
         servicio:         Number(s.serviceId),
@@ -219,7 +255,7 @@ export function useAppointments(userRole?: string) {
 
     try {
       if (editingAppointment) {
-        await updateAppointment(editingAppointment.id, payload);
+        await updateAppointment(editingAppointment.id, payload, userRole === "client");
         toast.success("Cita actualizada");
       } else {
         await createAppointment(payload, userRole === "client", userRole === "employee");
@@ -249,7 +285,7 @@ export function useAppointments(userRole?: string) {
   const handleCancelAppointment = async () => {
     if (!appointmentToCancel) return;
     try {
-      await cancelAppointment(appointmentToCancel);
+      await cancelAppointment(appointmentToCancel, userRole === "client");
       setAppointments(prev =>
         prev.map(a => a.id === appointmentToCancel ? { ...a, status: "cancelled" as const } : a)
       );
@@ -263,6 +299,13 @@ export function useAppointments(userRole?: string) {
   };
 
   const handleUpdateStatus = async (appointmentId: number, status: Appointment["status"]) => {
+    // Prevenir cambio de estado si la cita está completada
+    const appointment = appointments.find(a => a.id === appointmentId);
+    if (appointment?.status === "completed") {
+      toast.error("No se puede cambiar el estado de una cita completada");
+      return;
+    }
+
     try {
       await updateAppointmentStatus(appointmentId, status);
       setAppointments(prev => prev.map(a => a.id === appointmentId ? { ...a, status } : a));
@@ -278,7 +321,13 @@ export function useAppointments(userRole?: string) {
   const resetForm = () => {
     setIsDialogOpen(false);
     setEditingAppointment(null);
-    setFormData(EMPTY_FORM);
+    // Para clientes, preservar su clientId/Name/Phone
+    setFormData(prev => ({
+      ...EMPTY_FORM,
+      clientId:    userRole === "client" ? prev.clientId    : "",
+      clientName:  userRole === "client" ? prev.clientName  : "",
+      clientPhone: userRole === "client" ? prev.clientPhone : "",
+    }));
     setSelectedServices([]);
     setCurrentService({ serviceId: "", employeeId: "" });
   };
@@ -375,6 +424,7 @@ export function useAppointments(userRole?: string) {
     handleAddService, handleRemoveService,
     handleCreateOrUpdate, handleDelete, handleCancelAppointment,
     handleUpdateStatus, resetForm, handleEdit, handleClientChange,
+    handleStartTimeChange,
     myEmployeeProfile,
   };
 }

@@ -105,7 +105,8 @@ export function useSchedules() {
 
     try {
       if (editingSchedule) {
-        await schedulesApi.update(formData.employeeId, weekStartDate, formData.daySchedules);
+        // Siempre usar la weekStartDate ORIGINAL del horario que se edita
+        await schedulesApi.update(formData.employeeId, editingSchedule.weekStartDate, formData.daySchedules);
         toast.success("Horario actualizado exitosamente");
       } else {
         await schedulesApi.create({
@@ -119,6 +120,36 @@ export function useSchedules() {
       resetForm();
     } catch (err: any) {
       toast.error(err.message ?? "Error al guardar horario");
+    }
+  };
+
+  const handleRenewWeek = async (schedule: WeeklySchedule) => {
+    const [y, m, d] = schedule.weekStartDate.split("-").map(Number);
+    const nextMonday = new Date(Date.UTC(y, m - 1, d + 7));
+    const nextWeekStartDate = nextMonday.toISOString().split("T")[0];
+
+    // Verificar si ya existe un horario para ese empleado en la semana siguiente
+    const yaExiste = schedules.some(
+      s => s.employeeId === schedule.employeeId && s.weekStartDate === nextWeekStartDate
+    );
+    if (yaExiste) {
+      toast.error(`Ya existe un horario para ${schedule.employeeName} en la semana del ${nextWeekStartDate}. Elimínalo primero.`);
+      return;
+    }
+
+    try {
+      await schedulesApi.remove(schedule.employeeId, schedule.weekStartDate);
+      await schedulesApi.create({
+        employeeId:    schedule.employeeId,
+        weekStartDate: nextWeekStartDate,
+        daySchedules:  schedule.daySchedules,
+      });
+      toast.success(`Semana actualizada al ${nextWeekStartDate}`);
+      await reload();
+    } catch (err: any) {
+      toast.error(err.message ?? "Error al actualizar semana");
+      // Recargar para reflejar el estado real (por si el delete sí se ejecutó)
+      await reload();
     }
   };
 
@@ -143,7 +174,8 @@ export function useSchedules() {
 
   const handleEdit = (schedule: WeeklySchedule) => {
     setEditingSchedule(schedule);
-    setFormWeekStart(new Date(schedule.weekStartDate + "T00:00:00"));
+    // Usar T12:00:00 para evitar que el offset local desplace el día
+    setFormWeekStart(new Date(schedule.weekStartDate + "T12:00:00"));
     setFormData({ employeeId: schedule.employeeId, daySchedules: [...schedule.daySchedules] });
     setIsDialogOpen(true);
   };
@@ -186,7 +218,7 @@ export function useSchedules() {
     formWeekDays,
     goToPreviousWeek, goToNextWeek,
     toggleDay, updateDaySchedule,
-    handleCreateOrUpdate, handleDelete,
+    handleCreateOrUpdate, handleDelete, handleRenewWeek,
     confirmDelete, handleEdit, handleViewDetail,
     resetForm, clearFilters,
   };

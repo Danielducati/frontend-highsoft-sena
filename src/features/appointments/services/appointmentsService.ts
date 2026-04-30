@@ -31,13 +31,14 @@ export async function fetchMyClientProfile(): Promise<{ id: string; name: string
   };
 }
 
-export async function fetchMyEmployeeProfile(): Promise<{ id: string; name: string; phone: string }> {
+export async function fetchMyEmployeeProfile(): Promise<{ id: string; name: string; phone: string; specialty: string }> {
   const res = await fetch(`${API_BASE}/employees/mi-perfil`, { headers: authHeaders() });
   const data = await parseJsonOrThrow(res) as any;
   return {
-    id:    data.id ? String(data.id) : "",
-    name:  data.name ?? `${data.nombre ?? ""} ${data.apellido ?? ""}`.trim(),
-    phone: data.phone ?? data.telefono ?? "",
+    id:        data.id ? String(data.id) : "",
+    name:      data.name ?? `${data.nombre ?? ""} ${data.apellido ?? ""}`.trim(),
+    phone:     data.phone ?? data.telefono ?? "",
+    specialty: data.specialty ?? data.especialidad ?? "",
   };
 }
 
@@ -74,6 +75,13 @@ export async function fetchServices() {
   }));
 }
 
+export async function fetchMyEmployeeServices(): Promise<{ id: string; name: string; category: string; duration: number; price: number }[]> {
+  const res  = await fetch(`${API_BASE}/employees/mis-servicios`, { headers: authHeaders() });
+  if (!res.ok) return [];
+  const data = await res.json();
+  return Array.isArray(data) ? data : [];
+}
+
 export async function fetchEmployees() {
   const res = await fetch(`${API_BASE}/employees`, { headers: authHeaders() });
   const data = await parseJsonOrThrow(res) as any[];
@@ -85,8 +93,24 @@ export async function fetchEmployees() {
   }));
 }
 
+export async function fetchEmployeesByDate(fecha: string): Promise<{ id: string; name: string; specialty: string; color: string }[]> {
+  const res  = await fetch(`${API_BASE}/employees/disponibles?fecha=${fecha}`, { headers: authHeaders() });
+  const data = await parseJsonOrThrow(res) as any[];
+  return data.map((e: any) => ({
+    id:        String(e.id),
+    name:      e.name      ?? `${e.nombre ?? ""} ${e.apellido ?? ""}`.trim(),
+    specialty: e.specialty ?? e.especialidad ?? "",
+    color:     e.color     ?? "#78D1BD",
+  }));
+}
+
 export async function fetchClients() {
   const res = await fetch(`${API_BASE}/clients`, { headers: authHeaders() });
+  return parseJsonOrThrow(res);
+}
+
+export async function fetchClientsForAppointments() {
+  const res = await fetch(`${API_BASE}/clients/para-citas`, { headers: authHeaders() });
   return parseJsonOrThrow(res);
 }
 
@@ -106,8 +130,11 @@ export async function createAppointment(payload: any, isClient = false, isEmploy
   return res.json();
 }
 
-export async function updateAppointment(id: number, payload: any) {
-  const res = await fetch(`${API_BASE}/appointments/${id}`, {
+export async function updateAppointment(id: number, payload: any, isClient = false) {
+  const endpoint = isClient
+    ? `${API_BASE}/appointments/mis-citas/${id}`
+    : `${API_BASE}/appointments/${id}`;
+  const res = await fetch(endpoint, {
     method:  "PUT",
     headers: authHeaders(),
     body:    JSON.stringify(payload),
@@ -131,9 +158,13 @@ export async function deleteAppointment(id: number) {
   return res.json();
 }
 
-export async function cancelAppointment(id: number) {
-  const res = await fetch(`${API_BASE}/appointments/${id}/cancel`, {
-    method:  "PATCH",
+export async function cancelAppointment(id: number, isClient = false) {
+  const endpoint = isClient
+    ? `${API_BASE}/appointments/mis-citas/${id}/cancel`
+    : `${API_BASE}/appointments/${id}/cancel`;
+  const method = isClient ? "POST" : "PATCH";
+  const res = await fetch(endpoint, {
+    method,
     headers: authHeaders(),
   });
   if (!res.ok) throw new Error("Error al cancelar cita");

@@ -31,6 +31,12 @@ export interface QuotationFormData {
   notes: string;
   selectedServices: QuotationItem[];
   discount: string;
+  // Cliente ocasional
+  guestMode?:      boolean;
+  guestFirstName?: string;
+  guestLastName?:  string;
+  guestPhone?:     string;
+  guestEmail?:     string;
 }
 
 export interface QuotationsModuleProps {
