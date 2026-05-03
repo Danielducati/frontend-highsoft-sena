@@ -1,4 +1,4 @@
-import { Button } from "../../../shared/ui/button";
+﻿import { Button } from "../../../shared/ui/button";
 import { Input } from "../../../shared/ui/input";
 import { Label } from "../../../shared/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../../shared/ui/card";
@@ -88,7 +88,7 @@ export function RegisterPage({ onBack, onRegisterSuccess }: RegisterPageProps) {
 
           {/* Columna derecha - Formulario */}
           <div className="flex items-center justify-center">
-            <Card className="border shadow-lg w-full" style={{ backgroundColor: "#ffffff", borderColor: "#ede8e0", borderRadius: 16 }}>
+            <Card className="border shadow-lg w-full" style={{ backgroundColor: "#ffffff", borderColor: "#E5E7EB", borderRadius: 16 }}>
               <CardHeader className="text-center pb-4">
                 <CardTitle className="text-2xl font-normal" style={{ color: "#1a3a2a", fontFamily: "var(--font-display)" }}>
                   Crear cuenta

@@ -1,4 +1,4 @@
-// src/features/roles/pages/RolesPage.tsx
+﻿// src/features/roles/pages/RolesPage.tsx
 import { useState } from "react";
 import { Plus, Pencil, Trash2, Search, Shield, Eye, Lock } from "lucide-react";
 import { toast } from "sonner";
@@ -136,7 +136,7 @@ export function RolesPage({ userRole }: RolesModuleProps) {
         <div className="flex flex-col sm:flex-row gap-3 mb-2" style={{ fontFamily: "var(--font-body)" }}>
           <div
             className="flex items-center gap-2 px-4 py-2 rounded-full border flex-1"
-            style={{ backgroundColor: "#ffffff", borderColor: "#d6cfc4", maxWidth: 380 }}
+            style={{ backgroundColor: "#ffffff", borderColor: "#E5E7EB", maxWidth: 380 }}
           >
             <Search className="w-4 h-4 flex-shrink-0" style={{ color: "#6b7c6b" }} />
             <input
@@ -151,7 +151,7 @@ export function RolesPage({ userRole }: RolesModuleProps) {
             value={filterStatus}
             onChange={e => setFilterStatus(e.target.value)}
             style={{
-              padding: "8px 14px", borderRadius: 10, border: "1px solid #d6cfc4",
+              padding: "8px 14px", borderRadius: 10, border: "1px solid #E5E7EB",
               backgroundColor: "#ffffff", color: "#1a3a2a", fontSize: 13,
               fontFamily: "var(--font-body)", outline: "none",
             }}
@@ -168,7 +168,7 @@ export function RolesPage({ userRole }: RolesModuleProps) {
           </p>
         ) : filteredRoles.length === 0 ? (
           <div className="flex flex-col items-center py-16" style={{ fontFamily: "var(--font-body)" }}>
-            <Shield className="w-10 h-10 mb-3" style={{ color: "#d6cfc4" }} />
+            <Shield className="w-10 h-10 mb-3" style={{ color: "#E5E7EB" }} />
             <p className="font-medium" style={{ color: "#1a3a2a" }}>No se encontraron roles</p>
             <p className="text-sm mt-1" style={{ color: "#6b7c6b" }}>Intenta ajustar los filtros de búsqueda</p>
           </div>
@@ -176,7 +176,7 @@ export function RolesPage({ userRole }: RolesModuleProps) {
           <div className="rounded-2xl overflow-hidden shadow-sm" style={{ backgroundColor: "#ffffff" }}>
             <table className="w-full" style={{ fontFamily: "var(--font-body)" }}>
               <thead>
-                <tr style={{ borderBottom: "1px solid #ede8e0" }}>
+                <tr style={{ borderBottom: "1px solid #E5E7EB" }}>
                   {["ROL", "DESCRIPCIÓN", "PERMISOS", "ESTADO", "ACCIONES"].map((col) => (
                     <th key={col} className="px-6 py-4 text-left text-xs font-semibold tracking-widest" style={{ color: "#6b7c6b" }}>
                       {col}
@@ -190,8 +190,8 @@ export function RolesPage({ userRole }: RolesModuleProps) {
                   return (
                   <tr
                     key={role.id}
-                    style={{ borderBottom: idx < filteredRoles.length - 1 ? "1px solid #ede8e0" : "none", transition: "background 0.15s" }}
-                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#faf7f2")}
+                    style={{ borderBottom: idx < filteredRoles.length - 1 ? "1px solid #E5E7EB" : "none", transition: "background 0.15s" }}
+                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#ffffff")}
                     onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
                   >
                     {/* ROL */}
@@ -273,7 +273,7 @@ export function RolesPage({ userRole }: RolesModuleProps) {
                             title="Ver detalles"
                             className="p-2 rounded-lg transition-colors"
                             style={{ color: "#6b7c6b", cursor: "pointer" }}
-                            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#f0ebe3")}
+                            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#F3F4F6")}
                             onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
                           >
                             <Eye className="w-4 h-4" />
@@ -290,7 +290,7 @@ export function RolesPage({ userRole }: RolesModuleProps) {
                               cursor: role.isActive ? "pointer" : "not-allowed",
                               opacity: role.isActive ? 1 : 0.5,
                             }}
-                            onMouseEnter={(e) => { if (role.isActive) e.currentTarget.style.backgroundColor = "#f0ebe3"; }}
+                            onMouseEnter={(e) => { if (role.isActive) e.currentTarget.style.backgroundColor = "#F3F4F6"; }}
                             onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
                           >
                             <Pencil className="w-4 h-4" />

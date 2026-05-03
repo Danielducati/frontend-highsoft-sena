@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../../../shared/ui/dialog";
 import { Client } from "../types";
 import { Mail, Phone, MapPin, FileText, Calendar, ShoppingBag, DollarSign } from "lucide-react";
@@ -90,7 +90,7 @@ export function ClientViewDialog({ client, onClose }: ClientViewDialogProps) {
 
 function InfoRow({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
-    <div className="flex items-start gap-3 px-3 py-2 rounded-lg" style={{ backgroundColor: "#faf7f2" }}>
+    <div className="flex items-start gap-3 px-3 py-2 rounded-lg" style={{ backgroundColor: "#ffffff" }}>
       <span style={{ color: "#6b7c6b", marginTop: 1 }}>{icon}</span>
       <div className="min-w-0">
         <p className="text-xs" style={{ color: "#6b7c6b" }}>{label}</p>
@@ -102,7 +102,7 @@ function InfoRow({ icon, label, value }: { icon: React.ReactNode; label: string;
 
 function StatCard({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
-    <div className="flex flex-col items-center gap-1 p-3 rounded-xl text-center" style={{ backgroundColor: "#faf7f2" }}>
+    <div className="flex flex-col items-center gap-1 p-3 rounded-xl text-center" style={{ backgroundColor: "#ffffff" }}>
       <span style={{ color: "#5FBFAA" }}>{icon}</span>
       <p className="text-xs" style={{ color: "#6b7c6b" }}>{label}</p>
       <p className="text-sm font-semibold" style={{ color: "#1a3a2a" }}>{value}</p>

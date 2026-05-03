@@ -1,4 +1,4 @@
-import { Eye, Receipt, ShoppingCart } from "lucide-react";
+﻿import { Eye, Receipt, ShoppingCart } from "lucide-react";
 import { Sale } from "../types";
 import { formatDate } from "../utils";
 
@@ -25,7 +25,7 @@ export function SalesTable({ sales, loading, onView }: SalesTableProps) {
 
   if (sales.length === 0) return (
     <div className="flex flex-col items-center py-16" style={{ fontFamily: "var(--font-body)" }}>
-      <ShoppingCart className="w-10 h-10 mb-3" style={{ color: "#d6cfc4" }} />
+      <ShoppingCart className="w-10 h-10 mb-3" style={{ color: "#E5E7EB" }} />
       <p className="font-medium" style={{ color: "#1a3a2a" }}>No se encontraron ventas</p>
       <p className="text-sm mt-1" style={{ color: "#6b7c6b" }}>Intenta ajustar los filtros de búsqueda</p>
     </div>
@@ -35,7 +35,7 @@ export function SalesTable({ sales, loading, onView }: SalesTableProps) {
     <div className="rounded-2xl overflow-hidden shadow-sm" style={{ backgroundColor: "#ffffff" }}>
       <table className="w-full" style={{ fontFamily: "var(--font-body)" }}>
         <thead>
-          <tr style={{ borderBottom: "1px solid #ede8e0" }}>
+          <tr style={{ borderBottom: "1px solid #E5E7EB" }}>
             {["N°", "CLIENTE", "SERVICIO", "MÉTODO DE PAGO", "TOTAL", "FECHA", "ACCIONES"].map(col => (
               <th key={col} className="px-6 py-4 text-left text-xs font-semibold tracking-widest" style={{ color: "#6b7c6b" }}>
                 {col}
@@ -46,15 +46,15 @@ export function SalesTable({ sales, loading, onView }: SalesTableProps) {
         <tbody>
           {sales.map((sale, idx) => (
             <tr key={sale.id ?? idx}
-              style={{ borderBottom: idx < sales.length - 1 ? "1px solid #ede8e0" : "none", transition: "background 0.15s" }}
-              onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#faf7f2")}
+              style={{ borderBottom: idx < sales.length - 1 ? "1px solid #E5E7EB" : "none", transition: "background 0.15s" }}
+              onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#ffffff")}
               onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}>
 
               {/* N° */}
               <td className="px-6 py-4">
                 <div className="flex items-center gap-2">
                   <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-                    style={{ backgroundColor: "#f0ebe3" }}>
+                    style={{ backgroundColor: "#F3F4F6" }}>
                     <Receipt className="w-4 h-4" style={{ color: "#6b7c6b" }} />
                   </div>
                   <span className="text-sm font-mono" style={{ color: "#6b7c6b" }}>
@@ -105,7 +105,7 @@ export function SalesTable({ sales, loading, onView }: SalesTableProps) {
               <td className="px-6 py-4">
                 <button onClick={() => onView(sale)} title="Ver detalle"
                   className="p-2 rounded-lg transition-colors" style={{ color: "#6b7c6b" }}
-                  onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#f0ebe3")}
+                  onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#F3F4F6")}
                   onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}>
                   <Eye className="w-4 h-4" />
                 </button>

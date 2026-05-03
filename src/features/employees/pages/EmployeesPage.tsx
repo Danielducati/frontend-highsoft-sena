@@ -1,4 +1,4 @@
-import * as React from "react"; 
+﻿import * as React from "react"; 
 import { Card, CardContent } from "../../../shared/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../shared/ui/select";
 import { Switch } from "../../../shared/ui/switch";
@@ -114,7 +114,7 @@ export function EmployeesPage({ userRole }: EmployeesModuleProps) {
         {/* Búsqueda */}
         <div
           className="flex items-center gap-2 px-4 py-2 rounded-full border flex-1"
-          style={{ backgroundColor: "#ffffff", borderColor: "#d6cfc4", maxWidth: 340 }}
+          style={{ backgroundColor: "#ffffff", borderColor: "#E5E7EB", maxWidth: 340 }}
         >
           <Search className="w-4 h-4 flex-shrink-0" style={{ color: "#6b7c6b" }} />
           <input
@@ -135,7 +135,7 @@ export function EmployeesPage({ userRole }: EmployeesModuleProps) {
             style={{
               padding: "8px 14px",
               borderRadius: 10,
-              border: "1px solid #d6cfc4",
+              border: "1px solid #E5E7EB",
               backgroundColor: "#ffffff",
               color: "#1a3a2a",
               fontSize: 13,
@@ -153,7 +153,7 @@ export function EmployeesPage({ userRole }: EmployeesModuleProps) {
             style={{
               padding: "8px 14px",
               borderRadius: 10,
-              border: "1px solid #d6cfc4",
+              border: "1px solid #E5E7EB",
               backgroundColor: "#ffffff",
               color: "#1a3a2a",
               fontSize: 13,
@@ -179,14 +179,14 @@ export function EmployeesPage({ userRole }: EmployeesModuleProps) {
           </p>
         ) : paginatedEmployees.length === 0 ? (
           <div className="flex flex-col items-center py-16" style={{ fontFamily: "var(--font-body)" }}>
-            <Users className="w-10 h-10 mb-3" style={{ color: "#d6cfc4" }} />
+            <Users className="w-10 h-10 mb-3" style={{ color: "#E5E7EB" }} />
             <p className="font-medium" style={{ color: "#1a3a2a" }}>No se encontraron empleados</p>
             <p className="text-sm mt-1" style={{ color: "#6b7c6b" }}>Intenta ajustar los filtros de búsqueda</p>
           </div>
         ) : (
           <table className="w-full" style={{ fontFamily: "var(--font-body)" }}>
             <thead>
-              <tr style={{ borderBottom: "1px solid #ede8e0" }}>
+              <tr style={{ borderBottom: "1px solid #E5E7EB" }}>
                 {["NOMBRE DEL EMPLEADO", "ESPECIALIDAD", "CONTACTO", "ESTADO", ...(userRole === "admin" ? ["ACCIONES"] : [])].map(col => (
                   <th
                     key={col}
@@ -203,10 +203,10 @@ export function EmployeesPage({ userRole }: EmployeesModuleProps) {
                 <tr
                   key={employee.id}
                   style={{
-                    borderBottom: idx < paginatedEmployees.length - 1 ? "1px solid #ede8e0" : "none",
+                    borderBottom: idx < paginatedEmployees.length - 1 ? "1px solid #E5E7EB" : "none",
                     transition: "background 0.15s",
                   }}
-                  onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#faf7f2")}
+                  onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#ffffff")}
                   onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
                 >
                   {/* Nombre */}
@@ -244,7 +244,7 @@ export function EmployeesPage({ userRole }: EmployeesModuleProps) {
                   <td className="px-6 py-4">
                     <span
                       className="inline-flex px-3 py-1 rounded-full text-xs font-medium"
-                      style={{ backgroundColor: "#f0ebe3", color: "#1a3a2a" }}
+                      style={{ backgroundColor: "#F3F4F6", color: "#1a3a2a" }}
                     >
                       {employee.specialty || "—"}
                     </span>
@@ -293,7 +293,7 @@ export function EmployeesPage({ userRole }: EmployeesModuleProps) {
                           title="Ver detalles"
                           className="p-2 rounded-lg transition-colors"
                           style={{ color: "#6b7c6b" }}
-                          onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#f0ebe3")}
+                          onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#F3F4F6")}
                           onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
                         >
                           <Eye className="w-4 h-4" />
@@ -306,7 +306,7 @@ export function EmployeesPage({ userRole }: EmployeesModuleProps) {
                             disabled={!employee.isActive}
                             className="p-2 rounded-lg transition-colors"
                             style={{ color: employee.isActive ? "#6b7c6b" : "#d1d5db", cursor: employee.isActive ? "pointer" : "not-allowed" }}
-                            onMouseEnter={e => { if (employee.isActive) e.currentTarget.style.backgroundColor = "#f0ebe3"; }}
+                            onMouseEnter={e => { if (employee.isActive) e.currentTarget.style.backgroundColor = "#F3F4F6"; }}
                             onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
                           >
                             <Pencil className="w-4 h-4" />
@@ -349,7 +349,7 @@ export function EmployeesPage({ userRole }: EmployeesModuleProps) {
               disabled={currentPage === 1}
               className="w-8 h-8 flex items-center justify-center rounded-lg text-sm transition-colors disabled:opacity-30"
               style={{ color: "#1a3a2a" }}
-              onMouseEnter={e => { if (!e.currentTarget.disabled) e.currentTarget.style.backgroundColor = "#ede8e0"; }}
+              onMouseEnter={e => { if (!e.currentTarget.disabled) e.currentTarget.style.backgroundColor = "#E5E7EB"; }}
               onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
             >
               ‹
@@ -362,7 +362,7 @@ export function EmployeesPage({ userRole }: EmployeesModuleProps) {
                 style={page === currentPage
                   ? { backgroundColor: "#1a3a2a", color: "#ffffff" }
                   : { color: "#1a3a2a" }}
-                onMouseEnter={e => { if (page !== currentPage) e.currentTarget.style.backgroundColor = "#ede8e0"; }}
+                onMouseEnter={e => { if (page !== currentPage) e.currentTarget.style.backgroundColor = "#E5E7EB"; }}
                 onMouseLeave={e => { if (page !== currentPage) e.currentTarget.style.backgroundColor = "transparent"; }}
               >
                 {page}
@@ -373,7 +373,7 @@ export function EmployeesPage({ userRole }: EmployeesModuleProps) {
               disabled={currentPage === totalPages}
               className="w-8 h-8 flex items-center justify-center rounded-lg text-sm transition-colors disabled:opacity-30"
               style={{ color: "#1a3a2a" }}
-              onMouseEnter={e => { if (!e.currentTarget.disabled) e.currentTarget.style.backgroundColor = "#ede8e0"; }}
+              onMouseEnter={e => { if (!e.currentTarget.disabled) e.currentTarget.style.backgroundColor = "#E5E7EB"; }}
               onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
             >
               ›

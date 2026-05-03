@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+﻿import { useState, useEffect } from "react";
 import { Card, CardContent } from "../../../shared/ui/card";
 import { Button } from "../../../shared/ui/button";
 import { Input } from "../../../shared/ui/input";
@@ -138,7 +138,7 @@ export function CategoriesPage({ userRole }: CategoriesModuleProps) {
           className="flex items-center gap-2 px-4 py-2 rounded-full border"
           style={{
             backgroundColor: "#ffffff",
-            borderColor: "#d6cfc4",
+            borderColor: "#E5E7EB",
             maxWidth: 320,
             flex: 1,
             fontFamily: "var(--font-body)",
@@ -160,7 +160,7 @@ export function CategoriesPage({ userRole }: CategoriesModuleProps) {
             className="w-[180px] rounded-lg border"
             style={{
               backgroundColor: "#ffffff",
-              borderColor: "#d6cfc4",
+              borderColor: "#E5E7EB",
               color: "#1a3a2a",
               fontFamily: "var(--font-body)"
             }}>
@@ -179,7 +179,7 @@ export function CategoriesPage({ userRole }: CategoriesModuleProps) {
             className="w-[160px] rounded-lg border"
             style={{
               backgroundColor: "#ffffff",
-              borderColor: "#d6cfc4",
+              borderColor: "#E5E7EB",
               color: "#1a3a2a",
               fontFamily: "var(--font-body)"
             }}
@@ -217,7 +217,7 @@ export function CategoriesPage({ userRole }: CategoriesModuleProps) {
         ) : (
           <table className="w-full" style={{ fontFamily: "var(--font-body)" }}>
             <thead>
-              <tr style={{ borderBottom: "1px solid #ede8e0" }}>
+              <tr style={{ borderBottom: "1px solid #E5E7EB" }}>
                 {[
                   { label: "COLOR",     key: null             },
                   { label: "NOMBRE",    key: "name"           },
@@ -241,10 +241,10 @@ export function CategoriesPage({ userRole }: CategoriesModuleProps) {
                 <tr
                   key={category.id}
                   style={{
-                    borderBottom: idx < paginated.length - 1 ? "1px solid #ede8e0" : "none",
+                    borderBottom: idx < paginated.length - 1 ? "1px solid #E5E7EB" : "none",
                     transition: "background 0.15s",
                   }}
-                  onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#faf7f2")}
+                  onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#ffffff")}
                   onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
                 >
                   {/* Color */}
@@ -311,7 +311,7 @@ export function CategoriesPage({ userRole }: CategoriesModuleProps) {
                       <div className="flex items-center gap-1">
                         <button onClick={() => handleViewDetail(category)} title="Ver detalle"
                           className="p-2 rounded-lg transition-colors" style={{ color: "#6b7c6b" }}
-                          onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#f0ebe3")}
+                          onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#F3F4F6")}
                           onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}>
                           <Eye className="w-4 h-4" />
                         </button>
@@ -320,7 +320,7 @@ export function CategoriesPage({ userRole }: CategoriesModuleProps) {
                             title={category.isActive ? "Editar" : "Activa la categoría para editar"}
                             disabled={!category.isActive} className="p-2 rounded-lg transition-colors"
                             style={{ color: category.isActive ? "#6b7c6b" : "#d1d5db", cursor: category.isActive ? "pointer" : "not-allowed" }}
-                            onMouseEnter={e => { if (category.isActive) e.currentTarget.style.backgroundColor = "#f0ebe3"; }}
+                            onMouseEnter={e => { if (category.isActive) e.currentTarget.style.backgroundColor = "#F3F4F6"; }}
                             onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}>
                             <Pencil className="w-4 h-4" />
                           </button>
@@ -362,7 +362,7 @@ export function CategoriesPage({ userRole }: CategoriesModuleProps) {
               disabled={currentPage === 1}
               className="w-8 h-8 flex items-center justify-center rounded-lg text-sm transition-colors disabled:opacity-30"
               style={{ color: "#1a3a2a" }}
-              onMouseEnter={e => !e.currentTarget.disabled && (e.currentTarget.style.backgroundColor = "#ede8e0")}
+              onMouseEnter={e => !e.currentTarget.disabled && (e.currentTarget.style.backgroundColor = "#E5E7EB")}
               onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
             >
               ‹
@@ -380,7 +380,7 @@ export function CategoriesPage({ userRole }: CategoriesModuleProps) {
                 }
                 onMouseEnter={e => {
                   if (page !== currentPage)
-                    e.currentTarget.style.backgroundColor = "#ede8e0";
+                    e.currentTarget.style.backgroundColor = "#E5E7EB";
                 }}
                 onMouseLeave={e => {
                   if (page !== currentPage)
@@ -396,7 +396,7 @@ export function CategoriesPage({ userRole }: CategoriesModuleProps) {
               disabled={currentPage === totalPages}
               className="w-8 h-8 flex items-center justify-center rounded-lg text-sm transition-colors disabled:opacity-30"
               style={{ color: "#1a3a2a" }}
-              onMouseEnter={e => !e.currentTarget.disabled && (e.currentTarget.style.backgroundColor = "#ede8e0")}
+              onMouseEnter={e => !e.currentTarget.disabled && (e.currentTarget.style.backgroundColor = "#E5E7EB")}
               onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
             >
               ›

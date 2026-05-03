@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { Search, Filter, Wrench, Clock3, Eye, Pencil, Trash2 } from "lucide-react";
 import { ServicesModuleProps } from "../types";
 import { useServices } from "../hooks/useServices";
@@ -112,7 +112,7 @@ export function ServicesPage({ userRole }: ServicesModuleProps) {
 
       {/* Filtros */}
       <div className="flex flex-col sm:flex-row gap-3 mb-6" style={{ fontFamily: "var(--font-body)" }}>
-        <div className="flex items-center gap-2 px-4 py-2 rounded-full border flex-1" style={{ backgroundColor: "#ffffff", borderColor: "#d6cfc4", maxWidth: 380 }}>
+        <div className="flex items-center gap-2 px-4 py-2 rounded-full border flex-1" style={{ backgroundColor: "#ffffff", borderColor: "#E5E7EB", maxWidth: 380 }}>
           <Search className="w-4 h-4 flex-shrink-0" style={{ color: "#6b7c6b" }} />
           <input
             placeholder="Buscar por nombre o descripción..."
@@ -135,7 +135,7 @@ export function ServicesPage({ userRole }: ServicesModuleProps) {
       }}
       className="px-4 py-2 rounded-lg border text-sm flex items-center gap-2"
       style={{
-        borderColor: "#d6cfc4",
+        borderColor: "#E5E7EB",
         backgroundColor: "#ffffff",
         color: "#1a3a2a",
         fontFamily: "var(--font-body)"
@@ -150,12 +150,12 @@ export function ServicesPage({ userRole }: ServicesModuleProps) {
         className="absolute mt-2 w-56 rounded-xl shadow-md z-10"
         style={{
           backgroundColor: "#ffffff",
-          border: "1px solid #ede8e0"
+          border: "1px solid #E5E7EB"
         }}
         onClick={(e) => e.stopPropagation()}
       >
         <div
-          className="px-4 py-2 text-sm cursor-pointer hover:bg-[#faf7f2]"
+          className="px-4 py-2 text-sm cursor-pointer hover:bg-[#ffffff]"
           onClick={() => {
             setFilterCategory("all");
             setOpenCategory(false);
@@ -168,7 +168,7 @@ export function ServicesPage({ userRole }: ServicesModuleProps) {
         {categories.map((cat) => (
           <div
             key={cat.id}
-            className="px-4 py-2 text-sm cursor-pointer hover:bg-[#faf7f2]"
+            className="px-4 py-2 text-sm cursor-pointer hover:bg-[#ffffff]"
             onClick={() => {
               setFilterCategory(cat.nombre);
               setOpenCategory(false);
@@ -192,7 +192,7 @@ export function ServicesPage({ userRole }: ServicesModuleProps) {
       }}
       className="px-4 py-2 rounded-lg border text-sm flex items-center gap-2"
       style={{
-        borderColor: "#d6cfc4",
+        borderColor: "#E5E7EB",
         backgroundColor: "#ffffff",
         color: "#1a3a2a",
         fontFamily: "var(--font-body)"
@@ -211,12 +211,12 @@ export function ServicesPage({ userRole }: ServicesModuleProps) {
         className="absolute mt-2 w-40 rounded-xl shadow-md z-10"
         style={{
           backgroundColor: "#ffffff",
-          border: "1px solid #ede8e0"
+          border: "1px solid #E5E7EB"
         }}
         onClick={(e) => e.stopPropagation()}
       >
         <div
-          className="px-4 py-2 text-sm cursor-pointer hover:bg-[#faf7f2]"
+          className="px-4 py-2 text-sm cursor-pointer hover:bg-[#ffffff]"
           onClick={() => {
             setFilterStatus("all");
             setOpenStatus(false);
@@ -227,7 +227,7 @@ export function ServicesPage({ userRole }: ServicesModuleProps) {
         </div>
 
         <div
-          className="px-4 py-2 text-sm cursor-pointer hover:bg-[#faf7f2]"
+          className="px-4 py-2 text-sm cursor-pointer hover:bg-[#ffffff]"
           onClick={() => {
             setFilterStatus("active");
             setOpenStatus(false);
@@ -238,7 +238,7 @@ export function ServicesPage({ userRole }: ServicesModuleProps) {
         </div>
 
         <div
-          className="px-4 py-2 text-sm cursor-pointer hover:bg-[#faf7f2]"
+          className="px-4 py-2 text-sm cursor-pointer hover:bg-[#ffffff]"
           onClick={() => {
             setFilterStatus("inactive");
             setOpenStatus(false);
@@ -260,7 +260,7 @@ export function ServicesPage({ userRole }: ServicesModuleProps) {
         </p>
       ) : filteredServices.length === 0 ? (
         <div className="flex flex-col items-center py-16" style={{ fontFamily: "var(--font-body)" }}>
-          <Wrench className="w-10 h-10 mb-3" style={{ color: "#d6cfc4" }} />
+          <Wrench className="w-10 h-10 mb-3" style={{ color: "#E5E7EB" }} />
           <p className="font-medium" style={{ color: "#1a3a2a" }}>No se encontraron servicios</p>
           <p className="text-sm mt-1" style={{ color: "#6b7c6b" }}>
             {searchTerm ? "Intenta con otros términos de búsqueda" : "Comienza agregando tu primer servicio"}
@@ -270,7 +270,7 @@ export function ServicesPage({ userRole }: ServicesModuleProps) {
         <div className="rounded-2xl overflow-hidden shadow-sm" style={{ backgroundColor: "#ffffff" }}>
           <table className="w-full" style={{ fontFamily: "var(--font-body)" }}>
             <thead>
-              <tr style={{ borderBottom: "1px solid #ede8e0" }}>
+              <tr style={{ borderBottom: "1px solid #E5E7EB" }}>
                 {["NOMBRE", "CATEGORÍA", "PRECIO", "DURACIÓN", "ESTADO", "ACCIONES"].map((col) => (
                   <th key={col} className="px-6 py-4 text-left text-xs font-semibold tracking-widest" style={{ color: "#6b7c6b" }}>
                     {col}
@@ -282,8 +282,8 @@ export function ServicesPage({ userRole }: ServicesModuleProps) {
               {paginatedServices.map((service, idx) => (
                 <tr
                   key={service.id}
-                  style={{ borderBottom: idx < paginatedServices.length - 1 ? "1px solid #ede8e0" : "none", transition: "background 0.15s" }}
-                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#faf7f2")}
+                  style={{ borderBottom: idx < paginatedServices.length - 1 ? "1px solid #E5E7EB" : "none", transition: "background 0.15s" }}
+                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#ffffff")}
                   onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
                 >
                  <td className="px-6 py-4">
@@ -374,7 +374,7 @@ export function ServicesPage({ userRole }: ServicesModuleProps) {
                         title="Ver detalle"
                         className="p-2 rounded-lg transition-colors"
                         style={{ color: "#6b7c6b" }}
-                        onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#f0ebe3")}
+                        onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#F3F4F6")}
                         onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
                       >
                         <Eye className="w-4 h-4" />
@@ -387,7 +387,7 @@ export function ServicesPage({ userRole }: ServicesModuleProps) {
                             disabled={!service.isActive}
                             className="p-2 rounded-lg transition-colors"
                             style={{ color: service.isActive ? "#6b7c6b" : "#d1d5db", cursor: service.isActive ? "pointer" : "not-allowed" }}
-                            onMouseEnter={(e) => { if (service.isActive) e.currentTarget.style.backgroundColor = "#f0ebe3"; }}
+                            onMouseEnter={(e) => { if (service.isActive) e.currentTarget.style.backgroundColor = "#F3F4F6"; }}
                             onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
                           >
                             <Pencil className="w-4 h-4" />
@@ -426,7 +426,7 @@ export function ServicesPage({ userRole }: ServicesModuleProps) {
               disabled={currentPage === 1}
               className="w-8 h-8 flex items-center justify-center rounded-lg text-sm disabled:opacity-30"
               style={{ color: "#1a3a2a" }}
-              onMouseEnter={(e) => { if (!e.currentTarget.disabled) e.currentTarget.style.backgroundColor = "#ede8e0"; }}
+              onMouseEnter={(e) => { if (!e.currentTarget.disabled) e.currentTarget.style.backgroundColor = "#E5E7EB"; }}
               onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
             >
               ‹
@@ -437,7 +437,7 @@ export function ServicesPage({ userRole }: ServicesModuleProps) {
                 onClick={() => setCurrentPage(page)}
                 className="w-8 h-8 flex items-center justify-center rounded-lg text-sm font-medium"
                 style={page === currentPage ? { backgroundColor: "#1a3a2a", color: "#ffffff" } : { color: "#1a3a2a" }}
-                onMouseEnter={(e) => { if (page !== currentPage) e.currentTarget.style.backgroundColor = "#ede8e0"; }}
+                onMouseEnter={(e) => { if (page !== currentPage) e.currentTarget.style.backgroundColor = "#E5E7EB"; }}
                 onMouseLeave={(e) => { if (page !== currentPage) e.currentTarget.style.backgroundColor = "transparent"; }}
               >
                 {page}
@@ -448,7 +448,7 @@ export function ServicesPage({ userRole }: ServicesModuleProps) {
               disabled={currentPage === totalPages}
               className="w-8 h-8 flex items-center justify-center rounded-lg text-sm disabled:opacity-30"
               style={{ color: "#1a3a2a" }}
-              onMouseEnter={(e) => { if (!e.currentTarget.disabled) e.currentTarget.style.backgroundColor = "#ede8e0"; }}
+              onMouseEnter={(e) => { if (!e.currentTarget.disabled) e.currentTarget.style.backgroundColor = "#E5E7EB"; }}
               onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
             >
               ›

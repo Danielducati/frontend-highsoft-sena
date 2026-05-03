@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "../../../shared/ui/alert-dialog";
 import { AlertCircle } from "lucide-react";
 
@@ -12,7 +12,7 @@ export function QuotationCancelDialog({ open, onOpenChange, onConfirm }: Quotati
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent style={{
-        backgroundColor: "#faf7f2", borderRadius: 16, border: "1px solid #ede8e0",
+        backgroundColor: "#ffffff", borderRadius: 16, border: "1px solid #E5E7EB",
         padding: 32, maxWidth: 420, fontFamily: "var(--font-body)",
       }}>
         <AlertDialogHeader>
@@ -30,7 +30,7 @@ export function QuotationCancelDialog({ open, onOpenChange, onConfirm }: Quotati
         </AlertDialogHeader>
         <AlertDialogFooter style={{ marginTop: 24, display: "flex", gap: 10, justifyContent: "flex-end" }}>
           <AlertDialogCancel onClick={() => onOpenChange(false)} style={{
-            padding: "9px 18px", borderRadius: 10, border: "1px solid #d6cfc4",
+            padding: "9px 18px", borderRadius: 10, border: "1px solid #E5E7EB",
             backgroundColor: "transparent", color: "#1a3a2a", fontSize: 14, cursor: "pointer",
           }}>
             Volver

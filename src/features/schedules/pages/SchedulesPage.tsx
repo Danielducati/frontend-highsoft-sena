@@ -1,4 +1,4 @@
-//frontend-highsoft-sena\src\features\schedules\pages\SchedulesPage.tsx
+﻿//frontend-highsoft-sena\src\features\schedules\pages\SchedulesPage.tsx
 import { useState } from "react";
 import { Card, CardContent } from "../../../shared/ui/card";
 import { Button } from "../../../shared/ui/button";
@@ -236,7 +236,7 @@ export function SchedulesPage({ userRole }: SchedulesModuleProps) {
                               title="Ver detalles"
                               className="p-2 rounded-lg transition-colors"
                               style={{ color: "#6b7c6b" }}
-                              onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#f0ebe3")}
+                              onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#F3F4F6")}
                               onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
                             >
                               <Eye className="w-4 h-4" />
@@ -246,7 +246,7 @@ export function SchedulesPage({ userRole }: SchedulesModuleProps) {
                               title="Editar"
                               className="p-2 rounded-lg transition-colors"
                               style={{ color: "#6b7c6b" }}
-                              onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#f0ebe3")}
+                              onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#F3F4F6")}
                               onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
                             >
                               <Pencil className="w-4 h-4" />

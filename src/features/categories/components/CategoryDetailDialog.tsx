@@ -1,4 +1,4 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "../../../shared/ui/dialog";
+﻿import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "../../../shared/ui/dialog";
 import { Category } from "../types";
 
 interface CategoryDetailDialogProps {
@@ -12,9 +12,9 @@ export function CategoryDetailDialog({ isOpen, onOpenChange, category }: Categor
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent
         style={{
-          backgroundColor: "#faf7f2",
+          backgroundColor: "#ffffff",
           borderRadius: 16,
-          border: "1px solid #ede8e0",
+          border: "1px solid #E5E7EB",
           padding: 32,
           maxWidth: 440,
           fontFamily: "var(--font-body)",
@@ -40,7 +40,7 @@ export function CategoryDetailDialog({ isOpen, onOpenChange, category }: Categor
                 gap: 16,
                 padding: "16px 20px",
                 borderRadius: 12,
-                backgroundColor: "#f0ebe3",
+                backgroundColor: "#F3F4F6",
               }}
             >
               <div
@@ -97,7 +97,7 @@ export function CategoryDetailDialog({ isOpen, onOpenChange, category }: Categor
                         height: 28,
                         borderRadius: 6,
                         backgroundColor: category.color,
-                        border: "1px solid #d6cfc4",
+                        border: "1px solid #E5E7EB",
                       }}
                     />
                     <p style={{ color: "#1a3a2a", fontSize: 14 }}>{value}</p>
@@ -147,7 +147,7 @@ export function CategoryDetailDialog({ isOpen, onOpenChange, category }: Categor
                 style={{
                   padding: "9px 20px",
                   borderRadius: 10,
-                  border: "1px solid #d6cfc4",
+                  border: "1px solid #E5E7EB",
                   backgroundColor: "transparent",
                   color: "#1a3a2a",
                   fontSize: 14,

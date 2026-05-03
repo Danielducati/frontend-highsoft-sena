@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+﻿import { useState, useEffect } from "react";
 import { Button } from "../../../shared/ui/button";
 import { Input } from "../../../shared/ui/input";
 import { Label } from "../../../shared/ui/label";
@@ -81,7 +81,7 @@ export function ResetPasswordPage({ onGoToLogin }: ResetPasswordPageProps) {
   // ── Cargando ─────────────────────────────────────────────────
   if (tokenValid === null) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: "#f5f0e8" }}>
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: "#F7F9FC" }}>
         <div className="flex flex-col items-center gap-3">
           <Loader2 className="w-7 h-7 animate-spin" style={{ color: "#1a3a2a" }} />
           <p className="text-sm" style={{ color: "#6b7c6b", fontFamily: "var(--font-body)" }}>Verificando enlace...</p>
@@ -93,8 +93,8 @@ export function ResetPasswordPage({ onGoToLogin }: ResetPasswordPageProps) {
   // ── Token inválido ───────────────────────────────────────────
   if (!tokenValid) {
     return (
-      <div className="min-h-screen flex items-center justify-center px-4" style={{ backgroundColor: "#f5f0e8" }}>
-        <Card className="w-full max-w-[400px] shadow-lg border" style={{ backgroundColor: "#ffffff", borderColor: "#ede8e0", borderRadius: 16 }}>
+      <div className="min-h-screen flex items-center justify-center px-4" style={{ backgroundColor: "#F7F9FC" }}>
+        <Card className="w-full max-w-[400px] shadow-lg border" style={{ backgroundColor: "#ffffff", borderColor: "#E5E7EB", borderRadius: 16 }}>
           <CardHeader className="text-center pt-8 pb-4">
             <div className="flex justify-center mb-3">
               <div className="w-14 h-14 rounded-full flex items-center justify-center" style={{ backgroundColor: "#fee2e2" }}>
@@ -126,8 +126,8 @@ export function ResetPasswordPage({ onGoToLogin }: ResetPasswordPageProps) {
   // ── Éxito ────────────────────────────────────────────────────
   if (success) {
     return (
-      <div className="min-h-screen flex items-center justify-center px-4" style={{ backgroundColor: "#f5f0e8" }}>
-        <Card className="w-full max-w-[400px] shadow-lg border" style={{ backgroundColor: "#ffffff", borderColor: "#ede8e0", borderRadius: 16 }}>
+      <div className="min-h-screen flex items-center justify-center px-4" style={{ backgroundColor: "#F7F9FC" }}>
+        <Card className="w-full max-w-[400px] shadow-lg border" style={{ backgroundColor: "#ffffff", borderColor: "#E5E7EB", borderRadius: 16 }}>
           <CardHeader className="text-center pt-8 pb-4">
             <div className="flex justify-center mb-3">
               <div className="w-14 h-14 rounded-full flex items-center justify-center" style={{ backgroundColor: "#e8f7f4" }}>
@@ -154,7 +154,7 @@ export function ResetPasswordPage({ onGoToLogin }: ResetPasswordPageProps) {
 
   // ── Formulario ───────────────────────────────────────────────
   return (
-    <div className="min-h-screen flex flex-col" style={{ backgroundColor: "#f5f0e8", fontFamily: "var(--font-display)" }}>
+    <div className="min-h-screen flex flex-col" style={{ backgroundColor: "#F7F9FC", fontFamily: "var(--font-display)" }}>
       {/* Top bar */}
       <div className="flex items-start justify-end px-10 pt-8">
         <div className="tracking-[0.25em] text-xs" style={{ color: "#1a3a2a" }}>HIGHLIFE SPA</div>
@@ -162,7 +162,7 @@ export function ResetPasswordPage({ onGoToLogin }: ResetPasswordPageProps) {
 
       <div className="flex-1 flex items-center justify-center px-4 py-10">
         <Card className="w-full max-w-[420px] shadow-lg border"
-          style={{ backgroundColor: "#ffffff", borderColor: "#ede8e0", borderRadius: 16 }}>
+          style={{ backgroundColor: "#ffffff", borderColor: "#E5E7EB", borderRadius: 16 }}>
 
           <CardHeader className="text-center pb-4 pt-8">
             <div className="flex justify-center mb-4">

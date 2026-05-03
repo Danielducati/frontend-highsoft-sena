@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../../../shared/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "../../../shared/ui/alert-dialog";
 import { Plus, Search, Filter, ShoppingCart, AlertCircle } from "lucide-react";
@@ -134,7 +134,7 @@ export function SalesPage({ userRole }: SalesModuleProps) {
               </button>
             </DialogTrigger>
             <DialogContent style={{
-              backgroundColor: "#faf7f2", borderRadius: 16, border: "1px solid #ede8e0",
+              backgroundColor: "#ffffff", borderRadius: 16, border: "1px solid #E5E7EB",
               padding: 32, maxWidth: 680, maxHeight: "90vh", overflowY: "auto",
             }}>
               <DialogHeader>
@@ -182,7 +182,7 @@ export function SalesPage({ userRole }: SalesModuleProps) {
       {/* ── Filtros ── */}
       <div className="flex flex-col sm:flex-row gap-3 mb-6" style={{ fontFamily: "var(--font-body)" }}>
         <div className="flex items-center gap-2 px-4 py-2 rounded-full border flex-1"
-          style={{ backgroundColor: "#ffffff", borderColor: "#d6cfc4", maxWidth: 340 }}>
+          style={{ backgroundColor: "#ffffff", borderColor: "#E5E7EB", maxWidth: 340 }}>
           <Search className="w-4 h-4 flex-shrink-0" style={{ color: "#6b7c6b" }} />
           <input placeholder="Buscar por cliente..." value={searchTerm}
             onChange={e => { setSearchTerm(e.target.value); setCurrentPage(1); }}
@@ -200,7 +200,7 @@ export function SalesPage({ userRole }: SalesModuleProps) {
             style={{
               padding: "8px 14px",
               borderRadius: 10,
-              border: "1px solid #d6cfc4",
+              border: "1px solid #E5E7EB",
               backgroundColor: "#ffffff",
               color: "#1a3a2a",
               fontSize: 13,
@@ -221,7 +221,7 @@ export function SalesPage({ userRole }: SalesModuleProps) {
           <Filter className="w-4 h-4" style={{ color: "#6b7c6b" }} />
           <select value={filterPayment} onChange={e => { setFilterPayment(e.target.value); setCurrentPage(1); }}
             style={{
-              padding: "8px 14px", borderRadius: 10, border: "1px solid #d6cfc4",
+              padding: "8px 14px", borderRadius: 10, border: "1px solid #E5E7EB",
               backgroundColor: "#ffffff", color: "#1a3a2a", fontSize: 13,
               fontFamily: "var(--font-body)", outline: "none",
             }}>
@@ -244,13 +244,13 @@ export function SalesPage({ userRole }: SalesModuleProps) {
             <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1}
               className="w-8 h-8 flex items-center justify-center rounded-lg text-sm disabled:opacity-30"
               style={{ color: "#1a3a2a" }}
-              onMouseEnter={e => { if (!e.currentTarget.disabled) e.currentTarget.style.backgroundColor = "#ede8e0"; }}
+              onMouseEnter={e => { if (!e.currentTarget.disabled) e.currentTarget.style.backgroundColor = "#E5E7EB"; }}
               onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}>‹</button>
             {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
               <button key={page} onClick={() => setCurrentPage(page)}
                 className="w-8 h-8 flex items-center justify-center rounded-lg text-sm font-medium"
                 style={page === currentPage ? { backgroundColor: "#1a3a2a", color: "#ffffff" } : { color: "#1a3a2a" }}
-                onMouseEnter={e => { if (page !== currentPage) e.currentTarget.style.backgroundColor = "#ede8e0"; }}
+                onMouseEnter={e => { if (page !== currentPage) e.currentTarget.style.backgroundColor = "#E5E7EB"; }}
                 onMouseLeave={e => { if (page !== currentPage) e.currentTarget.style.backgroundColor = "transparent"; }}>
                 {page}
               </button>
@@ -258,7 +258,7 @@ export function SalesPage({ userRole }: SalesModuleProps) {
             <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages}
               className="w-8 h-8 flex items-center justify-center rounded-lg text-sm disabled:opacity-30"
               style={{ color: "#1a3a2a" }}
-              onMouseEnter={e => { if (!e.currentTarget.disabled) e.currentTarget.style.backgroundColor = "#ede8e0"; }}
+              onMouseEnter={e => { if (!e.currentTarget.disabled) e.currentTarget.style.backgroundColor = "#E5E7EB"; }}
               onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}>›</button>
           </div>
         </div>
@@ -269,7 +269,7 @@ export function SalesPage({ userRole }: SalesModuleProps) {
 
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent style={{
-          backgroundColor: "#faf7f2", borderRadius: 16, border: "1px solid #ede8e0",
+          backgroundColor: "#ffffff", borderRadius: 16, border: "1px solid #E5E7EB",
           padding: 32, maxWidth: 420, fontFamily: "var(--font-body)",
         }}>
           <AlertDialogHeader>
@@ -286,7 +286,7 @@ export function SalesPage({ userRole }: SalesModuleProps) {
           </AlertDialogHeader>
           <AlertDialogFooter style={{ marginTop: 24, display: "flex", gap: 10, justifyContent: "flex-end" }}>
             <AlertDialogCancel style={{
-              padding: "9px 18px", borderRadius: 10, border: "1px solid #d6cfc4",
+              padding: "9px 18px", borderRadius: 10, border: "1px solid #E5E7EB",
               backgroundColor: "transparent", color: "#1a3a2a", fontSize: 14, cursor: "pointer",
             }}>Cancelar</AlertDialogCancel>
             <AlertDialogAction

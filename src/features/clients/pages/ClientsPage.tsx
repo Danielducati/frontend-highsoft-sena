@@ -1,4 +1,4 @@
-// src/features/clients/pages/ClientsPage.tsx
+﻿// src/features/clients/pages/ClientsPage.tsx
 import React from "react";
 import { User, Mail, Phone, Search, Filter, ShoppingBag, Eye, Pencil, Trash2 } from "lucide-react";
 import { SpaPage } from "../../../shared/components/layout/SpaPage";
@@ -55,7 +55,7 @@ export function ClientsPage({ userRole }: ClientsModuleProps) {
         <div className="flex flex-col sm:flex-row gap-3 mb-2" style={{ fontFamily: "var(--font-body)" }}>
           <div
             className="flex items-center gap-2 px-4 py-2 rounded-full border flex-1"
-            style={{ backgroundColor: "#ffffff", borderColor: "#d6cfc4", maxWidth: 380 }}
+            style={{ backgroundColor: "#ffffff", borderColor: "#E5E7EB", maxWidth: 380 }}
           >
             <Search className="w-4 h-4 flex-shrink-0" style={{ color: "#6b7c6b" }} />
             <input
@@ -71,7 +71,7 @@ export function ClientsPage({ userRole }: ClientsModuleProps) {
             <select
               value={filterStatus}
               onChange={(e) => handleFilterChange(e.target.value)}
-              style={{ padding: "8px 14px", borderRadius: 10, border: "1px solid #d6cfc4", backgroundColor: "#ffffff", color: "#1a3a2a", fontSize: 13, fontFamily: "var(--font-body)", outline: "none" }}
+              style={{ padding: "8px 14px", borderRadius: 10, border: "1px solid #E5E7EB", backgroundColor: "#ffffff", color: "#1a3a2a", fontSize: 13, fontFamily: "var(--font-body)", outline: "none" }}
             >
               <option value="all">Todos</option>
               <option value="active">Activos</option>
@@ -83,7 +83,7 @@ export function ClientsPage({ userRole }: ClientsModuleProps) {
         {/* Tabla */}
         {filteredClients.length === 0 ? (
           <div className="flex flex-col items-center py-16" style={{ fontFamily: "var(--font-body)" }}>
-            <User className="w-10 h-10 mb-3" style={{ color: "#d6cfc4" }} />
+            <User className="w-10 h-10 mb-3" style={{ color: "#E5E7EB" }} />
             <p className="font-medium" style={{ color: "#1a3a2a" }}>No se encontraron clientes</p>
             <p className="text-sm mt-1" style={{ color: "#6b7c6b" }}>Intenta ajustar los filtros de búsqueda</p>
           </div>
@@ -91,7 +91,7 @@ export function ClientsPage({ userRole }: ClientsModuleProps) {
           <div className="rounded-2xl overflow-hidden shadow-sm" style={{ backgroundColor: "#ffffff" }}>
             <table className="w-full" style={{ fontFamily: "var(--font-body)" }}>
               <thead>
-                <tr style={{ borderBottom: "1px solid #ede8e0" }}>
+                <tr style={{ borderBottom: "1px solid #E5E7EB" }}>
                   {["NOMBRE", "CONTACTO", "SERVICIOS", "ESTADO", "ACCIONES"].map((col) => (
                     <th key={col} className="px-6 py-4 text-left text-xs font-semibold tracking-widest" style={{ color: "#6b7c6b" }}>{col}</th>
                   ))}
@@ -101,8 +101,8 @@ export function ClientsPage({ userRole }: ClientsModuleProps) {
                 {paginatedClients.map((client, idx) => (
                   <tr
                     key={client.id}
-                    style={{ borderBottom: idx < paginatedClients.length - 1 ? "1px solid #ede8e0" : "none", transition: "background 0.15s" }}
-                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#faf7f2")}
+                    style={{ borderBottom: idx < paginatedClients.length - 1 ? "1px solid #E5E7EB" : "none", transition: "background 0.15s" }}
+                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#ffffff")}
                     onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
                   >
                     <td className="px-6 py-4">
@@ -191,7 +191,7 @@ export function ClientsPage({ userRole }: ClientsModuleProps) {
                           title="Ver detalles"
                           className="p-2 rounded-lg transition-colors"
                           style={{ color: "#6b7c6b" }}
-                          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#f0ebe3")}
+                          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#F3F4F6")}
                           onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
                         >
                           <Eye className="w-4 h-4" />
@@ -204,7 +204,7 @@ export function ClientsPage({ userRole }: ClientsModuleProps) {
                               disabled={!client.isActive}
                               className="p-2 rounded-lg transition-colors"
                               style={{ color: client.isActive ? "#6b7c6b" : "#d1d5db", cursor: client.isActive ? "pointer" : "not-allowed" }}
-                              onMouseEnter={(e) => { if (client.isActive) e.currentTarget.style.backgroundColor = "#f0ebe3"; }}
+                              onMouseEnter={(e) => { if (client.isActive) e.currentTarget.style.backgroundColor = "#F3F4F6"; }}
                               onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
                             >
                               <Pencil className="w-4 h-4" />

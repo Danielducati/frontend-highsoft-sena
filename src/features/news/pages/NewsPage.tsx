@@ -1,4 +1,4 @@
-//frontend-highsoft-sena\src\features\news\pages\NewsPage.tsx
+﻿//frontend-highsoft-sena\src\features\news\pages\NewsPage.tsx
 import { useState } from "react";
 import { Card, CardContent } from "../../../shared/ui/card";
 import { Button } from "../../../shared/ui/button";

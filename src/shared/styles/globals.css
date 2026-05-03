@@ -1,4 +1,4 @@
-/* styles/globals.css */
+﻿/* styles/globals.css */
 @custom-variant dark (&:is(.dark *));
 @import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap");
 
@@ -6,60 +6,74 @@
   --font-size: 16px;
   --font-display: "Inter", system-ui, -apple-system, sans-serif;
   --font-body: "Inter", system-ui, -apple-system, sans-serif;
-  --bg-app: #f5f0e8;
+
+  /* ── Paleta principal (alineada con app móvil) ── */
+  --bg-app: #F7F9FC;               /* móvil: background — gris muy claro */
   --background: #F7F9FC;
   --foreground: #2D3748;
-  --card: #ffffff;
+  --card: #ffffff;                 /* móvil: card — blanco puro */
   --card-foreground: #2D3748;
   --popover: #ffffff;
   --popover-foreground: #2D3748;
-  --primary: #1A3A2A;
+  --primary: #1A3A2A;              /* móvil: primary */
   --primary-foreground: #ffffff;
-  --secondary: #EAD8B1;
+  --secondary: #EAD8B1;            /* móvil: secondary (beige) */
   --secondary-foreground: #2D3748;
-  --muted: #F3F4F6;
-  --muted-foreground: #6B7280;
-  --accent: #78D1BD;
-  --accent-foreground: #1A3A2A;
-  --destructive: #EF4444;
+  --muted: #F3F4F6;                /* móvil: mutedBg */
+  --muted-foreground: #6B7280;     /* móvil: muted */
+  --accent: #1A3A2A;               /* móvil: accent = primary */
+  --accent-foreground: #ffffff;
+  --destructive: #EF4444;          /* móvil: destructive */
   --destructive-foreground: #ffffff;
-  --border: #E5E7EB;
+  --border: #E5E7EB;               /* móvil: border */
   --input: transparent;
-  --input-background: #F9FAFB;
+  --input-background: #F9FAFB;     /* móvil: inputBg */
   --switch-background: #D1D5DB;
   --font-weight-medium: 600;
   --font-weight-normal: 400;
-  --ring: #78D1BD;
-  --chart-1: #237e51;
-  --chart-2: #A78BFA;
-  --chart-3: #60A5FA;
-  --chart-4: #FBBF24;
-  --chart-5: #F87171;
+  --ring: #1A3A2A;                 /* móvil: accent/primary */
+
+  /* ── Colores de gráficas ── */
+  --chart-1: #1A3A2A;
+  --chart-2: #A78BFA;              /* móvil: colorPurple */
+  --chart-3: #60A5FA;              /* móvil: colorView */
+  --chart-4: #FBBF24;              /* móvil: colorEdit */
+  --chart-5: #F87171;              /* móvil: colorDelete */
+
   --radius: 0.75rem;
+
+  /* ── Sidebar ── */
   --sidebar: #ffffff;
   --sidebar-foreground: #4B5563;
-  --sidebar-primary: #237e51;
-  --sidebar-primary-foreground: #d7bdbd;
+  --sidebar-primary: #1A3A2A;      /* móvil: primary */
+  --sidebar-primary-foreground: #ffffff;
   --sidebar-accent: #F3F4F6;
   --sidebar-accent-foreground: #2D3748;
   --sidebar-border: #E5E7EB;
-  --sidebar-ring: #78D1BD;
+  --sidebar-ring: #1A3A2A;
+
+  /* ── Sombras (móvil: shadowSm / shadowMd) ── */
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
   --shadow-md: 0 2px 4px -1px rgba(0, 0, 0, 0.06), 0 4px 6px -1px rgba(0, 0, 0, 0.08);
   --shadow-lg: 0 8px 16px -4px rgba(0, 0, 0, 0.08), 0 4px 8px -2px rgba(0, 0, 0, 0.05);
   --shadow-xl: 0 16px 32px -8px rgba(0, 0, 0, 0.1), 0 8px 16px -4px rgba(0, 0, 0, 0.06);
-  
-  /* Action Colors */
+
+  /* ── Colores de acción (móvil: colorView/Edit/Delete/Success/Purple) ── */
   --color-view: #60A5FA;
   --color-view-hover: #3B82F6;
   --color-edit: #FBBF24;
   --color-edit-hover: #F59E0B;
   --color-delete: #F87171;
   --color-delete-hover: #EF4444;
-  --color-success: #78D1BD;
-  --color-success-hover: #5FBFAA;
-  --color-purple: #A78BFA;
+  --color-success: #0F766E;        /* móvil: colorSuccess (teal oscuro) */
+  --color-success-hover: #0D6460;
+  --color-purple: #A78BFA;         /* móvil: colorPurple */
   --color-purple-hover: #8B5CF6;
+  /* ── Colores de superficie (usados en hovers y fondos de componentes) ── */
+  --surface-hover: #F3F4F6;        /* reemplaza #ffffff / #F3F4F6 */
+  --surface-input: #F9FAFB;        /* reemplaza #ffffff en inputs */
+  --surface-card-alt: #F3F4F6;     /* reemplaza #F3F4F6 en badges/chips */
+  --border-soft: #E5E7EB;          /* reemplaza #E5E7EB / #E5E7EB */
 }
 
 .dark {
