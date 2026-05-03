@@ -65,7 +65,14 @@ export async function fetchAppointments(): Promise<Appointment[]> {
 
 export async function fetchServices() {
   const res = await fetch(`${API_BASE}/services`, { headers: authHeaders() });
-  return parseJsonOrThrow(res);
+  const data = await parseJsonOrThrow(res) as any[];
+  return data.map((s: any) => ({
+    id:       String(s.id),
+    name:     s.name     ?? s.nombre     ?? "",
+    category: s.category ?? s.categoria  ?? "",
+    duration: s.duration ?? s.duracion   ?? 60,
+    price:    s.price    ?? s.precio     ?? 0,
+  }));
 }
 
 export async function fetchMyEmployeeServices(): Promise<{ id: string; name: string; category: string; duration: number; price: number }[]> {
@@ -77,7 +84,13 @@ export async function fetchMyEmployeeServices(): Promise<{ id: string; name: str
 
 export async function fetchEmployees() {
   const res = await fetch(`${API_BASE}/employees`, { headers: authHeaders() });
-  return parseJsonOrThrow(res);
+  const data = await parseJsonOrThrow(res) as any[];
+  return data.map((e: any) => ({
+    id:        String(e.id),
+    name:      e.name      ?? `${e.nombre ?? ""} ${e.apellido ?? ""}`.trim(),
+    specialty: e.specialty ?? e.especialidad ?? "",
+    color:     e.color     ?? "#78D1BD",
+  }));
 }
 
 export async function fetchEmployeesByDate(fecha: string): Promise<{ id: string; name: string; specialty: string; color: string }[]> {

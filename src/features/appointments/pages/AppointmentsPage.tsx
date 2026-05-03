@@ -1,4 +1,4 @@
-//frontend-highsoft-sena\src\features\appointments\pages\AppointmentsPage.tsx
+﻿//frontend-highsoft-sena\src\features\appointments\pages\AppointmentsPage.tsx
 import { Card, CardContent } from "../../../shared/ui/card";
 import { Button } from "../../../shared/ui/button";
 import { Input } from "../../../shared/ui/input";
@@ -147,7 +147,7 @@ export function AppointmentsPage({ userRole }: AppointmentsModuleProps) {
             style={{
               display: "inline-flex", alignItems: "center", justifyContent: "center",
               gap: 8, padding: "10px 20px", borderRadius: 10,
-              backgroundColor: "#1a3a2a", color: " #ffffff",
+              backgroundColor: "#1a3a2a", color: "#ffffff",
               fontSize: 14, fontWeight: 600, border: "none", cursor: "pointer",
             }}
             onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#2a5a40")}
@@ -237,7 +237,7 @@ export function AppointmentsPage({ userRole }: AppointmentsModuleProps) {
                         title="Ver detalles"
                         className="p-2 rounded-lg transition-colors"
                         style={{ color: "#6b7c6b" }}
-                        onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#f0ebe3")}
+                        onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#F3F4F6")}
                         onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
                       >
                         <Eye className="w-4 h-4" />
@@ -253,7 +253,7 @@ export function AppointmentsPage({ userRole }: AppointmentsModuleProps) {
                               color: apt.status === "completed" ? "#d1d5db" : "#6b7c6b",
                               cursor: apt.status === "completed" ? "not-allowed" : "pointer",
                             }}
-                            onMouseEnter={e => { if (apt.status !== "completed") e.currentTarget.style.backgroundColor = "#f0ebe3"; }}
+                            onMouseEnter={e => { if (apt.status !== "completed") e.currentTarget.style.backgroundColor = "#F3F4F6"; }}
                             onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
                           >
                             <Pencil className="w-4 h-4" />

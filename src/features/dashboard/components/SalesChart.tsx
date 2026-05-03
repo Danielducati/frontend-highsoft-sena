@@ -1,4 +1,4 @@
-// src/features/dashboard/components/SalesChart.tsx
+﻿// src/features/dashboard/components/SalesChart.tsx
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../../shared/ui/card";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
 

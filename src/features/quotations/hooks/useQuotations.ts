@@ -114,6 +114,17 @@ export function useQuotations(userRole?: string) {
   const loadServices = async () => {
     try {
       const data = await fetchServicesApi();
+<<<<<<< HEAD
+      setAvailableServices(data.map((s: any) => ({
+        ...s,
+        id:       s.id,
+        name:     s.name     ?? s.nombre   ?? "",
+        category: s.category ?? s.categoria ?? "",
+        price:    s.price    ?? s.precio    ?? 0,
+      })));
+    }
+    catch { toast.error("Error al cargar servicios"); }
+=======
       const list = Array.isArray(data) ? data : [];
       setAvailableServices(list.map((s: any) => ({
         id:       s.id,
@@ -122,6 +133,7 @@ export function useQuotations(userRole?: string) {
         price:    s.price    ?? s.precio    ?? 0,
       })));
     } catch { toast.error("Error al cargar servicios"); }
+>>>>>>> 288f5e76285091fd6c996c8805994b54e9a10ffd
   };
 
   const loadEmployees = async () => {
@@ -131,6 +143,17 @@ export function useQuotations(userRole?: string) {
       const data = await res.json();
       const list = Array.isArray(data) ? data : [];
       setEmployees(list.map((e: any) => ({
+<<<<<<< HEAD
+        id:          e.id,
+        name:        e.name ?? `${e.nombre ?? ""} ${e.apellido ?? ""}`.trim(),
+        specialty:   e.specialty ?? e.especialidad ?? "",
+        especialidad: e.especialidad ?? e.specialty ?? "",
+        isActive:    e.isActive !== undefined ? e.isActive : e.estado === "Activo",
+        estado:      e.estado ?? "Activo",
+        color:       e.color ?? "#78D1BD",
+      })));
+    } catch { /* silencioso */ }
+=======
         id:        e.id,
         name:      e.name ?? `${e.nombre ?? ""} ${e.apellido ?? ""}`.trim(),
         specialty: e.specialty ?? e.especialidad ?? "",
@@ -142,6 +165,7 @@ export function useQuotations(userRole?: string) {
       console.error("Error al cargar empleados:", error);
       toast.error("No se pudieron cargar los empleados");
     }
+>>>>>>> 288f5e76285091fd6c996c8805994b54e9a10ffd
   };
 
   // ── CRUD ──────────────────────────────────────────────────────────────────

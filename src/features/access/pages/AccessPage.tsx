@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import { Plus, Search, Filter, Key } from "lucide-react";
 import { SpaPage } from "../../../shared/components/layout/SpaPage";
 import { AccessModuleProps } from "../types";
@@ -77,7 +77,7 @@ export function AccessPage({ userRole }: AccessModuleProps) {
       <div className="flex flex-col sm:flex-row gap-3 mb-2" style={{ fontFamily: "var(--font-body)" }}>
         <div
           className="flex items-center gap-2 px-4 py-2 rounded-full border flex-1"
-          style={{ backgroundColor: "#ffffff", borderColor: "#d6cfc4", maxWidth: 380 }}
+          style={{ backgroundColor: "#ffffff", borderColor: "#E5E7EB", maxWidth: 380 }}
         >
           <Search className="w-4 h-4 flex-shrink-0" style={{ color: "#6b7c6b" }} />
           <input
@@ -97,7 +97,7 @@ export function AccessPage({ userRole }: AccessModuleProps) {
             style={{
               padding: "8px 14px",
               borderRadius: 10,
-              border: "1px solid #d6cfc4",
+              border: "1px solid #E5E7EB",
               backgroundColor: "#ffffff",
               color: "#1a3a2a",
               fontSize: 13,
@@ -117,7 +117,7 @@ export function AccessPage({ userRole }: AccessModuleProps) {
             style={{
               padding: "8px 14px",
               borderRadius: 10,
-              border: "1px solid #d6cfc4",
+              border: "1px solid #E5E7EB",
               backgroundColor: "#ffffff",
               color: "#1a3a2a",
               fontSize: 13,
@@ -137,7 +137,7 @@ export function AccessPage({ userRole }: AccessModuleProps) {
             style={{
               padding: "8px 14px",
               borderRadius: 10,
-              border: "1px solid #d6cfc4",
+              border: "1px solid #E5E7EB",
               backgroundColor: "#ffffff",
               color: "#1a3a2a",
               fontSize: 13,
@@ -155,7 +155,7 @@ export function AccessPage({ userRole }: AccessModuleProps) {
       {/* Lista */}
       {filteredPermissions.length === 0 ? (
         <div className="flex flex-col items-center py-16" style={{ fontFamily: "var(--font-body)" }}>
-          <Key className="w-10 h-10 mb-3" style={{ color: "#d6cfc4" }} />
+          <Key className="w-10 h-10 mb-3" style={{ color: "#E5E7EB" }} />
           <p className="font-medium" style={{ color: "#1a3a2a" }}>No se encontraron permisos</p>
           <p className="text-sm mt-1" style={{ color: "#6b7c6b" }}>
             Intenta ajustar los filtros de búsqueda
@@ -163,7 +163,7 @@ export function AccessPage({ userRole }: AccessModuleProps) {
         </div>
       ) : (
         <div className="rounded-2xl overflow-hidden shadow-sm" style={{ backgroundColor: "#ffffff" }}>
-          <div style={{ borderBottom: "1px solid #ede8e0" }}>
+          <div style={{ borderBottom: "1px solid #E5E7EB" }}>
             <div className="hidden lg:grid lg:grid-cols-12 gap-3 px-6 py-4 text-xs font-semibold tracking-widest" style={{ color: "#6b7c6b", fontFamily: "var(--font-body)" }}>
               <div className="col-span-3">PERMISO</div>
               <div className="col-span-4">DESCRIPCIÓN</div>
@@ -172,7 +172,7 @@ export function AccessPage({ userRole }: AccessModuleProps) {
               <div className="col-span-2 text-right">ACCIONES</div>
             </div>
           </div>
-          <div className="divide-y" style={{ borderColor: "#ede8e0" }}>
+          <div className="divide-y" style={{ borderColor: "#E5E7EB" }}>
             {filteredPermissions.map((permission) => (
               <PermissionRow
                 key={permission.id}

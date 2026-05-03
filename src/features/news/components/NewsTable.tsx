@@ -1,4 +1,4 @@
-import { Eye, Pencil, Trash2, AlertCircle, Calendar as CalendarIcon } from "lucide-react";
+﻿import { Eye, Pencil, Trash2, AlertCircle, Calendar as CalendarIcon } from "lucide-react";
 import { EmployeeNews } from "../types";
 import { getTypeConfig, getTypeColor, getStatusColor, getStatusLabel, formatDate } from "../utils";
 // Importamos los componentes de Select para el estado interactivo
@@ -110,7 +110,7 @@ export function NewsTable({ news, userRole, onView, onEdit, onDelete, onUpdateSt
                       title="Ver detalles"
                       className="p-2 rounded-lg transition-colors"
                       style={{ color: "#6b7c6b" }}
-                      onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#f0ebe3")}
+                      onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#F3F4F6")}
                       onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
                     >
                       <Eye className="w-4 h-4" />
@@ -122,7 +122,7 @@ export function NewsTable({ news, userRole, onView, onEdit, onDelete, onUpdateSt
                         title="Editar"
                         className="p-2 rounded-lg transition-colors"
                         style={{ color: "#6b7c6b" }}
-                        onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#f0ebe3")}
+                        onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#F3F4F6")}
                         onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
                       >
                         <Pencil className="w-4 h-4" />

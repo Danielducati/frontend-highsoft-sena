@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+﻿import React, { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "../../../shared/ui/dialog";
 import { Button } from "../../../shared/ui/button";
 import { Input } from "../../../shared/ui/input";
@@ -331,6 +331,22 @@ export function QuotationFormDialog({
                         </button>
                       </div>
                     </div>
+<<<<<<< HEAD
+                    {/* Fila inferior: selector de empleado */}
+                    <div style={{ marginTop: 8 }}>
+                      <label style={{ ...labelStyle, fontSize: 10, marginBottom: 4 }}>Empleado asignado</label>
+                      {(() => {
+                        const svc = availableServices.find(s => s.id === item.serviceId);
+                        const cat = (svc?.category ?? svc?.categoria ?? "").toLowerCase().trim();
+                        const activeEmps = employees.filter(em => em.isActive !== false && em.estado !== "Inactivo");
+                        const byCategory = cat
+                          ? activeEmps.filter(em => (em.specialty ?? em.especialidad ?? "").toLowerCase().trim() === cat)
+                          : activeEmps;
+                        const empList = byCategory.length > 0 ? byCategory : activeEmps;
+                        return (
+                          <select
+                            style={{ ...inputOk, fontSize: 13, padding: "6px 10px" }}
+=======
                     {/* Empleado asignado — filtrado por categoría del servicio */}
                     <div className="space-y-1">
                       <Label className="text-xs text-gray-600">Empleado asignado</Label>
@@ -367,6 +383,7 @@ export function QuotationFormDialog({
                         return (
                           <select
                             className="w-full rounded-lg border border-gray-200 px-3 py-1.5 text-sm bg-white text-gray-900 outline-none"
+>>>>>>> 288f5e76285091fd6c996c8805994b54e9a10ffd
                             value={item.empleadoId?.toString() ?? ""}
                             onChange={e => {
                               const emp = employees.find(em => em.id.toString() === e.target.value);

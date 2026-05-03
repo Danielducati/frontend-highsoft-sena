@@ -1,4 +1,4 @@
-import { Badge } from "../../../shared/ui/badge";
+﻿import { Badge } from "../../../shared/ui/badge";
 import { Eye, Pencil, Trash2, Lock, Layers } from "lucide-react";
 import { AccessPermission } from "../types";
 import { getModuleColor, getActionColor } from "../utils";
@@ -24,7 +24,7 @@ export function PermissionRow({
     <div
       className="grid grid-cols-1 lg:grid-cols-12 gap-2 lg:gap-3 px-6 py-4 items-start lg:items-center"
       style={{ fontFamily: "var(--font-body)" }}
-      onMouseEnter={(e) => ((e.currentTarget as HTMLDivElement).style.backgroundColor = "#faf7f2")}
+      onMouseEnter={(e) => ((e.currentTarget as HTMLDivElement).style.backgroundColor = "#ffffff")}
       onMouseLeave={(e) => ((e.currentTarget as HTMLDivElement).style.backgroundColor = "transparent")}
     >
         {/* Permiso */}
@@ -104,7 +104,7 @@ export function PermissionRow({
                 onClick={() => onView(permission)}
                 className="p-2 rounded-lg transition-colors"
                 style={{ color: "#6b7c6b" }}
-                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#f0ebe3")}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#F3F4F6")}
                 onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
                 title="Ver detalles"
               >
@@ -114,7 +114,7 @@ export function PermissionRow({
                 onClick={() => onEdit(permission)}
                 className="p-2 rounded-lg transition-colors"
                 style={{ color: "#6b7c6b" }}
-                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#f0ebe3")}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#F3F4F6")}
                 onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
                 title="Editar"
               >

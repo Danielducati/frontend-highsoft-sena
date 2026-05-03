@@ -148,9 +148,16 @@ export function useAppointments(userRole?: string) {
 
   const getEmployeesByCategory = (category: string) => {
     if (!category) return employees;
+<<<<<<< HEAD
+    const filtered = employees.filter(
+      e => e.specialty?.toLowerCase().trim() === category.toLowerCase().trim()
+    );
+    return filtered.length > 0 ? filtered : employees;
+=======
     return employees.filter(
       e => (e.specialty ?? "").toLowerCase().trim() === category.toLowerCase().trim()
     );
+>>>>>>> 288f5e76285091fd6c996c8805994b54e9a10ffd
   };
 
   // ── Servicios del formulario ──
