@@ -1,7 +1,6 @@
 ﻿//frontend-highsoft-sena\src\features\news\pages\NewsPage.tsx
 import { useState } from "react";
 import { Card, CardContent } from "../../../shared/ui/card";
-import { Button } from "../../../shared/ui/button";
 import { Input } from "../../../shared/ui/input";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../../../shared/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "../../../shared/ui/alert-dialog";
@@ -194,27 +193,45 @@ export function NewsPage({ userRole }: NewsModuleProps) {
       </Card>
 
       {/* Tabla */}
-      <Card className="border-gray-200 shadow-sm overflow-hidden rounded-2xl">
-        <NewsTable
-          news={paginatedNews}
-          userRole={userRole}
-          onView={setViewingNews}
-          onEdit={handleEdit}
-          onDelete={id => { setNewsToDelete(id); setDeleteDialogOpen(true); }}
-          onUpdateStatus={updateStatus}
-        />
+      <Card className="border-gray-200 shadow-sm rounded-2xl">
+        <CardContent className="p-0">
+          <NewsTable
+            news={paginatedNews}
+            userRole={userRole}
+            onView={setViewingNews}
+            onEdit={handleEdit}
+            onDelete={id => { setNewsToDelete(id); setDeleteDialogOpen(true); }}
+            onUpdateStatus={updateStatus}
+          />
+        </CardContent>
       </Card>
 
       {/* Paginación */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-between px-3 py-2 bg-white border border-gray-200 rounded-lg">
-          <p className="text-sm text-gray-600">
-            Mostrando {(currentPage - 1) * itemsPerPage + 1}–{Math.min(currentPage * itemsPerPage, filteredNews.length)} de {filteredNews.length}
+        <div className="flex items-center justify-between mt-2 px-1" style={{ fontFamily: "var(--font-body)" }}>
+          <p className="text-sm" style={{ color: "#6b7c6b" }}>
+            Mostrando {(currentPage - 1) * itemsPerPage + 1}–{Math.min(currentPage * itemsPerPage, filteredNews.length)} de {filteredNews.length} novedades
           </p>
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1} className="h-8 text-sm">Anterior</Button>
-            <span className="text-sm text-gray-600">Página {currentPage} de {totalPages}</span>
-            <Button variant="outline" size="sm" onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages} className="h-8 text-sm">Siguiente</Button>
+          <div className="flex items-center gap-1">
+            <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1}
+              className="w-8 h-8 flex items-center justify-center rounded-lg text-sm disabled:opacity-30"
+              style={{ color: "#1a3a2a" }}
+              onMouseEnter={e => { if (!e.currentTarget.disabled) e.currentTarget.style.backgroundColor = "#E5E7EB"; }}
+              onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}>‹</button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+              <button key={page} onClick={() => setCurrentPage(page)}
+                className="w-8 h-8 flex items-center justify-center rounded-lg text-sm font-medium"
+                style={page === currentPage ? { backgroundColor: "#1a3a2a", color: "#ffffff" } : { color: "#1a3a2a" }}
+                onMouseEnter={e => { if (page !== currentPage) e.currentTarget.style.backgroundColor = "#E5E7EB"; }}
+                onMouseLeave={e => { if (page !== currentPage) e.currentTarget.style.backgroundColor = "transparent"; }}>
+                {page}
+              </button>
+            ))}
+            <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages}
+              className="w-8 h-8 flex items-center justify-center rounded-lg text-sm disabled:opacity-30"
+              style={{ color: "#1a3a2a" }}
+              onMouseEnter={e => { if (!e.currentTarget.disabled) e.currentTarget.style.backgroundColor = "#E5E7EB"; }}
+              onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}>›</button>
           </div>
         </div>
       )}
