@@ -57,7 +57,7 @@ export function ClientAppointmentsPage() {
 
         {/* Próximas citas */}
         <div>
-          <h2 className="text-sm font-semibold uppercase tracking-widest mb-3" style={{ color: "#6b7c6b", fontFamily: "var(--font-body)" }}>
+          <h2 className="text-sm font-semibold mb-3" style={{ color: "#6b7c6b", fontFamily: "var(--font-body)" }}>
             Próximas citas ({upcoming.length})
           </h2>
           {upcoming.length === 0 ? (
@@ -136,7 +136,7 @@ export function ClientAppointmentsPage() {
         {/* Historial */}
         {past.length > 0 && (
           <div>
-            <h2 className="text-sm font-semibold uppercase tracking-widest mb-3" style={{ color: "#6b7c6b", fontFamily: "var(--font-body)" }}>
+            <h2 className="text-sm font-semibold mb-3" style={{ color: "#6b7c6b", fontFamily: "var(--font-body)" }}>
               Historial ({past.length})
             </h2>
             <div className="space-y-2">

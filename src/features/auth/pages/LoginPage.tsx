@@ -91,10 +91,10 @@ export function LoginPage({ onLogin, onBack, onRegister }: LoginPageProps) {
               <div className="space-y-1.5">
                 <Label
                   htmlFor="email"
-                  className="text-[10px] tracking-[0.18em]"
+                  className="text-xs font-medium"
                   style={{ color: "#6b7c6b" }}
                 >
-                  CORREO
+                  Correo
                 </Label>
                 <Input
                   id="email"
@@ -115,7 +115,7 @@ export function LoginPage({ onLogin, onBack, onRegister }: LoginPageProps) {
                     className="text-[10px] tracking-[0.18em]"
                     style={{ color: "#6b7c6b" }}
                   >
-                    CONTRASEÑA
+                    Contraseña
                   </Label>
                   <button
                     type="button"

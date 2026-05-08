@@ -17,7 +17,7 @@ function StatusBadge({ status }: { status: QuotationStatus }) {
   return (
     <span style={{
       display: "inline-flex", padding: "4px 14px", borderRadius: 999,
-      fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em",
+      fontSize: 11, fontWeight: 600, textTransform: "none", letterSpacing: "0.04em",
       fontFamily: "var(--font-body)", ...(colors[status] ?? { backgroundColor: "#f3f4f6", color: "#6b7280" }),
     }}>
       {STATUS_LABELS[status] ?? status}
@@ -55,7 +55,7 @@ export function QuotationViewDialog({ quotation, onClose }: QuotationViewDialogP
               padding: "16px 20px", borderRadius: 12, backgroundColor: "#F3F4F6",
             }}>
               <div>
-                <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", color: "#6b7c6b", marginBottom: 4 }}>
+                <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.04em", color: "#6b7c6b", marginBottom: 4 }}>
                   Cliente
                 </p>
                 <p style={{ fontWeight: 600, color: "#1a3a2a", fontSize: 15 }}>{quotation.clientName}</p>
@@ -66,7 +66,7 @@ export function QuotationViewDialog({ quotation, onClose }: QuotationViewDialogP
 
             {/* Servicios */}
             <div>
-              <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", color: "#6b7c6b", marginBottom: 10 }}>
+              <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.04em", color: "#6b7c6b", marginBottom: 10 }}>
                 Servicios
               </p>
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
@@ -120,7 +120,7 @@ export function QuotationViewDialog({ quotation, onClose }: QuotationViewDialogP
             {/* Notas */}
             {quotation.notes && (
               <div style={{ padding: "12px 16px", borderRadius: 10, backgroundColor: "#F3F4F6", border: "1px solid #E5E7EB" }}>
-                <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", color: "#6b7c6b", marginBottom: 6 }}>
+                <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.04em", color: "#6b7c6b", marginBottom: 6 }}>
                   Notas
                 </p>
                 <p style={{ fontSize: 14, color: "#1a3a2a" }}>{quotation.notes}</p>

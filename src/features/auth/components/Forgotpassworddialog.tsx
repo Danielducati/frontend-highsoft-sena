@@ -39,8 +39,8 @@ export function ForgotPasswordDialog({
 
             <form onSubmit={onSubmit} className="space-y-3 pt-1">
               <div className="space-y-1">
-                <Label className="text-[10px] tracking-[0.18em]" style={{ color: "#6b7c6b" }}>
-                  CORREO ELECTRÓNICO
+                <Label className="text-xs font-medium" style={{ color: "#6b7c6b" }}>
+                  Correo electrónico
                 </Label>
                 <Input
                   id="recovery-email"

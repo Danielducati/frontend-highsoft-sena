@@ -51,7 +51,7 @@ export function ClientViewDialog({ client, onClose }: ClientViewDialogProps) {
 
             {/* Contacto */}
             <div className="space-y-2">
-              <p className="text-xs font-semibold tracking-widest" style={{ color: "#6b7c6b" }}>CONTACTO</p>
+              <p className="text-xs font-semibold" style={{ color: "#6b7c6b" }}>Contacto</p>
               <div className="grid grid-cols-1 gap-2">
                 <InfoRow icon={<Mail className="w-4 h-4" />} label="Email" value={client.email || "—"} />
                 <InfoRow icon={<Phone className="w-4 h-4" />} label="Teléfono" value={client.phone || "—"} />
@@ -61,7 +61,7 @@ export function ClientViewDialog({ client, onClose }: ClientViewDialogProps) {
 
             {/* Estadísticas */}
             <div className="space-y-2">
-              <p className="text-xs font-semibold tracking-widest" style={{ color: "#6b7c6b" }}>ESTADÍSTICAS</p>
+              <p className="text-xs font-semibold" style={{ color: "#6b7c6b" }}>Estadísticas</p>
               <div className="grid grid-cols-3 gap-3">
                 <StatCard
                   icon={<ShoppingBag className="w-4 h-4" />}

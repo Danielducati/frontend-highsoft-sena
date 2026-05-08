@@ -129,8 +129,8 @@ export function Sidebar({ activePage, onNavigate, onLogout, userRole, allowedPag
             <h2 className="tracking-tight leading-none" style={{ color: " #1a3a2a", fontFamily: "var(--font-display)" }}>
               Highlife Spa
             </h2>
-            <p className="text-[10px] tracking-[0.18em] mt-1" style={{ color: " #8a948b", fontFamily: "var(--font-body)" }}>
-              MANAGEMENT SUITE 
+            <p className="text-xs font-medium mt-1" style={{ color: " #8a948b", fontFamily: "var(--font-body)" }}>
+              Management Suite 
             </p>
           </div>
         </div>

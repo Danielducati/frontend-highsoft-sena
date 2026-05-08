@@ -74,7 +74,7 @@ export function ServicesPage({ userRole }: ServicesModuleProps) {
             { label: "Duración Promedio",  value: formatDuration(averageDuration) },
           ].map(({ label, value }) => (
             <div key={label} className="rounded-2xl shadow-sm p-5 bg-white">
-              <p className="text-xs uppercase tracking-widest mb-1" style={{ color: "#6b7c6b", fontFamily: "var(--font-body)" }}>{label}</p>
+              <p className="text-xs font-medium mb-1" style={{ color: "#6b7c6b", fontFamily: "var(--font-body)" }}>{label}</p>
               <p className="text-3xl font-semibold" style={{ color: "#1a3a2a", fontFamily: "var(--font-body)" }}>{value}</p>
             </div>
           ))}
@@ -206,7 +206,7 @@ export function ServicesPage({ userRole }: ServicesModuleProps) {
                                 onCheckedChange={() => handleToggleStatus(service)}
                                 style={service.isActive ? { backgroundColor: "#4caf82" } : { backgroundColor: "#9ca3af" }}
                               />
-                              <span className="text-xs font-semibold tracking-wide uppercase" style={{ color: service.isActive ? "#1a5c3a" : "#9ca3af" }}>
+                              <span className="text-xs font-semibold" style={{ color: service.isActive ? "#1a5c3a" : "#9ca3af" }}>
                                 {service.isActive ? "Activo" : "Inactivo"}
                               </span>
                             </div>

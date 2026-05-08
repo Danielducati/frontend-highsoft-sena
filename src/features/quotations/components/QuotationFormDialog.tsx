@@ -200,7 +200,7 @@ export function QuotationFormDialog({
                   />
                 ) : (
                   <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 space-y-3">
-                    <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">Datos del cliente ocasional</p>
+                    <p className="text-xs font-semibold text-gray-500">Datos del cliente ocasional</p>
                     <div className="grid grid-cols-2 gap-3">
                       <div className="space-y-1">
                         <Label className="text-gray-900">Nombre *</Label>
@@ -300,7 +300,7 @@ export function QuotationFormDialog({
 
             {formData.selectedServices.length > 0 && (
               <div className="space-y-2">
-                <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">Servicios Agregados</p>
+                <p className="text-xs font-semibold text-gray-500">Servicios agregados</p>
                 {formData.selectedServices.map(item => (
                   <div key={item.serviceId} className="rounded-lg border border-gray-200 bg-white p-3 space-y-2">
                     {/* Nombre + cantidad + precio + eliminar */}
