@@ -225,8 +225,8 @@ export function CategoriesPage({ userRole }: CategoriesModuleProps) {
                             <div className="flex items-center justify-center gap-1">
                               <button onClick={() => handleViewDetail(category)} title="Ver detalle"
                                 className="p-2 rounded-lg transition-colors"
-                                style={{ color: "#60A5FA" }}
-                                onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#eff6ff")}
+                                style={{ color: "#1a3a2a" }}
+                                onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#edf7f4")}
                                 onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}>
                                 <Eye className="w-4 h-4" />
                               </button>
@@ -234,8 +234,8 @@ export function CategoriesPage({ userRole }: CategoriesModuleProps) {
                                 <button onClick={() => category.isActive && handleEdit(category)}
                                   title={category.isActive ? "Editar" : "Activa la categoría para editar"}
                                   disabled={!category.isActive} className="p-2 rounded-lg transition-colors"
-                                  style={{ color: category.isActive ? "#FBBF24" : "#d1d5db", cursor: category.isActive ? "pointer" : "not-allowed" }}
-                                  onMouseEnter={e => { if (category.isActive) e.currentTarget.style.backgroundColor = "#fffbeb"; }}
+                                  style={{ color: category.isActive ? "#1a5c3a" : "#d1d5db", cursor: category.isActive ? "pointer" : "not-allowed" }}
+                                  onMouseEnter={e => { if (category.isActive) e.currentTarget.style.backgroundColor = "#edf7f4"; }}
                                   onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}>
                                   <Pencil className="w-4 h-4" />
                                 </button>

@@ -1,6 +1,6 @@
 import { SaleFormData } from "../types";
 
-export const API_URL = "http://localhost:3001";
+export const API_URL = "https://backend-highsoft-sena-production.up.railway.app";
 
 export const PAYMENT_METHODS = [
   "Efectivo",

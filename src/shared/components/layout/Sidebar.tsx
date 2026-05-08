@@ -121,7 +121,7 @@ export function Sidebar({ activePage, onNavigate, onLogout, userRole, allowedPag
         <div className="flex items-center gap-3">
           <div
             className="w-10 h-10 rounded-xl flex items-center justify-center"
-            style={{ background: "linear-gradient(135deg, #1a3a2a,rgb(78, 174, 115))" }}
+            style={{ background: "linear-gradient(135deg, #1a3a2a, #2a6a4a)" }}
           >
             <Sparkles className="w-5 h-5 text-white" />
           </div>

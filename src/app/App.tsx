@@ -124,7 +124,7 @@ export default function App() {
       if (!token) return;
       try {
         const res = await fetch(
-          `${import.meta.env.VITE_API_URL ?? "http://localhost:3001"}/auth/me`,
+          `${import.meta.env.VITE_API_URL ?? "https://backend-highsoft-sena-production.up.railway.app"}/auth/me`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
         if (!res.ok) return;

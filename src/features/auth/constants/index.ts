@@ -1,7 +1,7 @@
 import { UserRole } from "../types";
 
 const envApiUrl = import.meta.env.VITE_API_URL?.trim();
-export const API_URL = envApiUrl || "http://localhost:3001";
+export const API_URL = envApiUrl || "https://backend-highsoft-sena-production.up.railway.app";
 
 export const DOCUMENT_TYPES = [
   { value: "CC",  label: "Cédula de Ciudadanía" },

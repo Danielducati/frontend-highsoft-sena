@@ -10,7 +10,7 @@ interface SalesTableProps {
 
 const METHOD_COLORS: Record<string, React.CSSProperties> = {
   "Efectivo":       { backgroundColor: "#edf7f4", color: "#1a5c3a" },
-  "Tarjeta":        { backgroundColor: "#eff6ff", color: "#1e40af" },
+  "Tarjeta":        { backgroundColor: "#edf7f4", color: "#1e40af" },
   "Transferencia":  { backgroundColor: "#fef9ec", color: "#b45309" },
   "Nequi":          { backgroundColor: "#f5f0ff", color: "#6d28d9" },
   "Daviplata":      { backgroundColor: "#fff0f0", color: "#c0392b" },

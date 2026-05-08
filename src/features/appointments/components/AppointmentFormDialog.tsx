@@ -1,4 +1,4 @@
-//frontend-highsoft-sena\src\features\appointments\components\AppointmentFormDialog.tsx
+﻿//frontend-highsoft-sena\src\features\appointments\components\AppointmentFormDialog.tsx
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../../../shared/ui/dialog";
 import { Button } from "../../../shared/ui/button";
 import { Input } from "../../../shared/ui/input";
@@ -62,7 +62,7 @@ export function AppointmentFormDialog({
                   {formData.date.toLocaleDateString("es-ES", { weekday: "long", day: "numeric", month: "long" })}
                 </span>
                 <span className="text-gray-400">•</span>
-                <Clock className="w-4 h-4 text-[#78D1BD]" />
+                <Clock className="w-4 h-4 text-[#1a5c3a]" />
                 {/* Mostrar la hora del primer servicio ya agregado, o la hora seleccionada si no hay servicios */}
                 <span>{selectedServices.length > 0 ? selectedServices[0].startTime : formData.startTime}</span>
               </div>
@@ -104,6 +104,7 @@ export function AppointmentFormDialog({
               <Label>Fecha *</Label>
               <Input type="date"
                 min={new Date().toISOString().split("T")[0]}
+                max={(() => { const d = new Date(); d.setMonth(d.getMonth() + 3); return d.toISOString().split("T")[0]; })()}
                 value={`${formData.date.getFullYear()}-${String(formData.date.getMonth()+1).padStart(2,"0")}-${String(formData.date.getDate()).padStart(2,"0")}`}
                 onChange={e => setFormData({ ...formData, date: new Date(e.target.value + "T00:00:00") })} />
             </div>

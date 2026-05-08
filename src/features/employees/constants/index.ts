@@ -1,4 +1,4 @@
-export const API_URL = "http://localhost:3001";
+export const API_URL = "https://backend-highsoft-sena-production.up.railway.app";
 export const ITEMS_PER_PAGE = 5;
 
 export const ROL_MAP: Record<string, number> = {

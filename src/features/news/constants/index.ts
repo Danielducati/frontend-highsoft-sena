@@ -1,7 +1,7 @@
 import { Clock, AlertCircle, FileText, UserX, AlertTriangle } from "lucide-react";
 import { NewsFormData } from "../types";
 
-export const API_BASE = "http://localhost:3001";
+export const API_BASE = "https://backend-highsoft-sena-production.up.railway.app";
 
 export const TIME_SLOTS = [
     "08:00","08:30","09:00","09:30","10:00","10:30",

@@ -33,7 +33,7 @@ export function DashboardPage() {
     <SpaPage
       title="Dashboard Analítico"
       subtitle="Vista general del rendimiento del spa"
-      icon={<Sparkles className="w-6 h-6 text-[#78D1BD]" />}
+      icon={<Sparkles className="w-6 h-6 text-[#1a5c3a]" />}
       action={
         <div
           className="flex flex-wrap gap-3"

@@ -20,7 +20,7 @@ interface Notification {
   daysUntil: number;
 }
 
-const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3001";
+const API_URL = import.meta.env.VITE_API_URL ?? "https://backend-highsoft-sena-production.up.railway.app";
 const getToken = () => localStorage.getItem("token");
 
 // Devuelve cuántos días faltan desde hoy (Colombia) hasta una fecha "YYYY-MM-DD"
@@ -154,7 +154,7 @@ export function Header({ userRole, userName, userPhoto, onLogout }: HeaderProps)
       <div className="flex items-center gap-6 flex-1">
         <div>
           <h2 style={{ color: "#1a3a2a", fontFamily: "var(--font-body)", fontWeight: 600 }}>
-            Bienvenido de nuevo 👋
+            Bienvenido de nuevo
           </h2>
           <div className="flex items-center gap-2 mt-0.5">
             <p className="text-sm" style={{ color: "#6b7c6b", fontFamily: "var(--font-body)" }}>

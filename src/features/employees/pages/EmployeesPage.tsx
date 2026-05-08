@@ -220,8 +220,8 @@ export function EmployeesPage({ userRole }: EmployeesModuleProps) {
                                 onClick={() => setViewingEmployee(employee)}
                                 title="Ver detalles"
                                 className="p-2 rounded-lg transition-colors"
-                                style={{ color: "#60A5FA" }}
-                                onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#eff6ff")}
+                                style={{ color: "#1a3a2a" }}
+                                onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#edf7f4")}
                                 onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
                               >
                                 <Eye className="w-4 h-4" />
@@ -232,8 +232,8 @@ export function EmployeesPage({ userRole }: EmployeesModuleProps) {
                                 title={employee.isActive ? "Editar" : "Activa el empleado para editar"}
                                 disabled={!employee.isActive}
                                 className="p-2 rounded-lg transition-colors"
-                                style={{ color: employee.isActive ? "#FBBF24" : "#d1d5db", cursor: employee.isActive ? "pointer" : "not-allowed" }}
-                                onMouseEnter={e => { if (employee.isActive) e.currentTarget.style.backgroundColor = "#fffbeb"; }}
+                                style={{ color: employee.isActive ? "#1a5c3a" : "#d1d5db", cursor: employee.isActive ? "pointer" : "not-allowed" }}
+                                onMouseEnter={e => { if (employee.isActive) e.currentTarget.style.backgroundColor = "#edf7f4"; }}
                                 onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
                               >
                                 <Pencil className="w-4 h-4" />

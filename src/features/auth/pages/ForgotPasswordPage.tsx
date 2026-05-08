@@ -88,7 +88,7 @@ export function ForgotPasswordPage({ onBack }: ForgotPasswordPageProps) {
                   className="w-16 h-16 rounded-full flex items-center justify-center"
                   style={{ backgroundColor: "#e8f7f4" }}
                 >
-                  <Mail className="w-8 h-8" style={{ color: "#78D1BD" }} />
+                  <Mail className="w-8 h-8" style={{ color: "#1a5c3a" }} />
                 </div>
               </div>
               <CardTitle className="text-2xl">

@@ -1,4 +1,4 @@
-export const TIME_SLOTS = [
+﻿export const TIME_SLOTS = [
   "08:00", "08:30", "09:00", "09:30", "10:00", "10:30",
   "11:00", "11:30", "12:00", "12:30", "13:00", "13:30",
   "14:00", "14:30", "15:00", "15:30", "16:00", "16:30",
@@ -16,11 +16,11 @@ export const WEEK_DAYS_LABELS = [
 ];
 
 export const DAY_BADGE_COLORS: Record<number, string> = {
-  0: "bg-[#78D1BD]/20 text-[#78D1BD] border-[#78D1BD]/30",
+  0: "bg-[#1a5c3a]/20 text-[#1a5c3a] border-[#1a5c3a]/30",
   1: "bg-[#60A5FA]/20 text-[#60A5FA] border-[#60A5FA]/30",
   2: "bg-[#FBBF24]/20 text-[#FBBF24] border-[#FBBF24]/30",
   3: "bg-[#F87171]/20 text-[#F87171] border-[#F87171]/30",
   4: "bg-[#A78BFA]/20 text-[#A78BFA] border-[#A78BFA]/30",
-  5: "bg-[#78D1BD]/20 text-[#78D1BD] border-[#78D1BD]/30",
+  5: "bg-[#1a5c3a]/20 text-[#1a5c3a] border-[#1a5c3a]/30",
   6: "bg-[#60A5FA]/20 text-[#60A5FA] border-[#60A5FA]/30",
 };

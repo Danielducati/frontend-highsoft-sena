@@ -1,4 +1,4 @@
-export const API = "http://localhost:3001";
+export const API = "https://backend-highsoft-sena-production.up.railway.app";
 
 export const getToken = () => localStorage.getItem("token") ?? "";
 

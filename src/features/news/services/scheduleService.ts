@@ -2,7 +2,7 @@
 import { EmployeeSchedule, WeekDay } from "../types/schedule";
 import { mockScheduleService } from "./mockScheduleService";
 
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3001";
+const API_BASE = import.meta.env.VITE_API_URL || "https://backend-highsoft-sena-production.up.railway.app";
 const USE_MOCK = import.meta.env.DEV; // Usar mock en desarrollo
 
 export const scheduleService = {
