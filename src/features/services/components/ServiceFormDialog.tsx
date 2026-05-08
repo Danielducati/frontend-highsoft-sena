@@ -95,8 +95,8 @@ export function ServiceFormDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2" style={{ fontFamily: "var(--font-body)", fontWeight: 700 }}>
             {editingService
-              ? <><Pencil className="w-5 h-5 text-[#78D1BD]" />Editar Servicio</>
-              : <><Plus   className="w-5 h-5 text-[#78D1BD]" />Nuevo Servicio</>}
+              ? <><Pencil className="w-5 h-5 text-[#1a5c3a]" />Editar Servicio</>
+              : <><Plus   className="w-5 h-5 text-[#1a5c3a]" />Nuevo Servicio</>}
           </DialogTitle>
           <DialogDescription>
             {editingService ? "Actualiza la información del servicio" : "Completa los datos del nuevo servicio"}
@@ -107,21 +107,21 @@ export function ServiceFormDialog({
           {/* Imagen */}
           <div className="space-y-3">
             <Label className="flex items-center gap-2">
-              <ImageIcon className="w-4 h-4 text-[#78D1BD]" />
+              <ImageIcon className="w-4 h-4 text-[#1a5c3a]" />
               Imagen del Servicio
             </Label>
             <div className="flex flex-col gap-4">
               {imagePreview ? (
-                <div className="relative rounded-xl overflow-hidden border-2 border-[#78D1BD]/20">
+                <div className="relative rounded-xl overflow-hidden border-2 border-[#1a5c3a]/20">
                   <ImageWithFallback src={imagePreview} alt="Preview" className="w-full h-64 object-cover" />
                   <button onClick={handleClearImage} className="absolute top-3 right-3 p-2 bg-[#F87171] text-white rounded-full hover:bg-[#EF4444] transition-colors">
                     <X className="w-4 h-4" />
                   </button>
                 </div>
               ) : (
-                <div onClick={() => fileInputRef.current?.click()} className="border-2 border-dashed border-gray-300 rounded-xl p-12 text-center cursor-pointer hover:border-[#78D1BD] hover:bg-[#78D1BD]/5 transition-colors">
+                <div onClick={() => fileInputRef.current?.click()} className="border-2 border-dashed border-gray-300 rounded-xl p-12 text-center cursor-pointer hover:border-[#1a5c3a] hover:bg-[#1a5c3a]/5 transition-colors">
                   {uploading
-                    ? <Loader2 className="w-12 h-12 mx-auto mb-4 text-[#78D1BD] animate-spin" />
+                    ? <Loader2 className="w-12 h-12 mx-auto mb-4 text-[#1a5c3a] animate-spin" />
                     : <Upload className="w-12 h-12 mx-auto mb-4 text-gray-400" />
                   }
                   <p className="text-gray-900 mb-1">{uploading ? "Subiendo imagen..." : "Click para subir imagen"}</p>
@@ -148,7 +148,7 @@ export function ServiceFormDialog({
           {/* Campos */}
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label className="flex items-center gap-2"><Tag className="w-4 h-4 text-[#78D1BD]" />Nombre del Servicio *</Label>
+              <Label className="flex items-center gap-2"><Tag className="w-4 h-4 text-[#1a5c3a]" />Nombre del Servicio *</Label>
               <Input value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} placeholder="Ej: Masaje Relajante Premium" className="border-gray-300" />
             </div>
 
@@ -159,11 +159,11 @@ export function ServiceFormDialog({
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label className="flex items-center gap-2"><Clock className="w-4 h-4 text-[#78D1BD]" />Duración (minutos) *</Label>
+                <Label className="flex items-center gap-2"><Clock className="w-4 h-4 text-[#1a5c3a]" />Duración (minutos) *</Label>
                 <Input type="number" min="1" value={formData.duration} onChange={(e) => setFormData({ ...formData, duration: Number(e.target.value) })} placeholder="60" className="border-gray-300" />
               </div>
               <div className="space-y-2">
-                <Label className="flex items-center gap-2"><DollarSign className="w-4 h-4 text-[#78D1BD]" />Precio *</Label>
+                <Label className="flex items-center gap-2"><DollarSign className="w-4 h-4 text-[#1a5c3a]" />Precio *</Label>
                 <Input type="number" step="0.01" min="0" value={formData.price} onChange={(e) => setFormData({ ...formData, price: Number(e.target.value) })} placeholder="100.00" className="border-gray-300" />
               </div>
             </div>

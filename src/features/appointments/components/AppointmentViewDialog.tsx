@@ -23,7 +23,7 @@ export function AppointmentViewDialog({
       <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <CalendarIcon className="w-5 h-5 text-[#78D1BD]" />Detalles de la Cita
+            <CalendarIcon className="w-5 h-5 text-[#1a5c3a]" />Detalles de la Cita
           </DialogTitle>
           <DialogDescription>Información completa de la cita programada</DialogDescription>
         </DialogHeader>
@@ -46,7 +46,7 @@ export function AppointmentViewDialog({
               <div>
                 <p className="text-xs text-gray-600">Horario</p>
                 <div className="flex items-center gap-1.5">
-                  <Clock className="w-4 h-4 text-[#78D1BD]" />
+                  <Clock className="w-4 h-4 text-[#1a5c3a]" />
                   <p className="text-sm text-gray-900">{apt.startTime} - {apt.endTime}</p>
                 </div>
               </div>
@@ -118,7 +118,7 @@ export function AppointmentViewDialog({
               {userRole !== "client" && apt.status !== "completed" && (
                 <Button variant="outline"
                   onClick={() => { onEdit(apt); onClose(); }}
-                  className="border-[#FBBF24] text-[#FBBF24] hover:bg-[#FBBF24]/10">
+                  className="border-[#1a5c3a] text-[#1a5c3a] hover:bg-[#1a5c3a]/10">
                   <Edit className="w-4 h-4 mr-2" />Editar
                 </Button>
               )}

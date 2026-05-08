@@ -12,7 +12,7 @@ function StatusBadge({ status }: { status: QuotationStatus }) {
     pending:   { backgroundColor: "#fef9ec", color: "#b45309" },
     approved:  { backgroundColor: "#edf7f4", color: "#1a5c3a" },
     cancelled: { backgroundColor: "#fdf0ee", color: "#c0392b" },
-    completed: { backgroundColor: "#eff6ff", color: "#1e40af" },
+    completed: { backgroundColor: "#edf7f4", color: "#1e40af" },
   };
   return (
     <span style={{

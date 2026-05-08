@@ -40,7 +40,7 @@ export function ClientAppointmentsPage() {
     <SpaPage
       title="Mis Citas"
       subtitle="Gestiona y agenda tus citas en el spa"
-      icon={<CalendarIcon className="w-5 h-5 text-[#78D1BD]" />}
+      icon={<CalendarIcon className="w-5 h-5 text-[#1a5c3a]" />}
       action={
         <button
           onClick={() => { resetForm(); setIsDialogOpen(true); }}
@@ -199,7 +199,7 @@ export function ClientAppointmentsPage() {
         onRemoveService={handleRemoveService}
         onClientChange={handleClientChange}
         onStartTimeChange={handleStartTimeChange}
-        onSubmit={handleCreateOrUpdate}
+        onSubmit={() => handleCreateOrUpdate()}
         onCancel={resetForm}
         userRole="client"
       />

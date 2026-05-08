@@ -79,7 +79,7 @@ function QuotClientSearch({ clients, selectedId, onSelect, error, onBlur }: {
           onFocus={() => setOpen(true)}
           onBlur={() => { setTimeout(() => setOpen(false), 150); onBlur?.(); }}
           className={`w-full rounded-lg border px-3 py-2 text-sm bg-white text-gray-900 outline-none ${
-            error ? "border-red-500 bg-red-50" : selected ? "border-[#78D1BD] bg-[#edf7f4]" : "border-gray-200"
+            error ? "border-red-500 bg-red-50" : selected ? "border-[#1a5c3a] bg-[#edf7f4]" : "border-gray-200"
           }`}
         />
         {open && (
@@ -138,7 +138,8 @@ export function QuotationFormDialog({
 
   const handleCancel = () => { setTouched({}); onCancel(); };
 
-  const today = new Date().toISOString().split("T")[0];
+  const today   = new Date().toISOString().split("T")[0];
+  const maxDate = (() => { const d = new Date(); d.setMonth(d.getMonth() + 3); return d.toISOString().split("T")[0]; })();
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -259,6 +260,7 @@ export function QuotationFormDialog({
                 type="date"
                 value={formData.date}
                 min={today}
+                max={maxDate}
                 onChange={e => setFormData({ ...formData, date: e.target.value })}
                 onBlur={() => touch("date")}
                 className={`rounded-lg ${liveErrors.date ? "border-red-500 bg-red-50" : "border-gray-200"}`}

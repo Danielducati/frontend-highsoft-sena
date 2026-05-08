@@ -1,5 +1,5 @@
 // src/shared/utils/uploadImage.ts
-const API = import.meta.env.VITE_API_URL ?? "http://localhost:3001";
+const API = import.meta.env.VITE_API_URL ?? "https://backend-highsoft-sena-production.up.railway.app";
 
 const getToken = () => localStorage.getItem("token") ?? "";
 

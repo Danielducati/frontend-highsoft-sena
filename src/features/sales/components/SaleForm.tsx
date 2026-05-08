@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+﻿import React, { useState } from "react";
 import { Button } from "../../../shared/ui/button";
 import { Input } from "../../../shared/ui/input";
 import { Label } from "../../../shared/ui/label";
@@ -70,7 +70,7 @@ function ClientSearch({ clients, selectedId, onSelect, error, onBlur }: {
           onChange={e => { setSearch(e.target.value); setOpen(true); }}
           onFocus={() => setOpen(true)}
           onBlur={() => { setTimeout(() => setOpen(false), 150); onBlur?.(); }}
-          className={`w-full rounded-lg border px-3 py-2 text-sm bg-white text-gray-900 outline-none ${error ? "border-red-500 bg-red-50" : selected ? "border-[#78D1BD] bg-[#edf7f4]" : "border-gray-200"}`}
+          className={`w-full rounded-lg border px-3 py-2 text-sm bg-white text-gray-900 outline-none ${error ? "border-red-500 bg-red-50" : selected ? "border-[#1a5c3a] bg-[#edf7f4]" : "border-gray-200"}`}
         />
         {open && (
           <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-56 overflow-y-auto">
@@ -116,7 +116,7 @@ function AppointmentSearch({ appointments, selectedId, onSelect, error, onBlur }
           onChange={e => { setSearch(e.target.value); setOpen(true); }}
           onFocus={() => setOpen(true)}
           onBlur={() => { setTimeout(() => setOpen(false), 150); onBlur?.(); }}
-          className={`w-full rounded-lg border px-3 py-2 text-sm bg-white text-gray-900 outline-none ${error ? "border-red-500 bg-red-50" : selected ? "border-[#78D1BD] bg-[#edf7f4]" : "border-gray-200"}`}
+          className={`w-full rounded-lg border px-3 py-2 text-sm bg-white text-gray-900 outline-none ${error ? "border-red-500 bg-red-50" : selected ? "border-[#1a5c3a] bg-[#edf7f4]" : "border-gray-200"}`}
         />
         {open && (
           <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-56 overflow-y-auto">

@@ -1,5 +1,5 @@
 // news/services/newsApi.ts
-const API = "http://localhost:3001";
+const API = "https://backend-highsoft-sena-production.up.railway.app";
 
 const authHeaders = () => ({
 "Content-Type": "application/json",

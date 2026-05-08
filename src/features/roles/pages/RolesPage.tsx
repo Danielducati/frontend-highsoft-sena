@@ -266,8 +266,8 @@ export function RolesPage({ userRole }: RolesModuleProps) {
                                   onClick={() => { setViewingRole(role); setIsViewDialogOpen(true); }}
                                   title="Ver detalles"
                                   className="p-2 rounded-lg transition-colors"
-                                  style={{ color: "#60A5FA", cursor: "pointer" }}
-                                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#eff6ff")}
+                                  style={{ color: "#1a3a2a", cursor: "pointer" }}
+                                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#edf7f4")}
                                   onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
                                 >
                                   <Eye className="w-4 h-4" />
@@ -279,11 +279,11 @@ export function RolesPage({ userRole }: RolesModuleProps) {
                                   disabled={!role.isActive}
                                   className="p-2 rounded-lg transition-colors"
                                   style={{
-                                    color: role.isActive ? "#FBBF24" : "#d1d5db",
+                                    color: role.isActive ? "#1a5c3a" : "#d1d5db",
                                     cursor: role.isActive ? "pointer" : "not-allowed",
                                     opacity: role.isActive ? 1 : 0.5,
                                   }}
-                                  onMouseEnter={(e) => { if (role.isActive) e.currentTarget.style.backgroundColor = "#fffbeb"; }}
+                                  onMouseEnter={(e) => { if (role.isActive) e.currentTarget.style.backgroundColor = "#edf7f4"; }}
                                   onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
                                 >
                                   <Pencil className="w-4 h-4" />

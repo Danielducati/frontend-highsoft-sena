@@ -38,7 +38,7 @@ export function useLogin(onLogin: (role: UserRole) => void) {
       let permisos: string[] = [];
       try {
         const meRes = await fetch(
-          `${import.meta.env.VITE_API_URL ?? "http://localhost:3001"}/auth/me`,
+          `${import.meta.env.VITE_API_URL ?? "https://backend-highsoft-sena-production.up.railway.app"}/auth/me`,
           { headers: { Authorization: `Bearer ${data.token}` } }
         );
         if (meRes.ok) {

@@ -12,7 +12,7 @@ function StatusBadge({ status }: { status: QuotationStatus }) {
     pending:   { backgroundColor: "#fef9ec", color: "#b45309" },
     approved:  { backgroundColor: "#edf7f4", color: "#1a5c3a" },
     cancelled: { backgroundColor: "#fdf0ee", color: "#c0392b" },
-    completed: { backgroundColor: "#eff6ff", color: "#1e40af" },
+    completed: { backgroundColor: "#edf7f4", color: "#1e40af" },
   };
   const style = colors[status] ?? { backgroundColor: "#f3f4f6", color: "#6b7280" };
   return (
@@ -206,7 +206,7 @@ export function QuotationsPage({ userRole }: QuotationsModuleProps) {
                   {/* Servicios */}
                   <td className="px-6 py-4">
                     <span className="inline-flex px-3 py-1 rounded-full text-xs font-medium"
-                      style={{ backgroundColor: "#eff6ff", color: "#1e40af" }}>
+                      style={{ backgroundColor: "#edf7f4", color: "#1e40af" }}>
                       {q.items?.length || 0} servicio{(q.items?.length || 0) !== 1 ? "s" : ""}
                     </span>
                   </td>

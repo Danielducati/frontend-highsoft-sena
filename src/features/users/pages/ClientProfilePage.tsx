@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { uploadImage } from "../../../shared/utils/uploadImage";
 import { changePasswordRequest } from "../../auth/services/authService";
 
-const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3001";
+const API_URL = import.meta.env.VITE_API_URL ?? "https://backend-highsoft-sena-production.up.railway.app";
 const getToken = () => localStorage.getItem("token");
 const authHeaders = () => ({
   "Content-Type": "application/json",

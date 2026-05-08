@@ -75,7 +75,7 @@ export function RegisterPage({ onBack, onRegisterSuccess }: RegisterPageProps) {
               ].map(({ title, desc }) => (
                 <div key={title} className="flex gap-4">
                   <div className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: "rgba(120,209,189,0.2)", border: "1px solid rgba(120,209,189,0.4)" }}>
-                    <span style={{ color: "#78D1BD", fontSize: "20px" }}>✓</span>
+                    <span style={{ color: "#1a5c3a", fontSize: "20px" }}>✓</span>
                   </div>
                   <div>
                     <h3 className="font-semibold text-sm mb-1" style={{ color: "#ffffff" }}>{title}</h3>

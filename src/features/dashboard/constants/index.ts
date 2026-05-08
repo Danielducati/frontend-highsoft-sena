@@ -1,5 +1,5 @@
 // src/features/dashboard/constants/index.ts
-export const API_BASE = import.meta.env.VITE_API_URL ?? "http://localhost:3001";
+export const API_BASE = import.meta.env.VITE_API_URL ?? "https://backend-highsoft-sena-production.up.railway.app";
 
 export const COLORS = ["#78D1BD", "#A78BFA", "#60A5FA", "#FBBF24", "#F87171"];
 
