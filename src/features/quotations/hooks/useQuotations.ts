@@ -131,17 +131,15 @@ export function useQuotations(userRole?: string) {
       const data = await res.json();
       const list = Array.isArray(data) ? data : [];
       setEmployees(list.map((e: any) => ({
-        id:        e.id,
-        name:      e.name ?? `${e.nombre ?? ""} ${e.apellido ?? ""}`.trim(),
-        specialty: e.specialty ?? e.especialidad ?? "",
-        isActive:  e.isActive !== undefined ? e.isActive : e.estado === "Activo",
-        estado:    e.estado ?? "Activo",
-        color:     e.color ?? "#78D1BD",
+        id:          e.id,
+        name:        e.name ?? `${e.nombre ?? ""} ${e.apellido ?? ""}`.trim(),
+        specialty:   e.specialty ?? e.especialidad ?? "",
+        especialidad: e.especialidad ?? e.specialty ?? "",
+        isActive:    e.isActive !== undefined ? e.isActive : e.estado === "Activo",
+        estado:      e.estado ?? "Activo",
+        color:       e.color ?? "#78D1BD",
       })));
-    } catch (error) {
-      console.error("Error al cargar empleados:", error);
-      toast.error("No se pudieron cargar los empleados");
-    }
+    } catch { /* silencioso */ }
   };
 
   // ── CRUD ──────────────────────────────────────────────────────────────────

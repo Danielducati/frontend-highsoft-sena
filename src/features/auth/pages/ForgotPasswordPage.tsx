@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { Button } from "../../../shared/ui/button";
 import { Input } from "../../../shared/ui/input";
 import { Label } from "../../../shared/ui/label";
@@ -74,7 +74,7 @@ export function ForgotPasswordPage({ onBack }: ForgotPasswordPageProps) {
   return (
     <div
       className="min-h-screen flex items-center justify-center px-4"
-      style={{ backgroundColor: "#f5f0e8" }}
+      style={{ backgroundColor: "#F7F9FC" }}
     >
       <Card
         className="w-full max-w-[420px] shadow-lg"

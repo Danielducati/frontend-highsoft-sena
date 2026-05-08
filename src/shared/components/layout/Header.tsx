@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+﻿import { useState, useEffect, useRef } from "react";
 import { Bell, Calendar, Clock, X, CheckCheck, LogOut } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "../../ui/avatar";
 import { Badge } from "../../ui/badge";
@@ -148,7 +148,7 @@ export function Header({ userRole, userName, userPhoto, onLogout }: HeaderProps)
   return (
     <header
       className="h-16 sticky top-0 z-50 flex items-center justify-between px-8"
-      style={{ backgroundColor: "var(--bg-app)", borderBottom: "1px solid #e8e2d8" }}
+      style={{ backgroundColor: "var(--bg-app)", borderBottom: "1px solid var(--border)" }}
     >
       {/* Saludo */}
       <div className="flex items-center gap-6 flex-1">
@@ -175,11 +175,11 @@ export function Header({ userRole, userName, userPhoto, onLogout }: HeaderProps)
             onClick={() => setOpen(o => !o)}
             style={{
               position: "relative", width: 38, height: 38, borderRadius: 10,
-              border: "none", backgroundColor: open ? "#e8e2d8" : "transparent",
+              border: "none", backgroundColor: open ? "var(--muted)" : "transparent",
               cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
               color: "#6b7c6b", transition: "background 0.15s",
             }}
-            onMouseEnter={e => { if (!open) e.currentTarget.style.backgroundColor = "#ece9e3"; }}
+            onMouseEnter={e => { if (!open) e.currentTarget.style.backgroundColor = "var(--muted)"; }}
             onMouseLeave={e => { if (!open) e.currentTarget.style.backgroundColor = "transparent"; }}
           >
             <Bell style={{ width: 20, height: 20 }} />
@@ -188,7 +188,7 @@ export function Header({ userRole, userName, userPhoto, onLogout }: HeaderProps)
                 position: "absolute", top: 6, right: 6,
                 width: 8, height: 8, borderRadius: "50%",
                 backgroundColor: "#dc5a4b",
-                boxShadow: "0 0 0 2px #f5f0e8",
+                boxShadow: "0 0 0 2px #F7F9FC",
               }} />
             )}
           </button>
@@ -198,13 +198,13 @@ export function Header({ userRole, userName, userPhoto, onLogout }: HeaderProps)
             <div style={{
               position: "absolute", top: "calc(100% + 8px)", right: 0,
               width: 340, borderRadius: 14, backgroundColor: "#ffffff",
-              border: "1px solid #ede8e0", boxShadow: "0 8px 24px rgba(0,0,0,0.10)",
+              border: "1px solid #E5E7EB", boxShadow: "0 8px 24px rgba(0,0,0,0.10)",
               zIndex: 9999, overflow: "hidden", fontFamily: "var(--font-body)",
             }}>
               {/* Header del dropdown */}
               <div style={{
                 display: "flex", alignItems: "center", justifyContent: "space-between",
-                padding: "14px 16px 10px", borderBottom: "1px solid #ede8e0",
+                padding: "14px 16px 10px", borderBottom: "1px solid #E5E7EB",
               }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                   <Bell style={{ width: 15, height: 15, color: "#1a3a2a" }} />
@@ -239,7 +239,7 @@ export function Header({ userRole, userName, userPhoto, onLogout }: HeaderProps)
               <div style={{ maxHeight: 320, overflowY: "auto" }}>
                 {notifications.length === 0 ? (
                   <div style={{ padding: "32px 16px", textAlign: "center" }}>
-                    <Calendar style={{ width: 32, height: 32, color: "#d6cfc4", margin: "0 auto 8px" }} />
+                    <Calendar style={{ width: 32, height: 32, color: "#E5E7EB", margin: "0 auto 8px" }} />
                     <p style={{ fontSize: 13, color: "#6b7c6b" }}>No hay citas próximas</p>
                     <p style={{ fontSize: 11, color: "#9ca3af", marginTop: 4 }}>
                       Las citas de los próximos 7 días aparecerán aquí
@@ -251,12 +251,12 @@ export function Header({ userRole, userName, userPhoto, onLogout }: HeaderProps)
                     onClick={() => markRead(n.id)}
                     style={{
                       display: "flex", gap: 12, padding: "12px 16px",
-                      borderBottom: "1px solid #f5f0e8", cursor: "pointer",
-                      backgroundColor: n.read ? "transparent" : "#faf7f2",
+                      borderBottom: "1px solid #E5E7EB", cursor: "pointer",
+                      backgroundColor: n.read ? "transparent" : "#ffffff",
                       transition: "background 0.15s",
                     }}
                     onMouseEnter={e => (e.currentTarget.style.backgroundColor = "var(--bg-app)")}
-                    onMouseLeave={e => (e.currentTarget.style.backgroundColor = n.read ? "transparent" : "#faf7f2")}
+                    onMouseLeave={e => (e.currentTarget.style.backgroundColor = n.read ? "transparent" : "#ffffff")}
                   >
                     {/* Ícono con color de urgencia */}
                     <div style={{
@@ -296,7 +296,7 @@ export function Header({ userRole, userName, userPhoto, onLogout }: HeaderProps)
 
               {/* Footer */}
               {notifications.length > 0 && (
-                <div style={{ padding: "10px 16px", borderTop: "1px solid #ede8e0", textAlign: "center" }}>
+                <div style={{ padding: "10px 16px", borderTop: "1px solid #E5E7EB", textAlign: "center" }}>
                   <p style={{ fontSize: 11, color: "#9ca3af" }}>
                     Mostrando citas de los próximos 7 días
                   </p>
@@ -324,10 +324,10 @@ export function Header({ userRole, userName, userPhoto, onLogout }: HeaderProps)
             <div style={{
               position: "absolute", top: "calc(100% + 8px)", right: 0,
               minWidth: 180, borderRadius: 12, backgroundColor: "#ffffff",
-              border: "1px solid #ede8e0", boxShadow: "0 8px 24px rgba(0,0,0,0.10)",
+              border: "1px solid #E5E7EB", boxShadow: "0 8px 24px rgba(0,0,0,0.10)",
               zIndex: 9999, overflow: "hidden", fontFamily: "var(--font-body)",
             }}>
-              <div style={{ padding: "12px 16px", borderBottom: "1px solid #ede8e0" }}>
+              <div style={{ padding: "12px 16px", borderBottom: "1px solid #E5E7EB" }}>
                 <p style={{ fontSize: 13, fontWeight: 600, color: "#1a3a2a", margin: 0 }}>{displayName}</p>
                 <p style={{ fontSize: 11, color: "#6b7c6b", margin: "2px 0 0" }}>{rolLabel}</p>
               </div>

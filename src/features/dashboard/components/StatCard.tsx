@@ -1,4 +1,4 @@
-//frontend-highsoft-sena\src\features\dashboard\components\StatCard.tsx
+﻿//frontend-highsoft-sena\src\features\dashboard\components\StatCard.tsx
 import { Card, CardContent } from "../../../shared/ui/card";
 import { LucideIcon } from "lucide-react";
 import { ChangeBadge } from "./ChangeBadge";

@@ -1,4 +1,4 @@
-/* styles/index.css */
+﻿/* styles/index.css */
 @import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap");
 
 
@@ -4467,8 +4467,8 @@ body {
 
 /* Shared form dialog style across modules */
 .hl-form-dialog {
-  background-color: #faf7f2;
-  border: 1px solid #ede8e0;
+  background-color: #ffffff;
+  border: 1px solid #E5E7EB;
   border-radius: 16px;
   box-shadow: 0 10px 28px rgba(26, 58, 42, 0.08);
   font-family: var(--font-body);
@@ -4495,7 +4495,7 @@ body {
 .hl-form-dialog input,
 .hl-form-dialog textarea,
 .hl-form-dialog [data-slot="select-trigger"] {
-  border-color: #d6cfc4 !important;
+  border-color: #E5E7EB !important;
   background-color: #ffffff;
   color: #1a3a2a;
   font-family: var(--font-body);

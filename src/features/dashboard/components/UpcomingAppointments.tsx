@@ -1,4 +1,4 @@
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../../../shared/ui/card";
+﻿import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../../../shared/ui/card";
 import { Calendar, User, Clock } from "lucide-react";
 
 interface Appointment {

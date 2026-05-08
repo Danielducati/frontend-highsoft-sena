@@ -1,6 +1,6 @@
 import '../../shared/styles/landing.css';
 import { ImageWithFallback } from '../guidelines/figma/ImageWithFallback';
-import { Phone, Mail, MapPin, Facebook, Instagram, Twitter } from 'lucide-react';
+import { Phone, Mail, MapPin, Facebook, Instagram } from 'lucide-react';
 
 interface LandingPageProps {
   onNavigate: (page: string) => void;
@@ -232,6 +232,20 @@ export function LandingPage({ onNavigate }: LandingPageProps) {
         </div>
       </section>
 
+      {/* ── MAPA ── */}
+      <section style={{ width: "100%", lineHeight: 0, background: "#1E2D24" }}>
+        <iframe
+          title="Ubicación High Life Spa"
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d980.8!2d-75.5866994!3d6.2405752!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8e4429a97d003859%3A0x6d1b2fb6da5e8f7e!2sHighlife%20Spa!5e0!3m2!1ses!2sco!4v1"
+          width="100%"
+          height="420"
+          style={{ border: 0, display: "block" }}
+          allowFullScreen
+          loading="lazy"
+          referrerPolicy="no-referrer-when-downgrade"
+        />
+      </section>
+
       {/* ── FOOTER ── */}
       <footer className="hl-footer">
         <div className="hl-footer__brand">
@@ -258,9 +272,8 @@ export function LandingPage({ onNavigate }: LandingPageProps) {
         <div className="hl-footer__col">
           <p className="hl-footer__label">SÍGUENOS</p>
           <div className="hl-footer__social">
-            <button className="hl-footer__social-btn" ><Facebook size={16} /></button>
-            <button className="hl-footer__social-btn"><Instagram size={16} /></button>
-            <button className="hl-footer__social-btn"><Twitter size={16} /></button>
+            <a href="https://web.facebook.com/profile.php?id=61575715787939#" target="_blank" rel="noopener noreferrer" className="hl-footer__social-btn" aria-label="Facebook"><Facebook size={16} /></a>
+            <a href="https://www.instagram.com/spahighlife/" target="_blank" rel="noopener noreferrer" className="hl-footer__social-btn" aria-label="Instagram"><Instagram size={16} /></a>
           </div>
         </div>
 
@@ -268,6 +281,43 @@ export function LandingPage({ onNavigate }: LandingPageProps) {
           HIGHLIFE SPA &amp; BAR — DIGITAL SANCTUARY
         </div>
       </footer>
+
+      {/* ── BOTÓN FLOTANTE WHATSAPP ── */}
+      <a
+        href="https://wa.me/573232875383"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Contáctanos por WhatsApp"
+        style={{
+          position:        "fixed",
+          bottom:          28,
+          right:           28,
+          zIndex:          9999,
+          width:           56,
+          height:          56,
+          borderRadius:    "50%",
+          backgroundColor: "#25D366",
+          display:         "flex",
+          alignItems:      "center",
+          justifyContent:  "center",
+          boxShadow:       "0 4px 16px rgba(37,211,102,0.45)",
+          transition:      "transform 0.2s, box-shadow 0.2s",
+          textDecoration:  "none",
+        }}
+        onMouseEnter={e => {
+          (e.currentTarget as HTMLAnchorElement).style.transform  = "scale(1.1)";
+          (e.currentTarget as HTMLAnchorElement).style.boxShadow  = "0 6px 22px rgba(37,211,102,0.6)";
+        }}
+        onMouseLeave={e => {
+          (e.currentTarget as HTMLAnchorElement).style.transform  = "scale(1)";
+          (e.currentTarget as HTMLAnchorElement).style.boxShadow  = "0 4px 16px rgba(37,211,102,0.45)";
+        }}
+      >
+        {/* Ícono SVG oficial de WhatsApp */}
+        <svg viewBox="0 0 32 32" width="30" height="30" fill="white" xmlns="http://www.w3.org/2000/svg">
+          <path d="M16.003 2.667C8.637 2.667 2.667 8.637 2.667 16c0 2.363.618 4.674 1.794 6.706L2.667 29.333l6.784-1.778A13.267 13.267 0 0 0 16.003 29.333C23.37 29.333 29.333 23.363 29.333 16S23.37 2.667 16.003 2.667zm0 24.267a11.01 11.01 0 0 1-5.617-1.543l-.403-.24-4.027 1.056 1.073-3.92-.263-.42A10.987 10.987 0 0 1 5.003 16c0-6.065 4.935-11 11-11s11 4.935 11 11-4.935 11-11 11zm6.03-8.23c-.33-.165-1.953-.963-2.256-1.073-.303-.11-.524-.165-.744.165-.22.33-.854 1.073-1.047 1.293-.193.22-.386.248-.716.083-.33-.165-1.393-.513-2.653-1.637-.98-.874-1.642-1.953-1.835-2.283-.193-.33-.02-.508.145-.672.149-.148.33-.386.495-.579.165-.193.22-.33.33-.55.11-.22.055-.413-.028-.579-.083-.165-.744-1.793-1.02-2.455-.268-.644-.54-.557-.744-.567l-.634-.011c-.22 0-.579.083-.882.413-.303.33-1.157 1.13-1.157 2.757s1.185 3.198 1.35 3.418c.165.22 2.332 3.56 5.652 4.993.79.34 1.406.543 1.886.695.793.252 1.515.216 2.086.131.636-.095 1.953-.799 2.228-1.57.275-.771.275-1.432.193-1.57-.083-.138-.303-.22-.634-.386z"/>
+        </svg>
+      </a>
 
     </div>
   );

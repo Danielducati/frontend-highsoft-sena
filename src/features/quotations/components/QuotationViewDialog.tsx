@@ -1,4 +1,4 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "../../../shared/ui/dialog";
+﻿import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "../../../shared/ui/dialog";
 import { Quotation, QuotationStatus } from "../types";
 import { STATUS_LABELS } from "../constants";
 
@@ -29,7 +29,7 @@ export function QuotationViewDialog({ quotation, onClose }: QuotationViewDialogP
   return (
     <Dialog open={!!quotation} onOpenChange={onClose}>
       <DialogContent style={{
-        backgroundColor: "#faf7f2", borderRadius: 16, border: "1px solid #ede8e0",
+        backgroundColor: "#ffffff", borderRadius: 16, border: "1px solid #E5E7EB",
         padding: 32, maxWidth: 560, maxHeight: "90vh", overflowY: "auto", fontFamily: "var(--font-body)",
       }}>
         <DialogHeader>
@@ -52,7 +52,7 @@ export function QuotationViewDialog({ quotation, onClose }: QuotationViewDialogP
             {/* Cliente + Estado */}
             <div style={{
               display: "flex", justifyContent: "space-between", alignItems: "flex-start",
-              padding: "16px 20px", borderRadius: 12, backgroundColor: "#f0ebe3",
+              padding: "16px 20px", borderRadius: 12, backgroundColor: "#F3F4F6",
             }}>
               <div>
                 <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", color: "#6b7c6b", marginBottom: 4 }}>
@@ -73,7 +73,7 @@ export function QuotationViewDialog({ quotation, onClose }: QuotationViewDialogP
                 {quotation.items?.map((item, i) => (
                   <div key={i} style={{
                     padding: "12px 16px", borderRadius: 10, backgroundColor: "#ffffff",
-                    border: "1px solid #ede8e0",
+                    border: "1px solid #E5E7EB",
                   }}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
                       <div>
@@ -95,7 +95,7 @@ export function QuotationViewDialog({ quotation, onClose }: QuotationViewDialogP
             </div>
 
             {/* Totales */}
-            <div style={{ borderTop: "1px solid #ede8e0", paddingTop: 16, display: "flex", flexDirection: "column", gap: 8 }}>
+            <div style={{ borderTop: "1px solid #E5E7EB", paddingTop: 16, display: "flex", flexDirection: "column", gap: 8 }}>
               <div style={{ display: "flex", justifyContent: "space-between" }}>
                 <span style={{ color: "#6b7c6b", fontSize: 14 }}>Subtotal</span>
                 <span style={{ color: "#1a3a2a", fontSize: 14 }}>${(quotation.subtotal || 0).toLocaleString("es-CO")}</span>
@@ -108,7 +108,7 @@ export function QuotationViewDialog({ quotation, onClose }: QuotationViewDialogP
               )}
               <div style={{
                 display: "flex", justifyContent: "space-between", alignItems: "center",
-                borderTop: "1px solid #ede8e0", paddingTop: 10, marginTop: 4,
+                borderTop: "1px solid #E5E7EB", paddingTop: 10, marginTop: 4,
               }}>
                 <span style={{ color: "#1a3a2a", fontSize: 16, fontFamily: "var(--font-body)", fontWeight: 600 }}>Total</span>
                 <span style={{ color: "#1a3a2a", fontSize: 22, fontWeight: 700, fontFamily: "var(--font-body)" }}>
@@ -119,7 +119,7 @@ export function QuotationViewDialog({ quotation, onClose }: QuotationViewDialogP
 
             {/* Notas */}
             {quotation.notes && (
-              <div style={{ padding: "12px 16px", borderRadius: 10, backgroundColor: "#f0ebe3", border: "1px solid #ede8e0" }}>
+              <div style={{ padding: "12px 16px", borderRadius: 10, backgroundColor: "#F3F4F6", border: "1px solid #E5E7EB" }}>
                 <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", color: "#6b7c6b", marginBottom: 6 }}>
                   Notas
                 </p>
@@ -130,7 +130,7 @@ export function QuotationViewDialog({ quotation, onClose }: QuotationViewDialogP
             {/* Cerrar */}
             <div style={{ display: "flex", justifyContent: "flex-end" }}>
               <button onClick={onClose} style={{
-                padding: "9px 20px", borderRadius: 10, border: "1px solid #d6cfc4",
+                padding: "9px 20px", borderRadius: 10, border: "1px solid #E5E7EB",
                 backgroundColor: "transparent", color: "#1a3a2a", fontSize: 14,
                 fontFamily: "var(--font-body)", cursor: "pointer",
               }}>Cerrar</button>

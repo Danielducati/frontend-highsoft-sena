@@ -1,4 +1,4 @@
-// src/features/news/pages/NewsPageV2.tsx
+﻿// src/features/news/pages/NewsPageV2.tsx
 import { useState } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../../../shared/ui/dialog";
 import { Plus, AlertCircle } from "lucide-react";

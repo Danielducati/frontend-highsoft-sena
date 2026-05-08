@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+﻿import { useState, useRef } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "../../../shared/ui/dialog";
 import { Button } from "../../../shared/ui/button";
 import { Input } from "../../../shared/ui/input";
@@ -56,8 +56,8 @@ function QuotClientSearch({ clients, selectedId, onSelect, error, onBlur }: {
   error?: string;
   onBlur?: () => void;
 }) {
-  const [search, setSearch] = React.useState("");
-  const [open,   setOpen]   = React.useState(false);
+  const [search, setSearch] = useState("");
+  const [open,   setOpen]   = useState(false);
 
   const filtered = clients.filter(c => {
     const name = c.name ?? `${c.nombre ?? ""} ${c.apellido ?? ""}`.trim();

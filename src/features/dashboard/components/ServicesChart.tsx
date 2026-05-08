@@ -1,4 +1,4 @@
-//frontend-highsoft-sena\src\features\dashboard\components\ServicesChart.tsx
+﻿//frontend-highsoft-sena\src\features\dashboard\components\ServicesChart.tsx
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../../shared/ui/card";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 import { COLORS } from "../constants";

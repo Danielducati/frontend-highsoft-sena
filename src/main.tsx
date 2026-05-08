@@ -1,4 +1,4 @@
-
+import './firebase.js'  
 import { createRoot } from "react-dom/client";
 import App from "./app/App";
 import "./shared/styles/index.css";

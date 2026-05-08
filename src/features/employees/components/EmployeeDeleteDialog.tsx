@@ -1,4 +1,4 @@
-import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "../../../shared/ui/alert-dialog";
+﻿import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "../../../shared/ui/alert-dialog";
 import { AlertCircle } from "lucide-react";
 
 interface EmployeeDeleteDialogProps {
@@ -12,9 +12,9 @@ export function EmployeeDeleteDialog({ open, onOpenChange, onConfirm }: Employee
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent
         style={{
-          backgroundColor: "#faf7f2",
+          backgroundColor: "#ffffff",
           borderRadius: 16,
-          border: "1px solid #ede8e0",
+          border: "1px solid #E5E7EB",
           padding: 32,
           maxWidth: 420,
           fontFamily: "var(--font-body)",
@@ -46,7 +46,7 @@ export function EmployeeDeleteDialog({ open, onOpenChange, onConfirm }: Employee
             onClick={() => onOpenChange(false)}
             style={{
               padding: "9px 18px", borderRadius: 10,
-              border: "1px solid #d6cfc4", backgroundColor: "transparent",
+              border: "1px solid #E5E7EB", backgroundColor: "transparent",
               color: "#1a3a2a", fontSize: 14, cursor: "pointer",
             }}
           >

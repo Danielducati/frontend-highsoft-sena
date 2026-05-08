@@ -114,7 +114,7 @@ export function Sidebar({ activePage, onNavigate, onLogout, userRole, allowedPag
     <aside
       className="w-64 flex flex-col h-screen fixed left-0 top-0"
       // Color de fondo de la sidebar
-      style={{ backgroundColor: " #c4c3c3ff", borderRight: "2px solid #e8e6e1" }}
+      style={{ backgroundColor: "var(--bg-app)", borderRight: "1px solid var(--border)" }}
     >
       {/* Logo Section */}
       <div className="px-5 py-4" style={{ borderBottom: "1px solid #ece9e3" }}>

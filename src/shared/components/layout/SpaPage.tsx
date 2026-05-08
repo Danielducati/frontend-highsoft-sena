@@ -1,4 +1,4 @@
-//C:\Users\samue\frontend-highsoft-sena\src\shared\components\layout\SpaPage.tsx
+﻿//C:\Users\samue\frontend-highsoft-sena\src\shared\components\layout\SpaPage.tsx
 type SpaPageProps = {
   title: string;
   subtitle?: string;

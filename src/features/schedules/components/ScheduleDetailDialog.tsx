@@ -1,4 +1,4 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "../../../shared/ui/dialog";
+﻿import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "../../../shared/ui/dialog";
 import { Calendar, Clock, User } from "lucide-react";
 import { WeeklySchedule, Employee } from "../types";
 import { formatWeekRange, getWeekDays, getDayBadgeColor, getDayLabel, calculateDuration } from "../utils";
@@ -25,7 +25,7 @@ export function ScheduleDetailDialog({ isOpen, onOpenChange, schedule, employees
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent style={{
-        backgroundColor: "#faf7f2", borderRadius: 16, border: "1px solid #ede8e0",
+        backgroundColor: "#ffffff", borderRadius: 16, border: "1px solid #E5E7EB",
         padding: 32, maxWidth: 560, fontFamily: "var(--font-body)",
       }}>
         <DialogHeader>
@@ -64,14 +64,14 @@ export function ScheduleDetailDialog({ isOpen, onOpenChange, schedule, employees
 
           {/* Semana y días */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-            <div style={{ padding: "12px 16px", borderRadius: 10, backgroundColor: "#ffffff", border: "1px solid #ede8e0" }}>
+            <div style={{ padding: "12px 16px", borderRadius: 10, backgroundColor: "#ffffff", border: "1px solid #E5E7EB" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
                 <Calendar style={{ width: 14, height: 14, color: "#6b7c6b" }} />
                 <span style={labelStyle}>Semana</span>
               </div>
               <p style={{ fontSize: 13, color: "#1a3a2a", margin: 0 }}>{formatWeekRange(schedule.weekStartDate)}</p>
             </div>
-            <div style={{ padding: "12px 16px", borderRadius: 10, backgroundColor: "#ffffff", border: "1px solid #ede8e0" }}>
+            <div style={{ padding: "12px 16px", borderRadius: 10, backgroundColor: "#ffffff", border: "1px solid #E5E7EB" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
                 <Clock style={{ width: 14, height: 14, color: "#6b7c6b" }} />
                 <span style={labelStyle}>Días trabajados</span>
@@ -95,13 +95,13 @@ export function ScheduleDetailDialog({ isOpen, onOpenChange, schedule, employees
                     <div key={ds.dayIndex} style={{
                       display: "flex", alignItems: "center", justifyContent: "space-between",
                       padding: "10px 14px", borderRadius: 10,
-                      backgroundColor: "#ffffff", border: "1px solid #ede8e0",
+                      backgroundColor: "#ffffff", border: "1px solid #E5E7EB",
                     }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                         <span style={{
                           fontSize: 11, fontWeight: 600, padding: "3px 10px",
                           borderRadius: 999, fontFamily: "var(--font-body)",
-                          backgroundColor: "#f0ebe3", color: "#1a3a2a",
+                          backgroundColor: "#F3F4F6", color: "#1a3a2a",
                         }}>
                           {day.label}
                         </span>
@@ -117,7 +117,7 @@ export function ScheduleDetailDialog({ isOpen, onOpenChange, schedule, employees
                       <div style={{
                         display: "flex", alignItems: "center", gap: 6,
                         padding: "5px 12px", borderRadius: 8,
-                        backgroundColor: "#f5f0e8", border: "1px solid #d6cfc4",
+                        backgroundColor: "#F7F9FC", border: "1px solid #E5E7EB",
                       }}>
                         <Clock style={{ width: 13, height: 13, color: "#6b7c6b" }} />
                         <span style={{ fontSize: 13, color: "#1a3a2a", fontWeight: 500 }}>{ds.startTime}</span>
@@ -131,15 +131,15 @@ export function ScheduleDetailDialog({ isOpen, onOpenChange, schedule, employees
           </div>
 
           {/* Botón cerrar */}
-          <div style={{ display: "flex", justifyContent: "flex-end", paddingTop: 8, borderTop: "1px solid #ede8e0" }}>
+          <div style={{ display: "flex", justifyContent: "flex-end", paddingTop: 8, borderTop: "1px solid #E5E7EB" }}>
             <button
               onClick={() => onOpenChange(false)}
               style={{
-                padding: "9px 20px", borderRadius: 10, border: "1px solid #d6cfc4",
+                padding: "9px 20px", borderRadius: 10, border: "1px solid #E5E7EB",
                 backgroundColor: "transparent", color: "#1a3a2a", fontSize: 14,
                 fontFamily: "var(--font-body)", cursor: "pointer",
               }}
-              onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#f0ebe3")}
+              onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#F3F4F6")}
               onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
             >
               Cerrar

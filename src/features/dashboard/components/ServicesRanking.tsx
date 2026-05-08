@@ -1,4 +1,4 @@
-//frontend-highsoft-sena\src\features\dashboard\components\ServicesRanking.tsx
+﻿//frontend-highsoft-sena\src\features\dashboard\components\ServicesRanking.tsx
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../../shared/ui/card";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts";
 

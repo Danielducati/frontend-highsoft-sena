@@ -1,4 +1,4 @@
-// frontend-highsoft-sena/src/features/appointments/pages/ClientAppointmentsPage.tsx
+﻿// frontend-highsoft-sena/src/features/appointments/pages/ClientAppointmentsPage.tsx
 import { useState } from "react";
 import { Card, CardContent } from "../../../shared/ui/card";
 import { Badge } from "../../../shared/ui/badge";
@@ -109,7 +109,7 @@ export function ClientAppointmentsPage() {
                           title="Ver detalles"
                           className="p-2 rounded-lg transition-colors"
                           style={{ color: "#6b7c6b" }}
-                          onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#f0ebe3")}
+                          onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#F3F4F6")}
                           onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
                         >
                           <Eye className="w-4 h-4" />
@@ -166,7 +166,7 @@ export function ClientAppointmentsPage() {
                           onClick={() => setViewingAppointment(apt)}
                           className="p-1.5 rounded-lg transition-colors"
                           style={{ color: "#6b7c6b" }}
-                          onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#f0ebe3")}
+                          onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#F3F4F6")}
                           onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
                         >
                           <Eye className="w-3.5 h-3.5" />

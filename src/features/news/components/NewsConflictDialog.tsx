@@ -1,4 +1,4 @@
-// news/components/NewsConflictDialog.tsx
+﻿// news/components/NewsConflictDialog.tsx
 import { useState } from "react";
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription } from "../../../shared/ui/alert-dialog";
 import { Badge } from "../../../shared/ui/badge";
@@ -53,7 +53,7 @@ export function NewsConflictDialog({
             <div
               key={s.detalleId}
               className="flex items-center justify-between p-3 rounded-lg"
-              style={{ backgroundColor: "#f5f0e8", border: "1px solid #ede8e0" }}
+              style={{ backgroundColor: "#F7F9FC", border: "1px solid #E5E7EB" }}
             >
               <div>
                 <p className="text-sm font-medium" style={{ color: "#1a3a2a" }}>{s.clienteNombre}</p>
@@ -92,7 +92,7 @@ export function NewsConflictDialog({
                 size="sm"
                 variant="outline"
                 className="flex-1"
-                style={{ borderColor: "#d6cfc4", color: "#1a3a2a" }}
+                style={{ borderColor: "#E5E7EB", color: "#1a3a2a" }}
                 onClick={() => { setShowReassign(false); setSelectedEmployee(""); }}
               >
                 Cancelar
@@ -119,7 +119,7 @@ export function NewsConflictDialog({
         )}
 
         {/* Botones principales */}
-        <div className="flex flex-col gap-2 pt-2" style={{ borderTop: "1px solid #ede8e0" }}>
+        <div className="flex flex-col gap-2 pt-2" style={{ borderTop: "1px solid #E5E7EB" }}>
 
           {/* Destructivo — --color-delete: #f87171 */}
           <button

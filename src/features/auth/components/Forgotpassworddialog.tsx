@@ -1,4 +1,4 @@
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../../../shared/ui/dialog";
+﻿import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../../../shared/ui/dialog";
 import { Button } from "../../../shared/ui/button";
 import { Input } from "../../../shared/ui/input";
 import { Label } from "../../../shared/ui/label";
@@ -58,7 +58,7 @@ export function ForgotPasswordDialog({
                 <Button type="button" variant="outline" onClick={onClose}
                   disabled={recoveryLoading}
                   className="flex-1 h-9 rounded-lg text-xs"
-                  style={{ borderColor: "#d6cfc4", color: "#6b7c6b" }}>
+                  style={{ borderColor: "#E5E7EB", color: "#6b7c6b" }}>
                   Cancelar
                 </Button>
                 <Button type="submit"
@@ -91,7 +91,7 @@ export function ForgotPasswordDialog({
               </DialogDescription>
             </DialogHeader>
 
-            <div className="rounded-lg p-2.5 text-[11px] mt-2" style={{ backgroundColor: "#f5f0e8", color: "#6b7c6b" }}>
+            <div className="rounded-lg p-2.5 text-[11px] mt-2" style={{ backgroundColor: "#F7F9FC", color: "#6b7c6b" }}>
               Si no recibes el correo, revisa tu carpeta de spam.
             </div>
 

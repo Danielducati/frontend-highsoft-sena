@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+﻿import { useState, useEffect, useRef } from "react";
 import { User, Upload, Loader2, Save, X, ImageIcon, Lock } from "lucide-react";
 import { SpaPage } from "../../../shared/components/layout/SpaPage";
 import { toast } from "sonner";
@@ -22,9 +22,9 @@ const DOCUMENT_TYPES = [
 
 const inputStyle: React.CSSProperties = {
   width: "100%", padding: "9px 14px", borderRadius: 10,
-  backgroundColor: "#faf7f2", color: "#1a3a2a", fontSize: 14,
+  backgroundColor: "#ffffff", color: "#1a3a2a", fontSize: 14,
   fontFamily: "var(--font-body)", outline: "none",
-  border: "1px solid #d6cfc4", boxSizing: "border-box",
+  border: "1px solid #E5E7EB", boxSizing: "border-box",
 };
 const labelStyle: React.CSSProperties = {
   display: "block", fontSize: 11, fontWeight: 600,
@@ -164,7 +164,7 @@ export function ClientProfilePage() {
             <div style={{ position: "relative" }}>
               <div style={{
                 width: 80, height: 80, borderRadius: "50%", overflow: "hidden",
-                border: "2px solid #d6cfc4", backgroundColor: "#edf7f4",
+                border: "2px solid #E5E7EB", backgroundColor: "#edf7f4",
                 display: "flex", alignItems: "center", justifyContent: "center",
               }}>
                 {uploadingImg
@@ -232,7 +232,7 @@ export function ClientProfilePage() {
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
             <div>
               <label style={labelStyle}>Correo</label>
-              <input style={{ ...inputStyle, backgroundColor: "#f0ebe3", color: "#9ca3af" }} value={form.email} readOnly title="El correo no se puede cambiar desde aquí" />
+              <input style={{ ...inputStyle, backgroundColor: "#F3F4F6", color: "#9ca3af" }} value={form.email} readOnly title="El correo no se puede cambiar desde aquí" />
             </div>
             <div>
               <label style={labelStyle}>Teléfono</label>

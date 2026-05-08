@@ -1,4 +1,4 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "../../../shared/ui/dialog";
+﻿import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "../../../shared/ui/dialog";
 import { User } from "../types";
 import { getRoleBadgeColor } from "../utils";
 import { ImageWithFallback } from "../../guidelines/figma/ImageWithFallback";
@@ -29,9 +29,9 @@ export function UserViewDialog({ user, onClose }: UserViewDialogProps) {
     <Dialog open={!!user} onOpenChange={onClose}>
       <DialogContent
         style={{
-          backgroundColor: "#faf7f2",
+          backgroundColor: "#ffffff",
           borderRadius: 16,
-          border: "1px solid #ede8e0",
+          border: "1px solid #E5E7EB",
           padding: 32,
           maxWidth: 480,
           fontFamily: "var(--font-body)",
@@ -50,7 +50,7 @@ export function UserViewDialog({ user, onClose }: UserViewDialogProps) {
           <div style={{ display: "flex", flexDirection: "column", gap: 20, marginTop: 8 }}>
 
             {/* Avatar + nombre + rol */}
-            <div style={{ display: "flex", alignItems: "center", gap: 16, padding: "16px 20px", borderRadius: 12, backgroundColor: "#f0ebe3" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 16, padding: "16px 20px", borderRadius: 12, backgroundColor: "#F3F4F6" }}>
               <div style={{
                 width: 60, height: 60, borderRadius: "50%", overflow: "hidden",
                 border: "2px solid #c8ead9", backgroundColor: "#edf7f4",
@@ -116,10 +116,10 @@ export function UserViewDialog({ user, onClose }: UserViewDialogProps) {
                 onClick={onClose}
                 style={{
                   padding: "9px 20px", borderRadius: 10,
-                  border: "1px solid #d6cfc4", backgroundColor: "transparent",
+                  border: "1px solid #E5E7EB", backgroundColor: "transparent",
                   color: "#1a3a2a", fontSize: 14, fontFamily: "var(--font-body)", cursor: "pointer",
                 }}
-                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#f0ebe3")}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#F3F4F6")}
                 onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
               >
                 Cerrar

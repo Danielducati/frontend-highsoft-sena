@@ -1,6 +1,9 @@
-// src/features/roles/pages/RolesPage.tsx
+﻿// src/features/roles/pages/RolesPage.tsx
 import { useState } from "react";
-import { Plus, Pencil, Trash2, Search, Shield, Eye, Lock } from "lucide-react";
+import { Card, CardContent } from "../../../shared/ui/card";
+import { Input } from "../../../shared/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../shared/ui/select";
+import { Plus, Pencil, Trash2, Search, Shield, Eye, Lock, Filter } from "lucide-react";
 import { toast } from "sonner";
 import { Role } from "../types";
 import { useRoles } from "../hooks/useRoles";
@@ -132,196 +135,187 @@ export function RolesPage({ userRole }: RolesModuleProps) {
     >
       <div className="space-y-4">
 
-        {/* Search */}
-        <div className="flex flex-col sm:flex-row gap-3 mb-2" style={{ fontFamily: "var(--font-body)" }}>
-          <div
-            className="flex items-center gap-2 px-4 py-2 rounded-full border flex-1"
-            style={{ backgroundColor: "#ffffff", borderColor: "#d6cfc4", maxWidth: 380 }}
-          >
-            <Search className="w-4 h-4 flex-shrink-0" style={{ color: "#6b7c6b" }} />
-            <input
-              placeholder="Buscar roles..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="bg-transparent outline-none text-sm w-full"
-              style={{ color: "#1a3a2a" }}
-            />
-          </div>
-          <select
-            value={filterStatus}
-            onChange={e => setFilterStatus(e.target.value)}
-            style={{
-              padding: "8px 14px", borderRadius: 10, border: "1px solid #d6cfc4",
-              backgroundColor: "#ffffff", color: "#1a3a2a", fontSize: 13,
-              fontFamily: "var(--font-body)", outline: "none",
-            }}
-          >
-            <option value="all">Todos los estados</option>
-            <option value="active">Activos</option>
-            <option value="inactive">Inactivos</option>
-          </select>
-        </div>
+        {/* Filtros */}
+        <Card className="border-gray-200 shadow-sm rounded-2xl">
+          <CardContent className="p-4">
+            <div className="flex flex-col sm:flex-row gap-3">
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Input
+                  placeholder="Buscar roles..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-9 h-9 rounded-lg border-gray-200 w-full"
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                <Filter className="w-4 h-4 text-gray-400" />
+                <Select value={filterStatus} onValueChange={setFilterStatus}>
+                  <SelectTrigger className="h-9 rounded-lg border-gray-200 w-44">
+                    <SelectValue placeholder="Todos los estados" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todos los estados</SelectItem>
+                    <SelectItem value="active">Activos</SelectItem>
+                    <SelectItem value="inactive">Inactivos</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
-        {loading ? (
-          <p className="text-center py-12 text-sm" style={{ color: "#6b7c6b", fontFamily: "var(--font-body)" }}>
-            Cargando roles...
-          </p>
-        ) : filteredRoles.length === 0 ? (
-          <div className="flex flex-col items-center py-16" style={{ fontFamily: "var(--font-body)" }}>
-            <Shield className="w-10 h-10 mb-3" style={{ color: "#d6cfc4" }} />
-            <p className="font-medium" style={{ color: "#1a3a2a" }}>No se encontraron roles</p>
-            <p className="text-sm mt-1" style={{ color: "#6b7c6b" }}>Intenta ajustar los filtros de búsqueda</p>
-          </div>
-        ) : (
-          <div className="rounded-2xl overflow-hidden shadow-sm" style={{ backgroundColor: "#ffffff" }}>
-            <table className="w-full" style={{ fontFamily: "var(--font-body)" }}>
-              <thead>
-                <tr style={{ borderBottom: "1px solid #ede8e0" }}>
-                  {["ROL", "DESCRIPCIÓN", "PERMISOS", "ESTADO", "ACCIONES"].map((col) => (
-                    <th key={col} className="px-6 py-4 text-left text-xs font-semibold tracking-widest" style={{ color: "#6b7c6b" }}>
-                      {col}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {filteredRoles.map((role, idx) => {
-                  const isAdminRole = role.nombre?.toLowerCase() === "admin" || role.nombre?.toLowerCase() === "administrador";
-                  return (
-                  <tr
-                    key={role.id}
-                    style={{ borderBottom: idx < filteredRoles.length - 1 ? "1px solid #ede8e0" : "none", transition: "background 0.15s" }}
-                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#faf7f2")}
-                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
-                  >
-                    {/* ROL */}
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3 min-w-0">
-                        <div className="w-9 h-9 rounded-lg flex items-center justify-center text-white flex-shrink-0" style={{ background: "linear-gradient(135deg, #78D1BD, #5FBFAA)" }}>
-                          <Shield className="w-4 h-4" />
-                        </div>
-                        <div className="min-w-0">
-                          <p className="font-medium text-sm truncate" style={{ color: "#1a3a2a" }}>{role.nombre}</p>
-                          <p className="text-xs truncate" style={{ color: "#6b7c6b" }}>{role.descripcion}</p>
-                        </div>
-                      </div>
-                    </td>
+        {/* Tabla */}
+        <Card className="border-gray-200 shadow-sm">
+          <CardContent className="p-0">
+            {loading ? (
+              <div className="flex flex-col items-center justify-center py-12 px-4">
+                <p className="text-gray-500 text-sm">Cargando roles...</p>
+              </div>
+            ) : filteredRoles.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-12 px-4">
+                <Shield className="w-12 h-12 text-gray-300 mb-3" />
+                <p className="text-gray-500 text-center">No se encontraron roles</p>
+                <p className="text-sm text-gray-400 mt-1">Intenta ajustar los filtros de búsqueda</p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-gray-200 bg-gray-50/50">
+                      <th className="text-left px-4 py-3 text-sm text-gray-700">Rol</th>
+                      <th className="text-left px-4 py-3 text-sm text-gray-700">Descripción</th>
+                      <th className="text-left px-4 py-3 text-sm text-gray-700">Permisos</th>
+                      <th className="text-left px-4 py-3 text-sm text-gray-700">Estado</th>
+                      <th className="text-center px-4 py-3 text-sm text-gray-700 w-32">Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    {filteredRoles.map((role) => {
+                      const isAdminRole = role.nombre?.toLowerCase() === "admin" || role.nombre?.toLowerCase() === "administrador";
+                      return (
+                        <tr key={role.id} className="hover:bg-gray-50/50 transition-colors">
+                          {/* ROL */}
+                          <td className="px-4 py-3">
+                            <div className="flex items-center gap-3 min-w-0">
+                              <div className="w-9 h-9 rounded-lg flex items-center justify-center text-white flex-shrink-0" style={{ background: "linear-gradient(135deg, #78D1BD, #5FBFAA)" }}>
+                                <Shield className="w-4 h-4" />
+                              </div>
+                              <div className="min-w-0">
+                                <p className="text-sm font-medium text-gray-900 truncate">{role.nombre}</p>
+                              </div>
+                            </div>
+                          </td>
 
-                    {/* DESCRIPCIÓN */}
-                    <td className="px-6 py-4">
-                      <p className="text-xs line-clamp-2" style={{ color: "#6b7c6b" }}>{role.descripcion}</p>
-                    </td>
+                          {/* DESCRIPCIÓN */}
+                          <td className="px-4 py-3">
+                            <p className="text-xs text-gray-500 line-clamp-2">{role.descripcion}</p>
+                          </td>
 
-                    {/* PERMISOS */}
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-2">
-                        <Lock className="w-3.5 h-3.5" style={{ color: "#6b7c6b" }} />
-                        <span style={{ display: "inline-flex", padding: "3px 12px", borderRadius: 999, fontSize: 11, fontWeight: 600, letterSpacing: "0.04em", backgroundColor: "#edf7f4", color: "#1a5c3a" }}>
-                          {role.permisos?.length ?? 0} permisos
-                        </span>
-                      </div>
-                    </td>
+                          {/* PERMISOS */}
+                          <td className="px-4 py-3">
+                            <div className="flex items-center gap-2">
+                              <Lock className="w-3.5 h-3.5 text-gray-400" />
+                              <span style={{ display: "inline-flex", padding: "3px 12px", borderRadius: 999, fontSize: 11, fontWeight: 600, letterSpacing: "0.04em", backgroundColor: "#edf7f4", color: "#1a5c3a" }}>
+                                {role.permisos?.length ?? 0} permisos
+                              </span>
+                            </div>
+                          </td>
 
-                    {/* ── SWITCH DE ESTADO ── */}
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        {/* Switch */}
-                        <button
-                          onClick={() => !isAdminRole && handleToggleStatus(role)}
-                          disabled={isAdminRole}
-                          title={isAdminRole ? "No se puede desactivar el rol Administrador" : role.isActive ? "Desactivar" : "Activar"}
-                          className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
-                          style={{
-                            backgroundColor: role.isActive ? "#10b981" : "#d1d5db",
-                            cursor: isAdminRole ? "not-allowed" : "pointer",
-                            opacity: isAdminRole ? 0.5 : 1,
-                          }}
-                        >
-                          <span
-                            className="inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform"
-                            style={{
-                              transform: role.isActive ? "translateX(22px)" : "translateX(2px)",
-                            }}
-                          />
-                        </button>
+                          {/* SWITCH DE ESTADO */}
+                          <td className="px-4 py-3">
+                            <div className="flex items-center gap-3">
+                              <button
+                                onClick={() => !isAdminRole && handleToggleStatus(role)}
+                                disabled={isAdminRole}
+                                title={isAdminRole ? "No se puede desactivar el rol Administrador" : role.isActive ? "Desactivar" : "Activar"}
+                                className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
+                                style={{
+                                  backgroundColor: role.isActive ? "#10b981" : "#d1d5db",
+                                  cursor: isAdminRole ? "not-allowed" : "pointer",
+                                  opacity: isAdminRole ? 0.5 : 1,
+                                }}
+                              >
+                                <span
+                                  className="inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform"
+                                  style={{ transform: role.isActive ? "translateX(22px)" : "translateX(2px)" }}
+                                />
+                              </button>
+                              <span
+                                style={{
+                                  display: "inline-flex",
+                                  padding: "3px 12px",
+                                  borderRadius: 999,
+                                  fontSize: 11,
+                                  fontWeight: 600,
+                                  letterSpacing: "0.04em",
+                                  backgroundColor: role.isActive ? "#edf7f4" : "#f3f4f6",
+                                  color: role.isActive ? "#1a5c3a" : "#6b7280",
+                                }}
+                              >
+                                {role.isActive ? "Activo" : "Inactivo"}
+                              </span>
+                            </div>
+                          </td>
 
-                        {/* Label */}
-                        <span
-                          style={{
-                            display: "inline-flex",
-                            padding: "3px 12px",
-                            borderRadius: 999,
-                            fontSize: 11,
-                            fontWeight: 600,
-                            letterSpacing: "0.04em",
-                            backgroundColor: role.isActive ? "#edf7f4" : "#f3f4f6",
-                            color: role.isActive ? "#1a5c3a" : "#6b7280",
-                          }}
-                        >
-                          {role.isActive ? "Activo" : "Inactivo"}
-                        </span>
-                      </div>
-                    </td>
+                          {/* ACCIONES */}
+                          <td className="px-4 py-3">
+                            {userRole === "admin" ? (
+                              <div className="flex items-center justify-center gap-1">
+                                <button
+                                  onClick={() => { setViewingRole(role); setIsViewDialogOpen(true); }}
+                                  title="Ver detalles"
+                                  className="p-2 rounded-lg transition-colors"
+                                  style={{ color: "#60A5FA", cursor: "pointer" }}
+                                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#eff6ff")}
+                                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+                                >
+                                  <Eye className="w-4 h-4" />
+                                </button>
 
-                    {/* ── ACCIONES — deshabilitadas si inactivo ── */}
-                    <td className="px-6 py-4">
-                      {userRole === "admin" ? (
-                        <div className="flex items-center gap-1">
-                          {/* Ver detalles - SIEMPRE ACTIVO */}
-                          <button
-                            onClick={() => { setViewingRole(role); setIsViewDialogOpen(true); }}
-                            title="Ver detalles"
-                            className="p-2 rounded-lg transition-colors"
-                            style={{ color: "#6b7c6b", cursor: "pointer" }}
-                            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#f0ebe3")}
-                            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
-                          >
-                            <Eye className="w-4 h-4" />
-                          </button>
+                                <button
+                                  onClick={() => role.isActive && handleEdit(role)}
+                                  title={role.isActive ? "Editar" : "Activa el rol para editarlo"}
+                                  disabled={!role.isActive}
+                                  className="p-2 rounded-lg transition-colors"
+                                  style={{
+                                    color: role.isActive ? "#FBBF24" : "#d1d5db",
+                                    cursor: role.isActive ? "pointer" : "not-allowed",
+                                    opacity: role.isActive ? 1 : 0.5,
+                                  }}
+                                  onMouseEnter={(e) => { if (role.isActive) e.currentTarget.style.backgroundColor = "#fffbeb"; }}
+                                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+                                >
+                                  <Pencil className="w-4 h-4" />
+                                </button>
 
-                          {/* Editar - DESHABILITADO SI INACTIVO */}
-                          <button
-                            onClick={() => role.isActive && handleEdit(role)}
-                            title={role.isActive ? "Editar" : "Activa el rol para editarlo"}
-                            disabled={!role.isActive}
-                            className="p-2 rounded-lg transition-colors"
-                            style={{ 
-                              color: role.isActive ? "#6b7c6b" : "#d1d5db", 
-                              cursor: role.isActive ? "pointer" : "not-allowed",
-                              opacity: role.isActive ? 1 : 0.5,
-                            }}
-                            onMouseEnter={(e) => { if (role.isActive) e.currentTarget.style.backgroundColor = "#f0ebe3"; }}
-                            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
-                          >
-                            <Pencil className="w-4 h-4" />
-                          </button>
-
-                          {/* Eliminar - DESHABILITADO SI INACTIVO */}
-                          <button
-                            onClick={() => { if (role.isActive) { setRoleToDelete(role.id); setDeleteDialogOpen(true); } }}
-                            title={role.isActive ? "Eliminar" : "Activa el rol para eliminarlo"}
-                            disabled={!role.isActive}
-                            className="p-2 rounded-lg transition-colors"
-                            style={{ 
-                              color: role.isActive ? "#c0392b" : "#d1d5db", 
-                              cursor: role.isActive ? "pointer" : "not-allowed",
-                              opacity: role.isActive ? 1 : 0.5,
-                            }}
-                            onMouseEnter={(e) => { if (role.isActive) e.currentTarget.style.backgroundColor = "#fdf2f2"; }}
-                            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      ) : null}
-                    </td>
-                  </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
+                                <button
+                                  onClick={() => { if (role.isActive) { setRoleToDelete(role.id); setDeleteDialogOpen(true); } }}
+                                  title={role.isActive ? "Eliminar" : "Activa el rol para eliminarlo"}
+                                  disabled={!role.isActive}
+                                  className="p-2 rounded-lg transition-colors"
+                                  style={{
+                                    color: role.isActive ? "#EF4444" : "#d1d5db",
+                                    cursor: role.isActive ? "pointer" : "not-allowed",
+                                    opacity: role.isActive ? 1 : 0.5,
+                                  }}
+                                  onMouseEnter={(e) => { if (role.isActive) e.currentTarget.style.backgroundColor = "#fef2f2"; }}
+                                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              </div>
+                            ) : null}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
         <RoleFormDialog
           open={isDialogOpen}

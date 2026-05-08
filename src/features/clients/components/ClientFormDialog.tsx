@@ -1,4 +1,4 @@
-// src/features/clients/components/ClientFormDialog.tsx
+﻿// src/features/clients/components/ClientFormDialog.tsx
 import { useRef, useState } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../../../shared/ui/dialog";
 import { Button } from "../../../shared/ui/button";

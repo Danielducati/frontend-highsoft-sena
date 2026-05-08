@@ -1,4 +1,4 @@
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../../../shared/ui/card";
+﻿import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../../../shared/ui/card";
 import { XCircle, CheckCircle2, Clock } from "lucide-react";
 
 interface CancelRateCardProps {
