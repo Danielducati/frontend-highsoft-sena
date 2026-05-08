@@ -8,8 +8,8 @@ interface SaleDetailDialogProps {
 }
 
 const fieldLabel: React.CSSProperties = {
-  fontSize: 11, fontWeight: 600, letterSpacing: "0.08em",
-  textTransform: "uppercase", color: "#6b7c6b",
+  fontSize: 11, fontWeight: 600, letterSpacing: "0.04em",
+  color: "#6b7c6b",
   marginBottom: 3, fontFamily: "var(--font-body)",
 };
 

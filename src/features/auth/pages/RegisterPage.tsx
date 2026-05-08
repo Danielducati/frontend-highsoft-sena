@@ -104,7 +104,7 @@ export function RegisterPage({ onBack, onRegisterSuccess }: RegisterPageProps) {
                   {/* Nombre y Apellido */}
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-1">
-                      <Label htmlFor="fullName" className="text-[10px] tracking-[0.18em]" style={{ color: "#6b7c6b" }}>NOMBRE</Label>
+                      <Label htmlFor="fullName" className="text-xs font-medium" style={{ color: "#6b7c6b" }}>Nombre</Label>
                       <Input id="fullName" type="text" value={formData.fullName}
                         onChange={(e) => handleChange("fullName", e.target.value)}
                         placeholder="Nombre" className="h-10 rounded-lg border-0 text-sm"
@@ -112,7 +112,7 @@ export function RegisterPage({ onBack, onRegisterSuccess }: RegisterPageProps) {
                       <Err msg={errors.fullName} />
                     </div>
                     <div className="space-y-1">
-                      <Label htmlFor="apellido" className="text-[10px] tracking-[0.18em]" style={{ color: "#6b7c6b" }}>APELLIDO</Label>
+                      <Label htmlFor="apellido" className="text-xs font-medium" style={{ color: "#6b7c6b" }}>Apellido</Label>
                       <Input id="apellido" type="text" value={formData.apellido}
                         onChange={(e) => handleChange("apellido", e.target.value)}
                         placeholder="Apellido" className="h-10 rounded-lg border-0 text-sm"
@@ -123,7 +123,7 @@ export function RegisterPage({ onBack, onRegisterSuccess }: RegisterPageProps) {
 
                   {/* Email */}
                   <div className="space-y-1">
-                    <Label htmlFor="email" className="text-[10px] tracking-[0.18em]" style={{ color: "#6b7c6b" }}>CORREO ELECTRÓNICO</Label>
+                    <Label htmlFor="email" className="text-xs font-medium" style={{ color: "#6b7c6b" }}>Correo electrónico</Label>
                     <Input id="email" type="email" value={formData.email}
                       onChange={(e) => handleChange("email", e.target.value)}
                       placeholder="correo@ejemplo.com" className="h-10 rounded-lg border-0 text-sm"
@@ -133,7 +133,7 @@ export function RegisterPage({ onBack, onRegisterSuccess }: RegisterPageProps) {
 
                   {/* Teléfono */}
                   <div className="space-y-1">
-                    <Label htmlFor="phone" className="text-[10px] tracking-[0.18em]" style={{ color: "#6b7c6b" }}>TELÉFONO</Label>
+                    <Label htmlFor="phone" className="text-xs font-medium" style={{ color: "#6b7c6b" }}>Teléfono</Label>
                     <Input id="phone" type="tel" value={formData.phone}
                       onChange={(e) => handleChange("phone", e.target.value)}
                       placeholder="3001234567" className="h-10 rounded-lg border-0 text-sm"
@@ -144,7 +144,7 @@ export function RegisterPage({ onBack, onRegisterSuccess }: RegisterPageProps) {
                   {/* Tipo documento y Número */}
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-1">
-                      <Label className="text-[10px] tracking-[0.18em]" style={{ color: "#6b7c6b" }}>TIPO DOCUMENTO</Label>
+                      <Label className="text-xs font-medium" style={{ color: "#6b7c6b" }}>Tipo de documento</Label>
                       <Select value={formData.tipocedula} onValueChange={(v) => handleChange("tipocedula", v)} disabled={loading}>
                         <SelectTrigger className="h-10 rounded-lg border-0 text-sm" style={inputStyle(errors.tipocedula)}>
                           <SelectValue placeholder="Seleccione" />
@@ -158,7 +158,7 @@ export function RegisterPage({ onBack, onRegisterSuccess }: RegisterPageProps) {
                       <Err msg={errors.tipocedula} />
                     </div>
                     <div className="space-y-1">
-                      <Label htmlFor="cedula" className="text-[10px] tracking-[0.18em]" style={{ color: "#6b7c6b" }}>NÚMERO</Label>
+                      <Label htmlFor="cedula" className="text-xs font-medium" style={{ color: "#6b7c6b" }}>Número</Label>
                       <Input id="cedula" type="text" value={formData.cedula}
                         onChange={(e) => handleChange("cedula", e.target.value)}
                         placeholder="1234567890" className="h-10 rounded-lg border-0 text-sm"
@@ -169,7 +169,7 @@ export function RegisterPage({ onBack, onRegisterSuccess }: RegisterPageProps) {
 
                   {/* Contraseña */}
                   <div className="space-y-1">
-                    <Label htmlFor="password" className="text-[10px] tracking-[0.18em]" style={{ color: "#6b7c6b" }}>CONTRASEÑA</Label>
+                    <Label htmlFor="password" className="text-xs font-medium" style={{ color: "#6b7c6b" }}>Contraseña</Label>
                     <div className="relative">
                       <Input id="password" type={showPassword ? "text" : "password"} value={formData.password}
                         onChange={(e) => handleChange("password", e.target.value)}
@@ -185,7 +185,7 @@ export function RegisterPage({ onBack, onRegisterSuccess }: RegisterPageProps) {
 
                   {/* Confirmar Contraseña */}
                   <div className="space-y-1">
-                    <Label htmlFor="confirmPassword" className="text-[10px] tracking-[0.18em]" style={{ color: "#6b7c6b" }}>CONFIRMAR CONTRASEÑA</Label>
+                    <Label htmlFor="confirmPassword" className="text-xs font-medium" style={{ color: "#6b7c6b" }}>Confirmar contraseña</Label>
                     <div className="relative">
                       <Input id="confirmPassword" type={showPassword ? "text" : "password"} value={formData.confirmPassword}
                         onChange={(e) => handleChange("confirmPassword", e.target.value)}

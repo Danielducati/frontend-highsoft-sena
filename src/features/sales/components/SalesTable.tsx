@@ -36,8 +36,8 @@ export function SalesTable({ sales, loading, onView }: SalesTableProps) {
       <table className="w-full" style={{ fontFamily: "var(--font-body)" }}>
         <thead>
           <tr style={{ borderBottom: "1px solid #E5E7EB" }}>
-            {["N°", "CLIENTE", "SERVICIO", "MÉTODO DE PAGO", "TOTAL", "FECHA", "ACCIONES"].map(col => (
-              <th key={col} className="px-6 py-4 text-left text-xs font-semibold tracking-widest" style={{ color: "#6b7c6b" }}>
+            {["N°", "Cliente", "Servicio", "Método de pago", "Total", "Fecha", "Acciones"].map(col => (
+              <th key={col} className="px-6 py-4 text-left text-xs font-semibold" style={{ color: "#6b7c6b" }}>
                 {col}
               </th>
             ))}

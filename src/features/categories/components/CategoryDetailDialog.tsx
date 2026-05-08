@@ -81,8 +81,7 @@ export function CategoryDetailDialog({ isOpen, onOpenChange, category }: Categor
                   style={{
                     fontSize: 11,
                     fontWeight: 600,
-                    letterSpacing: "0.08em",
-                    textTransform: "uppercase",
+                    letterSpacing: "0.04em",
                     color: "#6b7c6b",
                     marginBottom: 4,
                   }}
@@ -114,8 +113,7 @@ export function CategoryDetailDialog({ isOpen, onOpenChange, category }: Categor
                 style={{
                   fontSize: 11,
                   fontWeight: 600,
-                  letterSpacing: "0.08em",
-                  textTransform: "uppercase",
+                  letterSpacing: "0.04em",
                   color: "#6b7c6b",
                   marginBottom: 6,
                 }}
@@ -129,8 +127,7 @@ export function CategoryDetailDialog({ isOpen, onOpenChange, category }: Categor
                   borderRadius: 999,
                   fontSize: 12,
                   fontWeight: 600,
-                  letterSpacing: "0.06em",
-                  textTransform: "uppercase",
+                  letterSpacing: "0.04em",
                   ...(category.isActive
                     ? { backgroundColor: "#edf7f4", color: "#1a5c3a" }
                     : { backgroundColor: "#f3f4f6", color: "#9ca3af" }),

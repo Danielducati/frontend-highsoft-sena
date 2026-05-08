@@ -164,12 +164,12 @@ export function AccessPage({ userRole }: AccessModuleProps) {
       ) : (
         <div className="rounded-2xl overflow-hidden shadow-sm" style={{ backgroundColor: "#ffffff" }}>
           <div style={{ borderBottom: "1px solid #E5E7EB" }}>
-            <div className="hidden lg:grid lg:grid-cols-12 gap-3 px-6 py-4 text-xs font-semibold tracking-widest" style={{ color: "#6b7c6b", fontFamily: "var(--font-body)" }}>
-              <div className="col-span-3">PERMISO</div>
-              <div className="col-span-4">DESCRIPCIÓN</div>
-              <div className="col-span-2">MÓDULO</div>
-              <div className="col-span-1">ESTADO</div>
-              <div className="col-span-2 text-right">ACCIONES</div>
+            <div className="hidden lg:grid lg:grid-cols-12 gap-3 px-6 py-4 text-xs font-semibold" style={{ color: "#6b7c6b", fontFamily: "var(--font-body)" }}>
+              <div className="col-span-3">Permiso</div>
+              <div className="col-span-4">Descripción</div>
+              <div className="col-span-2">Módulo</div>
+              <div className="col-span-1">Estado</div>
+              <div className="col-span-2 text-right">Acciones</div>
             </div>
           </div>
           <div className="divide-y" style={{ borderColor: "#E5E7EB" }}>

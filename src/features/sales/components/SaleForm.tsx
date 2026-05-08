@@ -239,7 +239,7 @@ export function SaleForm({
           {/* Cliente ocasional */}
           {formData.guestMode && (
             <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 space-y-3">
-              <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">Datos del cliente ocasional</p>
+              <p className="text-xs font-semibold text-gray-500">Datos del cliente ocasional</p>
 
               {/* Tipo doc + Número */}
               <div className="grid grid-cols-2 gap-4">

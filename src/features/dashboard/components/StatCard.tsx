@@ -29,7 +29,7 @@ export function StatCard({ title, value, change, icon: Icon, color, periodLabel 
         </div>
         <div className="space-y-1">
           <p
-            className="text-xs uppercase tracking-widest mb-2"
+            className="text-xs font-medium mb-2"
             style={{ color: "#6b7c6b", fontFamily: "var(--font-body)" }}
           >
             {title}

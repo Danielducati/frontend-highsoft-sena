@@ -157,7 +157,7 @@ export function ResetPasswordPage({ onGoToLogin }: ResetPasswordPageProps) {
     <div className="min-h-screen flex flex-col" style={{ backgroundColor: "#F7F9FC", fontFamily: "var(--font-display)" }}>
       {/* Top bar */}
       <div className="flex items-start justify-end px-10 pt-8">
-        <div className="tracking-[0.25em] text-xs" style={{ color: "#1a3a2a" }}>HIGHLIFE SPA</div>
+        <div className="text-xs font-medium" style={{ color: "#1a3a2a" }}>Highlife Spa</div>
       </div>
 
       <div className="flex-1 flex items-center justify-center px-4 py-10">
@@ -183,8 +183,8 @@ export function ResetPasswordPage({ onGoToLogin }: ResetPasswordPageProps) {
 
               {/* Nueva contraseña */}
               <div className="space-y-1.5">
-                <Label className="text-[10px] tracking-[0.18em]" style={{ color: "#6b7c6b" }}>
-                  NUEVA CONTRASEÑA
+                <Label className="text-xs font-medium" style={{ color: "#6b7c6b" }}>
+                  Nueva contraseña
                 </Label>
                 <div className="relative">
                   <Input
@@ -206,8 +206,8 @@ export function ResetPasswordPage({ onGoToLogin }: ResetPasswordPageProps) {
 
               {/* Confirmar contraseña */}
               <div className="space-y-1.5">
-                <Label className="text-[10px] tracking-[0.18em]" style={{ color: "#6b7c6b" }}>
-                  CONFIRMAR CONTRASEÑA
+                <Label className="text-xs font-medium" style={{ color: "#6b7c6b" }}>
+                  Confirmar contraseña
                 </Label>
                 <div className="relative">
                   <Input

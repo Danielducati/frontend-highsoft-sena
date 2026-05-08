@@ -335,7 +335,7 @@ export function AppointmentsPage({ userRole }: AppointmentsModuleProps) {
 
                   {/* Cabecera de días — sticky para que quede fija al hacer scroll */}
                   <div className="grid grid-cols-8 border-b border-gray-200 sticky top-0 z-40" style={{ background: "#f8f9fa" }}>
-                    <div className="p-3 border-r border-gray-200 text-gray-500 text-xs uppercase tracking-wide">Hora</div>
+                    <div className="p-3 border-r border-gray-200 text-gray-500 text-xs font-medium">Hora</div>
                     {getWeekDates().map((date, idx) => (
                       <div key={idx} className="p-3 border-r border-gray-200 last:border-r-0 text-center"
                         style={{
@@ -346,7 +346,7 @@ export function AppointmentsPage({ userRole }: AppointmentsModuleProps) {
                             : "transparent"
                         }}
                       >
-                        <div className={`text-xs uppercase tracking-wide ${isPastDate(date) ? "text-gray-400" : "text-gray-500"}`}>
+                        <div className={`text-xs font-medium ${isPastDate(date) ? "text-gray-400" : "text-gray-500"}`}>
                           {WEEK_DAYS[idx]}
                         </div>
                         <div className={`mt-1 text-lg font-semibold ${
