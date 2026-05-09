@@ -1,9 +1,168 @@
 import '../../shared/styles/landing.css';
+import { useState, useEffect, useRef } from 'react';
 import { ImageWithFallback } from '../guidelines/figma/ImageWithFallback';
-import { Phone, Mail, MapPin, Facebook, Instagram } from 'lucide-react';
+import { Phone, Mail, MapPin, Facebook, Instagram, ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface LandingPageProps {
   onNavigate: (page: string) => void;
+}
+
+// Imágenes de fallback por categoría cuando el servicio no tiene imagen propia
+const CATEGORY_FALLBACKS: Record<string, string> = {
+  masajes:      "https://images.unsplash.com/photo-1519823551278-64ac92734fb1?w=700&q=85",
+  masaje:       "https://images.unsplash.com/photo-1519823551278-64ac92734fb1?w=700&q=85",
+  cosmetología: "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=700&q=85",
+  cosmetologia: "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=700&q=85",
+  facial:       "https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=700&q=85",
+  uñas:         "https://images.unsplash.com/photo-1604654894610-df63bc536371?w=700&q=85",
+  unas:         "https://images.unsplash.com/photo-1604654894610-df63bc536371?w=700&q=85",
+  cabello:      "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=700&q=85",
+  barbería:     "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=700&q=85",
+  barberia:     "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=700&q=85",
+  default:      "https://images.unsplash.com/photo-1515377905703-c4788e51af15?w=700&q=85",
+};
+
+function getFallbackImg(category: string): string {
+  const key = category.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  for (const [k, v] of Object.entries(CATEGORY_FALLBACKS)) {
+    if (key.includes(k)) return v;
+  }
+  return CATEGORY_FALLBACKS.default;
+}
+
+function formatPrice(price: number): string {
+  return `$${price.toLocaleString("es-CO")}`;
+}
+
+interface Service {
+  id: string;
+  name: string;
+  category: string;
+  duration: number;
+  price: number;
+  image: string;
+}
+
+const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3001";
+const VISIBLE = 3;
+
+function ServiceCarousel({ onNavigate }: { onNavigate: (p: string) => void }) {
+  const [services, setServices] = useState<Service[]>([]);
+  const [loading,  setLoading]  = useState(true);
+  const [current,  setCurrent]  = useState(0);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    fetch(`${API_URL}/services`)
+      .then(r => r.json())
+      .then((data: any[]) => {
+        const mapped: Service[] = data.map(s => ({
+          id:       String(s.id),
+          name:     s.name ?? s.nombre ?? "",
+          category: s.category ?? s.categoria ?? "",
+          duration: s.duration ?? s.duracion ?? 0,
+          price:    s.price ?? s.precio ?? 0,
+          image:    s.image ?? s.imagen ?? s.imagenServicio ?? "",
+        }));
+        setServices(mapped);
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  const total = services.length;
+
+  const go = (dir: 1 | -1) => {
+    if (total === 0) return;
+    setCurrent(c => (c + dir + total) % total);
+  };
+
+  const resetTimer = (dir: 1 | -1) => {
+    if (timerRef.current) clearInterval(timerRef.current);
+    go(dir);
+    timerRef.current = setInterval(() => go(1), 4000);
+  };
+
+  useEffect(() => {
+    if (total === 0) return;
+    timerRef.current = setInterval(() => go(1), 4000);
+    return () => { if (timerRef.current) clearInterval(timerRef.current); };
+  }, [total]);
+
+  if (loading) return (
+    <div style={{ textAlign: "center", padding: "4rem", color: "var(--hl-mist)", fontFamily: "var(--hl-font-body)" }}>
+      Cargando servicios...
+    </div>
+  );
+
+  if (total === 0) return null;
+
+  const visibleCount = Math.min(VISIBLE, total);
+  const indices = Array.from({ length: visibleCount }, (_, i) => (current + i) % total);
+
+  return (
+    <div className="hl-carousel">
+      {/* Flecha izquierda */}
+      {total > VISIBLE && (
+        <button className="hl-carousel__arrow hl-carousel__arrow--left" onClick={() => resetTimer(-1)} aria-label="Anterior">
+          <ChevronLeft size={22} />
+        </button>
+      )}
+
+      {/* Track */}
+      <div className="hl-carousel__track" style={{ gridTemplateColumns: `repeat(${visibleCount}, 1fr)` }}>
+        {indices.map((idx, pos) => {
+          const s = services[idx];
+          const img = s.image || getFallbackImg(s.category);
+          return (
+            <div key={`${s.id}-${pos}`} className="hl-carousel__card">
+              <div className="hl-carousel__img-wrap">
+                <ImageWithFallback src={img} alt={s.name} className="hl-carousel__img" />
+                <div className="hl-carousel__overlay" />
+              </div>
+              <div className="hl-carousel__info">
+                <p className="hl-carousel__category">{s.category.toUpperCase()}</p>
+                <h3 className="hl-carousel__name">{s.name}</h3>
+                <div className="hl-carousel__meta">
+                  <span className="hl-carousel__price">{formatPrice(s.price)}</span>
+                  {s.duration > 0 && (
+                    <>
+                      <span className="hl-carousel__dot">·</span>
+                      <span className="hl-carousel__duration">{s.duration} min</span>
+                    </>
+                  )}
+                </div>
+                <button className="hl-carousel__cta" onClick={() => onNavigate('login')}>
+                  Reservar
+                </button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Flecha derecha */}
+      {total > VISIBLE && (
+        <button className="hl-carousel__arrow hl-carousel__arrow--right" onClick={() => resetTimer(1)} aria-label="Siguiente">
+          <ChevronRight size={22} />
+        </button>
+      )}
+
+      {/* Dots */}
+      {total > VISIBLE && (
+        <div className="hl-carousel__dots">
+          {services.map((_, i) => (
+            <button
+              key={i}
+              className={`hl-carousel__dot-btn${i === current ? " hl-carousel__dot-btn--active" : ""}`}
+              onClick={() => setCurrent(i)}
+              aria-label={`Ir a ${services[i].name}`}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
 }
 
 export function LandingPage({ onNavigate }: LandingPageProps) {
@@ -102,55 +261,9 @@ export function LandingPage({ onNavigate }: LandingPageProps) {
         <button className="hl-link-upper">VER TODOS LOS RITUALES →</button>
       </section>
 
-      {/* ── SERVICES GRID ── */}
-      <section className="hl-grid">
-        {/* Tall left */}
-        <div className="hl-card hl-card--tall">
-          <ImageWithFallback
-            src="https://images.unsplash.com/photo-1604654894610-df63bc536371?w=500&q=80"
-            alt="Manicure"
-            className="hl-card__img"
-          />
-          <div className="hl-card__info">
-            <p className="hl-card__category">CUIDADO ESTÉTICO</p>
-            <h3 className="hl-card__name">Manicure &amp; Pedicura</h3>
-          </div>
-        </div>
-
-        {/* Featured top-right */}
-        <div className="hl-card hl-card--featured">
-          <ImageWithFallback
-            src="https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=700&q=80"
-            alt="Masaje"
-            className="hl-card__img"
-          />
-          <div className="hl-card__info">
-            <p className="hl-card__category">TERAPIA CORPORAL</p>
-            <h3 className="hl-card__name">Masajes de Relajación</h3>
-            <span className="hl-card__price">Desde $85</span>
-          </div>
-        </div>
-
-        {/* Portrait bottom-center */}
-        <div className="hl-card hl-card--portrait">
-          <ImageWithFallback
-            src="https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=500&q=80"
-            alt="Facial"
-            className="hl-card__img"
-          />
-        </div>
-
-        {/* CTA bottom-right */}
-        <div className="hl-card hl-card--cta">
-          <span className="hl-card__sparkle">✦</span>
-          <h3 className="hl-card__name">Experiencia Personalizada</h3>
-          <p className="hl-card__desc">
-            ¿No sabes qué elegir? Déjanos asesorarte para crear un plan a tu medida.
-          </p>
-          <button className="hl-link-upper" onClick={() => onNavigate('login')}>
-            CONSULTAR AHORA
-          </button>
-        </div>
+      {/* ── SERVICES CAROUSEL ── */}
+      <section className="hl-carousel-section">
+        <ServiceCarousel onNavigate={onNavigate} />
       </section>
 
       {/* ── QUOTE ── */}

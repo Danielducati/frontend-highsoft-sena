@@ -11,8 +11,10 @@ import { useClients } from "../hooks/useClients";
 import { ClientFormDialog } from "../components/ClientFormDialog";
 import { ClientViewDialog } from "../components/ClientViewDialog";
 import { ClientDeleteDialog } from "../components/ClientDeleteDialog";
+import { usePermisos } from "../../../shared/hooks/usePermisos";
 
 export function ClientsPage({ userRole }: ClientsModuleProps) {
+  const { can } = usePermisos();
   const {
     clients, filteredClients, paginatedClients,
     searchTerm, handleSearchChange,
@@ -148,7 +150,7 @@ export function ClientsPage({ userRole }: ClientsModuleProps) {
 
                         {/* SWITCH DE ESTADO */}
                         <td className="px-4 py-3">
-                          {userRole === "admin" ? (
+                          {can("clientes.editar") ? (
                             <button
                               onClick={() => handleToggleStatus(client.id)}
                               title={client.isActive ? "Desactivar cliente" : "Activar cliente"}
@@ -199,7 +201,7 @@ export function ClientsPage({ userRole }: ClientsModuleProps) {
                             >
                               <Eye className="w-4 h-4" />
                             </button>
-                            {userRole === "admin" && (
+                            {can("clientes.editar") && (
                               <>
                                 <button
                                   onClick={() => client.isActive && handleEdit(client)}

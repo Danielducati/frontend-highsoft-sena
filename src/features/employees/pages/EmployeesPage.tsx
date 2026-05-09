@@ -12,8 +12,10 @@ import { EmployeeViewDialog } from "../components/EmployeeViewDialog";
 import { EmployeeDeleteDialog } from "../components/EmployeeDeleteDialog";
 import { ImageWithFallback } from "../../guidelines/figma/ImageWithFallback";
 import { SpaPage } from "../../../shared/components/layout/SpaPage";
+import { usePermisos } from "../../../shared/hooks/usePermisos";
 
 export function EmployeesPage({ userRole }: EmployeesModuleProps) {
+  const { can } = usePermisos();
   const {
     employees, categories, loading, saving,
     searchTerm, setSearchTerm,
@@ -39,7 +41,7 @@ export function EmployeesPage({ userRole }: EmployeesModuleProps) {
       subtitle={`${employees.length} empleados • ${activeEmployees} activos`}
       icon={<Users className="w-6 h-6" style={{ color: "#1a3a2a" }} />}
       action={
-        userRole === "admin" ? (
+        can("empleados.crear") ? (
           <button
             onClick={() => { resetForm(); setIsDialogOpen(true); }}
             style={{
@@ -186,7 +188,7 @@ export function EmployeesPage({ userRole }: EmployeesModuleProps) {
 
                         {/* Estado */}
                         <td className="px-4 py-3">
-                          {userRole === "admin" ? (
+                          {can("empleados.editar") ? (
                             <div className="flex items-center gap-2">
                               <Switch
                                 checked={employee.isActive}
@@ -213,7 +215,7 @@ export function EmployeesPage({ userRole }: EmployeesModuleProps) {
                         </td>
 
                         {/* Acciones */}
-                        {userRole === "admin" && (
+                        {can("empleados.editar") && (
                           <td className="px-4 py-3">
                             <div className="flex items-center justify-center gap-1">
                               <button

@@ -91,21 +91,19 @@ export function ClientProfilePage() {
   };
 
   const handleSave = async () => {
-    if (!clientId) { toast.error("No se encontró tu perfil de cliente"); return; }
     if (!form.firstName.trim() || !form.lastName.trim()) {
       toast.error("Nombre y apellido son obligatorios"); return;
     }
     setSaving(true);
     try {
-      const res = await fetch(`${API_URL}/clients/${clientId}`, {
-        method: "PUT",
+      const res = await fetch(`${API_URL}/clients/mi-perfil`, {
+        method: "PATCH",
         headers: authHeaders(),
         body: JSON.stringify({
-          firstName:    form.firstName,
-          lastName:     form.lastName,
+          firstName:    form.firstName.trim(),
+          lastName:     form.lastName.trim(),
           documentType: form.documentType || null,
           document:     form.document     || null,
-          email:        form.email,
           phone:        form.phone        || null,
           address:      form.address      || null,
           image:        form.image        || null,
@@ -114,6 +112,15 @@ export function ClientProfilePage() {
       if (!res.ok) {
         const err = await res.json();
         throw new Error(err.error ?? "Error al guardar");
+      }
+      // Actualizar localStorage para que el header refleje los cambios
+      const stored = localStorage.getItem("usuario");
+      if (stored) {
+        const u = JSON.parse(stored);
+        u.nombre   = form.firstName.trim();
+        u.apellido = form.lastName.trim();
+        if (form.image) u.foto = form.image;
+        localStorage.setItem("usuario", JSON.stringify(u));
       }
       toast.success("Perfil actualizado correctamente");
     } catch (err: any) {
@@ -155,67 +162,112 @@ export function ClientProfilePage() {
       subtitle="Actualiza tu información personal"
       icon={<User className="w-6 h-6" style={{ color: "#1a3a2a" }} />}
     >
-      <div className="max-w-2xl space-y-6" style={{ fontFamily: "var(--font-body)" }}>
+      <div style={{ fontFamily: "var(--font-body)", display: "grid", gridTemplateColumns: "280px 1fr", gap: 20, alignItems: "stretch" }}>
 
-        {/* ── Foto ── */}
-        <div className="rounded-2xl p-6 shadow-sm" style={{ backgroundColor: "#ffffff" }}>
-          <p style={{ ...labelStyle, marginBottom: 16 }}>Foto de Perfil</p>
-          <div className="flex items-center gap-5">
-            <div style={{ position: "relative" }}>
-              <div style={{
-                width: 80, height: 80, borderRadius: "50%", overflow: "hidden",
-                border: "2px solid #E5E7EB", backgroundColor: "#edf7f4",
-                display: "flex", alignItems: "center", justifyContent: "center",
-              }}>
-                {uploadingImg
-                  ? <Loader2 style={{ width: 28, height: 28, color: "#9ca3af" }} className="animate-spin" />
-                  : imagePreview
-                    ? <img src={imagePreview} alt="Perfil" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                    : <ImageIcon style={{ width: 32, height: 32, color: "#9ca3af" }} />
-                }
-              </div>
-              {imagePreview && !uploadingImg && (
-                <button onClick={() => { setImagePreview(""); setForm(f => ({ ...f, image: "" })); }} style={{
-                  position: "absolute", top: -4, right: -4, width: 22, height: 22,
-                  borderRadius: "50%", backgroundColor: "#c0392b", color: "#fff",
-                  border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+        {/* ── Columna izquierda: Foto + Contraseña en una sola card ── */}
+        <div className="rounded-2xl p-5 shadow-sm" style={{ backgroundColor: "#ffffff", display: "flex", flexDirection: "column", justifyContent: "space-between", gap: 0 }}>
+
+          {/* Foto */}
+          <div>
+            <p style={{ fontSize: 13, fontWeight: 600, color: "#1a3a2a", marginBottom: 14 }}>Foto de Perfil</p>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
+              <div style={{ position: "relative" }}>
+                <div style={{
+                  width: 88, height: 88, borderRadius: "50%", overflow: "hidden",
+                  border: "3px solid #c8ead9", backgroundColor: "#edf7f4",
+                  display: "flex", alignItems: "center", justifyContent: "center",
                 }}>
-                  <X style={{ width: 12, height: 12 }} />
+                  {uploadingImg
+                    ? <Loader2 style={{ width: 26, height: 26, color: "#9ca3af" }} className="animate-spin" />
+                    : imagePreview
+                      ? <img src={imagePreview} alt="Perfil" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                      : <ImageIcon style={{ width: 32, height: 32, color: "#9ca3af" }} />
+                  }
+                </div>
+                {imagePreview && !uploadingImg && (
+                  <button onClick={() => { setImagePreview(""); setForm(f => ({ ...f, image: "" })); }} style={{
+                    position: "absolute", top: -2, right: -2, width: 20, height: 20,
+                    borderRadius: "50%", backgroundColor: "#c0392b", color: "#fff",
+                    border: "2px solid #fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+                  }}>
+                    <X style={{ width: 10, height: 10 }} />
+                  </button>
+                )}
+              </div>
+              <div style={{ textAlign: "center" }}>
+                <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} style={{ display: "none" }} />
+                <button onClick={() => fileInputRef.current?.click()} disabled={uploadingImg} style={{
+                  display: "inline-flex", alignItems: "center", gap: 6,
+                  padding: "7px 14px", borderRadius: 8, border: "1px solid #E5E7EB",
+                  backgroundColor: "#fff", color: "#1a3a2a", fontSize: 12,
+                  fontFamily: "var(--font-body)", cursor: uploadingImg ? "not-allowed" : "pointer",
+                }}>
+                  {uploadingImg
+                    ? <><Loader2 style={{ width: 12, height: 12 }} className="animate-spin" /> Subiendo...</>
+                    : <><Upload style={{ width: 12, height: 12 }} /> {imagePreview ? "Cambiar foto" : "Subir foto"}</>
+                  }
                 </button>
-              )}
-            </div>
-            <div>
-              <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} style={{ display: "none" }} />
-              <button onClick={() => fileInputRef.current?.click()} disabled={uploadingImg} style={{
-                ...inputStyle, width: "auto", display: "inline-flex", alignItems: "center",
-                gap: 8, cursor: uploadingImg ? "not-allowed" : "pointer",
-              }}>
-                {uploadingImg
-                  ? <><Loader2 style={{ width: 14, height: 14 }} className="animate-spin" /> Subiendo...</>
-                  : <><Upload style={{ width: 14, height: 14 }} /> Cambiar foto</>
-                }
-              </button>
-              <p style={{ fontSize: 11, color: "#9ca3af", marginTop: 4 }}>JPG, PNG o WEBP (máx. 5MB)</p>
+                <p style={{ fontSize: 10, color: "#9ca3af", marginTop: 5 }}>JPG, PNG o WEBP · máx. 5MB</p>
+              </div>
             </div>
           </div>
+
+          {/* Separador */}
+          <div style={{ borderTop: "1px solid #F3F4F6", margin: "18px 0" }} />
+
+          {/* Cambiar contraseña */}
+          <div>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
+              <Lock style={{ width: 14, height: 14, color: "#6b7c6b" }} />
+              <p style={{ fontSize: 13, fontWeight: 600, color: "#1a3a2a" }}>Cambiar Contraseña</p>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              <div>
+                <label style={labelStyle}>Contraseña Actual</label>
+                <input style={inputStyle} type="password" value={passForm.current} onChange={e => setPassForm(f => ({ ...f, current: e.target.value }))} placeholder="••••••••" />
+              </div>
+              <div>
+                <label style={labelStyle}>Nueva Contraseña</label>
+                <input style={inputStyle} type="password" value={passForm.next} onChange={e => setPassForm(f => ({ ...f, next: e.target.value }))} placeholder="Mínimo 6 caracteres" />
+              </div>
+              <div>
+                <label style={labelStyle}>Confirmar Contraseña</label>
+                <input style={inputStyle} type="password" value={passForm.confirm} onChange={e => setPassForm(f => ({ ...f, confirm: e.target.value }))} placeholder="Repite la contraseña" />
+              </div>
+              <button onClick={handleChangePassword} disabled={savingPass} style={{
+                display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8,
+                padding: "9px 0", borderRadius: 10, border: "none", width: "100%",
+                backgroundColor: savingPass ? "#9ca3af" : "#1a3a2a", color: "#fff",
+                fontSize: 13, fontWeight: 600, fontFamily: "var(--font-body)",
+                cursor: savingPass ? "not-allowed" : "pointer", marginTop: 2,
+              }}
+                onMouseEnter={e => { if (!savingPass) e.currentTarget.style.backgroundColor = "#2a5a40"; }}
+                onMouseLeave={e => { if (!savingPass) e.currentTarget.style.backgroundColor = "#1a3a2a"; }}
+              >
+                {savingPass ? <Loader2 style={{ width: 13, height: 13 }} className="animate-spin" /> : <Lock style={{ width: 13, height: 13 }} />}
+                {savingPass ? "Guardando..." : "Actualizar Contraseña"}
+              </button>
+            </div>
+          </div>
+
         </div>
 
-        {/* ── Datos personales ── */}
-        <div className="rounded-2xl p-6 shadow-sm space-y-4" style={{ backgroundColor: "#ffffff" }}>
-          <p style={{ fontSize: 15, fontWeight: 600, color: "#1a3a2a", marginBottom: 4 }}>Datos Personales</p>
+        {/* ── Columna derecha: Datos personales ── */}
+        <div className="rounded-2xl p-6 shadow-sm" style={{ backgroundColor: "#ffffff", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+          <p style={{ fontSize: 15, fontWeight: 600, color: "#1a3a2a", marginBottom: 20 }}>Datos Personales</p>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, flex: 1 }}>
+
             <div>
               <label style={labelStyle}>Nombre *</label>
               <input style={inputStyle} value={form.firstName} onChange={e => setForm(f => ({ ...f, firstName: e.target.value }))} placeholder="Juan" />
             </div>
+
             <div>
               <label style={labelStyle}>Apellido *</label>
               <input style={inputStyle} value={form.lastName} onChange={e => setForm(f => ({ ...f, lastName: e.target.value }))} placeholder="Pérez" />
             </div>
-          </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
             <div>
               <label style={labelStyle}>Tipo de Documento</label>
               <select style={inputStyle} value={form.documentType} onChange={e => setForm(f => ({ ...f, documentType: e.target.value }))}>
@@ -223,32 +275,38 @@ export function ClientProfilePage() {
                 {DOCUMENT_TYPES.map(({ value, label }) => <option key={value} value={value}>{label}</option>)}
               </select>
             </div>
+
             <div>
               <label style={labelStyle}>Número de Documento</label>
               <input style={inputStyle} value={form.document} onChange={e => setForm(f => ({ ...f, document: e.target.value }))} placeholder="1234567890" />
             </div>
-          </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
             <div>
               <label style={labelStyle}>Correo</label>
-              <input style={{ ...inputStyle, backgroundColor: "#F3F4F6", color: "#9ca3af" }} value={form.email} readOnly title="El correo no se puede cambiar desde aquí" />
+              <input
+                style={{ ...inputStyle, backgroundColor: "#F3F4F6", color: "#9ca3af", cursor: "not-allowed" }}
+                value={form.email}
+                readOnly
+                title="El correo no se puede cambiar desde aquí"
+              />
             </div>
+
             <div>
               <label style={labelStyle}>Teléfono</label>
               <input style={inputStyle} value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} placeholder="+57 300 123 4567" />
             </div>
+
+            <div style={{ gridColumn: "1 / -1" }}>
+              <label style={labelStyle}>Dirección</label>
+              <input style={inputStyle} value={form.address} onChange={e => setForm(f => ({ ...f, address: e.target.value }))} placeholder="Calle 123 #45-67, Bogotá" />
+            </div>
+
           </div>
 
-          <div>
-            <label style={labelStyle}>Dirección</label>
-            <input style={inputStyle} value={form.address} onChange={e => setForm(f => ({ ...f, address: e.target.value }))} placeholder="Calle 123 #45-67, Bogotá" />
-          </div>
-
-          <div style={{ display: "flex", justifyContent: "flex-end", paddingTop: 8 }}>
+          <div style={{ display: "flex", justifyContent: "flex-end", paddingTop: 20, borderTop: "1px solid #F3F4F6", marginTop: 20 }}>
             <button onClick={handleSave} disabled={saving} style={{
               display: "inline-flex", alignItems: "center", gap: 8,
-              padding: "10px 22px", borderRadius: 10, border: "none",
+              padding: "10px 28px", borderRadius: 10, border: "none",
               backgroundColor: saving ? "#9ca3af" : "#1a3a2a", color: "#fff",
               fontSize: 14, fontWeight: 600, fontFamily: "var(--font-body)",
               cursor: saving ? "not-allowed" : "pointer",
@@ -258,45 +316,6 @@ export function ClientProfilePage() {
             >
               {saving ? <Loader2 style={{ width: 14, height: 14 }} className="animate-spin" /> : <Save style={{ width: 14, height: 14 }} />}
               {saving ? "Guardando..." : "Guardar Cambios"}
-            </button>
-          </div>
-        </div>
-
-        {/* ── Cambiar contraseña ── */}
-        <div className="rounded-2xl p-6 shadow-sm space-y-4" style={{ backgroundColor: "#ffffff" }}>
-          <div className="flex items-center gap-2" style={{ marginBottom: 4 }}>
-            <Lock style={{ width: 16, height: 16, color: "#6b7c6b" }} />
-            <p style={{ fontSize: 15, fontWeight: 600, color: "#1a3a2a" }}>Cambiar Contraseña</p>
-          </div>
-
-          <div>
-            <label style={labelStyle}>Contraseña Actual</label>
-            <input style={inputStyle} type="password" value={passForm.current} onChange={e => setPassForm(f => ({ ...f, current: e.target.value }))} placeholder="••••••••" />
-          </div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-            <div>
-              <label style={labelStyle}>Nueva Contraseña</label>
-              <input style={inputStyle} type="password" value={passForm.next} onChange={e => setPassForm(f => ({ ...f, next: e.target.value }))} placeholder="Mínimo 6 caracteres" />
-            </div>
-            <div>
-              <label style={labelStyle}>Confirmar Contraseña</label>
-              <input style={inputStyle} type="password" value={passForm.confirm} onChange={e => setPassForm(f => ({ ...f, confirm: e.target.value }))} placeholder="Repite la contraseña" />
-            </div>
-          </div>
-
-          <div style={{ display: "flex", justifyContent: "flex-end", paddingTop: 8 }}>
-            <button onClick={handleChangePassword} disabled={savingPass} style={{
-              display: "inline-flex", alignItems: "center", gap: 8,
-              padding: "10px 22px", borderRadius: 10, border: "none",
-              backgroundColor: savingPass ? "#9ca3af" : "#1a3a2a", color: "#fff",
-              fontSize: 14, fontWeight: 600, fontFamily: "var(--font-body)",
-              cursor: savingPass ? "not-allowed" : "pointer",
-            }}
-              onMouseEnter={e => { if (!savingPass) e.currentTarget.style.backgroundColor = "#2a5a40"; }}
-              onMouseLeave={e => { if (!savingPass) e.currentTarget.style.backgroundColor = "#1a3a2a"; }}
-            >
-              {savingPass ? <Loader2 style={{ width: 14, height: 14 }} className="animate-spin" /> : <Lock style={{ width: 14, height: 14 }} />}
-              {savingPass ? "Guardando..." : "Actualizar Contraseña"}
             </button>
           </div>
         </div>
