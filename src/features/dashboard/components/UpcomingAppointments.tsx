@@ -1,4 +1,5 @@
-﻿import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../../../shared/ui/card";
+﻿//frontend-highsoft-sena\src\features\dashboard\components\UpcomingAppointments.tsx
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../../../shared/ui/card";
 import { Calendar, Clock, User, Scissors } from "lucide-react";
 
 interface Appointment {
