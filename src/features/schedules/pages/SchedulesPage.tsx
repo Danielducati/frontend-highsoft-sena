@@ -30,6 +30,8 @@ export function SchedulesPage({ userRole }: SchedulesModuleProps) {
     filterEmployee, setFilterEmployee,
     formWeekStart, formData, setFormData,
     formWeekDays,
+    selectedMonth, weeksOfMonth,
+    goToPreviousMonth, goToNextMonth,
     goToPreviousWeek, goToNextWeek,
     toggleDay, updateDaySchedule,
     handleCreateOrUpdate, handleDelete, handleRenewWeek,
@@ -49,7 +51,7 @@ export function SchedulesPage({ userRole }: SchedulesModuleProps) {
 
   return (
     <SpaPage
-      title="Horarios Semanales"
+      title="Horarios Mensuales"
       subtitle="Gestión de turnos y disponibilidad del personal"
       icon={<Calendar className="w-5 h-5 text-[#1a5c3a]" />}
       action={
@@ -281,6 +283,10 @@ export function SchedulesPage({ userRole }: SchedulesModuleProps) {
         editingSchedule={editingSchedule}
         formData={formData}
         setFormData={setFormData}
+        selectedMonth={selectedMonth}
+        weeksOfMonth={weeksOfMonth}
+        onPreviousMonth={goToPreviousMonth}
+        onNextMonth={goToNextMonth}
         formWeekStart={formWeekStart}
         formWeekDays={formWeekDays}
         employees={employees}

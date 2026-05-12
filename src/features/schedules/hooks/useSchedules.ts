@@ -6,7 +6,34 @@ import { getMondayOfWeek, getWeekDays, formatDateToISO } from "../utils";
 import { WEEK_DAYS_LABELS } from "../constants";
 import { schedulesApi } from "../services/schedulesApi";
 
-const DEFAULT_WEEK = getMondayOfWeek(new Date());
+// ── Helpers de mes ────────────────────────────────────────────────────────────
+
+/** Primer lunes del mes */
+function getFirstMondayOfMonth(year: number, month: number): Date {
+  const first = new Date(Date.UTC(year, month, 1));
+  const dow   = first.getUTCDay(); // 0=Dom
+  const diff  = dow === 0 ? 1 : dow === 1 ? 0 : 8 - dow;
+  return new Date(Date.UTC(year, month, 1 + diff));
+}
+
+/** Todas las semanas (lunes) que caen dentro del mes */
+function getWeeksOfMonth(year: number, month: number): string[] {
+  const weeks: string[] = [];
+  let monday = getFirstMondayOfMonth(year, month);
+  while (monday.getUTCMonth() === month) {
+    weeks.push(monday.toISOString().split("T")[0]);
+    monday = new Date(Date.UTC(monday.getUTCFullYear(), monday.getUTCMonth(), monday.getUTCDate() + 7));
+  }
+  return weeks;
+}
+
+/** Nombre del mes en español */
+export function formatMonthLabel(year: number, month: number): string {
+  return new Date(year, month, 1).toLocaleDateString("es-ES", { month: "long", year: "numeric" });
+}
+
+const now = new Date();
+const INITIAL_MONTH = { year: now.getFullYear(), month: now.getMonth() };
 const EMPTY_FORM: ScheduleFormData = { employeeId: "", daySchedules: [] };
 
 export function useSchedules() {
@@ -21,13 +48,22 @@ export function useSchedules() {
   const [filterEmployee,   setFilterEmployee]   = useState("all");
   const [detailDialogOpen, setDetailDialogOpen] = useState(false);
   const [viewingSchedule,  setViewingSchedule]  = useState<WeeklySchedule | null>(null);
-  const [formWeekStart,    setFormWeekStart]    = useState<Date>(DEFAULT_WEEK);
-  const [formData,         setFormData]         = useState<ScheduleFormData>(EMPTY_FORM);
+
+  // ── Estado del formulario mensual ─────────────────────────────────────────
+  const [selectedMonth, setSelectedMonth] = useState(INITIAL_MONTH);
+  const [formData,      setFormData]      = useState<ScheduleFormData>(EMPTY_FORM);
+
+  // Semanas del mes seleccionado
+  const weeksOfMonth = getWeeksOfMonth(selectedMonth.year, selectedMonth.month);
+
+  // Para compatibilidad con ScheduleFormDialog (edición de semana individual)
+  const [formWeekStart, setFormWeekStart] = useState<Date>(
+    new Date(weeksOfMonth[0] + "T12:00:00")
+  );
+  const formWeekDays = getWeekDays(formWeekStart);
 
   // ── Cargar datos al montar ─────────────────────────────────────────────────
-  useEffect(() => {
-    fetchAll();
-  }, []);
+  useEffect(() => { fetchAll(); }, []);
 
   const fetchAll = async () => {
     try {
@@ -50,18 +86,26 @@ export function useSchedules() {
     setSchedules(data);
   };
 
-  // ── Semana en el formulario ────────────────────────────────────────────────
-  const goToPreviousWeek = () => {
-    const d = new Date(formWeekStart);
-    d.setDate(d.getDate() - 7);
-    setFormWeekStart(d);
+  // ── Navegación de mes ──────────────────────────────────────────────────────
+  const goToPreviousMonth = () => {
+    setSelectedMonth(prev => {
+      const m = prev.month === 0 ? 11 : prev.month - 1;
+      const y = prev.month === 0 ? prev.year - 1 : prev.year;
+      return { year: y, month: m };
+    });
   };
 
-  const goToNextWeek = () => {
-    const d = new Date(formWeekStart);
-    d.setDate(d.getDate() + 7);
-    setFormWeekStart(d);
+  const goToNextMonth = () => {
+    setSelectedMonth(prev => {
+      const m = prev.month === 11 ? 0 : prev.month + 1;
+      const y = prev.month === 11 ? prev.year + 1 : prev.year;
+      return { year: y, month: m };
+    });
   };
+
+  // Alias para compatibilidad con ScheduleFormDialog
+  const goToPreviousWeek = goToPreviousMonth;
+  const goToNextWeek     = goToNextMonth;
 
   // ── Días en el formulario ──────────────────────────────────────────────────
   const toggleDay = (dayIndex: number) => {
@@ -101,21 +145,46 @@ export function useSchedules() {
       }
     }
 
-    const weekStartDate = formatDateToISO(formWeekStart);
-
     try {
       if (editingSchedule) {
-        // Siempre usar la weekStartDate ORIGINAL del horario que se edita
-        await schedulesApi.update(formData.employeeId, editingSchedule.weekStartDate, formData.daySchedules);
+        // Edición: actualiza solo esa semana
+        await schedulesApi.update(
+          formData.employeeId,
+          editingSchedule.weekStartDate,
+          formData.daySchedules
+        );
         toast.success("Horario actualizado exitosamente");
       } else {
-        await schedulesApi.create({
-          employeeId:    formData.employeeId,
-          weekStartDate,
-          daySchedules:  formData.daySchedules,
-        });
-        toast.success("Horario creado exitosamente");
+        // Creación: aplica el patrón a TODAS las semanas del mes
+        const weeks = getWeeksOfMonth(selectedMonth.year, selectedMonth.month);
+        let created = 0;
+        let skipped = 0;
+
+        for (const weekStartDate of weeks) {
+          // Verificar si ya existe horario para ese empleado en esa semana
+          const yaExiste = schedules.some(
+            s => s.employeeId === formData.employeeId && s.weekStartDate === weekStartDate
+          );
+          if (yaExiste) { skipped++; continue; }
+
+          await schedulesApi.create({
+            employeeId:   formData.employeeId,
+            weekStartDate,
+            daySchedules: formData.daySchedules,
+          });
+          created++;
+        }
+
+        if (created > 0 && skipped === 0) {
+          toast.success(`Horario creado para ${created} semana${created !== 1 ? "s" : ""} del mes`);
+        } else if (created > 0 && skipped > 0) {
+          toast.success(`${created} semana${created !== 1 ? "s" : ""} creada${created !== 1 ? "s" : ""}. ${skipped} omitida${skipped !== 1 ? "s" : ""} (ya existían).`);
+        } else {
+          toast.error("Ya existen horarios para todas las semanas de este mes para este empleado.");
+          return;
+        }
       }
+
       await reload();
       resetForm();
     } catch (err: any) {
@@ -128,12 +197,11 @@ export function useSchedules() {
     const nextMonday = new Date(Date.UTC(y, m - 1, d + 7));
     const nextWeekStartDate = nextMonday.toISOString().split("T")[0];
 
-    // Verificar si ya existe un horario para ese empleado en la semana siguiente
     const yaExiste = schedules.some(
       s => s.employeeId === schedule.employeeId && s.weekStartDate === nextWeekStartDate
     );
     if (yaExiste) {
-      toast.error(`Ya existe un horario para ${schedule.employeeName} en la semana del ${nextWeekStartDate}. Elimínalo primero.`);
+      toast.error(`Ya existe un horario para ${schedule.employeeName} en la semana del ${nextWeekStartDate}.`);
       return;
     }
 
@@ -148,7 +216,6 @@ export function useSchedules() {
       await reload();
     } catch (err: any) {
       toast.error(err.message ?? "Error al actualizar semana");
-      // Recargar para reflejar el estado real (por si el delete sí se ejecutó)
       await reload();
     }
   };
@@ -174,7 +241,6 @@ export function useSchedules() {
 
   const handleEdit = (schedule: WeeklySchedule) => {
     setEditingSchedule(schedule);
-    // Usar T12:00:00 para evitar que el offset local desplace el día
     setFormWeekStart(new Date(schedule.weekStartDate + "T12:00:00"));
     setFormData({ employeeId: schedule.employeeId, daySchedules: [...schedule.daySchedules] });
     setIsDialogOpen(true);
@@ -188,8 +254,9 @@ export function useSchedules() {
   const resetForm = () => {
     setIsDialogOpen(false);
     setEditingSchedule(null);
-    setFormWeekStart(DEFAULT_WEEK);
     setFormData(EMPTY_FORM);
+    const n = new Date();
+    setSelectedMonth({ year: n.getFullYear(), month: n.getMonth() });
   };
 
   const clearFilters = () => {
@@ -201,9 +268,8 @@ export function useSchedules() {
   const filteredSchedules = schedules
     .filter(s => s.isActive)
     .filter(s => filterEmployee === "all" || s.employeeId === filterEmployee)
-    .filter(s => !searchTerm || s.employeeName.toLowerCase().includes(searchTerm.toLowerCase()));
-
-  const formWeekDays = getWeekDays(formWeekStart);
+    .filter(s => !searchTerm || s.employeeName.toLowerCase().includes(searchTerm.toLowerCase()))
+    .sort((a, b) => b.weekStartDate.localeCompare(a.weekStartDate));
 
   return {
     schedules, filteredSchedules, employees, loading,
@@ -214,7 +280,11 @@ export function useSchedules() {
     viewingSchedule,
     searchTerm, setSearchTerm,
     filterEmployee, setFilterEmployee,
-    formWeekStart, formData, setFormData,
+    // Mes
+    selectedMonth, setSelectedMonth, weeksOfMonth,
+    goToPreviousMonth, goToNextMonth,
+    // Compatibilidad con ScheduleFormDialog
+    formWeekStart, setFormWeekStart, formData, setFormData,
     formWeekDays,
     goToPreviousWeek, goToNextWeek,
     toggleDay, updateDaySchedule,
