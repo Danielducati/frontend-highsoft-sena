@@ -45,7 +45,7 @@ export function AppointmentFormDialog({
       <DialogContent className="hl-form-dialog max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <CalendarIcon className="w-5 h-5 text-[#A78BFA]" />
+            <CalendarIcon className="w-5 h-5" style={{ color: "#1a3a2a" }} />
             {editingAppointment ? "Editar Cita" : "Nueva Cita"}
           </DialogTitle>
           <DialogDescription>
@@ -54,20 +54,7 @@ export function AppointmentFormDialog({
         </DialogHeader>
 
         <div className="space-y-4">
-          {formData.date && formData.startTime && !editingAppointment && (
-            <div className="p-3 rounded-lg bg-gradient-to-r from-[#A78BFA]/10 to-[#78D1BD]/10 border border-[#A78BFA]/30">
-              <div className="flex items-center gap-2 text-sm text-gray-900">
-                <CalendarIcon className="w-4 h-4 text-[#A78BFA]" />
-                <span className="capitalize">
-                  {formData.date.toLocaleDateString("es-ES", { weekday: "long", day: "numeric", month: "long" })}
-                </span>
-                <span className="text-gray-400">•</span>
-                <Clock className="w-4 h-4 text-[#1a5c3a]" />
-                {/* Mostrar la hora del primer servicio ya agregado, o la hora seleccionada si no hay servicios */}
-                <span>{selectedServices.length > 0 ? selectedServices[0].startTime : formData.startTime}</span>
-              </div>
-            </div>
-          )}
+          {/* Resumen de fecha/hora eliminado — la info ya está en los campos de abajo */}
 
           {/* Cliente */}
           <div className="space-y-2">
