@@ -143,8 +143,8 @@ export function ClientProfilePage() {
         image:            form.image        || null,
       });
 
-      const res = await fetch(`${API_URL}/clients/${clientId}`, {
-        method: "PUT", headers: authHeaders(), body,
+      const res = await fetch(`${API_URL}/clients/mi-perfil`, {
+        method: "PATCH", headers: authHeaders(), body,
       });
 
       if (!res.ok) {

@@ -93,6 +93,11 @@ export function useAppointments(userRole?: string) {
       }
     }
     loadAll();
+
+    // Escuchar evento de recarga (disparado al aprobar una cotización)
+    const handleReload = () => reloadAppointments();
+    window.addEventListener("appointments:reload", handleReload);
+    return () => window.removeEventListener("appointments:reload", handleReload);
   }, []);
 
   // Cargar empleados disponibles cuando cambia la fecha del formulario o se abre el dialog

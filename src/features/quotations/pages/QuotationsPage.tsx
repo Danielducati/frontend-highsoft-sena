@@ -1,4 +1,4 @@
-﻿import { FileText, Search, Filter, Eye, Pencil, X } from "lucide-react";
+﻿import { FileText, Search, Filter, Eye, Pencil, X, CheckCircle } from "lucide-react";
 import { QuotationsModuleProps, QuotationStatus } from "../types";
 import { ITEMS_PER_PAGE, STATUS_COLORS, STATUS_LABELS, STATUS_OPTIONS } from "../constants";
 import { useQuotations } from "../hooks/useQuotations";
@@ -265,6 +265,18 @@ export function QuotationsPage({ userRole }: QuotationsModuleProps) {
                         onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}>
                         <Eye className="w-4 h-4" />
                       </button>
+                      {userRole === "client" && q.status === "pending" && (
+                        <button
+                          onClick={() => handleStatusChange(q.id, "approved")}
+                          title="Aprobar cotización"
+                          className="p-2 rounded-lg transition-colors"
+                          style={{ color: "#1a5c3a" }}
+                          onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#edf7f4")}
+                          onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
+                        >
+                          <CheckCircle className="w-4 h-4" />
+                        </button>
+                      )}
                       {userRole !== "client" && (
                         <>
                           <button onClick={() => handleEdit(q)} title="Editar"
@@ -344,7 +356,14 @@ export function QuotationsPage({ userRole }: QuotationsModuleProps) {
       )}
 
       {/* ── Dialogs ── */}
-      <QuotationViewDialog quotation={viewingQuotation} onClose={() => setViewingQuotation(null)} />
+      <QuotationViewDialog
+        quotation={viewingQuotation}
+        onClose={() => setViewingQuotation(null)}
+        userRole={userRole}
+        onApprove={async (id) => {
+          await handleStatusChange(id, "approved");
+        }}
+      />
       <QuotationCancelDialog open={cancelDialogOpen} onOpenChange={setCancelDialogOpen} onConfirm={handleCancel} />
     </div>
   );
