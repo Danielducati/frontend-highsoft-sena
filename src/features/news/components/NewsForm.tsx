@@ -152,7 +152,7 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
       "bg-[#60A5FA]/20 text-[#60A5FA] border-[#60A5FA]/30", // Martes
       "bg-[#FBBF24]/20 text-[#1a5c3a] border-[#FBBF24]/30", // Miércoles
       "bg-[#F87171]/20 text-[#F87171] border-[#F87171]/30", // Jueves
-      "bg-[#A78BFA]/20 text-[#A78BFA] border-[#A78BFA]/30", // Viernes
+      "bg-[#78D1BD]/20 text-[#1a5c3a] border-[#78D1BD]/30", // Viernes
       "bg-[#1a5c3a]/20 text-[#1a5c3a] border-[#1a5c3a]/30", // Sábado
       "bg-[#60A5FA]/20 text-[#60A5FA] border-[#60A5FA]/30", // Domingo
     ];

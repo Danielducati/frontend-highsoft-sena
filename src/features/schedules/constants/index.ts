@@ -20,7 +20,7 @@ export const DAY_BADGE_COLORS: Record<number, string> = {
   1: "bg-[#60A5FA]/20 text-[#60A5FA] border-[#60A5FA]/30",
   2: "bg-[#FBBF24]/20 text-[#FBBF24] border-[#FBBF24]/30",
   3: "bg-[#F87171]/20 text-[#F87171] border-[#F87171]/30",
-  4: "bg-[#A78BFA]/20 text-[#A78BFA] border-[#A78BFA]/30",
+  4: "bg-[#78D1BD]/20 text-[#1a5c3a] border-[#78D1BD]/30",
   5: "bg-[#1a5c3a]/20 text-[#1a5c3a] border-[#1a5c3a]/30",
   6: "bg-[#60A5FA]/20 text-[#60A5FA] border-[#60A5FA]/30",
 };

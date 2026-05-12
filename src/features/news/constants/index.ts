@@ -15,7 +15,7 @@ export const NEWS_TYPES = [
 { value: "retraso",     label: "Retraso",      icon: Clock,         color: "text-yellow-600" },
 { value: "permiso",     label: "Permiso",       icon: FileText,      color: "text-blue-600"   },
 { value: "percance",    label: "Percance",      icon: AlertTriangle, color: "text-orange-600" },
-{ value: "ausencia",    label: "Ausencia",      icon: AlertCircle,   color: "text-purple-600" },
+{ value: "ausencia",    label: "Ausencia",      icon: AlertCircle,   color: "text-[#1a5c3a]" },
 { value: "otro",        label: "Otro",          icon: FileText,      color: "text-gray-600"   },
 ];
 
