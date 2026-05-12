@@ -6,7 +6,6 @@ import { getMondayOfWeek, getWeekDays, formatDateToISO } from "../utils";
 import { WEEK_DAYS_LABELS } from "../constants";
 import { schedulesApi } from "../services/schedulesApi";
 
-<<<<<<< HEAD
 // ── Helpers de mes ────────────────────────────────────────────────────────────
 
 /** Primer lunes del mes */
@@ -23,33 +22,11 @@ function getWeeksOfMonth(year: number, month: number): string[] {
   let monday = getFirstMondayOfMonth(year, month);
   while (monday.getUTCMonth() === month) {
     weeks.push(monday.toISOString().split("T")[0]);
-=======
-// Primer lunes del mes actual
-function getFirstMondayOfMonth(year: number, month: number): Date {
-  const first = new Date(Date.UTC(year, month, 1));
-  const dow = first.getUTCDay(); // 0=Dom, 1=Lun...
-  const diff = dow === 0 ? 1 : dow === 1 ? 0 : 8 - dow;
-  return new Date(Date.UTC(year, month, 1 + diff));
-}
-
-function getCurrentMonthStart(): Date {
-  const now = new Date();
-  return getFirstMondayOfMonth(now.getFullYear(), now.getMonth());
-}
-
-// Genera todas las semanas (lunes) dentro de un mes dado
-function getWeeksOfMonth(year: number, month: number): Date[] {
-  const weeks: Date[] = [];
-  let monday = getFirstMondayOfMonth(year, month);
-  while (monday.getUTCMonth() === month) {
-    weeks.push(new Date(monday));
->>>>>>> main
     monday = new Date(Date.UTC(monday.getUTCFullYear(), monday.getUTCMonth(), monday.getUTCDate() + 7));
   }
   return weeks;
 }
 
-<<<<<<< HEAD
 /** Nombre del mes en español */
 export function formatMonthLabel(year: number, month: number): string {
   return new Date(year, month, 1).toLocaleDateString("es-ES", { month: "long", year: "numeric" });
@@ -57,9 +34,6 @@ export function formatMonthLabel(year: number, month: number): string {
 
 const now = new Date();
 const INITIAL_MONTH = { year: now.getFullYear(), month: now.getMonth() };
-=======
-const DEFAULT_MONTH_START = getCurrentMonthStart();
->>>>>>> main
 const EMPTY_FORM: ScheduleFormData = { employeeId: "", daySchedules: [] };
 
 export function useSchedules() {
@@ -74,7 +48,6 @@ export function useSchedules() {
   const [filterEmployee,   setFilterEmployee]   = useState("all");
   const [detailDialogOpen, setDetailDialogOpen] = useState(false);
   const [viewingSchedule,  setViewingSchedule]  = useState<WeeklySchedule | null>(null);
-<<<<<<< HEAD
 
   // ── Estado del formulario mensual ─────────────────────────────────────────
   const [selectedMonth, setSelectedMonth] = useState(INITIAL_MONTH);
@@ -88,14 +61,6 @@ export function useSchedules() {
     new Date(weeksOfMonth[0] + "T12:00:00")
   );
   const formWeekDays = getWeekDays(formWeekStart);
-=======
-  const [formWeekStart,    setFormWeekStart]    = useState<Date>(DEFAULT_MONTH_START);
-  const [selectedMonth,    setSelectedMonth]    = useState<{ year: number; month: number }>({
-    year:  new Date().getFullYear(),
-    month: new Date().getMonth(),
-  });
-  const [formData,         setFormData]         = useState<ScheduleFormData>(EMPTY_FORM);
->>>>>>> main
 
   // ── Cargar datos al montar ─────────────────────────────────────────────────
   useEffect(() => { fetchAll(); }, []);
@@ -121,7 +86,6 @@ export function useSchedules() {
     setSchedules(data);
   };
 
-<<<<<<< HEAD
   // ── Navegación de mes ──────────────────────────────────────────────────────
   const goToPreviousMonth = () => {
     setSelectedMonth(prev => {
@@ -140,29 +104,6 @@ export function useSchedules() {
   };
 
   // Alias para compatibilidad con ScheduleFormDialog
-=======
-  // ── Navegación por mes en el formulario ───────────────────────────────────
-  const goToPreviousMonth = () => {
-    const { year, month } = selectedMonth;
-    const newMonth = month === 0 ? 11 : month - 1;
-    const newYear  = month === 0 ? year - 1 : year;
-    setSelectedMonth({ year: newYear, month: newMonth });
-    setFormWeekStart(getFirstMondayOfMonth(newYear, newMonth));
-  };
-
-  const goToNextMonth = () => {
-    const { year, month } = selectedMonth;
-    const newMonth = month === 11 ? 0 : month + 1;
-    const newYear  = month === 11 ? year + 1 : year;
-    setSelectedMonth({ year: newYear, month: newMonth });
-    setFormWeekStart(getFirstMondayOfMonth(newYear, newMonth));
-  };
-
-  // Semanas del mes seleccionado para el selector
-  const weeksOfSelectedMonth = getWeeksOfMonth(selectedMonth.year, selectedMonth.month);
-
-  // Mantener compatibilidad con nombres anteriores
->>>>>>> main
   const goToPreviousWeek = goToPreviousMonth;
   const goToNextWeek     = goToNextMonth;
 
@@ -313,12 +254,6 @@ export function useSchedules() {
   const resetForm = () => {
     setIsDialogOpen(false);
     setEditingSchedule(null);
-<<<<<<< HEAD
-=======
-    const now = new Date();
-    setSelectedMonth({ year: now.getFullYear(), month: now.getMonth() });
-    setFormWeekStart(DEFAULT_MONTH_START);
->>>>>>> main
     setFormData(EMPTY_FORM);
     const n = new Date();
     setSelectedMonth({ year: n.getFullYear(), month: n.getMonth() });
@@ -334,14 +269,7 @@ export function useSchedules() {
     .filter(s => s.isActive)
     .filter(s => filterEmployee === "all" || s.employeeId === filterEmployee)
     .filter(s => !searchTerm || s.employeeName.toLowerCase().includes(searchTerm.toLowerCase()))
-<<<<<<< HEAD
     .sort((a, b) => b.weekStartDate.localeCompare(a.weekStartDate));
-=======
-    // Más reciente primero
-    .sort((a, b) => b.weekStartDate.localeCompare(a.weekStartDate));
-
-  const formWeekDays = getWeekDays(formWeekStart);
->>>>>>> main
 
   return {
     schedules, filteredSchedules, employees, loading,
@@ -352,13 +280,10 @@ export function useSchedules() {
     viewingSchedule,
     searchTerm, setSearchTerm,
     filterEmployee, setFilterEmployee,
-<<<<<<< HEAD
     // Mes
     selectedMonth, setSelectedMonth, weeksOfMonth,
     goToPreviousMonth, goToNextMonth,
     // Compatibilidad con ScheduleFormDialog
-=======
->>>>>>> main
     formWeekStart, setFormWeekStart, formData, setFormData,
     formWeekDays,
     selectedMonth, weeksOfSelectedMonth,
