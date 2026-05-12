@@ -36,14 +36,30 @@ function validateDirect(data: SaleFormData): Errors {
     if (!data.clienteId) e.client = "Selecciona un cliente.";
   }
   if (data.selectedServices.length === 0) e.services = "Agrega al menos un servicio.";
-  if (!data.paymentMethod)                e.payment  = "Selecciona un método de pago.";
+  if (!data.paymentMethod) e.payment = "Selecciona un método de pago.";
+  
+  // Validar descuento
+  const subtotal = calcSubtotal(data.selectedServices);
+  const discount = parseFloat(data.discount) || 0;
+  if (discount > subtotal) {
+    e.payment = "El descuento no puede ser mayor al subtotal.";
+  }
+  
   return e;
 }
 
 function validateAppointment(data: SaleFormData): Errors {
   const e: Errors = {};
   if (!data.appointmentId) e.appointment = "Selecciona una cita.";
-  if (!data.paymentMethod) e.payment     = "Selecciona un método de pago.";
+  if (!data.paymentMethod) e.payment = "Selecciona un método de pago.";
+  
+  // Validar descuento
+  const subtotal = calcSubtotal(data.selectedServices);
+  const discount = parseFloat(data.discount) || 0;
+  if (discount > subtotal) {
+    e.payment = "El descuento no puede ser mayor al subtotal.";
+  }
+  
   return e;
 }
 
@@ -517,19 +533,41 @@ function PaymentFields({ formData, setFormData, error, onBlur }: {
   error?: string;
   onBlur?: () => void;
 }) {
+  const subtotal = calcSubtotal(formData.selectedServices);
+  const discountValue = parseFloat(formData.discount) || 0;
+  const isDiscountTooHigh = discountValue > subtotal;
+
+  const handleDiscountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    const numValue = parseFloat(value) || 0;
+    
+    // Always update the value, but show validation error if too high
+    setFormData(prev => ({ ...prev, discount: value }));
+  };
+
   return (
     <div className="grid grid-cols-2 gap-4">
       <div className="space-y-2">
-        <Label className="text-gray-900">Descuento ($)</Label>
+        <Label className="text-gray-900">Descuento ($ pesos colombianos)</Label>
         <Input
           type="number"
-          step="0.01"
+          step="1"
           min="0"
           value={formData.discount}
           placeholder="0"
-          onChange={e => setFormData(prev => ({ ...prev, discount: e.target.value }))}
-          className="rounded-lg border-gray-200"
+          onChange={handleDiscountChange}
+          className={`rounded-lg ${isDiscountTooHigh ? "border-red-500 bg-red-50" : "border-gray-200"}`}
         />
+        {isDiscountTooHigh && (
+          <p className="text-xs text-red-500">
+            ⚠ El descuento no puede ser mayor al subtotal ($${subtotal.toLocaleString("es-CO")})
+          </p>
+        )}
+        {subtotal > 0 && (
+          <p className="text-xs text-gray-500">
+            Subtotal disponible: $${subtotal.toLocaleString("es-CO")}
+          </p>
+        )}
       </div>
       <div className="space-y-2">
         <Label className="text-gray-900">Método de Pago *</Label>
