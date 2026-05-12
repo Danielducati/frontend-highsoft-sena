@@ -63,7 +63,7 @@ export function useDashboard() {
           value: (stats.citasDelPeriodo ?? 0).toLocaleString(),
           change: stats.citasChange ?? 0,
           icon: Calendar,
-          color: "from-purple-400 to-purple-500",
+          color: "from-[#78D1BD] to-[#1a5c3a]",
         },
         {
           title: "Ventas Completadas",

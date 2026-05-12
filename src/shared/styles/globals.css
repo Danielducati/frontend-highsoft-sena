@@ -35,7 +35,7 @@
 
   /* ── Colores de gráficas ── */
   --chart-1: #1A3A2A;
-  --chart-2: #A78BFA;              /* móvil: colorPurple */
+  --chart-2: #1a5c3a;              /* móvil: colorPurple → green */
   --chart-3: #60A5FA;              /* móvil: colorView */
   --chart-4: #FBBF24;              /* móvil: colorEdit */
   --chart-5: #F87171;              /* móvil: colorDelete */
@@ -67,8 +67,8 @@
   --color-delete-hover: #EF4444;
   --color-success: #0F766E;        /* móvil: colorSuccess (teal oscuro) */
   --color-success-hover: #0D6460;
-  --color-purple: #A78BFA;         /* móvil: colorPurple */
-  --color-purple-hover: #8B5CF6;
+  --color-purple: #1a5c3a;         /* móvil: colorPurple → green */
+  --color-purple-hover: #1a3a2a;
   /* ── Colores de superficie (usados en hovers y fondos de componentes) ── */
   --surface-hover: #F3F4F6;        /* reemplaza #ffffff / #F3F4F6 */
   --surface-input: #F9FAFB;        /* reemplaza #ffffff en inputs */

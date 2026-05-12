@@ -151,7 +151,7 @@ export function RoleFormDialog({
                   <div
                     className={`flex items-center justify-between px-4 py-3 cursor-pointer transition-colors
                       ${categoryActive(permissions)
-                        ? "bg-purple-50 border-b border-purple-100"
+                        ? "bg-[#edf7f4] border-b border-[#78D1BD]/30"
                         : "bg-gray-50 border-b border-gray-100"
                       }`}
                     onClick={() => handleToggleAll(permissions)}
@@ -162,7 +162,7 @@ export function RoleFormDialog({
                         <span className="w-2 h-2 rounded-full bg-amber-400" />
                       )}
                       <span className={`text-sm font-medium capitalize
-                        ${categoryActive(permissions) ? "text-purple-700" : "text-gray-700"}`}>
+                        ${categoryActive(permissions) ? "text-[#1a5c3a]" : "text-gray-700"}`}>
                         {category}
                       </span>
                       <span className="text-xs text-gray-400">
@@ -171,10 +171,13 @@ export function RoleFormDialog({
                     </div>
 
                     {/* Toggle general de categoría */}
-                    <div className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors
-                      ${categoryActive(permissions) ? "bg-purple-500" : "bg-gray-400"}`}>
-                      <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow transition-transform
-                        ${categoryActive(permissions) ? "translate-x-4" : "translate-x-1"}`}
+                    <div
+                      className="relative inline-flex h-6 w-11 flex-shrink-0 items-center rounded-full transition-colors"
+                      style={{ backgroundColor: categoryActive(permissions) ? "#1a3a2a" : "#D1D5DB" }}
+                    >
+                      <span
+                        className="inline-block h-4 w-4 transform rounded-full bg-white shadow-md transition-transform"
+                        style={{ transform: categoryActive(permissions) ? "translateX(1.5rem)" : "translateX(0.25rem)" }}
                       />
                     </div>
                   </div>
@@ -205,10 +208,13 @@ export function RoleFormDialog({
                           </div>
 
                           {/* Toggle individual */}
-                          <div className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors
-                            ${isOn && enabled ? "bg-purple-500" : enabled ? "bg-gray-400" : "bg-gray-300"}`}>
-                            <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow transition-transform
-                              ${isOn && enabled ? "translate-x-4" : "translate-x-1"}`}
+                          <div
+                            className="relative inline-flex h-6 w-11 flex-shrink-0 items-center rounded-full transition-colors"
+                            style={{ backgroundColor: isOn && enabled ? "#1a3a2a" : "#D1D5DB" }}
+                          >
+                            <span
+                              className="inline-block h-4 w-4 transform rounded-full bg-white shadow-md transition-transform"
+                              style={{ transform: isOn && enabled ? "translateX(1.5rem)" : "translateX(0.25rem)" }}
                             />
                           </div>
                         </div>

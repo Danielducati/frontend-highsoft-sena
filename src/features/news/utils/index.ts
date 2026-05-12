@@ -10,7 +10,7 @@ const map: Record<string, string> = {
     retraso:     "bg-yellow-100 text-yellow-700 border-yellow-200",
     permiso:     "bg-blue-100 text-blue-700 border-blue-200",
     percance:    "bg-orange-100 text-orange-700 border-orange-200",
-    ausencia:    "bg-purple-100 text-purple-700 border-purple-200",
+    ausencia:    "bg-[#edf7f4] text-[#1a5c3a] border-[#78D1BD]/50",
     otro:        "bg-gray-100 text-gray-700 border-gray-200",
 };
 return map[type] ?? map.otro;

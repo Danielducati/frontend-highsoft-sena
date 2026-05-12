@@ -21,7 +21,7 @@ export function NewsDetailDialog({ news, onClose }: NewsDetailDialogProps) {
       <DialogContent className="hl-form-dialog max-w-2xl">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <AlertCircle className="w-5 h-5 text-[#A78BFA]" />
+            <AlertCircle className="w-5 h-5 text-[#1a5c3a]" />
             Detalles de la Novedad
           </DialogTitle>
           <DialogDescription>Información completa de la novedad registrada</DialogDescription>

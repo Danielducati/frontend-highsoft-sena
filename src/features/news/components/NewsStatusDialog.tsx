@@ -22,7 +22,7 @@ export function NewsStatusDialog({ open, news, status, onStatusChange, onConfirm
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle className="flex items-center gap-2">
-            <RefreshCw className="w-5 h-5 text-[#A78BFA]" />Cambiar Estado
+            <RefreshCw className="w-5 h-5 text-[#1a5c3a]" />Cambiar Estado
           </AlertDialogTitle>
           <AlertDialogDescription>Selecciona el nuevo estado para esta novedad.</AlertDialogDescription>
         </AlertDialogHeader>
@@ -58,7 +58,7 @@ export function NewsStatusDialog({ open, news, status, onStatusChange, onConfirm
         )}
         <AlertDialogFooter>
           <AlertDialogCancel>Cancelar</AlertDialogCancel>
-          <AlertDialogAction onClick={onConfirm} className="bg-gradient-to-r from-[#A78BFA] to-[#9370DB]">
+          <AlertDialogAction onClick={onConfirm} className="bg-gradient-to-r from-[#1a5c3a] to-[#1a3a2a]">
             Cambiar Estado
           </AlertDialogAction>
         </AlertDialogFooter>

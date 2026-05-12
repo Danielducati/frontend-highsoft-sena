@@ -11,7 +11,7 @@ export const DOCUMENT_TYPES = [
 ];
 
 export const ROLE_BADGE_COLORS: Record<string, string> = {
-  Administrador:  "bg-purple-100 text-purple-700 border-purple-200",
+  Administrador:  "bg-[#edf7f4] text-[#1a5c3a] border-[#78D1BD]/50",
   Empleado:       "bg-blue-100 text-blue-700 border-blue-200",
   Recepcionista:  "bg-emerald-100 text-emerald-700 border-emerald-200",
   Terapeuta:      "bg-pink-100 text-pink-700 border-pink-200",
