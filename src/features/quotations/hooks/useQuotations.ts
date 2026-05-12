@@ -196,10 +196,14 @@ export function useQuotations(userRole?: string) {
   const handleStatusChange = async (id: number, newStatus: QuotationStatus) => {
     try {
       await updateQuotationStatusApi(id, newStatus);
-      toast.success("Estado actualizado");
+      toast.success(newStatus === "approved" ? "Cotización aprobada — cita creada automáticamente" : "Estado actualizado");
       await loadQuotations();
-    } catch {
-      toast.error("Error al actualizar estado");
+      // Notificar al módulo de citas para que recargue
+      if (newStatus === "approved") {
+        window.dispatchEvent(new CustomEvent("appointments:reload"));
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Error al actualizar estado");
     }
   };
 
