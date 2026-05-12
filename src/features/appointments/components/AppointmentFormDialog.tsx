@@ -45,7 +45,7 @@ export function AppointmentFormDialog({
       <DialogContent className="hl-form-dialog max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <CalendarIcon className="w-5 h-5 text-gray-700" />
+            <CalendarIcon className="w-5 h-5" style={{ color: "#1a3a2a" }} />
             {editingAppointment ? "Editar Cita" : "Nueva Cita"}
           </DialogTitle>
           <DialogDescription>
@@ -54,6 +54,7 @@ export function AppointmentFormDialog({
         </DialogHeader>
 
         <div className="space-y-4">
+          {/* Resumen de fecha/hora eliminado — la info ya está en los campos de abajo */}
 
           {/* Cliente */}
           <div className="space-y-2">
