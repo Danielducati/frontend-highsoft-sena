@@ -6,7 +6,31 @@ import { getMondayOfWeek, getWeekDays, formatDateToISO } from "../utils";
 import { WEEK_DAYS_LABELS } from "../constants";
 import { schedulesApi } from "../services/schedulesApi";
 
-const DEFAULT_WEEK = getMondayOfWeek(new Date());
+// Primer lunes del mes actual
+function getFirstMondayOfMonth(year: number, month: number): Date {
+  const first = new Date(Date.UTC(year, month, 1));
+  const dow = first.getUTCDay(); // 0=Dom, 1=Lun...
+  const diff = dow === 0 ? 1 : dow === 1 ? 0 : 8 - dow;
+  return new Date(Date.UTC(year, month, 1 + diff));
+}
+
+function getCurrentMonthStart(): Date {
+  const now = new Date();
+  return getFirstMondayOfMonth(now.getFullYear(), now.getMonth());
+}
+
+// Genera todas las semanas (lunes) dentro de un mes dado
+function getWeeksOfMonth(year: number, month: number): Date[] {
+  const weeks: Date[] = [];
+  let monday = getFirstMondayOfMonth(year, month);
+  while (monday.getUTCMonth() === month) {
+    weeks.push(new Date(monday));
+    monday = new Date(Date.UTC(monday.getUTCFullYear(), monday.getUTCMonth(), monday.getUTCDate() + 7));
+  }
+  return weeks;
+}
+
+const DEFAULT_MONTH_START = getCurrentMonthStart();
 const EMPTY_FORM: ScheduleFormData = { employeeId: "", daySchedules: [] };
 
 export function useSchedules() {
@@ -21,7 +45,11 @@ export function useSchedules() {
   const [filterEmployee,   setFilterEmployee]   = useState("all");
   const [detailDialogOpen, setDetailDialogOpen] = useState(false);
   const [viewingSchedule,  setViewingSchedule]  = useState<WeeklySchedule | null>(null);
-  const [formWeekStart,    setFormWeekStart]    = useState<Date>(DEFAULT_WEEK);
+  const [formWeekStart,    setFormWeekStart]    = useState<Date>(DEFAULT_MONTH_START);
+  const [selectedMonth,    setSelectedMonth]    = useState<{ year: number; month: number }>({
+    year:  new Date().getFullYear(),
+    month: new Date().getMonth(),
+  });
   const [formData,         setFormData]         = useState<ScheduleFormData>(EMPTY_FORM);
 
   // ── Cargar datos al montar ─────────────────────────────────────────────────
@@ -50,18 +78,29 @@ export function useSchedules() {
     setSchedules(data);
   };
 
-  // ── Semana en el formulario ────────────────────────────────────────────────
-  const goToPreviousWeek = () => {
-    const d = new Date(formWeekStart);
-    d.setDate(d.getDate() - 7);
-    setFormWeekStart(d);
+  // ── Navegación por mes en el formulario ───────────────────────────────────
+  const goToPreviousMonth = () => {
+    const { year, month } = selectedMonth;
+    const newMonth = month === 0 ? 11 : month - 1;
+    const newYear  = month === 0 ? year - 1 : year;
+    setSelectedMonth({ year: newYear, month: newMonth });
+    setFormWeekStart(getFirstMondayOfMonth(newYear, newMonth));
   };
 
-  const goToNextWeek = () => {
-    const d = new Date(formWeekStart);
-    d.setDate(d.getDate() + 7);
-    setFormWeekStart(d);
+  const goToNextMonth = () => {
+    const { year, month } = selectedMonth;
+    const newMonth = month === 11 ? 0 : month + 1;
+    const newYear  = month === 11 ? year + 1 : year;
+    setSelectedMonth({ year: newYear, month: newMonth });
+    setFormWeekStart(getFirstMondayOfMonth(newYear, newMonth));
   };
+
+  // Semanas del mes seleccionado para el selector
+  const weeksOfSelectedMonth = getWeeksOfMonth(selectedMonth.year, selectedMonth.month);
+
+  // Mantener compatibilidad con nombres anteriores
+  const goToPreviousWeek = goToPreviousMonth;
+  const goToNextWeek     = goToNextMonth;
 
   // ── Días en el formulario ──────────────────────────────────────────────────
   const toggleDay = (dayIndex: number) => {
@@ -188,7 +227,9 @@ export function useSchedules() {
   const resetForm = () => {
     setIsDialogOpen(false);
     setEditingSchedule(null);
-    setFormWeekStart(DEFAULT_WEEK);
+    const now = new Date();
+    setSelectedMonth({ year: now.getFullYear(), month: now.getMonth() });
+    setFormWeekStart(DEFAULT_MONTH_START);
     setFormData(EMPTY_FORM);
   };
 
@@ -201,7 +242,9 @@ export function useSchedules() {
   const filteredSchedules = schedules
     .filter(s => s.isActive)
     .filter(s => filterEmployee === "all" || s.employeeId === filterEmployee)
-    .filter(s => !searchTerm || s.employeeName.toLowerCase().includes(searchTerm.toLowerCase()));
+    .filter(s => !searchTerm || s.employeeName.toLowerCase().includes(searchTerm.toLowerCase()))
+    // Más reciente primero
+    .sort((a, b) => b.weekStartDate.localeCompare(a.weekStartDate));
 
   const formWeekDays = getWeekDays(formWeekStart);
 
@@ -214,9 +257,11 @@ export function useSchedules() {
     viewingSchedule,
     searchTerm, setSearchTerm,
     filterEmployee, setFilterEmployee,
-    formWeekStart, formData, setFormData,
+    formWeekStart, setFormWeekStart, formData, setFormData,
     formWeekDays,
+    selectedMonth, weeksOfSelectedMonth,
     goToPreviousWeek, goToNextWeek,
+    goToPreviousMonth, goToNextMonth,
     toggleDay, updateDaySchedule,
     handleCreateOrUpdate, handleDelete, handleRenewWeek,
     confirmDelete, handleEdit, handleViewDetail,
