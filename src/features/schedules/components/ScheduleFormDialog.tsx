@@ -1,4 +1,4 @@
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../../../shared/ui/dialog";
+﻿import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../../../shared/ui/dialog";
 import { Button } from "../../../shared/ui/button";
 import { Label } from "../../../shared/ui/label";
 import { Card, CardContent } from "../../../shared/ui/card";
@@ -135,7 +135,7 @@ export function ScheduleFormDialog({
 
           {/* Resumen */}
           {formData.daySchedules.length > 0 && (
-            <div className="p-3 bg-[#78D1BD]/5 border border-[#78D1BD]/20 rounded-lg">
+            <div className="p-3 bg-[#1a5c3a]/5 border border-[#1a5c3a]/20 rounded-lg">
               <p className="text-xs text-gray-600 mb-2">Resumen:</p>
               <div className="flex flex-wrap gap-1.5">
                 {formData.daySchedules

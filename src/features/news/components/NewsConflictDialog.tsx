@@ -138,17 +138,17 @@ export function NewsConflictDialog({
             Cancelar citas y registrar novedad
           </button>
 
-          {/* Secundario — --color-purple: #a78bfa */}
+          {/* Secundario — --color-purple → green */}
           <button
             onClick={() => setShowReassign(true)}
             style={{
               display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
               padding: "9px 16px", borderRadius: 10,
-              border: "1px solid #a78bfa", backgroundColor: "transparent",
-              color: "#7c3aed", fontSize: 14, fontWeight: 600,
+              border: "1px solid #78D1BD", backgroundColor: "transparent",
+              color: "#1a5c3a", fontSize: 14, fontWeight: 600,
               fontFamily: "var(--font-body)", cursor: "pointer", transition: "background-color 0.2s",
             }}
-            onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#f5f3ff")}
+            onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#edf7f4")}
             onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
           >
             <UserRoundCog style={{ width: 16, height: 16 }} />

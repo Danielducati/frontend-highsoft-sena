@@ -50,7 +50,7 @@ export function SalesChart({ data, periodLabel, period }: SalesChartProps) {
     <Card className="border-gray-200 shadow-sm">
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-base font-bold" style={{ color: "#1a3a2a", fontFamily: "var(--font-body)" }}>
-          <div className="w-1 h-6 bg-[#78D1BD] rounded-full" />
+          <div className="w-1 h-6 bg-[#1a5c3a] rounded-full" />
           {chartInfo.title}
         </CardTitle>
 

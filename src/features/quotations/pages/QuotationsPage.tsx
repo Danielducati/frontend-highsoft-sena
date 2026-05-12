@@ -12,14 +12,14 @@ function StatusBadge({ status }: { status: QuotationStatus }) {
     pending:   { backgroundColor: "#fef9ec", color: "#b45309" },
     approved:  { backgroundColor: "#edf7f4", color: "#1a5c3a" },
     cancelled: { backgroundColor: "#fdf0ee", color: "#c0392b" },
-    completed: { backgroundColor: "#eff6ff", color: "#1e40af" },
+    completed: { backgroundColor: "#edf7f4", color: "#1e40af" },
   };
   const style = colors[status] ?? { backgroundColor: "#f3f4f6", color: "#6b7280" };
   return (
     <span style={{
       display: "inline-flex", padding: "3px 12px", borderRadius: 999,
-      fontSize: 11, fontWeight: 600, textTransform: "uppercase",
-      letterSpacing: "0.06em", fontFamily: "var(--font-body)", ...style,
+      fontSize: 11, fontWeight: 600,
+      letterSpacing: "0.04em", fontFamily: "var(--font-body)", ...style,
     }}>
       {STATUS_LABELS[status] ?? status}
     </span>
@@ -84,7 +84,7 @@ export function QuotationsPage({ userRole }: QuotationsModuleProps) {
           { label: "Valor Total", value: `$${totalAmount.toLocaleString("es-CO")}` },
         ].map(({ label, value }) => (
           <div key={label} className="rounded-2xl shadow-sm p-5" style={{ backgroundColor: "#ffffff" }}>
-            <p className="text-xs uppercase tracking-widest mb-1" style={{ color: "#6b7c6b", fontFamily: "var(--font-body)" }}>
+            <p className="text-xs font-medium mb-1" style={{ color: "#6b7c6b", fontFamily: "var(--font-body)" }}>
               {label}
             </p>
             <p className="text-3xl font-semibold" style={{ color: "#1a3a2a", fontFamily: "var(--font-body)" }}>
@@ -175,8 +175,8 @@ export function QuotationsPage({ userRole }: QuotationsModuleProps) {
           <table className="w-full" style={{ fontFamily: "var(--font-body)" }}>
             <thead>
               <tr style={{ borderBottom: "1px solid #E5E7EB" }}>
-                {["N°", "CLIENTE", "SERVICIOS", "VALOR", "ESTADO", "FECHA", "ACCIONES"].map(col => (
-                  <th key={col} className="px-6 py-4 text-left text-xs font-semibold tracking-widest" style={{ color: "#6b7c6b" }}>
+                {["N°", "Cliente", "Servicios", "Valor", "Estado", "Fecha", "Acciones"].map(col => (
+                  <th key={col} className="px-6 py-4 text-left text-xs font-semibold" style={{ color: "#6b7c6b" }}>
                     {col}
                   </th>
                 ))}
@@ -206,7 +206,7 @@ export function QuotationsPage({ userRole }: QuotationsModuleProps) {
                   {/* Servicios */}
                   <td className="px-6 py-4">
                     <span className="inline-flex px-3 py-1 rounded-full text-xs font-medium"
-                      style={{ backgroundColor: "#eff6ff", color: "#1e40af" }}>
+                      style={{ backgroundColor: "#edf7f4", color: "#1e40af" }}>
                       {q.items?.length || 0} servicio{(q.items?.length || 0) !== 1 ? "s" : ""}
                     </span>
                   </td>

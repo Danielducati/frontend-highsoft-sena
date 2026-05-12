@@ -133,6 +133,8 @@ export function useUsers() {
         } catch {
           toast.error("Error al subir la imagen, se guardará sin foto");
         }
+      } else if (imagePreview === "") {
+        body.photo = "";
       }
 
       if (editingUser) {

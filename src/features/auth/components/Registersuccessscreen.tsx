@@ -1,9 +1,9 @@
-import { Card, CardContent } from "../../../shared/ui/card";
+﻿import { Card, CardContent } from "../../../shared/ui/card";
 import { Sparkles, CheckCircle2 } from "lucide-react";
 
 export function RegisterSuccessScreen() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#78D1BD]/10 via-[#60A5FA]/10 to-[#A78BFA]/10 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-[#78D1BD]/10 via-[#edf7f4]/10 to-[#1a5c3a]/10 flex items-center justify-center p-4">
       <Card className="w-full max-w-md border-gray-200 shadow-2xl">
         <CardContent className="p-12">
           <div className="text-center space-y-6">
@@ -19,7 +19,7 @@ export function RegisterSuccessScreen() {
               </p>
             </div>
             <div className="flex items-center justify-center gap-1 text-sm text-gray-500">
-              <CheckCircle2 className="w-4 h-4 text-[#78D1BD]" />
+              <CheckCircle2 className="w-4 h-4 text-[#1a5c3a]" />
               <span>Usuario registrado exitosamente</span>
             </div>
           </div>

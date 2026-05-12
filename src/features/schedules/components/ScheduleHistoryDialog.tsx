@@ -1,4 +1,4 @@
-// src/features/schedules/components/ScheduleHistoryDialog.tsx
+﻿// src/features/schedules/components/ScheduleHistoryDialog.tsx
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../../../shared/ui/dialog";
 import { Button } from "../../../shared/ui/button";
@@ -164,12 +164,12 @@ export function ScheduleHistoryDialog({
 
   const getDayBadgeColor = (dayIndex: number) => {
     const colors = [
-      "bg-[#78D1BD]/20 text-[#78D1BD] border-[#78D1BD]/30", // Lunes
+      "bg-[#1a5c3a]/20 text-[#1a5c3a] border-[#1a5c3a]/30", // Lunes
       "bg-[#60A5FA]/20 text-[#60A5FA] border-[#60A5FA]/30", // Martes
-      "bg-[#FBBF24]/20 text-[#FBBF24] border-[#FBBF24]/30", // Miércoles
+      "bg-[#FBBF24]/20 text-[#1a5c3a] border-[#FBBF24]/30", // Miércoles
       "bg-[#F87171]/20 text-[#F87171] border-[#F87171]/30", // Jueves
-      "bg-[#A78BFA]/20 text-[#A78BFA] border-[#A78BFA]/30", // Viernes
-      "bg-[#78D1BD]/20 text-[#78D1BD] border-[#78D1BD]/30", // Sábado
+      "bg-[#78D1BD]/20 text-[#1a5c3a] border-[#78D1BD]/30", // Viernes
+      "bg-[#1a5c3a]/20 text-[#1a5c3a] border-[#1a5c3a]/30", // Sábado
       "bg-[#60A5FA]/20 text-[#60A5FA] border-[#60A5FA]/30", // Domingo
     ];
     return colors[dayIndex] || colors[0];
@@ -180,7 +180,7 @@ export function ScheduleHistoryDialog({
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <History className="w-5 h-5 text-[#78D1BD]" />
+            <History className="w-5 h-5 text-[#1a5c3a]" />
             Historial de Horarios - {employeeName}
           </DialogTitle>
           <DialogDescription>
@@ -261,7 +261,7 @@ export function ScheduleHistoryDialog({
                     <CardContent className="pt-0">
                       <div className="bg-gray-50 rounded-lg p-3">
                         <h4 className="text-sm font-medium mb-3 flex items-center gap-2">
-                          <Clock className="w-4 h-4 text-[#78D1BD]" />
+                          <Clock className="w-4 h-4 text-[#1a5c3a]" />
                           Horarios de esta versión:
                         </h4>
                         

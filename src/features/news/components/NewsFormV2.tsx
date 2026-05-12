@@ -1,4 +1,4 @@
-// src/features/news/components/NewsFormV2.tsx
+﻿// src/features/news/components/NewsFormV2.tsx
 import { useState, useEffect } from "react";
 import { Label } from "../../../shared/ui/label";
 import { Textarea } from "../../../shared/ui/textarea";
@@ -165,12 +165,12 @@ export function NewsFormV2({
 
   const getDayBadgeColor = (dayIndex: number) => {
     const colors = [
-      "bg-[#78D1BD]/20 text-[#78D1BD] border-[#78D1BD]/30", // Lunes
+      "bg-[#1a5c3a]/20 text-[#1a5c3a] border-[#1a5c3a]/30", // Lunes
       "bg-[#60A5FA]/20 text-[#60A5FA] border-[#60A5FA]/30", // Martes
-      "bg-[#FBBF24]/20 text-[#FBBF24] border-[#FBBF24]/30", // Miércoles
+      "bg-[#FBBF24]/20 text-[#1a5c3a] border-[#FBBF24]/30", // Miércoles
       "bg-[#F87171]/20 text-[#F87171] border-[#F87171]/30", // Jueves
-      "bg-[#A78BFA]/20 text-[#A78BFA] border-[#A78BFA]/30", // Viernes
-      "bg-[#78D1BD]/20 text-[#78D1BD] border-[#78D1BD]/30", // Sábado
+      "bg-[#78D1BD]/20 text-[#1a5c3a] border-[#78D1BD]/30", // Viernes
+      "bg-[#1a5c3a]/20 text-[#1a5c3a] border-[#1a5c3a]/30", // Sábado
       "bg-[#60A5FA]/20 text-[#60A5FA] border-[#60A5FA]/30", // Domingo
     ];
     return colors[dayIndex] || colors[0];
@@ -181,7 +181,7 @@ export function NewsFormV2({
       {/* Selección de Empleado */}
       <div className="space-y-2">
         <Label className="flex items-center gap-2">
-          <User className="w-4 h-4 text-[#78D1BD]" />
+          <User className="w-4 h-4 text-[#1a5c3a]" />
           Empleado *
         </Label>
         <Select
@@ -205,7 +205,7 @@ export function NewsFormV2({
       {/* Tipo de Novedad */}
       <div className="space-y-2">
         <Label className="flex items-center gap-2">
-          <Tag className="w-4 h-4 text-[#78D1BD]" />
+          <Tag className="w-4 h-4 text-[#1a5c3a]" />
           Tipo de Novedad *
         </Label>
         <Select
@@ -228,7 +228,7 @@ export function NewsFormV2({
         <Card className="border-gray-200">
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2 text-base">
-              <Calendar className="w-4 h-4 text-[#78D1BD]" />
+              <Calendar className="w-4 h-4 text-[#1a5c3a]" />
               Horario Semanal - {formData.employeeName}
             </CardTitle>
           </CardHeader>
@@ -346,7 +346,7 @@ export function NewsFormV2({
                 value="full_day"
                 checked={formData.affectationType === 'full_day'}
                 onChange={(e) => handleAffectationTypeChange(e.target.value as any)}
-                className="text-[#78D1BD]"
+                className="text-[#1a5c3a]"
               />
               <label htmlFor="full_day" className="text-sm">
                 Día completo (toda la jornada laboral)
@@ -361,7 +361,7 @@ export function NewsFormV2({
                 value="partial_hours"
                 checked={formData.affectationType === 'partial_hours'}
                 onChange={(e) => handleAffectationTypeChange(e.target.value as any)}
-                className="text-[#78D1BD]"
+                className="text-[#1a5c3a]"
               />
               <label htmlFor="partial_hours" className="text-sm">
                 Horario específico (seleccionar horas)
@@ -376,7 +376,7 @@ export function NewsFormV2({
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label className="flex items-center gap-2">
-              <Clock className="w-4 h-4 text-[#78D1BD]" />
+              <Clock className="w-4 h-4 text-[#1a5c3a]" />
               Hora Inicio
             </Label>
             <Select
@@ -399,7 +399,7 @@ export function NewsFormV2({
           
           <div className="space-y-2">
             <Label className="flex items-center gap-2">
-              <Clock className="w-4 h-4 text-[#78D1BD]" />
+              <Clock className="w-4 h-4 text-[#1a5c3a]" />
               Hora Final
             </Label>
             <Select
@@ -481,7 +481,7 @@ export function NewsFormV2({
       {/* Descripción */}
       <div className="space-y-2">
         <Label className="flex items-center gap-2">
-          <FileText className="w-4 h-4 text-[#78D1BD]" />
+          <FileText className="w-4 h-4 text-[#1a5c3a]" />
           Descripción *
         </Label>
         <Textarea

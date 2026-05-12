@@ -1,4 +1,4 @@
-﻿/* ─── Variables del Landing ─── */
+/* ─── Variables del Landing ─── */
 .hl-landing {
   --hl-forest:       #1E2D24;
   --hl-forest-mid:   #2C3E32;
@@ -1338,3 +1338,218 @@
   .hl-stats { gap: 1.5rem; padding: 1.25rem 1.5rem; }
   .hl-footer { grid-template-columns: 1fr; gap: 2rem; padding: 3rem 1.5rem; }
 }
+
+/* ─── Services Carousel ─── */
+.hl-carousel {
+  position: relative;
+  width: 100%;
+  height: 580px;
+  overflow: hidden;
+  background: var(--hl-forest);
+}
+
+.hl-carousel__track {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.hl-carousel__slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.9s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+}
+
+.hl-carousel__slide--active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.hl-carousel__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 30%;
+  transform: scale(1.04);
+  transition: transform 6s ease;
+}
+
+.hl-carousel__slide--active .hl-carousel__img {
+  transform: scale(1);
+}
+
+.hl-carousel__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to right,
+    rgba(18, 30, 22, 0.88) 0%,
+    rgba(18, 30, 22, 0.55) 45%,
+    rgba(18, 30, 22, 0.10) 100%
+  );
+}
+
+/* Info panel */
+.hl-carousel__info {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 0 5rem;
+  max-width: 560px;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.hl-carousel__category {
+  font-size: 0.68rem;
+  letter-spacing: 0.32em;
+  color: var(--hl-gold);
+  text-transform: uppercase;
+}
+
+.hl-carousel__name {
+  font-family: var(--hl-font-display);
+  font-size: clamp(2.4rem, 4.5vw, 3.8rem);
+  font-weight: 400;
+  font-style: italic;
+  color: #fff;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+.hl-carousel__meta {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  margin-top: 0.25rem;
+}
+
+.hl-carousel__price {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--hl-gold-light);
+  letter-spacing: 0.02em;
+}
+
+.hl-carousel__duration {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.65);
+  letter-spacing: 0.06em;
+}
+
+.hl-carousel__cta {
+  margin-top: 0.5rem;
+  align-self: flex-start;
+  padding: 0.8rem 2.2rem;
+  font-size: 0.82rem;
+}
+
+/* Arrows */
+.hl-carousel__arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background var(--hl-ease), border-color var(--hl-ease), transform 0.2s;
+  backdrop-filter: blur(6px);
+}
+.hl-carousel__arrow:hover {
+  background: var(--hl-gold);
+  border-color: var(--hl-gold);
+  color: var(--hl-forest);
+  transform: translateY(-50%) scale(1.08);
+}
+
+.hl-carousel__arrow--prev { left: 2rem; }
+.hl-carousel__arrow--next { right: 2rem; }
+
+/* Dots */
+.hl-carousel__dots {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 0.55rem;
+  z-index: 10;
+}
+
+.hl-carousel__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.35);
+  border: none;
+  cursor: pointer;
+  transition: background var(--hl-ease), transform var(--hl-ease), width 0.3s;
+  padding: 0;
+}
+
+.hl-carousel__dot--active {
+  background: var(--hl-gold);
+  width: 28px;
+  border-radius: 4px;
+  transform: scale(1.05);
+}
+
+/* Counter */
+.hl-carousel__counter {
+  position: absolute;
+  bottom: 1.85rem;
+  right: 2.5rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  color: rgba(255, 255, 255, 0.45);
+  z-index: 10;
+}
+
+/* Responsive carousel */
+@media (max-width: 768px) {
+  .hl-carousel {
+    height: 500px;
+  }
+  .hl-carousel__info {
+    padding: 0 1.5rem;
+    max-width: 100%;
+  }
+  .hl-carousel__name {
+    font-size: clamp(2rem, 8vw, 2.8rem);
+  }
+  .hl-carousel__arrow--prev { left: 0.75rem; }
+  .hl-carousel__arrow--next { right: 0.75rem; }
+  .hl-carousel__arrow { width: 40px; height: 40px; }
+}
+
+@media (max-width: 480px) {
+  .hl-carousel { height: 440px; }
+  .hl-carousel__overlay {
+    background: linear-gradient(
+      to bottom,
+      rgba(18, 30, 22, 0.35) 0%,
+      rgba(18, 30, 22, 0.88) 60%
+    );
+  }
+  .hl-carousel__info {
+    top: auto;
+    bottom: 4.5rem;
+    transform: none;
+    padding: 0 1.25rem;
+  }
+}

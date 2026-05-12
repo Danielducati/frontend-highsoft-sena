@@ -11,8 +11,8 @@ interface ScheduleDetailDialogProps {
 }
 
 const labelStyle: React.CSSProperties = {
-  fontSize: 11, fontWeight: 600, letterSpacing: "0.08em",
-  textTransform: "uppercase", color: "#6b7c6b",
+  fontSize: 11, fontWeight: 600, letterSpacing: "0.04em",
+  color: "#6b7c6b",
   fontFamily: "var(--font-body)",
 };
 

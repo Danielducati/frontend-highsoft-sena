@@ -40,7 +40,7 @@ export function ClientAppointmentsPage() {
     <SpaPage
       title="Mis Citas"
       subtitle="Gestiona y agenda tus citas en el spa"
-      icon={<CalendarIcon className="w-5 h-5 text-[#78D1BD]" />}
+      icon={<CalendarIcon className="w-5 h-5 text-[#1a5c3a]" />}
       action={
         <button
           onClick={() => { resetForm(); setIsDialogOpen(true); }}
@@ -57,7 +57,7 @@ export function ClientAppointmentsPage() {
 
         {/* Próximas citas */}
         <div>
-          <h2 className="text-sm font-semibold uppercase tracking-widest mb-3" style={{ color: "#6b7c6b", fontFamily: "var(--font-body)" }}>
+          <h2 className="text-sm font-semibold mb-3" style={{ color: "#6b7c6b", fontFamily: "var(--font-body)" }}>
             Próximas citas ({upcoming.length})
           </h2>
           {upcoming.length === 0 ? (
@@ -136,7 +136,7 @@ export function ClientAppointmentsPage() {
         {/* Historial */}
         {past.length > 0 && (
           <div>
-            <h2 className="text-sm font-semibold uppercase tracking-widest mb-3" style={{ color: "#6b7c6b", fontFamily: "var(--font-body)" }}>
+            <h2 className="text-sm font-semibold mb-3" style={{ color: "#6b7c6b", fontFamily: "var(--font-body)" }}>
               Historial ({past.length})
             </h2>
             <div className="space-y-2">
@@ -199,7 +199,7 @@ export function ClientAppointmentsPage() {
         onRemoveService={handleRemoveService}
         onClientChange={handleClientChange}
         onStartTimeChange={handleStartTimeChange}
-        onSubmit={handleCreateOrUpdate}
+        onSubmit={() => handleCreateOrUpdate()}
         onCancel={resetForm}
         userRole="client"
       />

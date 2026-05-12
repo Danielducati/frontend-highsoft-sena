@@ -24,7 +24,7 @@ export const ACTIONS = [
 
 export const MODULE_COLORS: Record<string, string> = {
   Dashboard: "bg-blue-100 text-blue-700",
-  Servicios: "bg-purple-100 text-purple-700",
+  Servicios: "bg-[#edf7f4] text-[#1a5c3a]",
   Categorías: "bg-pink-100 text-pink-700",
   Citas: "bg-green-100 text-green-700",
   Horarios: "bg-cyan-100 text-cyan-700",
@@ -32,7 +32,7 @@ export const MODULE_COLORS: Record<string, string> = {
   Clientes: "bg-indigo-100 text-indigo-700",
   Cotizaciones: "bg-amber-100 text-amber-700",
   Ventas: "bg-emerald-100 text-emerald-700",
-  Usuarios: "bg-violet-100 text-violet-700",
+  Usuarios: "bg-[#edf7f4] text-[#1a3a2a]",
   Roles: "bg-fuchsia-100 text-fuchsia-700",
   Reportes: "bg-orange-100 text-orange-700",
 };
@@ -42,7 +42,7 @@ export const ACTION_COLORS: Record<string, string> = {
   Crear: "bg-green-50 text-green-600",
   Editar: "bg-amber-50 text-amber-600",
   Eliminar: "bg-red-50 text-red-600",
-  Exportar: "bg-purple-50 text-purple-600",
+  Exportar: "bg-[#edf7f4] text-[#1a5c3a]",
   Gestionar: "bg-indigo-50 text-indigo-600",
 };
 

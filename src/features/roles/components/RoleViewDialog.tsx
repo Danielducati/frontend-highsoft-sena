@@ -30,7 +30,7 @@ export function RoleViewDialog({ open, onClose, role }: Props) {
 
         <div className="space-y-4 flex-1 overflow-hidden flex flex-col">
           <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
-            <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[#A78BFA] to-[#8B5CF6] flex items-center justify-center shadow-sm">
+            <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[#1a5c3a] to-[#1a3a2a] flex items-center justify-center shadow-sm">
               <Shield className="w-6 h-6 text-white" />
             </div>
             <div className="flex-1">

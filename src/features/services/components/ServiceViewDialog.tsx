@@ -1,4 +1,4 @@
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../../../shared/ui/dialog";
+﻿import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../../../shared/ui/dialog";
 import { Badge } from "../../../shared/ui/badge";
 import { Card, CardContent } from "../../../shared/ui/card";
 import { Eye, Clock, DollarSign, Tag } from "lucide-react";
@@ -18,7 +18,7 @@ export function ServiceViewDialog({ service, onClose }: ServiceViewDialogProps) 
           <>
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
-                <Eye className="w-5 h-5 text-[#78D1BD]" />
+                <Eye className="w-5 h-5 text-[#1a5c3a]" />
                 Detalle del Servicio
               </DialogTitle>
             </DialogHeader>
@@ -57,8 +57,8 @@ export function ServiceViewDialog({ service, onClose }: ServiceViewDialogProps) 
                 <Card className="border-gray-200">
                   <CardContent className="p-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-lg bg-[#78D1BD]/10 flex items-center justify-center">
-                        <Clock className="w-6 h-6 text-[#78D1BD]" />
+                      <div className="w-12 h-12 rounded-lg bg-[#1a5c3a]/10 flex items-center justify-center">
+                        <Clock className="w-6 h-6 text-[#1a5c3a]" />
                       </div>
                       <div>
                         <p className="text-sm text-gray-600">Duración</p>
@@ -70,8 +70,8 @@ export function ServiceViewDialog({ service, onClose }: ServiceViewDialogProps) 
                 <Card className="border-gray-200">
                   <CardContent className="p-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-lg bg-[#FBBF24]/10 flex items-center justify-center">
-                        <DollarSign className="w-6 h-6 text-[#FBBF24]" />
+                      <div className="w-12 h-12 rounded-lg bg-[#1a5c3a]/10 flex items-center justify-center">
+                        <DollarSign className="w-6 h-6 text-[#1a5c3a]" />
                       </div>
                       <div>
                         <p className="text-sm text-gray-600">Precio</p>
@@ -83,8 +83,8 @@ export function ServiceViewDialog({ service, onClose }: ServiceViewDialogProps) 
                 <Card className="border-gray-200">
                   <CardContent className="p-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-lg bg-[#78D1BD]/10 flex items-center justify-center">
-                        <Tag className="w-6 h-6 text-[#78D1BD]" />
+                      <div className="w-12 h-12 rounded-lg bg-[#1a5c3a]/10 flex items-center justify-center">
+                        <Tag className="w-6 h-6 text-[#1a5c3a]" />
                       </div>
                       <div>
                         <p className="text-sm text-gray-600">Categoría</p>
@@ -101,7 +101,7 @@ export function ServiceViewDialog({ service, onClose }: ServiceViewDialogProps) 
                       </div>
                       <div>
                         <p className="text-sm text-gray-600">Estado</p>
-                        <Badge className={service.isActive ? "bg-[#78D1BD] text-white mt-1" : "bg-gray-500 text-white mt-1"}>
+                        <Badge className={service.isActive ? "bg-[#1a5c3a] text-white mt-1" : "bg-gray-500 text-white mt-1"}>
                           {service.isActive ? "Activo" : "Inactivo"}
                         </Badge>
                       </div>

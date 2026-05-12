@@ -21,6 +21,7 @@ export interface DashboardData {
     hora: string;
     clienteName: string;
     employeeName: string;
+    serviceName: string;
     estado: string;
   }>;
   clientesNuevos?: number;

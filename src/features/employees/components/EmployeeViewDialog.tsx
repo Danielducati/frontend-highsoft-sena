@@ -11,8 +11,7 @@ interface EmployeeViewDialogProps {
 const fieldLabel: React.CSSProperties = {
   fontSize: 11,
   fontWeight: 600,
-  letterSpacing: "0.08em",
-  textTransform: "uppercase",
+  letterSpacing: "0.04em",
   color: "#6b7c6b",
   marginBottom: 3,
   fontFamily: "var(--font-body)",
@@ -127,8 +126,7 @@ export function EmployeeViewDialog({ employee, onClose }: EmployeeViewDialogProp
                     borderRadius: 999,
                     fontSize: 12,
                     fontWeight: 600,
-                    textTransform: "uppercase",
-                    letterSpacing: "0.06em",
+                    letterSpacing: "0.04em",
                     ...(employee.isActive
                       ? { backgroundColor: "#edf7f4", color: "#1a5c3a" }
                       : { backgroundColor: "#f3f4f6", color: "#9ca3af" }),

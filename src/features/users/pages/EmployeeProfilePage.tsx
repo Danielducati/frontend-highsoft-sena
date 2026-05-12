@@ -7,7 +7,7 @@ import { DOCUMENT_TYPES } from "../../employees/constants";
 import { changePasswordRequest } from "../../auth/services/authService";
 import { fetchCategoriesApi } from "../../employees/services/employeesService";
 
-const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3001";
+const API_URL = import.meta.env.VITE_API_URL ?? "https://backend-highsoft-sena-production.up.railway.app";
 const getToken = () => localStorage.getItem("token");
 const authHeaders = () => ({
   "Content-Type": "application/json",
@@ -22,7 +22,7 @@ const inputStyle: React.CSSProperties = {
 };
 const labelStyle: React.CSSProperties = {
   display: "block", fontSize: 11, fontWeight: 600,
-  letterSpacing: "0.08em", textTransform: "uppercase",
+  letterSpacing: "0.04em",
   color: "#6b7c6b", marginBottom: 5, fontFamily: "var(--font-body)",
 };
 

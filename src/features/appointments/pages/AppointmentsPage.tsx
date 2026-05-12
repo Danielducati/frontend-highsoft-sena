@@ -129,7 +129,7 @@ export function AppointmentsPage({ userRole }: AppointmentsModuleProps) {
           ? "Haz clic en cualquier hora disponible para crear una cita"
           : "Listado completo de todas las citas registradas"
       }
-      icon={<CalendarIcon className="w-5 h-5 text-[#78D1BD]" />}
+      icon={<CalendarIcon className="w-5 h-5 text-[#1a5c3a]" />}
       action={
         <div className="flex gap-2">
           <div className="flex rounded-lg border border-gray-200 bg-white p-1">
@@ -335,7 +335,7 @@ export function AppointmentsPage({ userRole }: AppointmentsModuleProps) {
 
                   {/* Cabecera de días — sticky para que quede fija al hacer scroll */}
                   <div className="grid grid-cols-8 border-b border-gray-200 sticky top-0 z-40" style={{ background: "#f8f9fa" }}>
-                    <div className="p-3 border-r border-gray-200 text-gray-500 text-xs uppercase tracking-wide">Hora</div>
+                    <div className="p-3 border-r border-gray-200 text-gray-500 text-xs font-medium">Hora</div>
                     {getWeekDates().map((date, idx) => (
                       <div key={idx} className="p-3 border-r border-gray-200 last:border-r-0 text-center"
                         style={{
@@ -346,11 +346,11 @@ export function AppointmentsPage({ userRole }: AppointmentsModuleProps) {
                             : "transparent"
                         }}
                       >
-                        <div className={`text-xs uppercase tracking-wide ${isPastDate(date) ? "text-gray-400" : "text-gray-500"}`}>
+                        <div className={`text-xs font-medium ${isPastDate(date) ? "text-gray-400" : "text-gray-500"}`}>
                           {WEEK_DAYS[idx]}
                         </div>
                         <div className={`mt-1 text-lg font-semibold ${
-                          isToday(date) ? "text-[#78D1BD]" : isPastDate(date) ? "text-gray-400" : "text-gray-800"
+                          isToday(date) ? "text-[#1a5c3a]" : isPastDate(date) ? "text-gray-400" : "text-gray-800"
                         }`}>
                           {date.getDate()}
                         </div>
@@ -533,7 +533,7 @@ export function AppointmentsPage({ userRole }: AppointmentsModuleProps) {
           onRemoveService={handleRemoveService}
           onClientChange={handleClientChange}
           onStartTimeChange={handleStartTimeChange}
-          onSubmit={handleCreateOrUpdate}
+          onSubmit={() => handleCreateOrUpdate()}
           onCancel={resetForm}
           userRole={userRole}
           myEmployeeProfile={myEmployeeProfile}

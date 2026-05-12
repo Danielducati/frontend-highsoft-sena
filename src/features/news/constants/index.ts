@@ -1,7 +1,7 @@
 import { Clock, AlertCircle, FileText, UserX, AlertTriangle } from "lucide-react";
 import { NewsFormData } from "../types";
 
-export const API_BASE = "http://localhost:3001";
+export const API_BASE = "https://backend-highsoft-sena-production.up.railway.app";
 
 export const TIME_SLOTS = [
     "08:00","08:30","09:00","09:30","10:00","10:30",
@@ -15,7 +15,7 @@ export const NEWS_TYPES = [
 { value: "retraso",     label: "Retraso",      icon: Clock,         color: "text-yellow-600" },
 { value: "permiso",     label: "Permiso",       icon: FileText,      color: "text-blue-600"   },
 { value: "percance",    label: "Percance",      icon: AlertTriangle, color: "text-orange-600" },
-{ value: "ausencia",    label: "Ausencia",      icon: AlertCircle,   color: "text-purple-600" },
+{ value: "ausencia",    label: "Ausencia",      icon: AlertCircle,   color: "text-[#1a5c3a]" },
 { value: "otro",        label: "Otro",          icon: FileText,      color: "text-gray-600"   },
 ];
 

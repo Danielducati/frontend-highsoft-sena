@@ -51,7 +51,7 @@ export function SchedulesPage({ userRole }: SchedulesModuleProps) {
     <SpaPage
       title="Horarios Semanales"
       subtitle="Gestión de turnos y disponibilidad del personal"
-      icon={<Calendar className="w-5 h-5 text-[#78D1BD]" />}
+      icon={<Calendar className="w-5 h-5 text-[#1a5c3a]" />}
       action={
         userRole === "admin" ? (
           <button
@@ -120,7 +120,7 @@ export function SchedulesPage({ userRole }: SchedulesModuleProps) {
             <div className="flex flex-wrap gap-2 mt-3 pt-3 border-t border-gray-200">
               <span className="text-xs text-gray-600">Filtros activos:</span>
               {searchTerm && (
-                <Badge variant="secondary" className="text-xs bg-[#78D1BD]/10 text-[#78D1BD] border-[#78D1BD]/30">
+                <Badge variant="secondary" className="text-xs bg-[#1a5c3a]/10 text-[#1a5c3a] border-[#1a5c3a]/30">
                   Búsqueda: {searchTerm}
                 </Badge>
               )}
@@ -167,7 +167,7 @@ export function SchedulesPage({ userRole }: SchedulesModuleProps) {
                       <tr key={schedule.id} className="hover:bg-gray-50/50 transition-colors">
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-2">
-                            <User className="w-4 h-4 text-[#78D1BD] flex-shrink-0" />
+                            <User className="w-4 h-4 text-[#1a5c3a] flex-shrink-0" />
                             <div>
                               <p className="text-sm text-gray-900">{schedule.employeeName}</p>
                               <p className="text-xs text-gray-500">
@@ -215,7 +215,7 @@ export function SchedulesPage({ userRole }: SchedulesModuleProps) {
                               onClick={() => handleViewHistory(schedule)}
                               title="Ver historial"
                               className="p-2 rounded-lg transition-colors"
-                              style={{ color: "#78D1BD" }}
+                              style={{ color: "#1a5c3a" }}
                               onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#edf7f4")}
                               onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
                             >

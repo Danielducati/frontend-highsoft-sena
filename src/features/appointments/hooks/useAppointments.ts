@@ -1,5 +1,5 @@
-//frontend-highsoft-sena\src\features\appointments\hooks\useAppointments.ts
-import { useState, useEffect } from "react";
+﻿//frontend-highsoft-sena\src\features\appointments\hooks\useAppointments.ts
+import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import {
   Appointment, AppointmentService, Client, CurrentService, Employee, FormData, Service,} from "../types";
@@ -42,6 +42,9 @@ export function useAppointments(userRole?: string) {
   const [selectedServices, setSelectedServices] = useState<AppointmentService[]>([]);
   const [currentService,   setCurrentService]   = useState<CurrentService>({ serviceId: "", employeeId: "" });
   const [myEmployeeProfile, setMyEmployeeProfile] = useState<{ id: string; name: string; phone: string; specialty: string } | null>(null);
+
+  // Ref para capturar el startTime más reciente sin depender del closure del estado
+  const startTimeRef = useRef<string>("");
 
   useEffect(() => {
     async function loadAll() {
@@ -173,7 +176,7 @@ export function useAppointments(userRole?: string) {
     // Para empleado logueado, usar su perfil directamente si no está en la lista
     const employee = employees.find(e => e.id === effectiveEmployeeId)
       ?? (userRole === "employee" && myEmployeeProfile && myEmployeeProfile.id === effectiveEmployeeId
-          ? { id: myEmployeeProfile.id, name: myEmployeeProfile.name, specialty: myEmployeeProfile.specialty, color: "#78D1BD" }
+          ? { id: myEmployeeProfile.id, name: myEmployeeProfile.name, specialty: myEmployeeProfile.specialty, color: "#1a5c3a" }
           : undefined);
     if (!service || !employee) return;
 
@@ -208,6 +211,7 @@ export function useAppointments(userRole?: string) {
 
   // Cuando cambia la hora de inicio, recalcular los startTime de todos los servicios
   const handleStartTimeChange = (newTime: string) => {
+    startTimeRef.current = newTime;  // ← siempre actualizado, sin problema de closure
     setFormData(prev => ({ ...prev, startTime: newTime }));
     if (selectedServices.length > 0) {
       setSelectedServices(prev => prev.map((s, i, arr) => ({
@@ -220,8 +224,13 @@ export function useAppointments(userRole?: string) {
   };
 
   // ── CRUD ──
-  const handleCreateOrUpdate = async () => {
-    if (!formData.clientId || !formData.startTime || selectedServices.length === 0) {
+  const handleCreateOrUpdate = async (overrideStartTime?: string) => {
+    // Ignorar si recibe un evento DOM en lugar de un string (llamada desde onSubmit del botón)
+    const safeOverride = typeof overrideStartTime === "string" ? overrideStartTime : undefined;
+    // Prioridad: parámetro explícito > ref (siempre actualizado) > estado
+    const startTime = safeOverride ?? (startTimeRef.current || formData.startTime);
+
+    if (!formData.clientId || !startTime || selectedServices.length === 0) {
       if (userRole === "client" && !formData.clientId) {
         toast.error("Tu perfil aún está cargando, espera un momento e intenta de nuevo"); return;
       }
@@ -236,8 +245,7 @@ export function useAppointments(userRole?: string) {
     const payload = {
       cliente:   Number(formData.clientId),
       fecha:     formData.date.toISOString().split("T")[0],
-      // Usar la hora del primer servicio agregado, no la del selector (puede haber cambiado)
-      hora:      selectedServices.length > 0 ? selectedServices[0].startTime : formData.startTime,
+      hora:      startTime,
       notas:     formData.notes || null,
       servicios: selectedServices.map(s => ({
         servicio:         Number(s.serviceId),
@@ -329,6 +337,7 @@ export function useAppointments(userRole?: string) {
   const handleEdit = (appointment: Appointment) => {
     setEditingAppointment(appointment);
     const client = clients.find(c => c.name === appointment.clientName);
+    startTimeRef.current = appointment.startTime;  // ← sincronizar ref al cargar
     setFormData({
       clientId:    client ? String(client.id) : "",
       clientName:  appointment.clientName,

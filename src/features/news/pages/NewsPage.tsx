@@ -106,7 +106,7 @@ export function NewsPage({ userRole }: NewsModuleProps) {
     <SpaPage
       title="Novedades de Empleados"
       subtitle="Gestión de incapacidades, retrasos, permisos y percances"
-      icon={<AlertCircle className="w-5 h-5 text-[#F87171]" />}
+      icon={<AlertCircle className="w-5 h-5 text-[#1a5c3a]" />}
       action={
         (userRole === "admin" || userRole === "employee") ? (
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -243,7 +243,7 @@ export function NewsPage({ userRole }: NewsModuleProps) {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
-              <AlertCircle className="w-5 h-5 text-[#F87171]" />¿Eliminar Novedad?
+              <AlertCircle className="w-5 h-5 text-[#1a5c3a]" />¿Eliminar Novedad?
             </AlertDialogTitle>
             <AlertDialogDescription>Esta acción no se puede deshacer.</AlertDialogDescription>
           </AlertDialogHeader>

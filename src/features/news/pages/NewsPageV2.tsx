@@ -63,7 +63,7 @@ export function NewsPageV2({ userRole }: NewsModuleProps) {
     <SpaPage
       title="Novedades de Empleados (V2)"
       subtitle="Nueva interfaz basada en horarios semanales"
-      icon={<AlertCircle className="w-5 h-5 text-[#F87171]" />}
+      icon={<AlertCircle className="w-5 h-5 text-[#1a5c3a]" />}
       action={
         (userRole === "admin" || userRole === "employee") ? (
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>

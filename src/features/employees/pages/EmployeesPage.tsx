@@ -194,7 +194,7 @@ export function EmployeesPage({ userRole }: EmployeesModuleProps) {
                                 style={employee.isActive ? { backgroundColor: "#4caf82" } : { backgroundColor: "#9ca3af" }}
                               />
                               <span
-                                className="text-xs font-semibold tracking-wide uppercase"
+                                className="text-xs font-semibold"
                                 style={{ color: employee.isActive ? "#1a5c3a" : "#9ca3af" }}
                               >
                                 {employee.isActive ? "Activo" : "Inactivo"}
@@ -202,7 +202,7 @@ export function EmployeesPage({ userRole }: EmployeesModuleProps) {
                             </div>
                           ) : (
                             <span
-                              className="inline-flex px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wide"
+                              className="inline-flex px-3 py-1 rounded-full text-xs font-semibold"
                               style={employee.isActive
                                 ? { backgroundColor: "#edf7f4", color: "#1a5c3a" }
                                 : { backgroundColor: "#f3f4f6", color: "#9ca3af" }}
@@ -220,8 +220,8 @@ export function EmployeesPage({ userRole }: EmployeesModuleProps) {
                                 onClick={() => setViewingEmployee(employee)}
                                 title="Ver detalles"
                                 className="p-2 rounded-lg transition-colors"
-                                style={{ color: "#60A5FA" }}
-                                onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#eff6ff")}
+                                style={{ color: "#1a3a2a" }}
+                                onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#edf7f4")}
                                 onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
                               >
                                 <Eye className="w-4 h-4" />
@@ -232,8 +232,8 @@ export function EmployeesPage({ userRole }: EmployeesModuleProps) {
                                 title={employee.isActive ? "Editar" : "Activa el empleado para editar"}
                                 disabled={!employee.isActive}
                                 className="p-2 rounded-lg transition-colors"
-                                style={{ color: employee.isActive ? "#FBBF24" : "#d1d5db", cursor: employee.isActive ? "pointer" : "not-allowed" }}
-                                onMouseEnter={e => { if (employee.isActive) e.currentTarget.style.backgroundColor = "#fffbeb"; }}
+                                style={{ color: employee.isActive ? "#1a5c3a" : "#d1d5db", cursor: employee.isActive ? "pointer" : "not-allowed" }}
+                                onMouseEnter={e => { if (employee.isActive) e.currentTarget.style.backgroundColor = "#edf7f4"; }}
                                 onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
                               >
                                 <Pencil className="w-4 h-4" />

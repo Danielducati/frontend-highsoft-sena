@@ -35,7 +35,7 @@
     "cors": "^2.8.5",
     "embla-carousel-react": "^8.6.0",
     "express": "^5.1.0",
-    "firebase": "^12.12.1",
+    "firebase": "^12.13.0",
     "input-otp": "^1.4.2",
     "lucide-react": "^0.487.0",
     "mssql": "^12.1.1",
