@@ -1,4 +1,5 @@
-﻿import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../../../shared/ui/dialog";
+﻿import { useState } from "react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../../../shared/ui/dialog";
 import { Button } from "../../../shared/ui/button";
 import { Label } from "../../../shared/ui/label";
 import { Card, CardContent } from "../../../shared/ui/card";
@@ -33,6 +34,9 @@ interface ScheduleFormDialogProps {
   onNextWeek: () => void;
   onToggleDay: (dayIndex: number) => void;
   onUpdateDaySchedule: (dayIndex: number, field: "startTime" | "endTime", value: string) => void;
+  // Todas las semanas del mes (para edición)
+  allWeeks?: WeeklySchedule[];
+  onSelectWeekToEdit?: (week: WeeklySchedule) => void;
 }
 
 export function ScheduleFormDialog({
@@ -41,6 +45,7 @@ export function ScheduleFormDialog({
   formWeekStart, formWeekDays, employees,
   onSubmit, onCancel,
   onToggleDay, onUpdateDaySchedule,
+  allWeeks, onSelectWeekToEdit,
 }: ScheduleFormDialogProps) {
 
   const isEditing = !!editingSchedule;
@@ -83,13 +88,58 @@ export function ScheduleFormDialog({
             </Select>
           </div>
 
-          {/* Selector de mes (solo creación) o semana (edición) */}
+          {/* Selector de mes (solo creación) o mes actual (edición) */}
           {isEditing ? (
-            <div className="p-3 rounded-lg border border-[#78D1BD]/40 bg-[#edf7f4]">
-              <div className="flex items-center gap-2 text-sm text-[#1a5c3a]">
-                <CalendarDays className="w-4 h-4" />
-                <span className="font-medium">Semana: {formatWeekRange(editingSchedule.weekStartDate)}</span>
-              </div>
+            <div className="space-y-2">
+              <Label>Semana a editar *</Label>
+              {/* Si hay varias semanas del mes, mostrar selector */}
+              {allWeeks && allWeeks.length > 1 ? (
+                <div className="space-y-2">
+                  <div className="flex flex-col gap-2">
+                    {allWeeks
+                      .sort((a, b) => a.weekStartDate.localeCompare(b.weekStartDate))
+                      .map((w, i) => {
+                        const isSelected = w.weekStartDate === editingSchedule.weekStartDate;
+                        return (
+                          <button
+                            key={w.id}
+                            type="button"
+                            onClick={() => onSelectWeekToEdit?.(w)}
+                            className="flex items-center gap-3 p-3 rounded-lg border text-left transition-colors"
+                            style={{
+                              borderColor: isSelected ? "#78D1BD" : "#E5E7EB",
+                              backgroundColor: isSelected ? "#edf7f4" : "#ffffff",
+                              cursor: "pointer",
+                            }}
+                          >
+                            <span style={{
+                              fontSize: 11, fontWeight: 700, color: "#1a5c3a",
+                              backgroundColor: isSelected ? "#1a3a2a" : "#edf7f4",
+                              color: isSelected ? "#ffffff" : "#1a5c3a",
+                              padding: "2px 8px", borderRadius: 999, flexShrink: 0,
+                            }}>
+                              Sem. {i + 1}
+                            </span>
+                            <span className="text-xs text-gray-600">{formatWeekRange(w.weekStartDate)}</span>
+                            {isSelected && (
+                              <span className="text-xs text-[#1a5c3a] font-medium ml-auto">Editando</span>
+                            )}
+                          </button>
+                        );
+                      })}
+                  </div>
+                  <p className="text-xs text-gray-500">
+                    Selecciona la semana que deseas modificar.
+                  </p>
+                </div>
+              ) : (
+                <div className="p-3 rounded-lg border border-[#78D1BD]/40 bg-[#edf7f4]">
+                  <div className="flex items-center gap-2 text-sm text-[#1a5c3a]">
+                    <CalendarDays className="w-4 h-4" />
+                    <span className="font-medium">{formatWeekRange(editingSchedule.weekStartDate)}</span>
+                  </div>
+                </div>
+              )}
             </div>
           ) : (
             <div className="space-y-2">

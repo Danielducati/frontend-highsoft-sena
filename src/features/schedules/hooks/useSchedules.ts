@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { WeeklySchedule, ScheduleFormData, Employee } from "../types";
-import { getMondayOfWeek, getWeekDays, formatDateToISO } from "../utils";
+import { getMondayOfWeek, getWeekDays, formatDateToISO, formatWeekRange } from "../utils";
 import { WEEK_DAYS_LABELS } from "../constants";
 import { schedulesApi } from "../services/schedulesApi";
 
@@ -46,7 +46,7 @@ export function useSchedules() {
   const [isDialogOpen,     setIsDialogOpen]     = useState(false);
   const [editingSchedule,  setEditingSchedule]  = useState<WeeklySchedule | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [scheduleToDelete, setScheduleToDelete] = useState<WeeklySchedule | null>(null);
+  const [scheduleToDelete, setScheduleToDelete] = useState<{ employeeId: string; monthKey: string; weeks: WeeklySchedule[] } | null>(null);
   const [searchTerm,       setSearchTerm]       = useState("");
   const [filterEmployee,   setFilterEmployee]   = useState("all");
   const [detailDialogOpen, setDetailDialogOpen] = useState(false);
@@ -235,11 +235,66 @@ export function useSchedules() {
     }
   };
 
+  // Copia todo el mes al mes siguiente
+  const handleRenewMonth = async (employeeId: string, monthKey: string, weeksList: WeeklySchedule[]) => {
+    const [y, m] = monthKey.split("-").map(Number);
+    // Mes siguiente
+    const nextMonth = m === 12 ? 1 : m + 1;
+    const nextYear  = m === 12 ? y + 1 : y;
+
+    // Semanas del mes siguiente
+    const nextWeeks = getWeeksOfMonth(nextYear, nextMonth - 1);
+
+    if (nextWeeks.length === 0) {
+      toast.error("No se encontraron semanas para el mes siguiente");
+      return;
+    }
+
+    // Verificar si ya existen horarios en el mes siguiente para este empleado
+    const yaExisten = nextWeeks.filter(w =>
+      schedules.some(s => s.employeeId === employeeId && s.weekStartDate === w)
+    );
+    if (yaExisten.length > 0) {
+      toast.error(`Ya existen ${yaExisten.length} semana(s) en el mes siguiente para este empleado. Elimínalas primero.`);
+      return;
+    }
+
+    // Patrón de días del mes actual (tomamos la primera semana)
+    const dayPattern = weeksList[0]?.daySchedules ?? [];
+    if (dayPattern.length === 0) {
+      toast.error("No hay días configurados en este mes");
+      return;
+    }
+
+    const nextMonthLabel = new Date(nextYear, nextMonth - 1, 1)
+      .toLocaleDateString("es-ES", { month: "long", year: "numeric" });
+
+    try {
+      let created = 0;
+      for (const weekStartDate of nextWeeks) {
+        await schedulesApi.create({
+          employeeId,
+          weekStartDate,
+          daySchedules: dayPattern,
+        });
+        created++;
+      }
+      toast.success(`Horario copiado a ${nextMonthLabel} (${created} semanas)`);
+      await reload();
+    } catch (err: any) {
+      toast.error(err.message ?? "Error al copiar horario");
+      await reload();
+    }
+  };
+
   const handleDelete = async () => {
     if (!scheduleToDelete) return;
     try {
-      await schedulesApi.remove(scheduleToDelete.employeeId, scheduleToDelete.weekStartDate);
-      toast.success("Horario eliminado");
+      // Eliminar todas las semanas del mes para ese empleado
+      for (const week of scheduleToDelete.weeks) {
+        await schedulesApi.remove(week.employeeId, week.weekStartDate);
+      }
+      toast.success(`Horario eliminado (${scheduleToDelete.weeks.length} semana${scheduleToDelete.weeks.length !== 1 ? "s" : ""})`);
       await reload();
     } catch {
       toast.error("Error al eliminar horario");
@@ -249,8 +304,19 @@ export function useSchedules() {
     }
   };
 
-  const confirmDelete = (schedule: WeeklySchedule) => {
-    setScheduleToDelete(schedule);
+  // Elimina solo una semana específica (sin diálogo de confirmación del mes)
+  const handleDeleteWeek = async (week: WeeklySchedule) => {
+    try {
+      await schedulesApi.remove(week.employeeId, week.weekStartDate);
+      toast.success(`Semana ${formatWeekRange(week.weekStartDate)} eliminada`);
+      await reload();
+    } catch {
+      toast.error("Error al eliminar la semana");
+    }
+  };
+
+  const confirmDelete = (employeeId: string, monthKey: string, weeks: WeeklySchedule[]) => {
+    setScheduleToDelete({ employeeId, monthKey, weeks });
     setDeleteDialogOpen(true);
   };
 
@@ -300,9 +366,8 @@ export function useSchedules() {
     goToPreviousWeek, goToNextWeek,
     formWeekStart, setFormWeekStart, formData, setFormData,
     formWeekDays,
-    goToPreviousWeek, goToNextWeek,
     toggleDay, updateDaySchedule,
-    handleCreateOrUpdate, handleDelete, handleRenewWeek,
+    handleCreateOrUpdate, handleDelete, handleDeleteWeek, handleRenewWeek, handleRenewMonth,
     confirmDelete, handleEdit, handleViewDetail,
     resetForm, clearFilters,
   };
