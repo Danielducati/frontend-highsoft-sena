@@ -45,7 +45,7 @@ export function QuotationsPage({ userRole }: QuotationsModuleProps) {
     addService, removeService, updateQuantity, updateServiceEmployee,
     calculateSubtotal, calculateTotal,
     filterClient, setFilterClient,
-    myClientData, employees,
+    myClientData, employees, employeesForService, loadEmployeesForService,
   } = useQuotations(userRole);
 
   return (
@@ -67,6 +67,8 @@ export function QuotationsPage({ userRole }: QuotationsModuleProps) {
           formData={formData} setFormData={setFormData}
           clients={clients} availableServices={availableServices}
           employees={employees}
+          employeesForService={employeesForService}
+          loadEmployeesForService={loadEmployeesForService}
           calculateSubtotal={calculateSubtotal} calculateTotal={calculateTotal}
           addService={addService} removeService={removeService}
           updateQuantity={updateQuantity} updateServiceEmployee={updateServiceEmployee}

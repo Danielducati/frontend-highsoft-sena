@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { toast } from "sonner";
 import { Quotation, QuotationFormData, QuotationItem, QuotationStatus } from "../types";
 import { ITEMS_PER_PAGE, API_URL } from "../constants";
@@ -50,6 +50,11 @@ export function useQuotations(userRole?: string) {
   const [filterClient,       setFilterClient]       = useState("all");
   const [myClientData,       setMyClientData]       = useState<{ id: number; nombre: string; apellido: string } | null>(null);
   const [myEmployeeData,     setMyEmployeeData]     = useState<{ id: string; name: string; specialty: string } | null>(null);
+  const [employeesForService, setEmployeesForService] = useState<any[]>([]);
+
+  // Protección contra doble clic
+  const isCreating = useRef(false);
+  const isUpdatingStatus = useRef(false);
 
   useEffect(() => {
     loadQuotations();
@@ -142,8 +147,64 @@ export function useQuotations(userRole?: string) {
     } catch { /* silencioso */ }
   };
 
+  // Cargar empleados disponibles para un servicio específico (por especialidad)
+  const loadEmployeesForService = useCallback((serviceId: number) => {
+    if (!serviceId) {
+      setEmployeesForService([]);
+      return;
+    }
+    
+    try {
+      // Encontrar la categoría del servicio
+      const service = availableServices.find(s => String(s.id) === String(serviceId));
+      if (!service || !service.category) {
+        console.log('[loadEmployeesForService] Servicio no encontrado o sin categoría:', serviceId);
+        setEmployeesForService([]);
+        return;
+      }
+      
+      console.log('[loadEmployeesForService] Servicio:', service.name, '| Categoría:', service.category);
+      
+      // Normalizar string para comparación (quitar acentos, espacios, minúsculas)
+      const normalize = (str: string) => 
+        str.toLowerCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .trim()
+          .replace(/\s+/g, "");
+      
+      const serviceCategory = normalize(service.category);
+      
+      // Filtrar empleados activos por especialidad que coincida con la categoría del servicio
+      const activeEmployees = employees.filter(e => 
+        e.isActive !== false && e.estado !== "Inactivo"
+      );
+      
+      const empsEspecialistas = activeEmployees.filter(e => {
+        const empSpecialty = normalize(e.specialty ?? e.especialidad ?? "");
+        const match = empSpecialty === serviceCategory;
+        console.log(`[loadEmployeesForService] ${e.name}: "${empSpecialty}" === "${serviceCategory}" ? ${match}`);
+        return match;
+      });
+      
+      console.log('[loadEmployeesForService] Empleados filtrados:', empsEspecialistas.length);
+      
+      // Si no hay empleados con esa especialidad, mostrar todos los activos
+      setEmployeesForService(empsEspecialistas.length > 0 ? empsEspecialistas : activeEmployees);
+    } catch (err) {
+      console.error("Error filtrando empleados para servicio:", err);
+      setEmployeesForService(employees.filter(e => e.isActive !== false && e.estado !== "Inactivo"));
+    }
+  }, [availableServices, employees]);
+
   // ── CRUD ──────────────────────────────────────────────────────────────────
   const handleCreate = async () => {
+    // Prevenir doble clic
+    if (isCreating.current) {
+      console.log('⚠️ Cotización en proceso, ignorando clic adicional');
+      return;
+    }
+
     if (!formData.guestMode && !formData.clientId) {
       toast.error("Por favor selecciona un cliente o ingresa los datos del cliente ocasional");
       return;
@@ -178,6 +239,8 @@ export function useQuotations(userRole?: string) {
         phone:     formData.guestPhone?.trim()     || null,
       };
     }
+
+    isCreating.current = true;
     try {
       if (editingQuotation) {
         await updateQuotationApi(editingQuotation.id, body);
@@ -190,10 +253,22 @@ export function useQuotations(userRole?: string) {
       resetForm();
     } catch {
       toast.error("Error al guardar la cotización");
+    } finally {
+      // Liberar después de 1 segundo
+      setTimeout(() => {
+        isCreating.current = false;
+      }, 1000);
     }
   };
 
   const handleStatusChange = async (id: number, newStatus: QuotationStatus) => {
+    // Prevenir doble clic
+    if (isUpdatingStatus.current) {
+      console.log('⚠️ Actualización de estado en proceso, ignorando clic adicional');
+      return;
+    }
+
+    isUpdatingStatus.current = true;
     try {
       await updateQuotationStatusApi(id, newStatus);
       toast.success(newStatus === "approved" ? "Cotización aprobada — cita creada automáticamente" : "Estado actualizado");
@@ -204,6 +279,11 @@ export function useQuotations(userRole?: string) {
       }
     } catch (err: any) {
       toast.error(err.message || "Error al actualizar estado");
+    } finally {
+      // Liberar después de 1 segundo
+      setTimeout(() => {
+        isUpdatingStatus.current = false;
+      }, 1000);
     }
   };
 
@@ -326,6 +406,6 @@ export function useQuotations(userRole?: string) {
     addService, removeService, updateQuantity, updateServiceEmployee,
     calculateSubtotal, calculateTotal,
     filterClient, setFilterClient,
-    myClientData, employees,
+    myClientData, employees, employeesForService, loadEmployeesForService,
   };
 }

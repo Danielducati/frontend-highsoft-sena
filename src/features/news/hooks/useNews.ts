@@ -1,5 +1,5 @@
 // news/hooks/useNews.ts
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { newsApi, ConflictResponse, ConflictAction } from "../services/newsApi";
 import { Employee, EmployeeNews, NewsFormData } from "../types";
@@ -8,6 +8,9 @@ export function useNews() {
 const [employees, setEmployees] = useState<Employee[]>([]);
 const [newsList,  setNewsList]  = useState<EmployeeNews[]>([]);
 const [loading,   setLoading]   = useState(true);
+
+// Protección contra doble clic
+const isProcessing = useRef(false);
 
 // Estado del conflicto
 const [conflict,        setConflict]        = useState<ConflictResponse | null>(null);
@@ -37,10 +40,18 @@ const reload = async () => {
 };
 
 const createOrUpdate = async (formData: NewsFormData, editingId?: number): Promise<boolean> => {
+    // Prevenir doble clic
+    if (isProcessing.current) {
+      console.log('⚠️ Novedad en proceso, ignorando clic adicional');
+      return false;
+    }
+    
     if (!formData.employeeId || !formData.date || !formData.description) {
     toast.error("Empleado, fecha y descripción son obligatorios");
     return false;
     }
+    
+    isProcessing.current = true;
     try {
     if (editingId) {
         await newsApi.update(editingId, formData);
@@ -64,6 +75,11 @@ const createOrUpdate = async (formData: NewsFormData, editingId?: number): Promi
     } catch (err: any) {
     toast.error(err.message ?? "Error al guardar");
     return false;
+    } finally {
+      // Liberar después de 1 segundo
+      setTimeout(() => {
+        isProcessing.current = false;
+      }, 1000);
     }
 };
 

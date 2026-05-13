@@ -1,5 +1,5 @@
 // src/features/roles/hooks/useRoles.ts
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { Role, Permission } from "../types";
 import { rolesService } from "../services";
@@ -9,6 +9,9 @@ export function useRoles() {
   const [roles, setRoles]                               = useState<Role[]>([]);
   const [availablePermissions, setAvailablePermissions] = useState<Permission[]>([]);
   const [loading, setLoading]                           = useState(true);
+  
+  // Protección contra doble clic
+  const isProcessing = useRef(false);
 
   useEffect(() => {
     fetchRoles();
@@ -46,15 +49,41 @@ export function useRoles() {
   };
 
   const createRole = async (formData: { nombre: string; descripcion: string; permisosIds: number[] }) => {
-    await rolesService.createRole(formData);
-    toast.success("Rol creado exitosamente");
-    await fetchRoles();
+    // Prevenir doble clic
+    if (isProcessing.current) {
+      console.log('⚠️ Rol en proceso, ignorando clic adicional');
+      return;
+    }
+    
+    isProcessing.current = true;
+    try {
+      await rolesService.createRole(formData);
+      toast.success("Rol creado exitosamente");
+      await fetchRoles();
+    } finally {
+      setTimeout(() => {
+        isProcessing.current = false;
+      }, 1000);
+    }
   };
 
   const updateRole = async (id: number, formData: { nombre: string; descripcion: string; permisosIds: number[] }) => {
-    await rolesService.updateRole(id, formData);
-    toast.success("Rol actualizado exitosamente");
-    await fetchRoles();
+    // Prevenir doble clic
+    if (isProcessing.current) {
+      console.log('⚠️ Rol en proceso, ignorando clic adicional');
+      return;
+    }
+    
+    isProcessing.current = true;
+    try {
+      await rolesService.updateRole(id, formData);
+      toast.success("Rol actualizado exitosamente");
+      await fetchRoles();
+    } finally {
+      setTimeout(() => {
+        isProcessing.current = false;
+      }, 1000);
+    }
   };
 
   const deleteRole = async (id: number) => {

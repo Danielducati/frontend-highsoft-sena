@@ -1,4 +1,4 @@
-﻿import { useState, useRef } from "react";
+﻿import React, { useState, useRef, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "../../../shared/ui/dialog";
 import { Button } from "../../../shared/ui/button";
 import { Input } from "../../../shared/ui/input";
@@ -23,6 +23,8 @@ interface QuotationFormDialogProps {
   clients: any[];
   availableServices: any[];
   employees: any[];
+  employeesForService?: any[];
+  loadEmployeesForService?: (serviceId: number) => void;
   calculateSubtotal: () => number;
   calculateTotal: () => number;
   addService: (id: number) => void;
@@ -113,11 +115,36 @@ function QuotClientSearch({ clients, selectedId, onSelect, error, onBlur }: {
 
 export function QuotationFormDialog({
   isOpen, onOpenChange, editingQuotation, formData, setFormData,
-  clients, availableServices, employees, calculateSubtotal, calculateTotal,
+  clients, availableServices, employees, employeesForService = [], loadEmployeesForService,
+  calculateSubtotal, calculateTotal,
   addService, removeService, updateQuantity, updateServiceEmployee,
   onSubmit, onCancel, onNewClick, userRole, myClientData,
 }: QuotationFormDialogProps) {
   const [touched, setTouched] = useState<Partial<Record<keyof Errors, boolean>>>({});
+  const [serviceEmployeesMap, setServiceEmployeesMap] = useState<Map<number, any[]>>(new Map());
+
+  // Cargar empleados cuando se agregan servicios
+  React.useEffect(() => {
+    if (!loadEmployeesForService) return;
+    
+    formData.selectedServices.forEach(item => {
+      if (!serviceEmployeesMap.has(item.serviceId)) {
+        loadEmployeesForService(item.serviceId);
+      }
+    });
+  }, [formData.selectedServices.length, loadEmployeesForService, serviceEmployeesMap]);
+
+  // Actualizar el mapa cuando cambian los empleados filtrados
+  React.useEffect(() => {
+    if (employeesForService.length > 0 && formData.selectedServices.length > 0) {
+      const lastService = formData.selectedServices[formData.selectedServices.length - 1];
+      setServiceEmployeesMap(prev => {
+        const newMap = new Map(prev);
+        newMap.set(lastService.serviceId, employeesForService);
+        return newMap;
+      });
+    }
+  }, [employeesForService, formData.selectedServices]);
 
   if (userRole === "client") return null;
 
@@ -337,20 +364,23 @@ export function QuotationFormDialog({
                     <div className="space-y-1">
                       <Label className="text-xs text-gray-600">Empleado asignado</Label>
                       {(() => {
-                        // Normalizar string para comparación (quitar acentos, espacios, minúsculas)
-                        const normalize = (str: string) => 
-                          str.toLowerCase()
-                            .normalize("NFD")
-                            .replace(/[\u0300-\u036f]/g, "")
-                            .trim()
-                            .replace(/\s+/g, "");
+                        // Obtener empleados filtrados para este servicio del mapa
+                        const empList = serviceEmployeesMap.get(item.serviceId) || (() => {
+                          // Fallback: filtrar manualmente si no está en el mapa
+                          const normalize = (str: string) => 
+                            str.toLowerCase()
+                              .normalize("NFD")
+                              .replace(/[\u0300-\u036f]/g, "")
+                              .trim()
+                              .replace(/\s+/g, "");
 
-                        const active = employees.filter(
-                          em => em.isActive !== false && em.estado !== "Inactivo"
-                        );
-                        
-                        // Si solo hay un empleado (rol employee), mostrarlo siempre sin filtrar
-                        const empList = active.length === 1 ? active : (() => {
+                          const active = employees.filter(
+                            em => em.isActive !== false && em.estado !== "Inactivo"
+                          );
+                          
+                          // Si solo hay un empleado (rol employee), mostrarlo siempre sin filtrar
+                          if (active.length === 1) return active;
+                          
                           const svc = availableServices.find(s => String(s.id) === String(item.serviceId));
                           const cat = normalize(svc?.category ?? "");
                           
