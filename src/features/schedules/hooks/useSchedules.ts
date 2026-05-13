@@ -280,15 +280,11 @@ export function useSchedules() {
     viewingSchedule,
     searchTerm, setSearchTerm,
     filterEmployee, setFilterEmployee,
-    // Mes
     selectedMonth, setSelectedMonth, weeksOfMonth,
     goToPreviousMonth, goToNextMonth,
-    // Compatibilidad con ScheduleFormDialog
+    goToPreviousWeek, goToNextWeek,
     formWeekStart, setFormWeekStart, formData, setFormData,
     formWeekDays,
-    selectedMonth, weeksOfSelectedMonth,
-    goToPreviousWeek, goToNextWeek,
-    goToPreviousMonth, goToNextMonth,
     toggleDay, updateDaySchedule,
     handleCreateOrUpdate, handleDelete, handleRenewWeek,
     confirmDelete, handleEdit, handleViewDetail,
