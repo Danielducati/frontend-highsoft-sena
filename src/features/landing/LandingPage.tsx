@@ -7,72 +7,90 @@ interface LandingPageProps {
   onNavigate: (page: string) => void;
 }
 
+// Imágenes de fallback por categoría
+const FALLBACKS: Record<string, string> = {
+  masajes:      'https://images.unsplash.com/photo-1519823551278-64ac92734fb1?w=900&q=85',
+  masaje:       'https://images.unsplash.com/photo-1519823551278-64ac92734fb1?w=900&q=85',
+  cosmetologia: 'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=900&q=85',
+  cosmetología: 'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=900&q=85',
+  unas:         'https://images.unsplash.com/photo-1604654894610-df63bc536371?w=900&q=85',
+  uñas:         'https://images.unsplash.com/photo-1604654894610-df63bc536371?w=900&q=85',
+  cabello:      'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=900&q=85',
+  barberia:     'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=900&q=85',
+  barbería:     'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=900&q=85',
+  default:      'https://images.unsplash.com/photo-1515377905703-c4788e51af15?w=900&q=85',
+};
+
+function getImg(image: string, category: string): string {
+  if (image) return image;
+  const key = category.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  for (const [k, v] of Object.entries(FALLBACKS)) {
+    if (key.includes(k)) return v;
+  }
+  return FALLBACKS.default;
+}
+
+function formatPrice(price: number): string {
+  return `$${price.toLocaleString('es-CO')}`;
+}
+
+const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3001';
+
+interface Service {
+  id: number;
+  name: string;
+  category: string;
+  price: number;
+  duration: number;
+  image: string;
+}
+
 export function LandingPage({ onNavigate }: LandingPageProps) {
 
-  const services = [
-    {
-      id: 0,
-      category: 'BARBERÍA',
-      name: 'Corte + Barba',
-      price: '$35.000',
-      duration: '60 min',
-      img: 'https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=900&q=85',
-      alt: 'Corte y barba profesional',
-    },
-    {
-      id: 1,
-      category: 'BARBERÍA',
-      name: 'Corte de Barba',
-      price: '$18.000',
-      duration: '30 min',
-      img: 'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=900&q=85',
-      alt: 'Corte de barba',
-    },
-    {
-      id: 2,
-      category: 'CABELLO',
-      name: 'Corte de Cabello',
-      price: '$25.000',
-      duration: '30 min',
-      img: 'https://images.unsplash.com/photo-1605497788044-5a32c7078486?w=900&q=85',
-      alt: 'Corte de cabello profesional',
-    },
-    {
-      id: 3,
-      category: 'COSMETOLOGÍA',
-      name: 'Limpieza Facial',
-      price: '$55.000',
-      duration: '60 min',
-      img: 'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=900&q=85',
-      alt: 'Limpieza facial profunda',
-    },
-    {
-      id: 4,
-      category: 'UÑAS',
-      name: 'Manicure Clásica',
-      price: '$20.000',
-      duration: '45 min',
-      img: 'https://images.unsplash.com/photo-1604654894610-df63bc536371?w=900&q=85',
-      alt: 'Manicure clásica',
-    },
-  ];
+  const [services,  setServices]  = useState<Service[]>([]);
+  const [current,   setCurrent]   = useState(0);
+  const [isPaused,  setIsPaused]  = useState(false);
+  const [loadingS,  setLoadingS]  = useState(true);
 
-  const [current, setCurrent] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
+  // Cargar servicios activos desde la API
+  useEffect(() => {
+    fetch(`${API_URL}/services`)
+      .then(r => r.json())
+      .then((data: any[]) => {
+        const mapped: Service[] = data
+          .filter(s => (s.estado ?? s.status ?? 'Activo') === 'Activo')
+          .map(s => ({
+            id:       s.id,
+            name:     s.name     ?? s.nombre     ?? '',
+            category: s.category ?? s.categoria  ?? '',
+            price:    s.price    ?? s.precio      ?? 0,
+            duration: s.duration ?? s.duracion    ?? 0,
+            image:    s.image    ?? s.imagen      ?? s.imagenServicio ?? '',
+          }));
+        setServices(mapped);
+        setCurrent(0);
+      })
+      .catch(() => {})
+      .finally(() => setLoadingS(false));
+  }, []);
+
+  const total = services.length;
 
   const next = useCallback(() => {
-    setCurrent(c => (c + 1) % services.length);
-  }, [services.length]);
+    if (total === 0) return;
+    setCurrent(c => (c + 1) % total);
+  }, [total]);
 
   const prev = useCallback(() => {
-    setCurrent(c => (c - 1 + services.length) % services.length);
-  }, [services.length]);
+    if (total === 0) return;
+    setCurrent(c => (c - 1 + total) % total);
+  }, [total]);
 
   useEffect(() => {
-    if (isPaused) return;
+    if (isPaused || total === 0) return;
     const timer = setInterval(next, 4500);
     return () => clearInterval(timer);
-  }, [next, isPaused]);
+  }, [next, isPaused, total]);
 
   return (
     <div className="hl-landing">
@@ -176,79 +194,89 @@ export function LandingPage({ onNavigate }: LandingPageProps) {
         onMouseLeave={() => setIsPaused(false)}
         aria-label="Carrusel de servicios"
       >
-        {/* Slides */}
-        <div className="hl-carousel__track">
-          {services.map((s, i) => (
-            <div
-              key={s.id}
-              className={`hl-carousel__slide ${i === current ? 'hl-carousel__slide--active' : ''}`}
-              aria-hidden={i !== current}
-            >
-              <ImageWithFallback
-                src={s.img}
-                alt={s.alt}
-                className="hl-carousel__img"
-              />
-              <div className="hl-carousel__overlay" />
-
-              {/* Info panel */}
-              <div className="hl-carousel__info">
-                <p className="hl-carousel__category">{s.category}</p>
-                <h3 className="hl-carousel__name">{s.name}</h3>
-                <div className="hl-carousel__meta">
-                  <span className="hl-carousel__price">{s.price}</span>
-                  <span className="hl-carousel__duration">
-                    <Clock size={13} />
-                    {s.duration}
-                  </span>
-                </div>
-                <button
-                  className="hl-btn-primary hl-carousel__cta"
-                  onClick={() => onNavigate('login')}
+        {loadingS ? (
+          <div style={{ height: 420, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#1E2D24' }}>
+            <p style={{ color: 'rgba(255,255,255,0.5)', fontFamily: 'var(--hl-font-body)', fontSize: '0.9rem' }}>Cargando servicios...</p>
+          </div>
+        ) : total === 0 ? null : (
+          <>
+            {/* Slides */}
+            <div className="hl-carousel__track">
+              {services.map((s, i) => (
+                <div
+                  key={s.id}
+                  className={`hl-carousel__slide ${i === current ? 'hl-carousel__slide--active' : ''}`}
+                  aria-hidden={i !== current}
                 >
-                  Reservar Ahora
-                </button>
-              </div>
+                  <ImageWithFallback
+                    src={getImg(s.image, s.category)}
+                    alt={s.name}
+                    className="hl-carousel__img"
+                  />
+                  <div className="hl-carousel__overlay" />
+
+                  {/* Info panel */}
+                  <div className="hl-carousel__info">
+                    <p className="hl-carousel__category">{s.category.toUpperCase()}</p>
+                    <h3 className="hl-carousel__name">{s.name}</h3>
+                    <div className="hl-carousel__meta">
+                      <span className="hl-carousel__price">{formatPrice(s.price)}</span>
+                      {s.duration > 0 && (
+                        <span className="hl-carousel__duration">
+                          <Clock size={13} />
+                          {s.duration} min
+                        </span>
+                      )}
+                    </div>
+                    <button
+                      className="hl-btn-primary hl-carousel__cta"
+                      onClick={() => onNavigate('login')}
+                    >
+                      Reservar Ahora
+                    </button>
+                  </div>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
 
-        {/* Arrow prev */}
-        <button
-          className="hl-carousel__arrow hl-carousel__arrow--prev"
-          onClick={prev}
-          aria-label="Servicio anterior"
-        >
-          <ChevronLeft size={24} />
-        </button>
-
-        {/* Arrow next */}
-        <button
-          className="hl-carousel__arrow hl-carousel__arrow--next"
-          onClick={next}
-          aria-label="Siguiente servicio"
-        >
-          <ChevronRight size={24} />
-        </button>
-
-        {/* Dots */}
-        <div className="hl-carousel__dots" role="tablist">
-          {services.map((_, i) => (
+            {/* Arrow prev */}
             <button
-              key={i}
-              role="tab"
-              aria-selected={i === current}
-              aria-label={`Ir a servicio ${i + 1}`}
-              className={`hl-carousel__dot ${i === current ? 'hl-carousel__dot--active' : ''}`}
-              onClick={() => { setCurrent(i); setIsPaused(true); setTimeout(() => setIsPaused(false), 6000); }}
-            />
-          ))}
-        </div>
+              className="hl-carousel__arrow hl-carousel__arrow--prev"
+              onClick={prev}
+              aria-label="Servicio anterior"
+            >
+              <ChevronLeft size={24} />
+            </button>
 
-        {/* Counter */}
-        <div className="hl-carousel__counter">
-          {String(current + 1).padStart(2, '0')} / {String(services.length).padStart(2, '0')}
-        </div>
+            {/* Arrow next */}
+            <button
+              className="hl-carousel__arrow hl-carousel__arrow--next"
+              onClick={next}
+              aria-label="Siguiente servicio"
+            >
+              <ChevronRight size={24} />
+            </button>
+
+            {/* Dots */}
+            <div className="hl-carousel__dots" role="tablist">
+              {services.map((_, i) => (
+                <button
+                  key={i}
+                  role="tab"
+                  aria-selected={i === current}
+                  aria-label={`Ir a servicio ${i + 1}`}
+                  className={`hl-carousel__dot ${i === current ? 'hl-carousel__dot--active' : ''}`}
+                  onClick={() => { setCurrent(i); setIsPaused(true); setTimeout(() => setIsPaused(false), 6000); }}
+                />
+              ))}
+            </div>
+
+            {/* Counter */}
+            <div className="hl-carousel__counter">
+              {String(current + 1).padStart(2, '0')} / {String(total).padStart(2, '0')}
+            </div>
+          </>
+        )}
       </section>
 
 
