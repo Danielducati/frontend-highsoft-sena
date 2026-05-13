@@ -11,6 +11,7 @@ import {
   fetchMyClientProfile, fetchMyEmployeeProfile,
   createAppointment, updateAppointment, deleteAppointment,
   cancelAppointment, updateAppointmentStatus,
+  fetchAvailableTimeSlots,
 } from "../services/appointmentsService";
 
 const TODAY = new Date();
@@ -26,6 +27,8 @@ export function useAppointments(userRole?: string) {
   const [clients,      setClients]      = useState<Client[]>([]);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loading,      setLoading]      = useState(true);
+  const [availableSlots, setAvailableSlots] = useState<Map<string, { minTime: string; maxTime: string; hasSchedules: boolean }>>(new Map());
+  const [employeesForService, setEmployeesForService] = useState<Employee[]>([]);
 
   const [currentWeekStart,   setCurrentWeekStart]   = useState(() => getMonday(TODAY));
   const [viewMode,           setViewMode]            = useState<"calendar" | "list">("calendar");
@@ -45,6 +48,9 @@ export function useAppointments(userRole?: string) {
 
   // Ref para capturar el startTime más reciente sin depender del closure del estado
   const startTimeRef = useRef<string>("");
+  
+  // Protección contra doble clic
+  const isCreatingOrUpdating = useRef(false);
 
   useEffect(() => {
     async function loadAll() {
@@ -93,7 +99,17 @@ export function useAppointments(userRole?: string) {
       }
     }
     loadAll();
+
+    // Escuchar evento de recarga (disparado al aprobar una cotización)
+    const handleReload = () => reloadAppointments();
+    window.addEventListener("appointments:reload", handleReload);
+    return () => window.removeEventListener("appointments:reload", handleReload);
   }, []);
+
+  // Cargar franjas horarias cuando cambia la semana
+  useEffect(() => {
+    loadAvailableSlots(currentWeekStart);
+  }, [currentWeekStart]);
 
   // Cargar empleados disponibles cuando cambia la fecha del formulario o se abre el dialog
   useEffect(() => {
@@ -105,13 +121,39 @@ export function useAppointments(userRole?: string) {
     fetchEmployeesByDate(fechaStr)
       .then(data => setEmployees(data))
       .catch(() => setEmployees([]));
-  }, [formData.date, isDialogOpen]);
+    
+    // Si hay un servicio seleccionado, recargar empleados para ese servicio
+    if (currentService.serviceId) {
+      loadEmployeesForService(currentService.serviceId);
+    }
+  }, [formData.date, isDialogOpen, currentService.serviceId]);
 
   const reloadAppointments = async () => {
     const data = userRole === "client"   ? await fetchMyAppointments()         :
                  userRole === "employee" ? await fetchMyEmployeeAppointments() :
                                           await fetchAppointments();
     setAppointments(data);
+  };
+
+  const loadAvailableSlots = async (weekStart: Date) => {
+    try {
+      const weekStartStr = `${weekStart.getFullYear()}-${String(weekStart.getMonth() + 1).padStart(2, "0")}-${String(weekStart.getDate()).padStart(2, "0")}`;
+      const slots = await fetchAvailableTimeSlots(weekStartStr);
+      
+      const map = new Map<string, { minTime: string; maxTime: string; hasSchedules: boolean }>();
+      slots.forEach(slot => {
+        map.set(slot.date, {
+          minTime: slot.minTime,
+          maxTime: slot.maxTime,
+          hasSchedules: slot.hasSchedules,
+        });
+      });
+      
+      setAvailableSlots(map);
+    } catch (err) {
+      console.error("Error cargando franjas horarias:", err);
+      setAvailableSlots(new Map());
+    }
   };
 
   // ── Sincronizar cliente logueado cuando carga su perfil ──────────────────
@@ -137,16 +179,44 @@ export function useAppointments(userRole?: string) {
 
   const goToPreviousWeek = () => {
     const d = new Date(currentWeekStart); d.setDate(d.getDate() - 7); setCurrentWeekStart(d);
+    loadAvailableSlots(d);
   };
   const goToNextWeek = () => {
     const d = new Date(currentWeekStart); d.setDate(d.getDate() + 7); setCurrentWeekStart(d);
+    loadAvailableSlots(d);
   };
-  const goToToday   = () => setCurrentWeekStart(getMonday(TODAY));
+  const goToToday   = () => {
+    const monday = getMonday(TODAY);
+    setCurrentWeekStart(monday);
+    loadAvailableSlots(monday);
+  };
   const isToday     = (date: Date) => date.toDateString() === TODAY.toDateString();
   const isPastDate  = (date: Date) => {
     const hoy = new Date(); hoy.setHours(0, 0, 0, 0);
     const d   = new Date(date); d.setHours(0, 0, 0, 0);
     return d < hoy;
+  };
+
+  const isTimeSlotAvailable = (date: Date, time: string): boolean => {
+    const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+    const slot = availableSlots.get(dateStr);
+    
+    if (!slot || !slot.hasSchedules) return false;
+    
+    return time >= slot.minTime && time < slot.maxTime;
+  };
+
+  const getDayScheduleInfo = (date: Date): { hasSchedules: boolean; minTime?: string; maxTime?: string } => {
+    const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+    const slot = availableSlots.get(dateStr);
+    
+    if (!slot) return { hasSchedules: false };
+    
+    return {
+      hasSchedules: slot.hasSchedules,
+      minTime: slot.minTime,
+      maxTime: slot.maxTime,
+    };
   };
 
   const getEmployeesByCategory = (category: string) => {
@@ -155,6 +225,62 @@ export function useAppointments(userRole?: string) {
       e => e.specialty?.toLowerCase().trim() === category.toLowerCase().trim()
     );
     return filtered.length > 0 ? filtered : employees;
+  };
+
+  // Cargar empleados asignados a un servicio específico (por especialidad)
+  const loadEmployeesForService = async (serviceId: string) => {
+    if (!serviceId) {
+      setEmployeesForService([]);
+      return;
+    }
+    
+    try {
+      // Encontrar la categoría del servicio
+      const service = services.find(s => s.id === serviceId);
+      if (!service || !service.category) {
+        console.log('[loadEmployeesForService] Servicio no encontrado o sin categoría:', serviceId);
+        setEmployeesForService([]);
+        return;
+      }
+      
+      console.log('[loadEmployeesForService] Servicio:', service.name, '| Categoría:', service.category);
+      
+      // Filtrar empleados por especialidad que coincida con la categoría del servicio
+      const fechaStr = formData.date instanceof Date
+        ? `${formData.date.getFullYear()}-${String(formData.date.getMonth()+1).padStart(2,"0")}-${String(formData.date.getDate()).padStart(2,"0")}`
+        : String(formData.date).split("T")[0];
+      
+      console.log('[loadEmployeesForService] Fecha:', fechaStr);
+      
+      // Obtener empleados disponibles en esa fecha
+      const empsDisponibles = await fetchEmployeesByDate(fechaStr);
+      console.log('[loadEmployeesForService] Empleados con horario en fecha:', empsDisponibles.map(e => `${e.name} (${e.specialty})`));
+      
+      // Filtrar por especialidad que coincida con la categoría del servicio (case-insensitive y trim)
+      const empsEspecialistas = empsDisponibles.filter(e => {
+        const empSpecialty = (e.specialty || '').toLowerCase().trim();
+        const serviceCategory = (service.category || '').toLowerCase().trim();
+        const match = empSpecialty === serviceCategory;
+        console.log(`[loadEmployeesForService] ${e.name}: "${empSpecialty}" === "${serviceCategory}" ? ${match}`);
+        return match;
+      });
+      
+      console.log('[loadEmployeesForService] Empleados filtrados:', empsEspecialistas.length);
+      
+      // Solo actualizar si la lista cambió para evitar re-renders innecesarios
+      setEmployeesForService(prev => {
+        const prevIds = prev.map(e => e.id).sort().join(',');
+        const newIds = empsEspecialistas.map(e => e.id).sort().join(',');
+        if (prevIds === newIds) {
+          console.log('[loadEmployeesForService] Lista sin cambios, no actualizar estado');
+          return prev;
+        }
+        return empsEspecialistas;
+      });
+    } catch (err) {
+      console.error("Error cargando empleados para servicio:", err);
+      setEmployeesForService([]);
+    }
   };
 
   // ── Servicios del formulario ──
@@ -225,6 +351,12 @@ export function useAppointments(userRole?: string) {
 
   // ── CRUD ──
   const handleCreateOrUpdate = async (overrideStartTime?: string) => {
+    // Prevenir doble clic
+    if (isCreatingOrUpdating.current) {
+      console.log('⚠️ Cita en proceso, ignorando clic adicional');
+      return;
+    }
+
     // Ignorar si recibe un evento DOM en lugar de un string (llamada desde onSubmit del botón)
     const safeOverride = typeof overrideStartTime === "string" ? overrideStartTime : undefined;
     // Prioridad: parámetro explícito > ref (siempre actualizado) > estado
@@ -255,6 +387,7 @@ export function useAppointments(userRole?: string) {
       })),
     };
 
+    isCreatingOrUpdating.current = true;
     try {
       if (editingAppointment) {
         await updateAppointment(editingAppointment.id, payload, userRole === "client");
@@ -267,6 +400,11 @@ export function useAppointments(userRole?: string) {
       resetForm();
     } catch (err: any) {
       toast.error(err.message ?? "Error al guardar la cita");
+    } finally {
+      // Liberar después de 1 segundo para evitar doble clic rápido
+      setTimeout(() => {
+        isCreatingOrUpdating.current = false;
+      }, 1000);
     }
   };
 
@@ -423,11 +561,15 @@ export function useAppointments(userRole?: string) {
     isToday, isPastDate, getEmployeesByCategory,
     getAppointmentsForCell, getAppointmentCellSpan,
     getOccupiedEmployeeIds, isCellFullyBlocked,
+    isTimeSlotAvailable, getDayScheduleInfo,
     // handlers
     handleAddService, handleRemoveService,
     handleCreateOrUpdate, handleDelete, handleCancelAppointment,
     handleUpdateStatus, resetForm, handleEdit, handleClientChange,
     handleStartTimeChange,
     myEmployeeProfile,
+    // employees for service
+    employeesForService,
+    loadEmployeesForService,
   };
 }

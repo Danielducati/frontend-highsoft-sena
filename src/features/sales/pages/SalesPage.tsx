@@ -15,7 +15,7 @@ import { toast } from "sonner";
 import { SpaPage } from "../../../shared/components/layout/SpaPage";
 
 export function SalesPage({ userRole }: SalesModuleProps) {
-  const { sales, appointments, availableServices, clients, employees, loading, saving, registerSale } = useSales();
+  const { sales, appointments, availableServices, clients, employees, loading, saving, registerSale, employeesForService, loadEmployeesForService } = useSales();
 
   const [searchTerm,     setSearchTerm]    = useState("");
   const [filterPayment,  setFilterPayment] = useState("all");
@@ -129,6 +129,8 @@ export function SalesPage({ userRole }: SalesModuleProps) {
                 saleType={saleType} onSaleTypeChange={handleSaleTypeChange}
                 appointments={appointments} availableServices={availableServices}
                 clients={clients} employees={employees} saving={saving}
+                employeesForService={employeesForService}
+                loadEmployeesForService={loadEmployeesForService}
                 onSubmit={handleSubmit} onCancel={resetForm}
                 onAppointmentSelect={handleAppointmentSelect}
                 onAddService={handleAddService}

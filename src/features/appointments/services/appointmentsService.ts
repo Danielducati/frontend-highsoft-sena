@@ -180,3 +180,24 @@ export async function updateAppointmentStatus(id: number, status: Appointment["s
   if (!res.ok) throw new Error("Error al actualizar estado");
   return res.json();
 }
+
+export async function fetchAvailableTimeSlots(weekStartDate: string): Promise<{
+  date: string;
+  hasSchedules: boolean;
+  minTime: string;
+  maxTime: string;
+  employeeCount: number;
+  timeRanges: Array<{
+    startTime: string;
+    endTime: string;
+    employeeId: number;
+    employeeName: string;
+  }>;
+}[]> {
+  const res = await fetch(`${API_BASE}/schedules/available-slots?weekStartDate=${weekStartDate}`, {
+    headers: authHeaders(),
+  });
+  if (!res.ok) return [];
+  const data = await res.json();
+  return data.slots ?? [];
+}

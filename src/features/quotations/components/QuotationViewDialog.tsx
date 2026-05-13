@@ -1,10 +1,13 @@
-﻿import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "../../../shared/ui/dialog";
+﻿import { useState } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "../../../shared/ui/dialog";
 import { Quotation, QuotationStatus } from "../types";
 import { STATUS_LABELS } from "../constants";
 
 interface QuotationViewDialogProps {
-  quotation: Quotation | null;
-  onClose: () => void;
+  quotation:          Quotation | null;
+  onClose:            () => void;
+  userRole?:          string;
+  onApprove?:         (id: number) => Promise<void>;
 }
 
 function StatusBadge({ status }: { status: QuotationStatus }) {
@@ -25,7 +28,25 @@ function StatusBadge({ status }: { status: QuotationStatus }) {
   );
 }
 
-export function QuotationViewDialog({ quotation, onClose }: QuotationViewDialogProps) {
+export function QuotationViewDialog({ quotation, onClose, userRole, onApprove }: QuotationViewDialogProps) {
+  const [confirming, setConfirming] = useState(false);
+  const [approving,  setApproving]  = useState(false);
+
+  const handleApproveClick = () => setConfirming(true);
+
+  const handleConfirmApprove = async () => {
+    if (!quotation || !onApprove) return;
+    setApproving(true);
+    try {
+      await onApprove(quotation.id);
+      setConfirming(false);
+      onClose();
+    } finally {
+      setApproving(false);
+    }
+  };
+
+  const canApprove = userRole === "client" && quotation?.status === "pending";
   return (
     <Dialog open={!!quotation} onOpenChange={onClose}>
       <DialogContent style={{
@@ -127,13 +148,58 @@ export function QuotationViewDialog({ quotation, onClose }: QuotationViewDialogP
               </div>
             )}
 
-            {/* Cerrar */}
-            <div style={{ display: "flex", justifyContent: "flex-end" }}>
+            {/* Cerrar / Aprobar */}
+            <div style={{ display: "flex", justifyContent: "flex-end", gap: 10 }}>
               <button onClick={onClose} style={{
                 padding: "9px 20px", borderRadius: 10, border: "1px solid #E5E7EB",
                 backgroundColor: "transparent", color: "#1a3a2a", fontSize: 14,
                 fontFamily: "var(--font-body)", cursor: "pointer",
               }}>Cerrar</button>
+
+              {canApprove && !confirming && (
+                <button onClick={handleApproveClick} style={{
+                  padding: "9px 22px", borderRadius: 10, border: "none",
+                  backgroundColor: "#1a3a2a", color: "#ffffff", fontSize: 14,
+                  fontFamily: "var(--font-body)", cursor: "pointer", fontWeight: 600,
+                }}>
+                  ✓ Aprobar cotización
+                </button>
+              )}
+
+              {canApprove && confirming && (
+                <div style={{
+                  display: "flex", alignItems: "center", gap: 10,
+                  padding: "10px 16px", borderRadius: 10,
+                  backgroundColor: "#edf7f4", border: "1px solid #b7e4d4",
+                }}>
+                  <span style={{ fontSize: 13, color: "#1a5c3a", fontFamily: "var(--font-body)" }}>
+                    ¿Confirmar aprobación?
+                  </span>
+                  <button
+                    onClick={handleConfirmApprove}
+                    disabled={approving}
+                    style={{
+                      padding: "6px 16px", borderRadius: 8, border: "none",
+                      backgroundColor: "#1a3a2a", color: "#ffffff", fontSize: 13,
+                      fontFamily: "var(--font-body)", cursor: approving ? "not-allowed" : "pointer",
+                      opacity: approving ? 0.7 : 1,
+                    }}
+                  >
+                    {approving ? "Aprobando..." : "Sí, aprobar"}
+                  </button>
+                  <button
+                    onClick={() => setConfirming(false)}
+                    disabled={approving}
+                    style={{
+                      padding: "6px 14px", borderRadius: 8, border: "1px solid #E5E7EB",
+                      backgroundColor: "transparent", color: "#1a3a2a", fontSize: 13,
+                      fontFamily: "var(--font-body)", cursor: "pointer",
+                    }}
+                  >
+                    No
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         )}

@@ -17,6 +17,9 @@ export function useUsers() {
   const [users,            setUsers]            = useState<User[]>([]);
   const [roles,            setRoles]            = useState<Role[]>([]);
   const [loading,          setLoading]          = useState(true);
+  
+  // Protección contra doble clic
+  const isProcessing = useRef(false);
   const [searchTerm,       setSearchTerm]       = useState("");
   const [filterRole,       setFilterRole]       = useState("all");
   const [filterStatus,     setFilterStatus]     = useState("all");
@@ -57,6 +60,12 @@ export function useUsers() {
 
   // ── CRUD ──────────────────────────────────────────────────────────────────
   const handleCreateOrUpdate = async () => {
+    // Prevenir doble clic
+    if (isProcessing.current) {
+      console.log('⚠️ Usuario en proceso, ignorando clic adicional');
+      return;
+    }
+    
     const firstName    = formData.firstName.trim();
     const lastName     = formData.lastName.trim();
     const email        = formData.email.trim().toLowerCase();
@@ -126,6 +135,7 @@ export function useUsers() {
       contrasena: formData.contrasena?.trim() || undefined,
     };
 
+    isProcessing.current = true;
     try {
       if (selectedFile) {
         try {
@@ -148,6 +158,11 @@ export function useUsers() {
       resetForm();
     } catch (error: any) {
       toast.error(error.message || "Error al guardar usuario");
+    } finally {
+      // Liberar después de 1 segundo
+      setTimeout(() => {
+        isProcessing.current = false;
+      }, 1000);
     }
   };
 

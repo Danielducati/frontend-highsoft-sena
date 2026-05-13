@@ -17,6 +17,8 @@ interface SaleFormProps {
   availableServices:   any[];
   clients:             any[];
   employees:           any[];
+  employeesForService?: any[];
+  loadEmployeesForService?: (serviceId: number) => void;
   saving:              boolean;
   onSubmit:            () => void;
   onCancel:            () => void;
@@ -36,14 +38,30 @@ function validateDirect(data: SaleFormData): Errors {
     if (!data.clienteId) e.client = "Selecciona un cliente.";
   }
   if (data.selectedServices.length === 0) e.services = "Agrega al menos un servicio.";
-  if (!data.paymentMethod)                e.payment  = "Selecciona un método de pago.";
+  if (!data.paymentMethod) e.payment = "Selecciona un método de pago.";
+  
+  // Validar descuento
+  const subtotal = calcSubtotal(data.selectedServices);
+  const discount = parseFloat(data.discount) || 0;
+  if (discount > subtotal) {
+    e.payment = "El descuento no puede ser mayor al subtotal.";
+  }
+  
   return e;
 }
 
 function validateAppointment(data: SaleFormData): Errors {
   const e: Errors = {};
   if (!data.appointmentId) e.appointment = "Selecciona una cita.";
-  if (!data.paymentMethod) e.payment     = "Selecciona un método de pago.";
+  if (!data.paymentMethod) e.payment = "Selecciona un método de pago.";
+  
+  // Validar descuento
+  const subtotal = calcSubtotal(data.selectedServices);
+  const discount = parseFloat(data.discount) || 0;
+  if (discount > subtotal) {
+    e.payment = "El descuento no puede ser mayor al subtotal.";
+  }
+  
   return e;
 }
 
@@ -142,22 +160,60 @@ function AppointmentSearch({ appointments, selectedId, onSelect, error, onBlur }
 
 export function SaleForm({
   formData, setFormData, saleType, onSaleTypeChange,
-  appointments, availableServices, clients, employees, saving,
+  appointments, availableServices, clients, employees, employeesForService = [], loadEmployeesForService, saving,
   onSubmit, onCancel, onAppointmentSelect,
   onAddService, onUpdateQuantity, onRemoveService,
 }: SaleFormProps) {
   const [touched, setTouched] = useState<Partial<Record<keyof Errors, boolean>>>({});
   const [pendingServiceId,  setPendingServiceId]  = useState<string>("");
   const [pendingEmployeeId, setPendingEmployeeId] = useState<string>("");
+  const [serviceEmployeesMap, setServiceEmployeesMap] = useState<Map<number, any[]>>(new Map());
 
+  // Cargar empleados cuando se selecciona un servicio
+  React.useEffect(() => {
+    if (!loadEmployeesForService || !pendingServiceId) return;
+    loadEmployeesForService(parseInt(pendingServiceId));
+  }, [pendingServiceId, loadEmployeesForService]);
+
+  // Actualizar el mapa cuando cambian los empleados filtrados
+  React.useEffect(() => {
+    if (employeesForService.length > 0 && pendingServiceId) {
+      setServiceEmployeesMap(prev => {
+        const newMap = new Map(prev);
+        newMap.set(parseInt(pendingServiceId), employeesForService);
+        return newMap;
+      });
+    }
+  }, [employeesForService, pendingServiceId]);
+
+  // Obtener empleados filtrados del mapa o calcular fallback
   const filteredEmployees = (() => {
     if (!pendingServiceId) return employees;
+    
+    // Intentar obtener del mapa primero
+    const cached = serviceEmployeesMap.get(parseInt(pendingServiceId));
+    if (cached && cached.length > 0) return cached;
+    
+    // Fallback: filtrar manualmente
     const service = availableServices.find(s => s.id === parseInt(pendingServiceId));
     if (!service?.category) return employees;
-    const matches = employees.filter(
-      e => e.specialty?.toLowerCase() === service.category.toLowerCase()
-    );
-    return matches.length > 0 ? matches : employees;
+    
+    const normalize = (str: string) => 
+      str.toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .trim()
+        .replace(/\s+/g, "");
+    
+    const serviceCategory = normalize(service.category);
+    const activeEmployees = employees.filter(e => e.isActive !== false && e.estado !== "Inactivo");
+    
+    const matches = activeEmployees.filter(e => {
+      const empSpecialty = normalize(e.specialty ?? e.especialidad ?? "");
+      return empSpecialty === serviceCategory;
+    });
+    
+    return matches.length > 0 ? matches : activeEmployees;
   })();
 
   const validate = saleType === "direct" ? validateDirect : validateAppointment;
@@ -517,19 +573,41 @@ function PaymentFields({ formData, setFormData, error, onBlur }: {
   error?: string;
   onBlur?: () => void;
 }) {
+  const subtotal = calcSubtotal(formData.selectedServices);
+  const discountValue = parseFloat(formData.discount) || 0;
+  const isDiscountTooHigh = discountValue > subtotal;
+
+  const handleDiscountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    const numValue = parseFloat(value) || 0;
+    
+    // Always update the value, but show validation error if too high
+    setFormData(prev => ({ ...prev, discount: value }));
+  };
+
   return (
     <div className="grid grid-cols-2 gap-4">
       <div className="space-y-2">
-        <Label className="text-gray-900">Descuento ($)</Label>
+        <Label className="text-gray-900">Descuento ($ pesos colombianos)</Label>
         <Input
           type="number"
-          step="0.01"
+          step="1"
           min="0"
           value={formData.discount}
           placeholder="0"
-          onChange={e => setFormData(prev => ({ ...prev, discount: e.target.value }))}
-          className="rounded-lg border-gray-200"
+          onChange={handleDiscountChange}
+          className={`rounded-lg ${isDiscountTooHigh ? "border-red-500 bg-red-50" : "border-gray-200"}`}
         />
+        {isDiscountTooHigh && (
+          <p className="text-xs text-red-500">
+            ⚠ El descuento no puede ser mayor al subtotal ($${subtotal.toLocaleString("es-CO")})
+          </p>
+        )}
+        {subtotal > 0 && (
+          <p className="text-xs text-gray-500">
+            Subtotal disponible: $${subtotal.toLocaleString("es-CO")}
+          </p>
+        )}
       </div>
       <div className="space-y-2">
         <Label className="text-gray-900">Método de Pago *</Label>

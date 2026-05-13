@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { Employee, EmployeeFormData } from "../types";
 import { ITEMS_PER_PAGE, ROL_MAP } from "../constants";
@@ -15,6 +15,9 @@ export function useEmployees() {
   const [categories,     setCategories]     = useState<{ value: string; label: string }[]>([]);
   const [loading,        setLoading]        = useState(true);
   const [saving,         setSaving]         = useState(false);
+  
+  // Protección contra doble clic
+  const isProcessing = useRef(false);
   const [searchTerm,     setSearchTerm]     = useState("");
   const [filterSpecialty, setFilterSpecialty] = useState("all");
   const [filterStatus,   setFilterStatus]   = useState("all");
@@ -57,6 +60,12 @@ export function useEmployees() {
   };
 
   const handleCreateOrUpdate = async (data?: EmployeeFormData) => {
+    // Prevenir doble clic
+    if (isProcessing.current) {
+      console.log('⚠️ Empleado en proceso, ignorando clic adicional');
+      return;
+    }
+    
     const d = data ?? formData;
     if (!d.firstName || !d.lastName || !d.email || !d.specialty) {
       toast.error("Nombre, apellido, correo y especialidad son requeridos");
@@ -87,6 +96,7 @@ export function useEmployees() {
     }
 
     setSaving(true);
+    isProcessing.current = true;
     const body = {
       nombre:           d.firstName,
       apellido:         d.lastName,
@@ -115,6 +125,10 @@ export function useEmployees() {
       toast.error(err.message || "Error al guardar empleado");
     } finally {
       setSaving(false);
+      // Liberar después de 1 segundo
+      setTimeout(() => {
+        isProcessing.current = false;
+      }, 1000);
     }
   };
 

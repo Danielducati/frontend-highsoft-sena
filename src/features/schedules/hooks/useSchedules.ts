@@ -1,5 +1,5 @@
 // schedules/hooks/useSchedules.ts
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { WeeklySchedule, ScheduleFormData, Employee } from "../types";
 import { getMondayOfWeek, getWeekDays, formatDateToISO } from "../utils";
@@ -40,6 +40,9 @@ export function useSchedules() {
   const [schedules,        setSchedules]        = useState<WeeklySchedule[]>([]);
   const [employees,        setEmployees]        = useState<Employee[]>([]);
   const [loading,          setLoading]          = useState(true);
+  
+  // Protección contra doble clic
+  const isProcessing = useRef(false);
   const [isDialogOpen,     setIsDialogOpen]     = useState(false);
   const [editingSchedule,  setEditingSchedule]  = useState<WeeklySchedule | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -129,6 +132,12 @@ export function useSchedules() {
 
   // ── CRUD ───────────────────────────────────────────────────────────────────
   const handleCreateOrUpdate = async () => {
+    // Prevenir doble clic
+    if (isProcessing.current) {
+      console.log('⚠️ Horario en proceso, ignorando clic adicional');
+      return;
+    }
+    
     if (!formData.employeeId || formData.daySchedules.length === 0) {
       toast.error("Por favor completa todos los campos y selecciona al menos un día");
       return;
@@ -145,6 +154,7 @@ export function useSchedules() {
       }
     }
 
+    isProcessing.current = true;
     try {
       if (editingSchedule) {
         // Edición: actualiza solo esa semana
@@ -189,6 +199,11 @@ export function useSchedules() {
       resetForm();
     } catch (err: any) {
       toast.error(err.message ?? "Error al guardar horario");
+    } finally {
+      // Liberar después de 1 segundo
+      setTimeout(() => {
+        isProcessing.current = false;
+      }, 1000);
     }
   };
 
@@ -285,6 +300,7 @@ export function useSchedules() {
     goToPreviousWeek, goToNextWeek,
     formWeekStart, setFormWeekStart, formData, setFormData,
     formWeekDays,
+    goToPreviousWeek, goToNextWeek,
     toggleDay, updateDaySchedule,
     handleCreateOrUpdate, handleDelete, handleRenewWeek,
     confirmDelete, handleEdit, handleViewDetail,
