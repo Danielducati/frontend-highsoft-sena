@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { Category, CategoryFormData } from "../types";
 import { fetchCategoriesApi, createCategoryApi, updateCategoryApi, deleteCategoryApi, } from "../services/categoriesService";
@@ -9,6 +9,9 @@ const EMPTY_FORM: CategoryFormData = { name: "", description: "", color: DEFAULT
 export function useCategories() {
   const [categories,        setCategories]        = useState<Category[]>([]);
   const [loading,           setLoading]           = useState(true);
+  
+  // Protección contra doble clic
+  const isProcessing = useRef(false);
   const [searchTerm,        setSearchTerm]        = useState("");
   const [isDialogOpen,      setIsDialogOpen]      = useState(false);
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
@@ -79,10 +82,18 @@ export function useCategories() {
   };
 
   const handleCreateOrUpdate = async () => {
+    // Prevenir doble clic
+    if (isProcessing.current) {
+      console.log('⚠️ Categoría en proceso, ignorando clic adicional');
+      return;
+    }
+    
     if (!formData.name) {
       toast.error("Por favor ingresa el nombre de la categoría");
       return;
     }
+    
+    isProcessing.current = true;
     try {
       if (editingCategory) {
         await updateCategoryApi(editingCategory.id, formData);
@@ -98,6 +109,11 @@ export function useCategories() {
     } catch (error: any) {
       console.log("ERROR REAL:", error);
       toast.error(getErrorMessage(error));
+    } finally {
+      // Liberar después de 1 segundo
+      setTimeout(() => {
+        isProcessing.current = false;
+      }, 1000);
     }
   };
 

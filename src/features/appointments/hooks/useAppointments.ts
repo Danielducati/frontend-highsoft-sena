@@ -48,6 +48,9 @@ export function useAppointments(userRole?: string) {
 
   // Ref para capturar el startTime más reciente sin depender del closure del estado
   const startTimeRef = useRef<string>("");
+  
+  // Protección contra doble clic
+  const isCreatingOrUpdating = useRef(false);
 
   useEffect(() => {
     async function loadAll() {
@@ -235,24 +238,45 @@ export function useAppointments(userRole?: string) {
       // Encontrar la categoría del servicio
       const service = services.find(s => s.id === serviceId);
       if (!service || !service.category) {
+        console.log('[loadEmployeesForService] Servicio no encontrado o sin categoría:', serviceId);
         setEmployeesForService([]);
         return;
       }
+      
+      console.log('[loadEmployeesForService] Servicio:', service.name, '| Categoría:', service.category);
       
       // Filtrar empleados por especialidad que coincida con la categoría del servicio
       const fechaStr = formData.date instanceof Date
         ? `${formData.date.getFullYear()}-${String(formData.date.getMonth()+1).padStart(2,"0")}-${String(formData.date.getDate()).padStart(2,"0")}`
         : String(formData.date).split("T")[0];
       
+      console.log('[loadEmployeesForService] Fecha:', fechaStr);
+      
       // Obtener empleados disponibles en esa fecha
       const empsDisponibles = await fetchEmployeesByDate(fechaStr);
+      console.log('[loadEmployeesForService] Empleados con horario en fecha:', empsDisponibles.map(e => `${e.name} (${e.specialty})`));
       
-      // Filtrar por especialidad que coincida con la categoría del servicio
-      const empsEspecialistas = empsDisponibles.filter(e => 
-        e.specialty?.toLowerCase().trim() === service.category?.toLowerCase().trim()
-      );
+      // Filtrar por especialidad que coincida con la categoría del servicio (case-insensitive y trim)
+      const empsEspecialistas = empsDisponibles.filter(e => {
+        const empSpecialty = (e.specialty || '').toLowerCase().trim();
+        const serviceCategory = (service.category || '').toLowerCase().trim();
+        const match = empSpecialty === serviceCategory;
+        console.log(`[loadEmployeesForService] ${e.name}: "${empSpecialty}" === "${serviceCategory}" ? ${match}`);
+        return match;
+      });
       
-      setEmployeesForService(empsEspecialistas);
+      console.log('[loadEmployeesForService] Empleados filtrados:', empsEspecialistas.length);
+      
+      // Solo actualizar si la lista cambió para evitar re-renders innecesarios
+      setEmployeesForService(prev => {
+        const prevIds = prev.map(e => e.id).sort().join(',');
+        const newIds = empsEspecialistas.map(e => e.id).sort().join(',');
+        if (prevIds === newIds) {
+          console.log('[loadEmployeesForService] Lista sin cambios, no actualizar estado');
+          return prev;
+        }
+        return empsEspecialistas;
+      });
     } catch (err) {
       console.error("Error cargando empleados para servicio:", err);
       setEmployeesForService([]);
@@ -327,6 +351,12 @@ export function useAppointments(userRole?: string) {
 
   // ── CRUD ──
   const handleCreateOrUpdate = async (overrideStartTime?: string) => {
+    // Prevenir doble clic
+    if (isCreatingOrUpdating.current) {
+      console.log('⚠️ Cita en proceso, ignorando clic adicional');
+      return;
+    }
+
     // Ignorar si recibe un evento DOM en lugar de un string (llamada desde onSubmit del botón)
     const safeOverride = typeof overrideStartTime === "string" ? overrideStartTime : undefined;
     // Prioridad: parámetro explícito > ref (siempre actualizado) > estado
@@ -357,6 +387,7 @@ export function useAppointments(userRole?: string) {
       })),
     };
 
+    isCreatingOrUpdating.current = true;
     try {
       if (editingAppointment) {
         await updateAppointment(editingAppointment.id, payload, userRole === "client");
@@ -369,6 +400,11 @@ export function useAppointments(userRole?: string) {
       resetForm();
     } catch (err: any) {
       toast.error(err.message ?? "Error al guardar la cita");
+    } finally {
+      // Liberar después de 1 segundo para evitar doble clic rápido
+      setTimeout(() => {
+        isCreatingOrUpdating.current = false;
+      }, 1000);
     }
   };
 

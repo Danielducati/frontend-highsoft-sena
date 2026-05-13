@@ -17,6 +17,8 @@ interface SaleFormProps {
   availableServices:   any[];
   clients:             any[];
   employees:           any[];
+  employeesForService?: any[];
+  loadEmployeesForService?: (serviceId: number) => void;
   saving:              boolean;
   onSubmit:            () => void;
   onCancel:            () => void;
@@ -158,22 +160,60 @@ function AppointmentSearch({ appointments, selectedId, onSelect, error, onBlur }
 
 export function SaleForm({
   formData, setFormData, saleType, onSaleTypeChange,
-  appointments, availableServices, clients, employees, saving,
+  appointments, availableServices, clients, employees, employeesForService = [], loadEmployeesForService, saving,
   onSubmit, onCancel, onAppointmentSelect,
   onAddService, onUpdateQuantity, onRemoveService,
 }: SaleFormProps) {
   const [touched, setTouched] = useState<Partial<Record<keyof Errors, boolean>>>({});
   const [pendingServiceId,  setPendingServiceId]  = useState<string>("");
   const [pendingEmployeeId, setPendingEmployeeId] = useState<string>("");
+  const [serviceEmployeesMap, setServiceEmployeesMap] = useState<Map<number, any[]>>(new Map());
 
+  // Cargar empleados cuando se selecciona un servicio
+  React.useEffect(() => {
+    if (!loadEmployeesForService || !pendingServiceId) return;
+    loadEmployeesForService(parseInt(pendingServiceId));
+  }, [pendingServiceId, loadEmployeesForService]);
+
+  // Actualizar el mapa cuando cambian los empleados filtrados
+  React.useEffect(() => {
+    if (employeesForService.length > 0 && pendingServiceId) {
+      setServiceEmployeesMap(prev => {
+        const newMap = new Map(prev);
+        newMap.set(parseInt(pendingServiceId), employeesForService);
+        return newMap;
+      });
+    }
+  }, [employeesForService, pendingServiceId]);
+
+  // Obtener empleados filtrados del mapa o calcular fallback
   const filteredEmployees = (() => {
     if (!pendingServiceId) return employees;
+    
+    // Intentar obtener del mapa primero
+    const cached = serviceEmployeesMap.get(parseInt(pendingServiceId));
+    if (cached && cached.length > 0) return cached;
+    
+    // Fallback: filtrar manualmente
     const service = availableServices.find(s => s.id === parseInt(pendingServiceId));
     if (!service?.category) return employees;
-    const matches = employees.filter(
-      e => e.specialty?.toLowerCase() === service.category.toLowerCase()
-    );
-    return matches.length > 0 ? matches : employees;
+    
+    const normalize = (str: string) => 
+      str.toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .trim()
+        .replace(/\s+/g, "");
+    
+    const serviceCategory = normalize(service.category);
+    const activeEmployees = employees.filter(e => e.isActive !== false && e.estado !== "Inactivo");
+    
+    const matches = activeEmployees.filter(e => {
+      const empSpecialty = normalize(e.specialty ?? e.especialidad ?? "");
+      return empSpecialty === serviceCategory;
+    });
+    
+    return matches.length > 0 ? matches : activeEmployees;
   })();
 
   const validate = saleType === "direct" ? validateDirect : validateAppointment;

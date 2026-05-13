@@ -52,6 +52,21 @@ export function AppointmentFormDialog({
     }
   }, [currentService.serviceId, loadEmployeesForService]);
 
+  // Validar si el empleado seleccionado sigue siendo válido cuando cambia la lista
+  React.useEffect(() => {
+    // Solo validar si hay un empleado seleccionado y hay empleados disponibles
+    if (!currentService.employeeId || employeesForService.length === 0) return;
+    
+    // Verificar si el empleado seleccionado está en la nueva lista
+    const isEmployeeStillValid = employeesForService.some(e => e.id === currentService.employeeId);
+    
+    // Si el empleado ya no es válido para este servicio, resetear la selección
+    if (!isEmployeeStillValid) {
+      console.log('[AppointmentFormDialog] Empleado seleccionado no es válido para este servicio, reseteando');
+      setCurrentService({ ...currentService, employeeId: "" });
+    }
+  }, [employeesForService, currentService, setCurrentService]);
+
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="hl-form-dialog max-w-3xl max-h-[90vh] overflow-y-auto">

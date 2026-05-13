@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { Client, ClientFormData } from "../types";
 import { ITEMS_PER_PAGE } from "../constants";
@@ -16,6 +16,9 @@ const digitsOnly = (v: string) => v.replace(/\D/g, "");
 export function useClients() {
   const [clients,          setClients]          = useState<Client[]>([]);
   const [loading,          setLoading]          = useState(true);
+  
+  // Protección contra doble clic
+  const isProcessing = useRef(false);
   const [searchTerm,       setSearchTerm]       = useState("");
   const [filterStatus,     setFilterStatus]     = useState("all");
   const [isDialogOpen,     setIsDialogOpen]     = useState(false);
@@ -59,6 +62,12 @@ export function useClients() {
 
   // ── Crear / Actualizar ───────────────────────────────────────────────────
   const handleCreateOrUpdate = async () => {
+    // Prevenir doble clic
+    if (isProcessing.current) {
+      console.log('⚠️ Cliente en proceso, ignorando clic adicional');
+      return;
+    }
+    
     const isNIT        = formData.documentType === "NIT";
     const documentType = formData.documentType.trim();
     const document     = formData.document.trim();
@@ -128,6 +137,7 @@ export function useClients() {
       ? `${docDigits}-${formData.digitoVerificacion.trim()}`
       : docDigits;
 
+    isProcessing.current = true;
     try {
       const payload: ClientFormData = {
         firstName,
@@ -155,6 +165,11 @@ export function useClients() {
       resetForm();
     } catch (err: any) {
       toast.error(err.message ?? "Error al guardar cliente");
+    } finally {
+      // Liberar después de 1 segundo
+      setTimeout(() => {
+        isProcessing.current = false;
+      }, 1000);
     }
   };
 

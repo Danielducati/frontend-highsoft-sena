@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { Service, ServiceFormData } from "../types";
 import { ITEMS_PER_PAGE, EMPTY_FORM } from "../constants";
@@ -19,6 +19,9 @@ export function useServices() {
   const [services,         setServices]         = useState<Service[]>([]);
   const [categories,       setCategories]       = useState<any[]>([]);
   const [loading,          setLoading]          = useState(true);
+  
+  // Protección contra doble clic
+  const isProcessing = useRef(false);
   const [searchTerm,       setSearchTerm]       = useState("");
   const [filterCategory,   setFilterCategory]   = useState("all");
   const [filterStatus,     setFilterStatus]     = useState("all");
@@ -97,6 +100,12 @@ export function useServices() {
 
   // ── CRUD ──────────────────────────────────────────────────────────────────
   const handleCreateOrUpdate = async () => {
+    // Prevenir doble clic
+    if (isProcessing.current) {
+      console.log('⚠️ Servicio en proceso, ignorando clic adicional');
+      return;
+    }
+    
     if (!validateServiceForm()) return;
 
     const body = {
@@ -108,6 +117,8 @@ export function useServices() {
       imagen_servicio:        formData.image || null,
       Estado:                 "Activo",
     };
+    
+    isProcessing.current = true;
     try {
       if (editingService) {
         await updateServiceApi(editingService.id, body);
@@ -120,6 +131,11 @@ export function useServices() {
       handleCloseDialog();
     } catch (err: any) {
       toast.error(err.message || "Error al guardar el servicio");
+    } finally {
+      // Liberar después de 1 segundo
+      setTimeout(() => {
+        isProcessing.current = false;
+      }, 1000);
     }
   };
 
