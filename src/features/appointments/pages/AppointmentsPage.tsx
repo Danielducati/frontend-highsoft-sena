@@ -9,6 +9,7 @@ import {
   List, Calendar, XCircle, Eye, Pencil, CalendarIcon,
   Trash2,
 } from "lucide-react";
+import { toast } from "sonner";
 import { AppointmentsModuleProps } from "../types";
 import { WEEK_DAYS, TIME_SLOTS, LEGEND_ITEMS } from "../constants";
 import { getStatusColor, getStatusLabel } from "../utils";
@@ -99,6 +100,10 @@ export function AppointmentsPage({ userRole }: AppointmentsModuleProps) {
     handleUpdateStatus, resetForm, handleEdit, handleClientChange,
     handleStartTimeChange,
     myEmployeeProfile,
+    isTimeSlotAvailable,
+    getDayScheduleInfo,
+    employeesForService,
+    loadEmployeesForService,
   } = useAppointments(userRole);
 
   const EMPTY_FORM = {
@@ -376,10 +381,13 @@ export function AppointmentsPage({ userRole }: AppointmentsModuleProps) {
                     {getWeekDates().map((date, dIdx) => {
                       const dayApts = getAptsByDate(date);
                       const past    = isPastDate(date);
+                      const scheduleInfo = getDayScheduleInfo(date);
 
-                      // Slot bloqueado: día pasado O (hoy y hora ya pasó)
+                      // Slot bloqueado: día pasado O (hoy y hora ya pasó) O no hay horarios de empleados
                       const isSlotBlocked = (time: string): boolean => {
                         if (past) return true;
+                        if (!scheduleInfo.hasSchedules) return true;
+                        if (!isTimeSlotAvailable(date, time)) return true;
                         if (!isToday(date)) return false;
                         const now = new Date();
                         const [h, m] = time.split(":").map(Number);
@@ -400,9 +408,19 @@ export function AppointmentsPage({ userRole }: AppointmentsModuleProps) {
                           className={`border-r border-gray-200 last:border-r-0 relative overflow-hidden`}
                           style={{ 
                             height: totalHeight,
-                            backgroundColor: isToday(date) ? "#F1F5F9" : past ? "#f2f2f2" : "#ffffff"
+                            backgroundColor: isToday(date) ? "#F1F5F9" : past ? "#f2f2f2" : !scheduleInfo.hasSchedules ? "#fafafa" : "#ffffff"
                           }}
                         >
+                          {/* Mensaje cuando no hay horarios */}
+                          {!scheduleInfo.hasSchedules && (
+                            <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
+                              <div className="text-center px-2">
+                                <p className="text-xs text-gray-400 font-medium">Sin horarios</p>
+                                <p className="text-[10px] text-gray-400 mt-0.5">No hay empleados disponibles</p>
+                              </div>
+                            </div>
+                          )}
+                          
                           {/* Líneas guía */}
                           {TIME_SLOTS.map((_, i) => (
                             <div key={i}
@@ -415,12 +433,13 @@ export function AppointmentsPage({ userRole }: AppointmentsModuleProps) {
                             const hasApts = slotHasApts(time);
                             const top     = ((toMin(time) - firstSlotMin) / 30) * ROW_HEIGHT;
                             const blocked = isSlotBlocked(time);
+                            const noSchedules = !scheduleInfo.hasSchedules;
 
                             return (
                               <div key={time}>
                                 <div
                                   className={`absolute transition-colors group ${
-                                    !blocked
+                                    !blocked && !noSchedules
                                       ? "hover:bg-[#1a3a2a]/5 cursor-pointer"
                                       : "cursor-not-allowed"
                                   }`}
@@ -430,10 +449,10 @@ export function AppointmentsPage({ userRole }: AppointmentsModuleProps) {
                                     width:  hasApts ? FREE_LANE_PX : "100%",
                                     height: ROW_HEIGHT,
                                     zIndex: 5,
-                                    backgroundColor: blocked && !past ? "rgba(0,0,0,0.03)" : undefined,
+                                    backgroundColor: (blocked || noSchedules) && !past ? "rgba(0,0,0,0.03)" : undefined,
                                   }}
                                   onClick={() => {
-                                    if (!blocked) {
+                                    if (!blocked && !noSchedules) {
                                       setFormData(prev => ({
                                         ...EMPTY_FORM,
                                         clientId:    prev.clientId    || "",
@@ -443,18 +462,22 @@ export function AppointmentsPage({ userRole }: AppointmentsModuleProps) {
                                         startTime: time,
                                       }));
                                       setIsDialogOpen(true);
+                                    } else if (noSchedules) {
+                                      toast.error("No hay empleados con horarios disponibles para este día");
                                     }
                                   }}
                                 >
                                   <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity">
-                                    <div className="flex flex-col items-center gap-0.5">
-                                      <Plus className="w-4 h-4 text-[#1a3a2a]/40" />
-                                      {hasApts && (
-                                        <span className="text-[9px] text-[#1a3a2a]/40 font-medium leading-none">
-                                          {time}
-                                        </span>
-                                      )}
-                                    </div>
+                                    {!noSchedules && (
+                                      <div className="flex flex-col items-center gap-0.5">
+                                        <Plus className="w-4 h-4 text-[#1a3a2a]/40" />
+                                        {hasApts && (
+                                          <span className="text-[9px] text-[#1a3a2a]/40 font-medium leading-none">
+                                            {time}
+                                          </span>
+                                        )}
+                                      </div>
+                                    )}
                                   </div>
                                 </div>
                               </div>
@@ -537,6 +560,8 @@ export function AppointmentsPage({ userRole }: AppointmentsModuleProps) {
           onCancel={resetForm}
           userRole={userRole}
           myEmployeeProfile={myEmployeeProfile}
+          employeesForService={employeesForService}
+          loadEmployeesForService={loadEmployeesForService}
         />
         <DeleteAppointmentDialog
           open={deleteDialogOpen}
