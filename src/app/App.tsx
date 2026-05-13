@@ -206,7 +206,7 @@ export default function App() {
     <div className="flex h-screen overflow-hidden">
       <Sidebar key={permVersion} activePage={currentPage} onNavigate={handleNavigate} onLogout={handleLogout} userRole={userRole} allowedPages={getAllowedPages(userRole)} />
 
-      <div className="flex-1 flex flex-col ml-64" style={{ backgroundColor: "var(--bg-app)" }}>
+      <div className="flex-1 flex flex-col" style={{ marginLeft: 240, backgroundColor: "var(--bg-app)" }}>
         <Header userRole={userRole} userName={userName} userPhoto={userPhoto} onLogout={handleLogout} />
 
         <main className="flex-1 overflow-y-auto p-8" style={{ backgroundColor: "var(--bg-app)" }}>
