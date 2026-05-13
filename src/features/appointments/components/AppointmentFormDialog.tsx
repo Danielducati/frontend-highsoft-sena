@@ -1,4 +1,5 @@
 ﻿//frontend-highsoft-sena\src\features\appointments\components\AppointmentFormDialog.tsx
+import React from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../../../shared/ui/dialog";
 import { Button } from "../../../shared/ui/button";
 import { Input } from "../../../shared/ui/input";
@@ -31,6 +32,8 @@ interface Props {
   onCancel: () => void;
   userRole?: string;
   myEmployeeProfile?: { id: string; name: string; phone: string } | null;
+  employeesForService?: Employee[];
+  loadEmployeesForService?: (serviceId: string) => void;
 }
 
 export function AppointmentFormDialog({
@@ -39,7 +42,16 @@ export function AppointmentFormDialog({
   services, employees, clients, getEmployeesByCategory,
   onAddService, onRemoveService, onClientChange, onStartTimeChange, onSubmit, onCancel, userRole,
   myEmployeeProfile,
+  employeesForService = [],
+  loadEmployeesForService,
 }: Props) {
+  // Cargar empleados cuando se selecciona un servicio
+  React.useEffect(() => {
+    if (currentService.serviceId && loadEmployeesForService) {
+      loadEmployeesForService(currentService.serviceId);
+    }
+  }, [currentService.serviceId, loadEmployeesForService]);
+
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="hl-form-dialog max-w-3xl max-h-[90vh] overflow-y-auto">
@@ -162,15 +174,32 @@ export function AppointmentFormDialog({
                     <SelectTrigger><SelectValue placeholder="Selecciona empleado" /></SelectTrigger>
                     <SelectContent>
                       {(() => {
-                        const category = services.find(s => s.id === currentService.serviceId)?.category ?? "";
-                        const filtered = getEmployeesByCategory(category);
                         if (!currentService.serviceId) {
                           return <SelectItem value="empty" disabled>Primero selecciona un servicio</SelectItem>;
                         }
-                        if (filtered.length === 0) {
-                          return <SelectItem value="empty" disabled>No hay empleados para esta especialidad</SelectItem>;
+                        
+                        // Usar empleados filtrados por servicio si están disponibles
+                        const employeesToShow = employeesForService && employeesForService.length > 0 
+                          ? employeesForService 
+                          : (() => {
+                              // Fallback: filtrar por categoría
+                              const selectedService = services.find(s => s.id === currentService.serviceId);
+                              if (!selectedService) return [];
+                              return employees.filter(e => 
+                                e.specialty?.toLowerCase().trim() === selectedService.category?.toLowerCase().trim()
+                              );
+                            })();
+                        
+                        if (employeesToShow.length === 0) {
+                          const selectedService = services.find(s => s.id === currentService.serviceId);
+                          return (
+                            <SelectItem value="empty" disabled>
+                              No hay empleados especializados disponibles para {selectedService?.name || 'este servicio'}
+                            </SelectItem>
+                          );
                         }
-                        return filtered.map(e => (
+                        
+                        return employeesToShow.map(e => (
                           <SelectItem key={e.id} value={e.id}>
                             <div className="flex items-center gap-2">
                               <div className="w-3 h-3 rounded-full" style={{ backgroundColor: e.color }} />
