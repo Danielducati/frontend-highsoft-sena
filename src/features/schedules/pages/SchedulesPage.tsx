@@ -1,23 +1,21 @@
 ﻿//frontend-highsoft-sena\src\features\schedules\pages\SchedulesPage.tsx
 import { useState } from "react";
-import { Card, CardContent } from "../../../shared/ui/card";
-import { Button } from "../../../shared/ui/button";
 import { Input } from "../../../shared/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../shared/ui/select";
-import { Badge } from "../../../shared/ui/badge";
-import { Plus, Search, X, Calendar, User, Clock, Eye, Pencil, Trash2, RefreshCw, History } from "lucide-react";
+import { Plus, Search, Calendar, User, Clock, ChevronDown, ChevronUp, Eye, Pencil, Trash2, History, Users, RefreshCw } from "lucide-react";
 import { SchedulesModuleProps } from "../types";
 import { useSchedules } from "../hooks/useSchedules";
 import { ScheduleFormDialog } from "../components/ScheduleFormDialog";
 import { ScheduleDetailDialog } from "../components/ScheduleDetailDialog";
 import { ScheduleDeleteDialog } from "../components/ScheduleDeleteDialog";
 import { ScheduleHistoryDialog } from "../components/ScheduleHistoryDialog";
-import { formatWeekRange, getWeekDays, getDayBadgeColor, getDayLabel } from "../utils";
+import { formatWeekRange, getDayLabel } from "../utils";
 import { SpaPage } from "../../../shared/components/layout/SpaPage";
 
 export function SchedulesPage({ userRole }: SchedulesModuleProps) {
   const [historyDialogOpen, setHistoryDialogOpen] = useState(false);
   const [historyEmployee, setHistoryEmployee] = useState<{ id: string; name: string; weekStart?: string } | null>(null);
+  const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());
 
   const {
     filteredSchedules, employees,
@@ -34,20 +32,57 @@ export function SchedulesPage({ userRole }: SchedulesModuleProps) {
     goToPreviousMonth, goToNextMonth,
     goToPreviousWeek, goToNextWeek,
     toggleDay, updateDaySchedule,
-    handleCreateOrUpdate, handleDelete, handleRenewWeek,
+    handleCreateOrUpdate, handleDelete, handleDeleteWeek, handleRenewMonth,
     confirmDelete, handleEdit, handleViewDetail,
-    resetForm, clearFilters,
+    resetForm,
   } = useSchedules();
 
-  // Función para abrir el historial de un empleado
   const handleViewHistory = (schedule: any) => {
-    setHistoryEmployee({
-      id: schedule.employeeId,
-      name: schedule.employeeName,
-      weekStart: schedule.weekStartDate
-    });
+    setHistoryEmployee({ id: schedule.employeeId, name: schedule.employeeName, weekStart: schedule.weekStartDate });
     setHistoryDialogOpen(true);
   };
+
+  const toggleCard = (cardId: string) => {
+    setExpandedCards(prev => {
+      const next = new Set(prev);
+      next.has(cardId) ? next.delete(cardId) : next.add(cardId);
+      return next;
+    });
+  };
+
+  // ── Agrupar por empleado+mes ──────────────────────────────────────────────
+  const rowMap: Record<string, {
+    employeeId: string; employeeName: string; specialty: string;
+    monthKey: string; monthLabel: string;
+    weeks: typeof filteredSchedules;
+  }> = {};
+
+  for (const s of filteredSchedules) {
+    const monthKey = s.weekStartDate.slice(0, 7);
+    const rowKey   = `${s.employeeId}_${monthKey}`;
+    if (!rowMap[rowKey]) {
+      const [y, m] = monthKey.split("-").map(Number);
+      rowMap[rowKey] = {
+        employeeId:   s.employeeId,
+        employeeName: s.employeeName,
+        specialty:    employees.find(e => e.id === s.employeeId)?.specialty ?? "",
+        monthKey,
+        monthLabel: new Date(y, m - 1, 1).toLocaleDateString("es-ES", { month: "long", year: "numeric" }),
+        weeks: [],
+      };
+    }
+    rowMap[rowKey].weeks.push(s);
+  }
+
+  const rows = Object.values(rowMap).sort((a, b) =>
+    b.monthKey.localeCompare(a.monthKey) || a.employeeName.localeCompare(b.employeeName)
+  );
+
+  // ── Stats ─────────────────────────────────────────────────────────────────
+  const totalEmpleados = new Set(filteredSchedules.map(s => s.employeeId)).size;
+  const totalMeses     = new Set(filteredSchedules.map(s => s.weekStartDate.slice(0, 7))).size;
+  const totalSemanas   = filteredSchedules.length;
+  const totalDias      = filteredSchedules.reduce((sum, s) => sum + s.daySchedules.length, 0);
 
   return (
     <SpaPage
@@ -58,18 +93,10 @@ export function SchedulesPage({ userRole }: SchedulesModuleProps) {
         userRole === "admin" ? (
           <button
             style={{
-              display: "inline-flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: 8,
-              padding: "10px 20px",
-              borderRadius: 10,
-              backgroundColor: "#1a3a2a",
-              color: "#ffffff",
-              fontSize: 14,
-              fontWeight: 600,
-              border: "none",
-              cursor: "pointer",
+              display: "inline-flex", alignItems: "center", justifyContent: "center",
+              gap: 8, padding: "10px 20px", borderRadius: 10,
+              backgroundColor: "#1a3a2a", color: "#ffffff",
+              fontSize: 14, fontWeight: 600, border: "none", cursor: "pointer",
               fontFamily: "var(--font-body)",
             }}
             onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#2a5a40")}
@@ -82,272 +109,288 @@ export function SchedulesPage({ userRole }: SchedulesModuleProps) {
         ) : undefined
       }
     >
-      <div className="space-y-4">
+      <div className="space-y-5">
 
-      {/* Filtros */}
-      <Card className="border-gray-200 shadow-sm rounded-2xl">
-        <CardContent className="p-4">
-        <div className="flex gap-3 w-full">
-          {/* BUSCADOR */}
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+        {/* ── Filtros ───────────────────────────────────────────────────── */}
+        <div style={{
+          backgroundColor: "#ffffff", borderRadius: 14,
+          border: "1px solid #E5E7EB", padding: 16,
+          display: "flex", gap: 12,
+        }}>
+          <div style={{ flex: 1, position: "relative" }}>
+            <Search style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", width: 16, height: 16, color: "#9ca3af" }} />
             <Input
               placeholder="Buscar por empleado..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-9 h-9 rounded-lg border-gray-200 w-full"
+              onChange={e => setSearchTerm(e.target.value)}
+              className="pl-9 h-9 rounded-lg border-gray-200"
             />
           </div>
-
-          {/* FILTRO EMPLEADO (DERECHA) */}
-          <div className="w-64">
+          <div style={{ width: 220 }}>
             <Select value={filterEmployee} onValueChange={setFilterEmployee}>
-              <SelectTrigger className="h-9 rounded-lg border-gray-200 w-full">
+              <SelectTrigger className="h-9 rounded-lg border-gray-200">
                 <SelectValue placeholder="Todos los empleados" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Todos los empleados</SelectItem>
                 {employees.map(emp => (
-                  <SelectItem key={emp.id} value={emp.id}>
-                    {emp.name}
-                  </SelectItem>
+                  <SelectItem key={emp.id} value={emp.id}>{emp.name}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
         </div>
 
-          {/* Filtros activos */}
-          {(searchTerm || filterEmployee !== "all") && (
-            <div className="flex flex-wrap gap-2 mt-3 pt-3 border-t border-gray-200">
-              <span className="text-xs text-gray-600">Filtros activos:</span>
-              {searchTerm && (
-                <Badge variant="secondary" className="text-xs bg-[#1a5c3a]/10 text-[#1a5c3a] border-[#1a5c3a]/30">
-                  Búsqueda: {searchTerm}
-                </Badge>
-              )}
-              {filterEmployee !== "all" && (
-                <Badge variant="secondary" className="text-xs bg-[#60A5FA]/10 text-[#60A5FA] border-[#60A5FA]/30">
-                  Empleado: {employees.find(e => e.id === filterEmployee)?.name}
-                </Badge>
-              )}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+        {/* ── Cards ─────────────────────────────────────────────────────── */}
+        {rows.length === 0 ? (
+          <div style={{
+            backgroundColor: "#ffffff", borderRadius: 14, border: "1px solid #E5E7EB",
+            padding: "48px 24px", textAlign: "center",
+          }}>
+            <Calendar style={{ width: 40, height: 40, color: "#d1d5db", margin: "0 auto 12px" }} />
+            <p style={{ color: "#6b7c6b", fontSize: 14 }}>No hay horarios registrados</p>
+          </div>
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            {rows.map(row => {
+              const cardId    = `${row.employeeId}_${row.monthKey}`;
+              const expanded    = expandedCards.has(cardId);
+              const sortedWeeks = row.weeks.sort((a, b) => a.weekStartDate.localeCompare(b.weekStartDate));
+              const firstWeek   = sortedWeeks[0];
 
-      {/* Tabla agrupada por mes */}
-      <Card className="border-gray-200 shadow-sm">
-        <CardContent className="p-0">
-          {filteredSchedules.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-12 px-4">
-              <Calendar className="w-12 h-12 text-gray-300 mb-3" />
-              <p className="text-gray-500 text-center">
-                {searchTerm || filterEmployee !== "all"
-                  ? "No se encontraron horarios con los filtros aplicados"
-                  : "No hay horarios registrados"}
-              </p>
-            </div>
-          ) : (() => {
-            // Agrupar por mes (YYYY-MM) y por empleado
-            const grouped: Record<string, typeof filteredSchedules> = {};
-            for (const s of filteredSchedules) {
-              const monthKey = s.weekStartDate.slice(0, 7); // "YYYY-MM"
-              if (!grouped[monthKey]) grouped[monthKey] = [];
-              grouped[monthKey].push(s);
-            }
-            const monthKeys = Object.keys(grouped).sort((a, b) => b.localeCompare(a));
+              // Mostrar los días de la semana actual si existe en este mes,
+              // si no, la primera semana del mes
+              const todayISO = new Date().toISOString().split("T")[0];
+              const currentWeek = sortedWeeks.find(w => {
+                // La semana va de lunes (weekStartDate) a domingo (+6 días)
+                const [y, m, d] = w.weekStartDate.split("-").map(Number);
+                const start = new Date(Date.UTC(y, m - 1, d));
+                const end   = new Date(Date.UTC(y, m - 1, d + 6));
+                return todayISO >= start.toISOString().split("T")[0] &&
+                       todayISO <= end.toISOString().split("T")[0];
+              }) ?? firstWeek;
 
-            return (
-              <div>
-                {monthKeys.map(monthKey => {
-                  const [y, m] = monthKey.split("-").map(Number);
-                  const monthLabel = new Date(y, m - 1, 1).toLocaleDateString("es-ES", {
-                    month: "long", year: "numeric"
-                  });
-                  const monthSchedules = grouped[monthKey];
+              const dayPattern = (currentWeek ?? firstWeek)?.daySchedules.sort((a, b) => a.dayIndex - b.dayIndex) ?? [];
+              const isCurrentMonth = currentWeek != null;
 
-                  // Agrupar semanas del mes por empleado para numerar "Semana 1, 2..."
-                  const byEmployee: Record<string, typeof filteredSchedules> = {};
-                  for (const s of monthSchedules) {
-                    if (!byEmployee[s.employeeId]) byEmployee[s.employeeId] = [];
-                    byEmployee[s.employeeId].push(s);
-                  }
-                  // Ordenar semanas de cada empleado de más antigua a más reciente para numerarlas
-                  for (const empId of Object.keys(byEmployee)) {
-                    byEmployee[empId].sort((a, b) => a.weekStartDate.localeCompare(b.weekStartDate));
-                  }
+              return (
+                <div key={cardId} style={{
+                  backgroundColor: "#ffffff", borderRadius: 16,
+                  border: "1px solid #E5E7EB",
+                  boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
+                  overflow: "hidden",
+                }}>
+                  {/* ── Cabecera de la card ── */}
+                  <div style={{
+                    padding: "14px 20px",
+                    display: "flex", alignItems: "center", gap: 16,
+                  }}>
+                    {/* Avatar */}
+                    <div style={{
+                      width: 40, height: 40, borderRadius: "50%",
+                      backgroundColor: "#edf7f4", flexShrink: 0,
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                    }}>
+                      <span style={{ fontSize: 14, fontWeight: 700, color: "#1a3a2a" }}>
+                        {row.employeeName.split(" ").map(p => p[0]).slice(0, 2).join("")}
+                      </span>
+                    </div>
 
-                  return (
-                    <div key={monthKey}>
-                      {/* Cabecera de mes */}
-                      <div className="px-4 py-2 bg-[#edf7f4] border-b border-[#78D1BD]/30 sticky top-0">
-                        <span className="text-sm font-semibold text-[#1a3a2a] capitalize">
-                          {monthLabel}
+                    {/* Info + días en la misma columna */}
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      {/* Fila 1: nombre, mes, semanas */}
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                        <p style={{ fontSize: 14, fontWeight: 600, color: "#1a3a2a", margin: 0 }}>
+                          {row.employeeName}
+                        </p>
+                        <span style={{
+                          fontSize: 11, fontWeight: 600, padding: "2px 8px",
+                          borderRadius: 999, backgroundColor: "#edf7f4", color: "#1a5c3a",
+                          textTransform: "capitalize",
+                        }}>
+                          {row.monthLabel}
                         </span>
-                        <span className="text-xs text-gray-500 ml-2">
-                          ({monthSchedules.length} semana{monthSchedules.length !== 1 ? "s" : ""})
+                        <span style={{ fontSize: 11, color: "#9ca3af" }}>
+                          {sortedWeeks.length} semana{sortedWeeks.length !== 1 ? "s" : ""} · {dayPattern.length} días activos
                         </span>
                       </div>
 
-                      <table className="w-full">
-                        <thead>
-                          <tr className="border-b border-gray-100 bg-gray-50/30">
-                            <th className="text-left px-4 py-2 text-xs text-gray-500 font-medium">Empleado</th>
-                            <th className="text-left px-4 py-2 text-xs text-gray-500 font-medium">Período</th>
-                            <th className="text-left px-4 py-2 text-xs text-gray-500 font-medium">Horarios por día</th>
-                            {userRole === "admin" && (
-                              <th className="text-center px-4 py-2 text-xs text-gray-500 font-medium w-36">Acciones</th>
-                            )}
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-100">
-                          {monthSchedules
-                            .sort((a, b) => a.weekStartDate.localeCompare(b.weekStartDate))
-                            .map((schedule) => {
-                              const weekDays = getWeekDays(new Date(schedule.weekStartDate + "T12:00:00"));
-                              // Número de semana dentro del mes para este empleado
-                              const weekNum = (byEmployee[schedule.employeeId] ?? [])
-                                .findIndex(s => s.weekStartDate === schedule.weekStartDate) + 1;
-
-                              return (
-                                <tr key={schedule.id} className="hover:bg-gray-50/50 transition-colors">
-                                  <td className="px-4 py-3">
-                                    <div className="flex items-center gap-2">
-                                      <User className="w-4 h-4 text-[#1a5c3a] flex-shrink-0" />
-                                      <div>
-                                        <p className="text-sm text-gray-900">{schedule.employeeName}</p>
-                                        <p className="text-xs text-gray-500">
-                                          {employees.find(e => e.id === schedule.employeeId)?.specialty}
-                                        </p>
-                                      </div>
-                                    </div>
-                                  </td>
-
-                                  <td className="px-4 py-3">
-                                    <p className="text-sm font-medium text-[#1a3a2a]">
-                                      Semana {weekNum}
-                                    </p>
-                                    <p className="text-xs text-gray-500 mt-0.5">
-                                      {formatWeekRange(schedule.weekStartDate)}
-                                    </p>
-                                  </td>
-
-                                  <td className="px-4 py-3">
-                                    <div className="space-y-1.5">
-                                      {schedule.daySchedules
-                                        .sort((a, b) => a.dayIndex - b.dayIndex)
-                                        .map(ds => {
-                                          const day  = getDayLabel(ds.dayIndex);
-                                          const date = weekDays[ds.dayIndex];
-                                          return (
-                                            <div key={ds.dayIndex} className="flex items-center gap-2 text-sm">
-                                              <Badge variant="secondary" className={`text-xs ${getDayBadgeColor(ds.dayIndex)}`}>
-                                                {day.short}
-                                              </Badge>
-                                              <span className="text-xs text-gray-500">
-                                                {date.getDate()}/{date.getMonth() + 1}
-                                              </span>
-                                              <div className="flex items-center gap-1">
-                                                <Clock className="w-3 h-3 text-[#60A5FA]" />
-                                                <span className="text-gray-900">{ds.startTime}</span>
-                                                <span className="text-gray-400">→</span>
-                                                <span className="text-gray-900">{ds.endTime}</span>
-                                              </div>
-                                            </div>
-                                          );
-                                        })}
-                                    </div>
-                                  </td>
-
-                                  {userRole === "admin" && (
-                                    <td className="px-4 py-3">
-                                      <div className="flex items-center justify-center gap-1">
-                                        <button onClick={() => handleViewHistory(schedule)} title="Ver historial"
-                                          className="p-2 rounded-lg transition-colors" style={{ color: "#1a5c3a" }}
-                                          onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#edf7f4")}
-                                          onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}>
-                                          <History className="w-4 h-4" />
-                                        </button>
-                                        <button onClick={() => handleRenewWeek(schedule)} title="Renovar a siguiente semana"
-                                          className="p-2 rounded-lg transition-colors" style={{ color: "#1a5c3a" }}
-                                          onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#edf7f4")}
-                                          onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}>
-                                          <RefreshCw className="w-4 h-4" />
-                                        </button>
-                                        <button onClick={() => handleViewDetail(schedule)} title="Ver detalles"
-                                          className="p-2 rounded-lg transition-colors" style={{ color: "#6b7c6b" }}
-                                          onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#F3F4F6")}
-                                          onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}>
-                                          <Eye className="w-4 h-4" />
-                                        </button>
-                                        <button onClick={() => handleEdit(schedule)} title="Editar"
-                                          className="p-2 rounded-lg transition-colors" style={{ color: "#6b7c6b" }}
-                                          onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#F3F4F6")}
-                                          onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}>
-                                          <Pencil className="w-4 h-4" />
-                                        </button>
-                                        <button onClick={() => confirmDelete(schedule)} title="Eliminar"
-                                          className="p-2 rounded-lg transition-colors" style={{ color: "#c0392b" }}
-                                          onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#fdf0ee")}
-                                          onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}>
-                                          <Trash2 className="w-4 h-4" />
-                                        </button>
-                                      </div>
-                                    </td>
-                                  )}
-                                </tr>
-                              );
-                            })}
-                        </tbody>
-                      </table>
+                      {/* Fila 2: mini-cards de días — semana actual o primera del mes */}
+                      <div style={{ display: "flex", gap: 5, flexWrap: "wrap", marginTop: 8, alignItems: "center" }}>
+                        {isCurrentMonth && (
+                          <span style={{
+                            fontSize: 10, fontWeight: 600, color: "#1a5c3a",
+                            backgroundColor: "#edf7f4", padding: "1px 7px", borderRadius: 999,
+                            border: "1px solid #78D1BD", flexShrink: 0,
+                          }}>
+                            Esta semana
+                          </span>
+                        )}
+                        {dayPattern.map(ds => (
+                          <div key={ds.dayIndex} style={{
+                            backgroundColor: "#f8fafb", border: "1px solid #E5E7EB",
+                            borderRadius: 7, padding: "3px 9px", textAlign: "center",
+                          }}>
+                            <p style={{ fontSize: 11, fontWeight: 600, color: "#1a3a2a", margin: 0 }}>
+                              {getDayLabel(ds.dayIndex).short}
+                            </p>
+                            <p style={{ fontSize: 10, color: "#6b7c6b", margin: 0 }}>
+                              {ds.startTime}–{ds.endTime}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                  );
-                })}
-              </div>
-            );
-          })()}
-        </CardContent>
-      </Card>
-      {/* Dialogs */}
-      <ScheduleFormDialog
-        isOpen={isDialogOpen}
-        onOpenChange={setIsDialogOpen}
-        editingSchedule={editingSchedule}
-        formData={formData}
-        setFormData={setFormData}
-        selectedMonth={selectedMonth}
-        weeksOfMonth={weeksOfMonth}
-        onPreviousMonth={goToPreviousMonth}
-        onNextMonth={goToNextMonth}
-        formWeekStart={formWeekStart}
-        formWeekDays={formWeekDays}
-        employees={employees}
-        onSubmit={handleCreateOrUpdate}
-        onCancel={resetForm}
-        onPreviousWeek={goToPreviousWeek}
-        onNextWeek={goToNextWeek}
-        onToggleDay={toggleDay}
-        onUpdateDaySchedule={updateDaySchedule}
-      />
-      <ScheduleDetailDialog
-        isOpen={detailDialogOpen}
-        onOpenChange={setDetailDialogOpen}
-        schedule={viewingSchedule}
-        employees={employees}
-      />
-      <ScheduleDeleteDialog
-        open={deleteDialogOpen}
-        onOpenChange={setDeleteDialogOpen}
-        onConfirm={handleDelete}
-      />
-      <ScheduleHistoryDialog
-        isOpen={historyDialogOpen}
-        onOpenChange={setHistoryDialogOpen}
-        employeeId={historyEmployee?.id || ""}
-        employeeName={historyEmployee?.name || ""}
-        weekStartDate={historyEmployee?.weekStart}
-      />
+
+                    {/* Acciones CRUD + expand */}
+                    <div style={{ display: "flex", alignItems: "center", gap: 2, flexShrink: 0 }}>
+                      {userRole === "admin" && (
+                        <>
+                          <button onClick={() => handleRenewMonth(row.employeeId, row.monthKey, sortedWeeks)}
+                            title={`Copiar horario al mes siguiente`}
+                            style={{ width: 32, height: 32, borderRadius: 6, border: "none", backgroundColor: "transparent", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#1a5c3a" }}
+                            onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#edf7f4")}
+                            onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}>
+                            <RefreshCw style={{ width: 15, height: 15 }} />
+                          </button>
+                          <button onClick={() => handleViewDetail(firstWeek)} title="Ver detalles"
+                            style={{ width: 32, height: 32, borderRadius: 6, border: "none", backgroundColor: "transparent", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#1a3a2a" }}
+                            onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#edf7f4")}
+                            onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}>
+                            <Eye style={{ width: 15, height: 15 }} />
+                          </button>
+                          <button onClick={() => handleEdit(firstWeek)} title="Editar"
+                            style={{ width: 32, height: 32, borderRadius: 6, border: "none", backgroundColor: "transparent", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#1a3a2a" }}
+                            onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#edf7f4")}
+                            onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}>
+                            <Pencil style={{ width: 15, height: 15 }} />
+                          </button>
+                          <button onClick={() => confirmDelete(row.employeeId, row.monthKey, sortedWeeks)} title="Eliminar mes"
+                            style={{ width: 32, height: 32, borderRadius: 6, border: "none", backgroundColor: "transparent", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#ef4444" }}
+                            onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#fdf0ee")}
+                            onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}>
+                            <Trash2 style={{ width: 15, height: 15 }} />
+                          </button>
+                        </>
+                      )}
+                      <button
+                        onClick={() => toggleCard(cardId)}
+                        style={{
+                          width: 32, height: 32, borderRadius: 6, border: "1px solid #E5E7EB",
+                          backgroundColor: "transparent", cursor: "pointer",
+                          display: "flex", alignItems: "center", justifyContent: "center", color: "#6b7c6b",
+                        }}
+                        onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#F3F4F6")}
+                        onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
+                      >
+                        {expanded
+                          ? <ChevronUp style={{ width: 15, height: 15 }} />
+                          : <ChevronDown style={{ width: 15, height: 15 }} />}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* ── Detalle expandido — solo semanas ── */}
+                  {expanded && (
+                    <div style={{ borderTop: "1px solid #F3F4F6", padding: "12px 20px", backgroundColor: "#fafafa" }}>
+                      <p style={{ fontSize: 11, fontWeight: 600, color: "#6b7c6b", marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                        Semanas del mes
+                      </p>
+                      <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+                        {sortedWeeks.map((w, i) => (
+                          <div key={w.id} style={{
+                            display: "flex", alignItems: "center", gap: 10,
+                            padding: "7px 12px", borderRadius: 8,
+                            backgroundColor: "#ffffff", border: "1px solid #E5E7EB",
+                          }}>
+                            <span style={{
+                              fontSize: 11, fontWeight: 700, color: "#1a5c3a",
+                              backgroundColor: "#edf7f4", padding: "2px 8px", borderRadius: 999, flexShrink: 0,
+                            }}>
+                              Sem. {i + 1}
+                            </span>
+                            <span style={{ fontSize: 12, color: "#6b7c6b" }}>
+                              {formatWeekRange(w.weekStartDate)}
+                            </span>
+                            <span style={{ fontSize: 11, color: "#9ca3af", marginLeft: "auto" }}>
+                              {w.daySchedules.length} días
+                            </span>
+                            {userRole === "admin" && (
+                              <button
+                                onClick={() => handleDeleteWeek(w)}
+                                title="Eliminar esta semana"
+                                style={{
+                                  width: 26, height: 26, borderRadius: 5, border: "none",
+                                  backgroundColor: "transparent", cursor: "pointer",
+                                  display: "flex", alignItems: "center", justifyContent: "center",
+                                  color: "#ef4444", flexShrink: 0,
+                                }}
+                                onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#fdf0ee")}
+                                onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
+                              >
+                                <Trash2 style={{ width: 13, height: 13 }} />
+                              </button>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                      <p style={{ fontSize: 11, color: "#9ca3af", marginTop: 8 }}>
+                        Para ver el horario detallado de cada semana, usa el botón 👁 Ver detalles.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {/* ── Dialogs ───────────────────────────────────────────────────── */}
+        <ScheduleFormDialog
+          isOpen={isDialogOpen}
+          onOpenChange={setIsDialogOpen}
+          editingSchedule={editingSchedule}
+          formData={formData}
+          setFormData={setFormData}
+          selectedMonth={selectedMonth}
+          weeksOfMonth={weeksOfMonth}
+          onPreviousMonth={goToPreviousMonth}
+          onNextMonth={goToNextMonth}
+          formWeekStart={formWeekStart}
+          formWeekDays={formWeekDays}
+          employees={employees}
+          onSubmit={handleCreateOrUpdate}
+          onCancel={resetForm}
+          onPreviousWeek={goToPreviousWeek}
+          onNextWeek={goToNextWeek}
+          onToggleDay={toggleDay}
+          onUpdateDaySchedule={updateDaySchedule}
+          allWeeks={editingSchedule
+            ? rows.find(r => r.employeeId === editingSchedule.employeeId && r.monthKey === editingSchedule.weekStartDate.slice(0, 7))?.weeks
+            : undefined}
+          onSelectWeekToEdit={handleEdit}
+        />
+        <ScheduleDetailDialog
+          isOpen={detailDialogOpen}
+          onOpenChange={setDetailDialogOpen}
+          schedule={viewingSchedule}
+          employees={employees}
+          allWeeks={viewingSchedule
+            ? rows.find(r => r.employeeId === viewingSchedule.employeeId && r.monthKey === viewingSchedule.weekStartDate.slice(0, 7))?.weeks
+            : undefined}
+        />
+        <ScheduleDeleteDialog
+          open={deleteDialogOpen}
+          onOpenChange={setDeleteDialogOpen}
+          onConfirm={handleDelete}
+        />
+        <ScheduleHistoryDialog
+          isOpen={historyDialogOpen}
+          onOpenChange={setHistoryDialogOpen}
+          employeeId={historyEmployee?.id || ""}
+          employeeName={historyEmployee?.name || ""}
+          weekStartDate={historyEmployee?.weekStart}
+        />
       </div>
     </SpaPage>
   );
