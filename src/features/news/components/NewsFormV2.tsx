@@ -1,4 +1,4 @@
-﻿// src/features/news/components/NewsFormV2.tsx
+// src/features/news/components/NewsFormV2.tsx
 import { useState, useEffect } from "react";
 import { Label } from "../../../shared/ui/label";
 import { Textarea } from "../../../shared/ui/textarea";
@@ -270,11 +270,11 @@ export function NewsFormV2({
               <div className="text-center py-8 text-gray-500">
                 Cargando horario del empleado...
               </div>
-            ) : weekDays.length === 0 ? (
-              <Alert>
-                <Info className="h-4 w-4" />
+            ) : !employeeSchedule ? (
+              <Alert variant="destructive">
+                <AlertTriangle className="h-4 w-4" />
                 <AlertDescription>
-                  No se encontró horario para este empleado en la semana seleccionada.
+                  El empleado no tiene un horario registrado para la semana seleccionada. No se puede registrar una novedad.
                 </AlertDescription>
               </Alert>
             ) : (
