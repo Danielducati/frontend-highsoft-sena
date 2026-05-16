@@ -16,7 +16,8 @@ import {
   Tag, 
   ChevronLeft, 
   ChevronRight,
-  Info
+  Info,
+  AlertCircle
 } from "lucide-react";
 
 import { NEWS_TYPES, TIME_SLOTS } from "../constants";
