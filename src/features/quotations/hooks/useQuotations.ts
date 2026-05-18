@@ -51,6 +51,14 @@ export function useQuotations(userRole?: string) {
   const [myClientData,       setMyClientData]       = useState<{ id: number; nombre: string; apellido: string } | null>(null);
   const [myEmployeeData,     setMyEmployeeData]     = useState<{ id: string; name: string; specialty: string } | null>(null);
   const [employeesForService, setEmployeesForService] = useState<any[]>([]);
+  
+  // Estado para modal de confirmación de cambio de estado
+  const [statusChangeDialogOpen, setStatusChangeDialogOpen] = useState(false);
+  const [pendingStatusChange, setPendingStatusChange] = useState<{
+    quotationId: number;
+    currentStatus: QuotationStatus;
+    newStatus: QuotationStatus;
+  } | null>(null);
 
   // Protección contra doble clic
   const isCreating = useRef(false);
@@ -262,6 +270,30 @@ export function useQuotations(userRole?: string) {
   };
 
   const handleStatusChange = async (id: number, newStatus: QuotationStatus) => {
+    // Obtener la cotización actual para mostrar el estado actual
+    const quotation = quotations.find(q => q.id === id);
+    if (!quotation) {
+      toast.error("Cotización no encontrada");
+      return;
+    }
+
+    // Si el estado es el mismo, no hacer nada
+    if (quotation.status === newStatus) {
+      return;
+    }
+
+    // Mostrar modal de confirmación
+    setPendingStatusChange({
+      quotationId: id,
+      currentStatus: quotation.status,
+      newStatus: newStatus,
+    });
+    setStatusChangeDialogOpen(true);
+  };
+
+  const confirmStatusChange = async () => {
+    if (!pendingStatusChange) return;
+
     // Prevenir doble clic
     if (isUpdatingStatus.current) {
       console.log('⚠️ Actualización de estado en proceso, ignorando clic adicional');
@@ -270,11 +302,15 @@ export function useQuotations(userRole?: string) {
 
     isUpdatingStatus.current = true;
     try {
-      await updateQuotationStatusApi(id, newStatus);
-      toast.success(newStatus === "approved" ? "Cotización aprobada — cita creada automáticamente" : "Estado actualizado");
+      await updateQuotationStatusApi(pendingStatusChange.quotationId, pendingStatusChange.newStatus);
+      toast.success(
+        pendingStatusChange.newStatus === "approved" 
+          ? "Cotización aprobada — cita creada automáticamente" 
+          : "Estado actualizado correctamente"
+      );
       await loadQuotations();
       // Notificar al módulo de citas para que recargue
-      if (newStatus === "approved") {
+      if (pendingStatusChange.newStatus === "approved") {
         window.dispatchEvent(new CustomEvent("appointments:reload"));
       }
     } catch (err: any) {
@@ -284,6 +320,7 @@ export function useQuotations(userRole?: string) {
       setTimeout(() => {
         isUpdatingStatus.current = false;
       }, 1000);
+      setPendingStatusChange(null);
     }
   };
 
@@ -407,5 +444,7 @@ export function useQuotations(userRole?: string) {
     calculateSubtotal, calculateTotal,
     filterClient, setFilterClient,
     myClientData, employees, employeesForService, loadEmployeesForService,
+    statusChangeDialogOpen, setStatusChangeDialogOpen,
+    pendingStatusChange, confirmStatusChange,
   };
 }

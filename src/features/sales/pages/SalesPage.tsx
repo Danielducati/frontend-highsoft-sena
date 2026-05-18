@@ -15,7 +15,7 @@ import { toast } from "sonner";
 import { SpaPage } from "../../../shared/components/layout/SpaPage";
 
 export function SalesPage({ userRole }: SalesModuleProps) {
-  const { sales, appointments, availableServices, clients, employees, loading, saving, registerSale, employeesForService, loadEmployeesForService } = useSales();
+  const { sales, appointments, availableServices, clients, employees, loading, saving, registerSale, employeesForService, loadEmployeesForService, monthlyStats } = useSales();
 
   const [searchTerm,     setSearchTerm]    = useState("");
   const [filterPayment,  setFilterPayment] = useState("all");
@@ -145,15 +145,10 @@ export function SalesPage({ userRole }: SalesModuleProps) {
       <div className="space-y-4">
 
         {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {[
-            { label: "Total Ventas",     value: sales.length },
-            { label: "Ingresos Totales", value: `${totalRevenue.toLocaleString("es-CO")}` },
-            { label: "Este mes",         value: `${sales.filter(s => {
-              const d = new Date(s.Fecha);
-              const now = new Date();
-              return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-            }).reduce((sum, s) => sum + (s.Total || 0), 0).toLocaleString("es-CO")}` },
+            { label: `Total ventas del mes (${monthlyStats?.mes ?? "..."})`, value: monthlyStats?.totalVentas ?? 0 },
+            { label: `Ingresos totales del mes (${monthlyStats?.mes ?? "..."})`, value: `$${(monthlyStats?.ingresosTotales ?? 0).toLocaleString("es-CO")}` },
           ].map(({ label, value }) => (
             <div key={label} className="rounded-2xl shadow-sm p-5 bg-white">
               <p className="text-xs font-medium mb-1" style={{ color: "#6b7c6b", fontFamily: "var(--font-body)" }}>{label}</p>
