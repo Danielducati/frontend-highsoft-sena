@@ -5,6 +5,7 @@ import { useQuotations } from "../hooks/useQuotations";
 import { QuotationFormDialog } from "../components/QuotationFormDialog";
 import { QuotationViewDialog } from "../components/QuotationViewDialog";
 import { QuotationCancelDialog } from "../components/QuotationCancelDialog";
+import { QuotationStatusChangeDialog } from "../components/QuotationStatusChangeDialog";
 
 // Badge de estado reutilizable
 function StatusBadge({ status }: { status: QuotationStatus }) {
@@ -46,6 +47,8 @@ export function QuotationsPage({ userRole }: QuotationsModuleProps) {
     calculateSubtotal, calculateTotal,
     filterClient, setFilterClient,
     myClientData, employees, employeesForService, loadEmployeesForService,
+    statusChangeDialogOpen, setStatusChangeDialogOpen,
+    pendingStatusChange, confirmStatusChange,
   } = useQuotations(userRole);
 
   return (
@@ -281,9 +284,13 @@ export function QuotationsPage({ userRole }: QuotationsModuleProps) {
                       )}
                       {userRole !== "client" && (
                         <>
-                          <button onClick={() => handleEdit(q)} title="Editar"
-                            className="p-2 rounded-lg transition-colors" style={{ color: "#6b7c6b" }}
-                            onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#F3F4F6")}
+                          <button 
+                            onClick={() => handleEdit(q)} 
+                            title={q.status === "approved" ? "No se pueden editar cotizaciones aprobadas" : "Editar"}
+                            disabled={q.status === "approved"}
+                            className="p-2 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed" 
+                            style={{ color: q.status === "approved" ? "#9ca3af" : "#6b7c6b" }}
+                            onMouseEnter={e => { if (q.status !== "approved") e.currentTarget.style.backgroundColor = "#F3F4F6"; }}
                             onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}>
                             <Pencil className="w-4 h-4" />
                           </button>
@@ -367,6 +374,18 @@ export function QuotationsPage({ userRole }: QuotationsModuleProps) {
         }}
       />
       <QuotationCancelDialog open={cancelDialogOpen} onOpenChange={setCancelDialogOpen} onConfirm={handleCancel} />
+      
+      {/* Modal de confirmación de cambio de estado */}
+      {pendingStatusChange && (
+        <QuotationStatusChangeDialog
+          open={statusChangeDialogOpen}
+          onOpenChange={setStatusChangeDialogOpen}
+          onConfirm={confirmStatusChange}
+          currentStatus={pendingStatusChange.currentStatus}
+          newStatus={pendingStatusChange.newStatus}
+          quotationId={pendingStatusChange.quotationId}
+        />
+      )}
     </div>
   );
 }

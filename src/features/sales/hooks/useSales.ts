@@ -16,6 +16,7 @@ export function useSales() {
   const [filterStatus, setFilterStatus]           = useState("all");
   const [filterClient, setFilterClient]           = useState("all");
   const [employeesForService, setEmployeesForService] = useState<any[]>([]);
+  const [monthlyStats, setMonthlyStats]           = useState<{ mes: string; totalVentas: number; ingresosTotales: number } | null>(null);
   
   // Protección contra doble clic
   const isProcessing = useRef(false);
@@ -23,18 +24,20 @@ export function useSales() {
   useEffect(() => {
     async function fetchAll() {
       try {
-        const [salesData, apptData, svcData, clientsData, empData] = await Promise.all([
+        const [salesData, apptData, svcData, clientsData, empData, statsData] = await Promise.all([
           salesApi.getSales(),
           salesApi.getAppointments(),
           salesApi.getServices(),
           salesApi.getClients(),
           salesApi.getEmployees(),
+          salesApi.getMonthlyStats(),
         ]);
         setSales(salesData);
         setAppointments(apptData);
         setAvailableServices(svcData);
         setClients(clientsData);
         setEmployees(empData);
+        setMonthlyStats(statsData);
       } catch (err: any) {
         toast.error(err.message ?? "Error al cargar datos");
       } finally {
@@ -45,12 +48,14 @@ export function useSales() {
   }, []);
 
   const reload = async () => {
-    const [salesData, apptData] = await Promise.all([
+    const [salesData, apptData, statsData] = await Promise.all([
       salesApi.getSales(),
       salesApi.getAppointments(),
+      salesApi.getMonthlyStats(),
     ]);
     setSales(salesData);
     setAppointments(apptData);
+    setMonthlyStats(statsData);
   };
 
   // Cargar empleados disponibles para un servicio específico (por especialidad)
@@ -150,6 +155,6 @@ export function useSales() {
   };
 
   return { sales, appointments, availableServices, clients, employees, loading, saving, registerSale,
-    filterClient, setFilterClient, employeesForService, loadEmployeesForService,
+    filterClient, setFilterClient, employeesForService, loadEmployeesForService, monthlyStats,
    };
 }
