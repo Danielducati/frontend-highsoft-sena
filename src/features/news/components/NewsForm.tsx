@@ -162,6 +162,12 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
 
   const isStartDateValid = isDateWorkingDay(formData.date);
 
+  // Validación: la fecha final no puede ser anterior a la fecha de inicio
+  const isEndDateInvalid =
+    !!formData.date &&
+    !!formData.fechaFinal &&
+    formData.fechaFinal < formData.date;
+
   return (
     <div className="space-y-6">
       {/* Selección de Empleado */}
@@ -331,101 +337,98 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
             </Label>
             <input
               type="date"
-              className="w-full h-10 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1a5c3a] focus:border-transparent"
+              className={`w-full h-10 px-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#1a5c3a] focus:border-transparent ${isEndDateInvalid ? 'border-red-500' : 'border-gray-300'}`}
               value={formData.fechaFinal || ""}
+              min={formData.date || undefined}
               onChange={e => setFormData(prev => ({ ...prev, fechaFinal: e.target.value }))}
             />
+            {isEndDateInvalid && (
+              <p className="text-xs text-red-500 flex items-center gap-1 mt-1">
+                <AlertCircle className="w-3 h-3" />
+                La fecha final no puede ser anterior a la fecha de inicio.
+              </p>
+            )}
           </div>
         </div>
       )}
 
-      {/* Tipo de Afectación */}
+      {/* Selección de Horarios (siempre obligatorio) */}
       {formData.employeeId && employeeSchedule && formData.date && (
-        <div className="space-y-3">
-          <Label className="text-sm font-medium">Tipo de Afectación:</Label>
-          
-          <div className="space-y-2">
-            <div className="flex items-center space-x-2">
-              <input
-                type="radio"
-                id="full_day"
-                name="affectationType"
-                value="full_day"
-                checked={affectationType === 'full_day'}
-                onChange={(e) => setAffectationType(e.target.value as any)}
-                className="text-[#1a5c3a]"
-              />
-              <label htmlFor="full_day" className="text-sm">
-                Día completo (toda la jornada laboral)
-              </label>
-            </div>
-            
-            <div className="flex items-center space-x-2">
-              <input
-                type="radio"
-                id="partial_hours"
-                name="affectationType"
-                value="partial_hours"
-                checked={affectationType === 'partial_hours'}
-                onChange={(e) => setAffectationType(e.target.value as any)}
-                className="text-[#1a5c3a]"
-              />
-              <label htmlFor="partial_hours" className="text-sm">
-                Horario específico (seleccionar horas)
-              </label>
-            </div>
-          </div>
-        </div>
-      )}
+        <div className="rounded-xl border border-[#78D1BD]/40 bg-[#f0faf6] p-4 space-y-3">
+          <Label className="flex items-center gap-2 text-sm font-semibold text-[#1a5c3a]">
+            <Clock className="w-4 h-4 text-[#1a5c3a]" />
+            Horario de la Novedad <span className="text-red-500">*</span>
+          </Label>
 
-      {/* Selección de Horarios (solo si es parcial) */}
-      {affectationType === 'partial_hours' && (
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label className="flex items-center gap-2">
-              <Clock className="w-4 h-4 text-[#1a5c3a]" />
-              Hora Inicio
-            </Label>
-            <Select
-              value={formData.startTime || "placeholder"}
-              onValueChange={v => { 
-                if (v !== "placeholder") setFormData(prev => ({ ...prev, startTime: v })); 
-              }}
-            >
-              <SelectTrigger className="border-gray-300">
-                <SelectValue placeholder="Selecciona hora" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="placeholder" disabled>Selecciona hora</SelectItem>
-                {TIME_SLOTS.map(t => (
-                  <SelectItem key={t} value={t}>{t}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          <div className="grid grid-cols-2 gap-4">
+            {/* Hora Inicio */}
+            <div className="space-y-1.5">
+              <Label className="text-xs font-medium text-gray-600 flex items-center gap-1">
+                <Clock className="w-3 h-3 text-[#1a5c3a]" />
+                Hora Inicio <span className="text-red-500">*</span>
+              </Label>
+              <Select
+                value={formData.startTime || "placeholder"}
+                onValueChange={v => {
+                  if (v !== "placeholder") setFormData(prev => ({ ...prev, startTime: v }));
+                }}
+              >
+                <SelectTrigger className="bg-white border-[#78D1BD]/60 focus:ring-[#1a5c3a] h-10">
+                  <SelectValue placeholder="— Selecciona hora —" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="placeholder" disabled>— Selecciona hora —</SelectItem>
+                  {TIME_SLOTS.map(t => (
+                    <SelectItem key={t} value={t}>{t}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Hora Final */}
+            <div className="space-y-1.5">
+              <Label className="text-xs font-medium text-gray-600 flex items-center gap-1">
+                <Clock className="w-3 h-3 text-[#1a5c3a]" />
+                Hora Final <span className="text-red-500">*</span>
+              </Label>
+              <Select
+                value={formData.endTime || "placeholder"}
+                onValueChange={v => {
+                  if (v !== "placeholder") setFormData(prev => ({ ...prev, endTime: v }));
+                }}
+              >
+                <SelectTrigger className={`bg-white h-10 ${
+                  formData.startTime && formData.endTime && formData.endTime <= formData.startTime
+                    ? 'border-red-400 focus:ring-red-400'
+                    : 'border-[#78D1BD]/60 focus:ring-[#1a5c3a]'
+                }`}>
+                  <SelectValue placeholder="— Selecciona hora —" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="placeholder" disabled>— Selecciona hora —</SelectItem>
+                  {TIME_SLOTS.map(t => (
+                    <SelectItem key={t} value={t}>{t}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {formData.startTime && formData.endTime && formData.endTime <= formData.startTime && (
+                <p className="text-xs text-red-500 flex items-center gap-1 mt-1">
+                  <AlertCircle className="w-3 h-3" />
+                  La hora final debe ser mayor a la hora de inicio.
+                </p>
+              )}
+            </div>
           </div>
-          
-          <div className="space-y-2">
-            <Label className="flex items-center gap-2">
-              <Clock className="w-4 h-4 text-[#1a5c3a]" />
-              Hora Final
-            </Label>
-            <Select
-              value={formData.endTime || "placeholder"}
-              onValueChange={v => { 
-                if (v !== "placeholder") setFormData(prev => ({ ...prev, endTime: v })); 
-              }}
-            >
-              <SelectTrigger className="border-gray-300">
-                <SelectValue placeholder="Selecciona hora" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="placeholder" disabled>Selecciona hora</SelectItem>
-                {TIME_SLOTS.map(t => (
-                  <SelectItem key={t} value={t}>{t}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+
+          {/* Resumen visual de horas seleccionadas */}
+          {formData.startTime && formData.endTime && formData.endTime > formData.startTime && (
+            <div className="flex items-center gap-2 mt-1 pt-2 border-t border-[#78D1BD]/30">
+              <Clock className="w-3.5 h-3.5 text-[#1a5c3a]" />
+              <span className="text-xs text-[#1a5c3a] font-medium">
+                Jornada: {formData.startTime} → {formData.endTime}
+              </span>
+            </div>
+          )}
         </div>
       )}
 
@@ -439,16 +442,11 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
               <p>
                 <strong>Fechas:</strong> {formData.date} {formData.fechaFinal ? `hasta ${formData.fechaFinal}` : ''}
               </p>
-              {affectationType === 'partial_hours' && formData.startTime && formData.endTime && (
+              {formData.startTime && formData.endTime && (
                 <p>
                   <strong>Horario:</strong> {formData.startTime} - {formData.endTime}
                 </p>
               )}
-              <p>
-                <strong>Tipo:</strong> {
-                  affectationType === 'full_day' ? 'Día completo' : 'Horario específico'
-                }
-              </p>
             </div>
           </AlertDescription>
         </Alert>
@@ -477,7 +475,16 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
         <Button 
           variant="default" 
           onClick={onSubmit}
-          disabled={!employeeSchedule || !formData.date || !isStartDateValid || !formData.description.trim() || (affectationType === 'partial_hours' && (!formData.startTime || !formData.endTime || formData.startTime >= formData.endTime))}
+          disabled={
+            !employeeSchedule ||
+            !formData.date ||
+            !isStartDateValid ||
+            isEndDateInvalid ||
+            !formData.startTime ||
+            !formData.endTime ||
+            formData.endTime <= formData.startTime ||
+            !formData.description.trim()
+          }
         >
           {editingNews ? "Actualizar" : "Crear"} Novedad
         </Button>

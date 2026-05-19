@@ -49,7 +49,6 @@ export function NewsStatusDialog({ open, news, status, onStatusChange, onConfirm
                     <SelectItem value="pendiente">Pendiente</SelectItem>
                     <SelectItem value="aprobada">Aprobada</SelectItem>
                     <SelectItem value="rechazada">Rechazada</SelectItem>
-                    <SelectItem value="resuelta">Resuelta</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
