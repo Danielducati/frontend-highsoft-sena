@@ -1,4 +1,4 @@
-﻿//components/NewsForm.tsx
+//components/NewsForm.tsx
 import { useState, useEffect } from "react";
 import { Label } from "../../../shared/ui/label";
 import { Textarea } from "../../../shared/ui/textarea";
@@ -16,7 +16,8 @@ import {
   Tag, 
   ChevronLeft, 
   ChevronRight,
-  Info
+  Info,
+  AlertCircle
 } from "lucide-react";
 
 import { NEWS_TYPES, TIME_SLOTS } from "../constants";
@@ -86,12 +87,19 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
   const [affectationType, setAffectationType] = useState<"full_day" | "partial_hours">("full_day");
   const [employeeSchedule, setEmployeeSchedule] = useState<any>(null);
 
+  // Sincronizar el horario cuando cambia el empleado (especialmente útil al editar)
+  useEffect(() => {
+    if (formData.employeeId) {
+      setEmployeeSchedule(mockEmployeeSchedules[formData.employeeId as keyof typeof mockEmployeeSchedules] || null);
+    } else {
+      setEmployeeSchedule(null);
+    }
+  }, [formData.employeeId]);
+
   const handleEmployeeChange = (empId: string) => {
     const emp = employees.find(e => String(e.id) === empId);
     if (emp) {
       setFormData(prev => ({ ...prev, employeeId: String(emp.id), employeeName: emp.name }));
-      setEmployeeSchedule(mockEmployeeSchedules[empId as keyof typeof mockEmployeeSchedules] || null);
-      setSelectedDays([]);
     }
   };
 
@@ -100,35 +108,6 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
     const offset = direction === 'prev' ? -7 : 7;
     currentDate.setDate(currentDate.getDate() + offset);
     setSelectedWeekStart(currentDate.toISOString().split('T')[0]);
-  };
-
-  const handleDayToggle = (dayIndex: number) => {
-    const isSelected = selectedDays.includes(dayIndex);
-    const newSelectedDays = isSelected
-      ? selectedDays.filter(d => d !== dayIndex)
-      : [...selectedDays, dayIndex];
-    
-    setSelectedDays(newSelectedDays);
-    
-    // Actualizar formData con la primera fecha seleccionada
-    if (newSelectedDays.length > 0) {
-      const firstDayIndex = Math.min(...newSelectedDays);
-      const weekStart = new Date(selectedWeekStart);
-      const selectedDate = new Date(weekStart);
-      selectedDate.setDate(weekStart.getDate() + firstDayIndex);
-      
-      setFormData(prev => ({ 
-        ...prev, 
-        date: selectedDate.toISOString().split('T')[0],
-        fechaFinal: newSelectedDays.length > 1 ? 
-          (() => {
-            const lastDayIndex = Math.max(...newSelectedDays);
-            const lastDate = new Date(weekStart);
-            lastDate.setDate(weekStart.getDate() + lastDayIndex);
-            return lastDate.toISOString().split('T')[0];
-          })() : ""
-      }));
-    }
   };
 
   const getWeekRangeLabel = () => {
@@ -165,6 +144,29 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
       setFormData(prev => ({ ...prev, startTime: "", endTime: "" }));
     }
   }, [affectationType, setFormData]);
+
+  // Validar si la fecha seleccionada cae en un día laboral del empleado
+  const isDateWorkingDay = (dateStr: string) => {
+    if (!dateStr || !employeeSchedule) return true;
+    
+    // Parseamos la fecha (agregamos T00:00:00 para evitar desajustes por zona horaria)
+    const d = new Date(`${dateStr}T00:00:00`);
+    
+    // getDay(): Dom=0, Lun=1... Sab=6
+    // Nuestro index: Lun=0, Mar=1... Dom=6
+    const dayIndex = d.getDay() === 0 ? 6 : d.getDay() - 1;
+    
+    const scheduleDay = employeeSchedule.schedule.find((s: any) => s.day === dayIndex);
+    return scheduleDay ? scheduleDay.available : false;
+  };
+
+  const isStartDateValid = isDateWorkingDay(formData.date);
+
+  // Validación: la fecha final no puede ser anterior a la fecha de inicio
+  const isEndDateInvalid =
+    !!formData.date &&
+    !!formData.fechaFinal &&
+    formData.fechaFinal < formData.date;
 
   return (
     <div className="space-y-6">
@@ -219,7 +221,7 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2 text-base">
               <Calendar className="w-4 h-4 text-[#1a5c3a]" />
-              Horario Semanal - {employeeSchedule.name}
+              Horario Semanal - {formData.employeeName}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -255,28 +257,20 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
               </Button>
             </div>
 
-            {/* Días de la Semana */}
+            {/* Días de la Semana (Solo visualización) */}
             <div className="space-y-3">
               <Label className="text-sm font-medium">
-                Selecciona los días afectados por la novedad:
+                Referencia del horario para la semana seleccionada:
               </Label>
               
               {employeeSchedule.schedule.map((day: any) => (
                 <div key={day.day} className="space-y-2">
-                  <div className="flex items-center gap-3">
-                    <Checkbox
-                      id={`day-${day.day}`}
-                      checked={selectedDays.includes(day.day)}
-                      onCheckedChange={() => handleDayToggle(day.day)}
-                      disabled={!day.available}
-                    />
+                  <div className="flex items-center gap-3 opacity-80">
+                    <div className="w-4" /> {/* Spacer in place of checkbox */}
                     
-                    <label 
-                      htmlFor={`day-${day.day}`}
-                      className={`flex items-center gap-2 cursor-pointer select-none ${
+                    <div className={`flex items-center gap-2 select-none ${
                         !day.available ? 'opacity-50' : ''
-                      }`}
-                    >
+                      }`}>
                       <Badge 
                         variant="secondary" 
                         className={`text-xs ${getDayBadgeColor(day.day)}`}
@@ -296,7 +290,7 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
                       ) : (
                         <span className="text-xs text-gray-400">Sin horario</span>
                       )}
-                    </label>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -305,120 +299,154 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
         </Card>
       )}
 
-      {/* Tipo de Afectación */}
-      {selectedDays.length > 0 && (
-        <div className="space-y-3">
-          <Label className="text-sm font-medium">Tipo de Afectación:</Label>
-          
+      {/* Validación estricta de horario */}
+      {formData.employeeId && !employeeSchedule && (
+        <Alert variant="destructive">
+          <Info className="h-4 w-4" />
+          <AlertDescription>
+            El empleado no tiene un horario registrado. No se puede registrar una novedad.
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {/* Fechas explícitas */}
+      {formData.employeeId && employeeSchedule && (
+        <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <div className="flex items-center space-x-2">
-              <input
-                type="radio"
-                id="full_day"
-                name="affectationType"
-                value="full_day"
-                checked={affectationType === 'full_day'}
-                onChange={(e) => setAffectationType(e.target.value as any)}
-                className="text-[#1a5c3a]"
-              />
-              <label htmlFor="full_day" className="text-sm">
-                Día completo (toda la jornada laboral)
-              </label>
-            </div>
-            
-            <div className="flex items-center space-x-2">
-              <input
-                type="radio"
-                id="partial_hours"
-                name="affectationType"
-                value="partial_hours"
-                checked={affectationType === 'partial_hours'}
-                onChange={(e) => setAffectationType(e.target.value as any)}
-                className="text-[#1a5c3a]"
-              />
-              <label htmlFor="partial_hours" className="text-sm">
-                Horario específico (seleccionar horas)
-              </label>
-            </div>
+            <Label className="flex items-center gap-2">
+              <Calendar className="w-4 h-4 text-[#1a5c3a]" />
+              Fecha Inicio *
+            </Label>
+            <input
+              type="date"
+              className={`w-full h-10 px-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#1a5c3a] focus:border-transparent ${!isStartDateValid && formData.date ? 'border-red-500' : 'border-gray-300'}`}
+              value={formData.date}
+              onChange={e => setFormData(prev => ({ ...prev, date: e.target.value }))}
+            />
+            {!isStartDateValid && formData.date && (
+              <p className="text-xs text-red-500 flex items-center gap-1 mt-1">
+                <AlertCircle className="w-3 h-3" />
+                El empleado no labora este día según su horario registrado.
+              </p>
+            )}
+          </div>
+          <div className="space-y-2">
+            <Label className="flex items-center gap-2">
+              <Calendar className="w-4 h-4 text-[#1a5c3a]" />
+              Fecha Fin (Opcional)
+            </Label>
+            <input
+              type="date"
+              className={`w-full h-10 px-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#1a5c3a] focus:border-transparent ${isEndDateInvalid ? 'border-red-500' : 'border-gray-300'}`}
+              value={formData.fechaFinal || ""}
+              min={formData.date || undefined}
+              onChange={e => setFormData(prev => ({ ...prev, fechaFinal: e.target.value }))}
+            />
+            {isEndDateInvalid && (
+              <p className="text-xs text-red-500 flex items-center gap-1 mt-1">
+                <AlertCircle className="w-3 h-3" />
+                La fecha final no puede ser anterior a la fecha de inicio.
+              </p>
+            )}
           </div>
         </div>
       )}
 
-      {/* Selección de Horarios (solo si es parcial) */}
-      {affectationType === 'partial_hours' && (
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label className="flex items-center gap-2">
-              <Clock className="w-4 h-4 text-[#1a5c3a]" />
-              Hora Inicio
-            </Label>
-            <Select
-              value={formData.startTime || "placeholder"}
-              onValueChange={v => { 
-                if (v !== "placeholder") setFormData(prev => ({ ...prev, startTime: v })); 
-              }}
-            >
-              <SelectTrigger className="border-gray-300">
-                <SelectValue placeholder="Selecciona hora" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="placeholder" disabled>Selecciona hora</SelectItem>
-                {TIME_SLOTS.map(t => (
-                  <SelectItem key={t} value={t}>{t}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+      {/* Selección de Horarios (siempre obligatorio) */}
+      {formData.employeeId && employeeSchedule && formData.date && (
+        <div className="rounded-xl border border-[#78D1BD]/40 bg-[#f0faf6] p-4 space-y-3">
+          <Label className="flex items-center gap-2 text-sm font-semibold text-[#1a5c3a]">
+            <Clock className="w-4 h-4 text-[#1a5c3a]" />
+            Horario de la Novedad <span className="text-red-500">*</span>
+          </Label>
+
+          <div className="grid grid-cols-2 gap-4">
+            {/* Hora Inicio */}
+            <div className="space-y-1.5">
+              <Label className="text-xs font-medium text-gray-600 flex items-center gap-1">
+                <Clock className="w-3 h-3 text-[#1a5c3a]" />
+                Hora Inicio <span className="text-red-500">*</span>
+              </Label>
+              <Select
+                value={formData.startTime || "placeholder"}
+                onValueChange={v => {
+                  if (v !== "placeholder") setFormData(prev => ({ ...prev, startTime: v }));
+                }}
+              >
+                <SelectTrigger className="bg-white border-[#78D1BD]/60 focus:ring-[#1a5c3a] h-10">
+                  <SelectValue placeholder="— Selecciona hora —" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="placeholder" disabled>— Selecciona hora —</SelectItem>
+                  {TIME_SLOTS.map(t => (
+                    <SelectItem key={t} value={t}>{t}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Hora Final */}
+            <div className="space-y-1.5">
+              <Label className="text-xs font-medium text-gray-600 flex items-center gap-1">
+                <Clock className="w-3 h-3 text-[#1a5c3a]" />
+                Hora Final <span className="text-red-500">*</span>
+              </Label>
+              <Select
+                value={formData.endTime || "placeholder"}
+                onValueChange={v => {
+                  if (v !== "placeholder") setFormData(prev => ({ ...prev, endTime: v }));
+                }}
+              >
+                <SelectTrigger className={`bg-white h-10 ${
+                  formData.startTime && formData.endTime && formData.endTime <= formData.startTime
+                    ? 'border-red-400 focus:ring-red-400'
+                    : 'border-[#78D1BD]/60 focus:ring-[#1a5c3a]'
+                }`}>
+                  <SelectValue placeholder="— Selecciona hora —" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="placeholder" disabled>— Selecciona hora —</SelectItem>
+                  {TIME_SLOTS.map(t => (
+                    <SelectItem key={t} value={t}>{t}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {formData.startTime && formData.endTime && formData.endTime <= formData.startTime && (
+                <p className="text-xs text-red-500 flex items-center gap-1 mt-1">
+                  <AlertCircle className="w-3 h-3" />
+                  La hora final debe ser mayor a la hora de inicio.
+                </p>
+              )}
+            </div>
           </div>
-          
-          <div className="space-y-2">
-            <Label className="flex items-center gap-2">
-              <Clock className="w-4 h-4 text-[#1a5c3a]" />
-              Hora Final
-            </Label>
-            <Select
-              value={formData.endTime || "placeholder"}
-              onValueChange={v => { 
-                if (v !== "placeholder") setFormData(prev => ({ ...prev, endTime: v })); 
-              }}
-            >
-              <SelectTrigger className="border-gray-300">
-                <SelectValue placeholder="Selecciona hora" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="placeholder" disabled>Selecciona hora</SelectItem>
-                {TIME_SLOTS.map(t => (
-                  <SelectItem key={t} value={t}>{t}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+
+          {/* Resumen visual de horas seleccionadas */}
+          {formData.startTime && formData.endTime && formData.endTime > formData.startTime && (
+            <div className="flex items-center gap-2 mt-1 pt-2 border-t border-[#78D1BD]/30">
+              <Clock className="w-3.5 h-3.5 text-[#1a5c3a]" />
+              <span className="text-xs text-[#1a5c3a] font-medium">
+                Jornada: {formData.startTime} → {formData.endTime}
+              </span>
+            </div>
+          )}
         </div>
       )}
 
       {/* Resumen de Selección */}
-      {selectedDays.length > 0 && employeeSchedule && (
+      {formData.date && employeeSchedule && (
         <Alert>
           <Info className="h-4 w-4" />
           <AlertDescription>
             <div className="space-y-1">
               <p className="font-medium">Resumen de la novedad:</p>
               <p>
-                <strong>Días afectados:</strong> {
-                  selectedDays
-                    .map(dayIndex => employeeSchedule.schedule[dayIndex]?.name)
-                    .join(', ')
-                }
+                <strong>Fechas:</strong> {formData.date} {formData.fechaFinal ? `hasta ${formData.fechaFinal}` : ''}
               </p>
-              {affectationType === 'partial_hours' && formData.startTime && formData.endTime && (
+              {formData.startTime && formData.endTime && (
                 <p>
                   <strong>Horario:</strong> {formData.startTime} - {formData.endTime}
                 </p>
               )}
-              <p>
-                <strong>Tipo:</strong> {
-                  affectationType === 'full_day' ? 'Día completo' : 'Horario específico'
-                }
-              </p>
             </div>
           </AlertDescription>
         </Alert>
@@ -447,7 +475,16 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
         <Button 
           variant="default" 
           onClick={onSubmit}
-          disabled={selectedDays.length === 0 || !formData.description.trim()}
+          disabled={
+            !employeeSchedule ||
+            !formData.date ||
+            !isStartDateValid ||
+            isEndDateInvalid ||
+            !formData.startTime ||
+            !formData.endTime ||
+            formData.endTime <= formData.startTime ||
+            !formData.description.trim()
+          }
         >
           {editingNews ? "Actualizar" : "Crear"} Novedad
         </Button>

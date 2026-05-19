@@ -21,7 +21,6 @@ const map: Record<string, string> = {
     pendiente: "bg-amber-100 text-amber-700",
     aprobada:  "bg-emerald-100 text-emerald-700",
     rechazada: "bg-red-100 text-red-700",
-    resuelta:  "bg-blue-100 text-blue-700",
 };
 return map[status] ?? map.pendiente;
 }
@@ -31,7 +30,6 @@ const map: Record<string, string> = {
     pendiente: "Pendiente",
     aprobada:  "Aprobada",
     rechazada: "Rechazada",
-    resuelta:  "Resuelta",
 };
 return map[status] ?? status;
 }
@@ -49,7 +47,6 @@ export const getStatusStyles = (status: string) => {
     case "aprobada": return "bg-green-100 text-green-700 border-green-200";
     case "rechazada": return "bg-red-100 text-red-700 border-red-200";
     case "pendiente": return "bg-yellow-100 text-yellow-700 border-yellow-200";
-    case "resuelta":  return "bg-blue-100 text-blue-700 border-blue-200";
     default: return "bg-gray-100 text-gray-700";
     }
 };

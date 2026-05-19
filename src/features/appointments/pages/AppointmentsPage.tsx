@@ -1,4 +1,4 @@
-﻿//frontend-highsoft-sena\src\features\appointments\pages\AppointmentsPage.tsx
+//frontend-highsoft-sena\src\features\appointments\pages\AppointmentsPage.tsx
 import { Card, CardContent } from "../../../shared/ui/card";
 import { Button } from "../../../shared/ui/button";
 import { Input } from "../../../shared/ui/input";
@@ -52,28 +52,22 @@ function buildColumns(apts: Appointment[]): Appointment[][] {
 const FREE_LANE_PX = 48;
 
 function getAptLayout(apt: Appointment, allApts: Appointment[]) {
-  const columns  = buildColumns(allApts);
-  const aptStart = toMin(apt.startTime);
-  const aptEnd   = toMin(apt.endTime);
+  // Encontramos todas las citas que empiezan a la misma hora en el mismo día
+  const sameTimeApts = allApts.filter(a => a.startTime === apt.startTime);
+  
+  // Su índice nos dirá en qué posición de la "lista" dentro de esa hora debe ir
+  const slotIndex = sameTimeApts.findIndex(a => a.id === apt.id);
 
-  const overlappingCols = columns.filter(col =>
-    col.some(a => toMin(a.startTime) < aptEnd && toMin(a.endTime) > aptStart)
-  );
+  // Ocupa todo el ancho disponible
+  const widthCalc = `calc(100% - 8px)`;
+  const leftCalc  = `4px`;
 
-  const colIndex  = overlappingCols.findIndex(col => col.includes(apt));
-  const totalCols = overlappingCols.length;
-
-  // Cada cita ocupa una fracción del espacio disponible (excluyendo el carril libre fijo)
-  // Se expresa como calc() para combinar % y px
-  const widthCalc = `calc((100% - ${FREE_LANE_PX}px) / ${totalCols})`;
-  const leftCalc  = `calc((100% - ${FREE_LANE_PX}px) / ${totalCols} * ${colIndex})`;
-
-  return { colIndex, totalCols, widthCalc, leftCalc };
+  return { slotIndex, widthCalc, leftCalc };
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
 
-const ROW_HEIGHT = 80; // px por franja de 30 min — más grande para mejor UX
+const ROW_HEIGHT = 100; // px por franja de 30 min — aumentado para dar más espacio a las citas
 
 const STATUS_COLORS: Record<string, { bg: string; border: string }> = {
   pending:   { bg: "#FEF3C7", border: "#D97706" },  // amber-100 / amber-700
@@ -486,36 +480,31 @@ export function AppointmentsPage({ userRole }: AppointmentsModuleProps) {
 
                           {/* Citas renderizadas con posición absoluta */}
                           {dayApts.map(apt => {
-                            const { widthCalc, leftCalc } = getAptLayout(apt, dayApts);
+                            const { widthCalc, leftCalc, slotIndex } = getAptLayout(apt, dayApts);
                             const { bg, border } = STATUS_COLORS[apt.status] ?? STATUS_COLORS.pending;
-                            const h = aptHeight(apt);
+                            
+                            // Altura fija tipo lista
+                            const h = 28; 
 
                             return (
                               <div
                                 key={apt.id}
-                                className="absolute rounded-md border-l-[3px] px-2 py-1.5 cursor-pointer hover:shadow-md hover:brightness-95 transition-all overflow-hidden"
+                                className="absolute rounded border-l-[3px] px-1.5 flex items-center cursor-pointer hover:shadow-md hover:brightness-95 transition-all overflow-hidden"
                                 style={{
-                                  top:             aptTop(apt) + 2,
+                                  top:             aptTop(apt) + 2 + (slotIndex * 30), // Apilamiento hacia abajo dentro de la hora (espacio ajustado a h=28)
                                   height:          h,
-                                  left:            `calc(${leftCalc} + 2px)`,
-                                  width:           `calc(${widthCalc} - 4px)`,
+                                  left:            leftCalc,
+                                  width:           widthCalc,
                                   backgroundColor: bg,
                                   borderLeftColor: border,
                                   zIndex:          10,
                                 }}
                                 onClick={e => { e.stopPropagation(); setViewingAppointment(apt); }}
                               >
-                                <p className="text-[11px] font-semibold truncate leading-tight" style={{ color: STATUS_COLORS[apt.status]?.border ?? "#D97706" }}>
-                                  {apt.clientName}
+                                <p className="text-[11px] font-medium truncate leading-tight w-full" style={{ color: STATUS_COLORS[apt.status]?.border ?? "#D97706" }}>
+                                  <span className="font-bold opacity-80 mr-1">{apt.startTime}</span> 
+                                  {apt.clientName} {apt.services.length > 0 && `- ${apt.services[0].serviceName}`}
                                 </p>
-                                <p className="text-[10px] leading-tight" style={{ color: STATUS_COLORS[apt.status]?.border ?? "#D97706", opacity: 0.8 }}>
-                                  {apt.startTime} – {apt.endTime}
-                                </p>
-                                {h > 50 && (
-                                  <p className="text-[10px] truncate leading-tight mt-0.5" style={{ color: STATUS_COLORS[apt.status]?.border ?? "#D97706", opacity: 0.8 }}>
-                                    {apt.services.map(s => s.serviceName).join(", ")}
-                                  </p>
-                                )}
                               </div>
                             );
                           })}
