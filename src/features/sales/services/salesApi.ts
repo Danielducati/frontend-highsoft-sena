@@ -125,5 +125,13 @@ export const salesApi = {
       const err = await res.json();
       throw new Error(err.error || "Error al registrar venta");
     }
+  },
+
+  async getMonthlyStats(): Promise<{ mes: string; totalVentas: number; ingresosTotales: number }> {
+    const res = await fetch(`${API_URL}/sales/monthly-stats`, {
+      headers: { Authorization: `Bearer ${getToken()}` },
+    });
+    if (!res.ok) throw new Error("Error al cargar estadísticas mensuales");
+    return res.json();
   }
 }
