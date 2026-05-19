@@ -13,11 +13,11 @@ const authHeaders = () => ({
 });
 
 const DOCUMENT_TYPES = [
-  { value: "CC",  label: "Cédula de Ciudadanía" },
-  { value: "CE",  label: "Cédula de Extranjería" },
-  { value: "TI",  label: "Tarjeta de Identidad"  },
-  { value: "PP",  label: "Pasaporte"              },
-  { value: "NIT", label: "NIT"                    },
+  { value: "CC", label: "Cédula de Ciudadanía" },
+  { value: "CE", label: "Cédula de Extranjería" },
+  { value: "TI", label: "Tarjeta de Identidad" },
+  { value: "PP", label: "Pasaporte" },
+  { value: "NIT", label: "NIT" },
 ];
 
 const inputStyle: React.CSSProperties = {
@@ -32,37 +32,36 @@ const labelStyle: React.CSSProperties = {
   color: "#6b7c6b", marginBottom: 5, fontFamily: "var(--font-body)",
 };
 
-export function ClientProfilePage() {
+export function AdminProfilePage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [loading,      setLoading]      = useState(true);
-  const [saving,       setSaving]       = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [uploadingImg, setUploadingImg] = useState(false);
   const [imagePreview, setImagePreview] = useState("");
 
   const [form, setForm] = useState({
     firstName: "", lastName: "", documentType: "", document: "",
-    email: "", phone: "", address: "", image: "",
+    email: "", phone: "", image: "",
   });
 
-  const [passForm,   setPassForm]   = useState({ current: "", next: "", confirm: "" });
+  const [passForm, setPassForm] = useState({ current: "", next: "", confirm: "" });
   const [savingPass, setSavingPass] = useState(false);
 
   useEffect(() => {
-    fetch(`${API_URL}/clients/mi-perfil`, { headers: authHeaders() })
+    fetch(`${API_URL}/api/users/mi-perfil`, { headers: authHeaders() })
       .then(r => r.json())
       .then(data => {
         setForm({
-          firstName:    data.nombre            ?? "",
-          lastName:     data.apellido          ?? "",
-          documentType: data.tipo_documento    ?? "",
-          document:     data.numero_documento  ?? "",
-          email:        data.correo            ?? "",
-          phone:        data.telefono          ?? "",
-          address:      data.direccion         ?? "",
-          image:        data.foto_perfil       ?? "",
+          firstName: data.firstName ?? data.nombre ?? "",
+          lastName: data.lastName ?? data.apellido ?? "",
+          documentType: data.documentType ?? "",
+          document: data.document ?? "",
+          email: data.email ?? data.correo ?? "",
+          phone: data.phone ?? data.telefono ?? "",
+          image: data.photo ?? data.foto ?? "",
         });
-        setImagePreview(data.foto_perfil ?? "");
+        setImagePreview(data.photo ?? data.foto ?? "");
       })
       .catch(() => toast.error("Error al cargar tu perfil"))
       .finally(() => setLoading(false));
@@ -79,6 +78,7 @@ export function ClientProfilePage() {
       const url = await uploadImage(file);
       setForm(f => ({ ...f, image: url }));
       setImagePreview(url);
+      // Actualizar foto en header inmediatamente
       try {
         const stored = JSON.parse(localStorage.getItem("usuario") ?? "{}");
         stored.foto = url;
@@ -100,23 +100,24 @@ export function ClientProfilePage() {
     }
     setSaving(true);
     try {
-      const res = await fetch(`${API_URL}/clients/mi-perfil`, {
+      const res = await fetch(`${API_URL}/api/users/mi-perfil`, {
         method: "PATCH",
         headers: authHeaders(),
         body: JSON.stringify({
-          firstName:    form.firstName.trim(),
-          lastName:     form.lastName.trim(),
+          firstName: form.firstName.trim(),
+          lastName: form.lastName.trim(),
           documentType: form.documentType || null,
-          document:     form.document     || null,
-          phone:        form.phone        || null,
-          address:      form.address      || null,
-          image:        form.image        || null,
+          document: form.document || null,
+          email: form.email.trim(),
+          phone: form.phone || null,
+          photo: form.image || null,
         }),
       });
       if (!res.ok) {
         const err = await res.json();
         throw new Error(err.error ?? "Error al guardar");
       }
+      // Actualizar localStorage para que el header refleje los cambios
       const stored = localStorage.getItem("usuario");
       if (stored) {
         const u = JSON.parse(stored);
@@ -125,6 +126,7 @@ export function ClientProfilePage() {
         u.foto = form.image || "";
         localStorage.setItem("usuario", JSON.stringify(u));
       }
+      // Notificar a App.tsx para que actualice el header
       window.dispatchEvent(new Event("usuario-updated"));
       toast.success("Perfil actualizado correctamente");
     } catch (err: any) {
@@ -163,7 +165,7 @@ export function ClientProfilePage() {
   return (
     <SpaPage
       title="Mi Perfil"
-      subtitle="Actualiza tu información personal"
+      subtitle="Administra tu información personal"
       icon={<User className="w-6 h-6" style={{ color: "#1a3a2a" }} />}
     >
       <div style={{ fontFamily: "var(--font-body)", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20, alignItems: "stretch" }}>
@@ -176,11 +178,11 @@ export function ClientProfilePage() {
 
             <div>
               <label style={labelStyle}>Nombre *</label>
-              <input style={inputStyle} value={form.firstName} onChange={e => setForm(f => ({ ...f, firstName: e.target.value.replace(/[0-9]/g, '') }))} placeholder="Juan" />
+              <input style={inputStyle} value={form.firstName} onChange={e => setForm(f => ({ ...f, firstName: e.target.value.replace(/[0-9]/g, '') }))} placeholder="Samuel" />
             </div>
             <div>
               <label style={labelStyle}>Apellido *</label>
-              <input style={inputStyle} value={form.lastName} onChange={e => setForm(f => ({ ...f, lastName: e.target.value.replace(/[0-9]/g, '') }))} placeholder="Pérez" />
+              <input style={inputStyle} value={form.lastName} onChange={e => setForm(f => ({ ...f, lastName: e.target.value.replace(/[0-9]/g, '') }))} placeholder="González" />
             </div>
             <div>
               <label style={labelStyle}>Tipo de Documento</label>
@@ -191,7 +193,7 @@ export function ClientProfilePage() {
             </div>
             <div>
               <label style={labelStyle}>Número de Documento</label>
-              <input style={inputStyle} value={form.document} maxLength={15} onChange={e => setForm(f => ({ ...f, document: e.target.value.replace(/\D/g, '') }))} placeholder="1234567890" />
+              <input style={inputStyle} value={form.document} maxLength={15} onChange={e => setForm(f => ({ ...f, document: e.target.value }))} placeholder="1234567890" />
             </div>
             <div>
               <label style={labelStyle}>Correo</label>
@@ -205,10 +207,6 @@ export function ClientProfilePage() {
             <div>
               <label style={labelStyle}>Teléfono</label>
               <input style={inputStyle} value={form.phone} maxLength={10} onChange={e => setForm(f => ({ ...f, phone: e.target.value.replace(/\D/g, '') }))} placeholder="3001234567" />
-            </div>
-            <div>
-              <label style={labelStyle}>Dirección</label>
-              <input style={inputStyle} value={form.address} onChange={e => setForm(f => ({ ...f, address: e.target.value }))} placeholder="Calle 123 #45-67, Bogotá" />
             </div>
           </div>
 
@@ -234,7 +232,7 @@ export function ClientProfilePage() {
 
           <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
 
-            {/* Foto de perfil */}
+            {/* Foto */}
             <p style={{ fontSize: 13, fontWeight: 600, color: "#1a3a2a", marginBottom: 16 }}>Foto de Perfil</p>
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14, paddingBottom: 24, borderBottom: "1px solid #F3F4F6" }}>
               <div style={{ position: "relative" }}>
