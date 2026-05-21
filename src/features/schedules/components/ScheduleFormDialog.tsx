@@ -1,4 +1,4 @@
-﻿import { useState } from "react";
+import { useState } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../../../shared/ui/dialog";
 import { Button } from "../../../shared/ui/button";
 import { Label } from "../../../shared/ui/label";
@@ -113,7 +113,7 @@ export function ScheduleFormDialog({
                             }}
                           >
                             <span style={{
-                              fontSize: 11, fontWeight: 700, color: "#1a5c3a",
+                              fontSize: 11, fontWeight: 700,
                               backgroundColor: isSelected ? "#1a3a2a" : "#edf7f4",
                               color: isSelected ? "#ffffff" : "#1a5c3a",
                               padding: "2px 8px", borderRadius: 999, flexShrink: 0,
