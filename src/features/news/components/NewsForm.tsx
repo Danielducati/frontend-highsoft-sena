@@ -215,11 +215,11 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
         </Select>
       </div>
 
-      {/* Horario Semanal del Empleado */}
-      {formData.employeeId && employeeSchedule && (
-        <Card className="border-gray-200">
-          <CardHeader className="pb-3">
-            <CardTitle className="flex items-center gap-2 text-base">
+      {/* Fechas de Novedad */}
+      {formData.employeeId && (
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label className="flex items-center gap-2">
               <Calendar className="w-4 h-4 text-[#1a5c3a]" />
               Horario Semanal - {formData.employeeName}
             </CardTitle>
@@ -433,14 +433,14 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
       )}
 
       {/* Resumen de Selección */}
-      {formData.date && employeeSchedule && (
+      {formData.date && (
         <Alert>
           <Info className="h-4 w-4" />
           <AlertDescription>
             <div className="space-y-1">
               <p className="font-medium">Resumen de la novedad:</p>
               <p>
-                <strong>Fechas:</strong> {formData.date} {formData.fechaFinal ? `hasta ${formData.fechaFinal}` : ''}
+                <strong>Fechas:</strong> {formData.date} {formData.fechaFinal ? `al ${formData.fechaFinal}` : ''}
               </p>
               {formData.startTime && formData.endTime && (
                 <p>
@@ -475,16 +475,7 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
         <Button 
           variant="default" 
           onClick={onSubmit}
-          disabled={
-            !employeeSchedule ||
-            !formData.date ||
-            !isStartDateValid ||
-            isEndDateInvalid ||
-            !formData.startTime ||
-            !formData.endTime ||
-            formData.endTime <= formData.startTime ||
-            !formData.description.trim()
-          }
+          disabled={!formData.date || !formData.description.trim() || (affectationType === 'partial_hours' && (!formData.startTime || !formData.endTime))}
         >
           {editingNews ? "Actualizar" : "Crear"} Novedad
         </Button>
