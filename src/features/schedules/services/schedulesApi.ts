@@ -68,4 +68,26 @@ remove: async (employeeId: string, weekStartDate: string) => {
     await throwIfError(res, "Error al eliminar horario");
     return res.json();
 },
+
+getEmployeeHistory: async (employeeId: string) => {
+    const res = await fetch(`${API}/schedules/history/${employeeId}`, { headers: authHeaders() });
+    await throwIfError(res, "Error al cargar el historial del empleado");
+    return res.json();
+},
+
+getWeekHistory: async (employeeId: string, weekStartDate: string) => {
+    const res = await fetch(`${API}/schedules/history/${employeeId}/${weekStartDate}`, { headers: authHeaders() });
+    await throwIfError(res, "Error al cargar el historial de la semana");
+    return res.json();
+},
+
+restoreFromHistory: async (historyId: string, restoreReason: string) => {
+    const res = await fetch(`${API}/schedules/history/restore/${historyId}`, {
+        method: "POST",
+        headers: authHeaders(),
+        body: JSON.stringify({ restoreReason }),
+    });
+    await throwIfError(res, "Error al restaurar desde el historial");
+    return res.json();
+}
 };
