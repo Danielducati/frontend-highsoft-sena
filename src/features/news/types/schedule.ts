@@ -31,6 +31,8 @@ export interface NewsFormDataV2 {
   type: "incapacidad" | "retraso" | "permiso" | "percance" | "ausencia" | "otro";
   selectedWeekStart: string;
   selectedDays: number[]; // Índices de días seleccionados
+  date?: string;
+  fechaFinal?: string;
   affectationType: "full_day" | "partial_hours" | "multiple_days";
   startTime?: string;
   endTime?: string;
