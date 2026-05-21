@@ -222,9 +222,9 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
             <Label className="flex items-center gap-2">
               <Calendar className="w-4 h-4 text-[#1a5c3a]" />
               Horario Semanal - {formData.employeeName}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
+            </Label>
+          </div>
+          <div className="space-y-4">
             {/* Navegación de Semana */}
             <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
               <Button
@@ -295,8 +295,8 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
                 </div>
               ))}
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       )}
 
       {/* Validación estricta de horario */}

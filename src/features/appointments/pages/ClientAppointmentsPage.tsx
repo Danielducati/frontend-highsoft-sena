@@ -21,6 +21,7 @@ export function ClientAppointmentsPage() {
     handleAddService, handleRemoveService,
     handleCreateOrUpdate, handleCancelAppointment,
     resetForm, handleClientChange, handleStartTimeChange,
+    employeesForService, loadEmployeesForService,
   } = useAppointments("client");
 
   const [filterStatus, setFilterStatus] = useState("all");
@@ -202,6 +203,8 @@ export function ClientAppointmentsPage() {
         onSubmit={() => handleCreateOrUpdate()}
         onCancel={resetForm}
         userRole="client"
+        employeesForService={employeesForService}
+        loadEmployeesForService={loadEmployeesForService}
       />
       <AppointmentViewDialog
         appointment={viewingAppointment}
