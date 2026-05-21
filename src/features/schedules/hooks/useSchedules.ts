@@ -296,8 +296,15 @@ export function useSchedules() {
       }
       toast.success(`Horario eliminado (${scheduleToDelete.weeks.length} semana${scheduleToDelete.weeks.length !== 1 ? "s" : ""})`);
       await reload();
-    } catch {
-      toast.error("Error al eliminar horario");
+    } catch (err: any) {
+      const errorMsg = err.message || "Error al eliminar horario";
+      if (errorMsg.includes("Foreign key constraint") || errorMsg.includes("novedad") || errorMsg.includes("FK_id_horario")) {
+        toast.error("No se puede eliminar porque hay novedades o registros asignados a este horario.");
+      } else if (errorMsg.includes("cita")) {
+        toast.error("No se puede eliminar porque hay citas asignadas.");
+      } else {
+        toast.error(`No se pudo eliminar: ${errorMsg}`);
+      }
     } finally {
       setDeleteDialogOpen(false);
       setScheduleToDelete(null);
@@ -310,8 +317,15 @@ export function useSchedules() {
       await schedulesApi.remove(week.employeeId, week.weekStartDate);
       toast.success(`Semana ${formatWeekRange(week.weekStartDate)} eliminada`);
       await reload();
-    } catch {
-      toast.error("Error al eliminar la semana");
+    } catch (err: any) {
+      const errorMsg = err.message || "Error al eliminar la semana";
+      if (errorMsg.includes("Foreign key constraint") || errorMsg.includes("novedad") || errorMsg.includes("FK_id_horario")) {
+        toast.error("No se puede eliminar porque hay novedades o registros asignados a esta semana.");
+      } else if (errorMsg.includes("cita")) {
+        toast.error("No se puede eliminar porque hay citas asignadas en esta semana.");
+      } else {
+        toast.error(`No se pudo eliminar: ${errorMsg}`);
+      }
     }
   };
 
@@ -346,14 +360,32 @@ export function useSchedules() {
   };
 
   // ── Filtros ────────────────────────────────────────────────────────────────
+  const todayStr = new Date().toISOString().split("T")[0];
+
   const filteredSchedules = schedules
-    .filter(s => s.isActive)
+    .filter(s => {
+      // Una semana "activa" termina 6 días después del lunes de inicio
+      const [y, m, d] = s.weekStartDate.split("-").map(Number);
+      const weekEnd = new Date(Date.UTC(y, m - 1, d + 6)).toISOString().split("T")[0];
+      return weekEnd >= todayStr; // la semana aún no ha terminado
+    })
+    .filter(s => filterEmployee === "all" || s.employeeId === filterEmployee)
+    .filter(s => !searchTerm || s.employeeName.toLowerCase().includes(searchTerm.toLowerCase()))
+    .sort((a, b) => b.weekStartDate.localeCompare(a.weekStartDate));
+
+  // Horarios cuya semana ya venció (semana terminada antes de hoy)
+  const pastFilteredSchedules = schedules
+    .filter(s => {
+      const [y, m, d] = s.weekStartDate.split("-").map(Number);
+      const weekEnd = new Date(Date.UTC(y, m - 1, d + 6)).toISOString().split("T")[0];
+      return weekEnd < todayStr;
+    })
     .filter(s => filterEmployee === "all" || s.employeeId === filterEmployee)
     .filter(s => !searchTerm || s.employeeName.toLowerCase().includes(searchTerm.toLowerCase()))
     .sort((a, b) => b.weekStartDate.localeCompare(a.weekStartDate));
 
   return {
-    schedules, filteredSchedules, employees, loading,
+    schedules, filteredSchedules, pastFilteredSchedules, employees, loading,
     isDialogOpen, setIsDialogOpen,
     editingSchedule,
     deleteDialogOpen, setDeleteDialogOpen,

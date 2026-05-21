@@ -1,4 +1,4 @@
-﻿// src/features/schedules/components/ScheduleHistoryDialog.tsx
+// src/features/schedules/components/ScheduleHistoryDialog.tsx
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../../../shared/ui/dialog";
 import { Button } from "../../../shared/ui/button";
@@ -15,6 +15,8 @@ import {
   ChevronDown,
   ChevronRight
 } from "lucide-react";
+import { toast } from "sonner";
+import { schedulesApi } from "../services/schedulesApi";
 
 interface ScheduleHistoryDialogProps {
   isOpen: boolean;
@@ -62,16 +64,9 @@ export function ScheduleHistoryDialog({
   const loadHistory = async () => {
     setLoading(true);
     try {
-      const endpoint = weekStartDate 
-        ? `/api/schedules/history/${employeeId}/${weekStartDate}`
-        : `/api/schedules/history/${employeeId}`;
-      
-      const response = await fetch(endpoint);
-      if (!response.ok) {
-        throw new Error('Error loading history');
-      }
-      
-      const data = await response.json();
+      const data = weekStartDate 
+        ? await schedulesApi.getWeekHistory(employeeId, weekStartDate)
+        : await schedulesApi.getEmployeeHistory(employeeId);
       
       // Transformar los datos del backend al formato esperado por el frontend
       const transformedHistory = data.history.map((record: any) => ({
@@ -80,32 +75,16 @@ export function ScheduleHistoryDialog({
         changeReason: record.changeReason || 'Sin motivo especificado',
         changedBy: record.usuario?.correo || 'Sistema',
         createdAt: record.createdAt,
-        scheduleSnapshot: JSON.parse(record.scheduleSnapshot)
+        scheduleSnapshot: typeof record.scheduleSnapshot === 'string' 
+          ? JSON.parse(record.scheduleSnapshot) 
+          : record.scheduleSnapshot
       }));
       
       setHistory(transformedHistory);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error loading schedule history:", error);
-      // Fallback a datos mock si hay error
-      const mockHistory: HistoryRecord[] = [
-        {
-          id: "1",
-          versionNumber: 3,
-          changeReason: "Cambio de turno por solicitud del empleado",
-          changedBy: "admin@spa.com",
-          createdAt: "2024-01-20T10:30:00Z",
-          scheduleSnapshot: {
-            daySchedules: [
-              { dayIndex: 0, fecha: "2024-01-15", startTime: "08:00", endTime: "17:00", diaSemana: "Lunes" },
-              { dayIndex: 1, fecha: "2024-01-16", startTime: "08:00", endTime: "17:00", diaSemana: "Martes" },
-              { dayIndex: 2, fecha: "2024-01-17", startTime: "08:00", endTime: "17:00", diaSemana: "Miércoles" },
-              { dayIndex: 3, fecha: "2024-01-18", startTime: "08:00", endTime: "17:00", diaSemana: "Jueves" },
-              { dayIndex: 4, fecha: "2024-01-19", startTime: "08:00", endTime: "17:00", diaSemana: "Viernes" },
-            ]
-          }
-        }
-      ];
-      setHistory(mockHistory);
+      toast.error(error.message || "Error al cargar el historial del empleado.");
+      setHistory([]);
     } finally {
       setLoading(false);
     }
@@ -123,32 +102,15 @@ export function ScheduleHistoryDialog({
 
   const handleRestore = async (historyId: string) => {
     try {
-      const response = await fetch(`/api/schedules/restore/${historyId}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          restoreReason: 'Restauración desde historial'
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error('Error restaurando horario');
-      }
-
-      const result = await response.json();
-      console.log('Horario restaurado:', result);
-      
-      // Mostrar mensaje de éxito
-      alert('Horario restaurado exitosamente');
-      
+      await schedulesApi.restoreFromHistory(historyId, "Restauración desde historial");
+      toast.success("Horario restaurado exitosamente");
       // Recargar el historial
       loadHistory();
-      
-    } catch (error) {
+      // Recargar horarios globales disparando un evento
+      window.dispatchEvent(new Event("schedules:reload"));
+    } catch (error: any) {
       console.error("Error restoring schedule:", error);
-      alert('Error al restaurar el horario. Inténtalo de nuevo.');
+      toast.error(error.message || "Error al restaurar el horario. Inténtalo de nuevo.");
     }
   };
 
