@@ -29,6 +29,8 @@ interface NewsFormProps {
   editingNews: EmployeeNews | null;
   onSubmit:    () => void;
   onCancel:    () => void;
+  loggedEmployeeId?: string | null;
+  userRole?: string;
 }
 
 // Mock data para horarios semanales (temporal hasta integrar con backend)
@@ -71,7 +73,7 @@ const mockEmployeeSchedules = {
   }
 };
 
-export function NewsForm({ formData, setFormData, employees, editingNews, onSubmit, onCancel }: NewsFormProps) {
+export function NewsForm({ formData, setFormData, employees, editingNews, onSubmit, onCancel, loggedEmployeeId, userRole }: NewsFormProps) {
   const [selectedWeekStart, setSelectedWeekStart] = useState(() => {
     // Obtener el lunes de la semana actual
     const today = new Date();
@@ -85,6 +87,28 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
   const [selectedDays, setSelectedDays] = useState<number[]>([]);
   const [affectationType, setAffectationType] = useState<"full_day" | "partial_hours">("full_day");
   const [employeeSchedule, setEmployeeSchedule] = useState<any>(null);
+
+  // Obtener rol del usuario desde localStorage
+  const usuario = JSON.parse(localStorage.getItem("usuario") || "{}");
+  const rolNorm = (usuario.rol ?? "").toLowerCase();
+  const isEmployee = rolNorm === "empleado" || rolNorm === "barbero";
+
+  console.log('👤 Usuario:', usuario);
+  console.log('🎭 Rol normalizado:', rolNorm);
+  console.log('✅ Es empleado?:', isEmployee);
+  console.log('🆔 loggedEmployeeId:', loggedEmployeeId);
+
+  // Si es empleado y no hay formData.employeeId, establecer el empleado logueado
+  useEffect(() => {
+    if (isEmployee && loggedEmployeeId && !formData.employeeId && !editingNews) {
+      const emp = employees.find(e => String(e.id) === loggedEmployeeId);
+      if (emp) {
+        console.log('🔧 Estableciendo empleado:', emp);
+        setFormData(prev => ({ ...prev, employeeId: String(emp.id), employeeName: emp.name }));
+        setEmployeeSchedule(mockEmployeeSchedules[loggedEmployeeId as keyof typeof mockEmployeeSchedules] || null);
+      }
+    }
+  }, [isEmployee, loggedEmployeeId, employees, formData.employeeId, editingNews, setFormData]);
 
   const handleEmployeeChange = (empId: string) => {
     const emp = employees.find(e => String(e.id) === empId);
@@ -168,29 +192,44 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
 
   return (
     <div className="space-y-6">
-      {/* Selección de Empleado */}
-      <div className="space-y-2">
-        <Label className="flex items-center gap-2">
-          <User className="w-4 h-4 text-[#1a5c3a]" />
-          Empleado *
-        </Label>
-        <Select
-          value={formData.employeeId || "placeholder"}
-          onValueChange={v => { if (v !== "placeholder") handleEmployeeChange(v); }}
-        >
-          <SelectTrigger className="border-gray-300">
-            <SelectValue placeholder="Selecciona un empleado" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="placeholder" disabled>Selecciona un empleado</SelectItem>
-            {employees.map(emp => (
-              <SelectItem key={emp.id} value={String(emp.id)}>
-                {emp.name} {emp.specialty && `— ${emp.specialty}`}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+      {/* Selección de Empleado - Solo visible para admin */}
+      {!isEmployee && (
+        <div className="space-y-2">
+          <Label className="flex items-center gap-2">
+            <User className="w-4 h-4 text-[#1a5c3a]" />
+            Empleado *
+          </Label>
+          <Select
+            value={formData.employeeId || "placeholder"}
+            onValueChange={v => { if (v !== "placeholder") handleEmployeeChange(v); }}
+          >
+            <SelectTrigger className="border-gray-300">
+              <SelectValue placeholder="Selecciona un empleado" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="placeholder" disabled>Selecciona un empleado</SelectItem>
+              {employees.map(emp => (
+                <SelectItem key={emp.id} value={String(emp.id)}>
+                  {emp.name} {emp.specialty && `— ${emp.specialty}`}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
+
+      {/* Mostrar nombre del empleado si es empleado logueado */}
+      {isEmployee && formData.employeeName && (
+        <div className="space-y-2">
+          <Label className="flex items-center gap-2">
+            <User className="w-4 h-4 text-[#1a5c3a]" />
+            Empleado
+          </Label>
+          <div className="flex h-10 w-full rounded-md border border-gray-300 bg-gray-50 px-3 py-2 text-sm items-center">
+            {formData.employeeName}
+          </div>
+        </div>
+      )}
 
       {/* Tipo de Novedad */}
       <div className="space-y-2">
@@ -213,35 +252,45 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
         </Select>
       </div>
 
-      {/* Fechas de Novedad */}
-      {formData.employeeId && (
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label className="flex items-center gap-2">
-              <Calendar className="w-4 h-4 text-[#1a5c3a]" />
-              Fecha Inicial *
-            </Label>
-            <input
-              type="date"
-              className="flex h-10 w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1a5c3a] focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50"
-              value={formData.date || ""}
-              onChange={e => setFormData(prev => ({ ...prev, date: e.target.value }))}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label className="flex items-center gap-2">
-              <Calendar className="w-4 h-4 text-[#1a5c3a]" />
-              Fecha Final
-            </Label>
-            <input
-              type="date"
-              className="flex h-10 w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1a5c3a] focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50"
-              value={formData.fechaFinal || ""}
-              onChange={e => setFormData(prev => ({ ...prev, fechaFinal: e.target.value }))}
-            />
-          </div>
+      {/* Fechas de Novedad - Siempre visible */}
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label className="flex items-center gap-2">
+            <Calendar className="w-4 h-4 text-[#1a5c3a]" />
+            Fecha Inicial *
+          </Label>
+          <input
+            type="date"
+            className="flex h-10 w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1a5c3a] focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50"
+            value={formData.date || ""}
+            min={new Date().toISOString().split('T')[0]}
+            onChange={e => {
+              const newDate = e.target.value;
+              setFormData(prev => {
+                // Si la fecha final es anterior a la nueva fecha inicial, limpiarla
+                if (prev.fechaFinal && newDate > prev.fechaFinal) {
+                  return { ...prev, date: newDate, fechaFinal: "" };
+                }
+                return { ...prev, date: newDate };
+              });
+            }}
+          />
         </div>
-      )}
+        <div className="space-y-2">
+          <Label className="flex items-center gap-2">
+            <Calendar className="w-4 h-4 text-[#1a5c3a]" />
+            Fecha Final
+          </Label>
+          <input
+            type="date"
+            className="flex h-10 w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1a5c3a] focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50"
+            value={formData.fechaFinal || ""}
+            min={formData.date || new Date().toISOString().split('T')[0]}
+            onChange={e => setFormData(prev => ({ ...prev, fechaFinal: e.target.value }))}
+            disabled={!formData.date}
+          />
+        </div>
+      </div>
 
       {/* Tipo de Afectación */}
       <div className="space-y-3">
@@ -286,12 +335,20 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
           <div className="space-y-2">
             <Label className="flex items-center gap-2">
               <Clock className="w-4 h-4 text-[#1a5c3a]" />
-              Hora Inicio
+              Hora Inicio *
             </Label>
             <Select
               value={formData.startTime || "placeholder"}
               onValueChange={v => { 
-                if (v !== "placeholder") setFormData(prev => ({ ...prev, startTime: v })); 
+                if (v !== "placeholder") {
+                  setFormData(prev => {
+                    // Si la hora final es anterior o igual a la nueva hora inicial, limpiarla
+                    if (prev.endTime && v >= prev.endTime) {
+                      return { ...prev, startTime: v, endTime: "" };
+                    }
+                    return { ...prev, startTime: v };
+                  });
+                }
               }}
             >
               <SelectTrigger className="border-gray-300">
@@ -309,20 +366,21 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
           <div className="space-y-2">
             <Label className="flex items-center gap-2">
               <Clock className="w-4 h-4 text-[#1a5c3a]" />
-              Hora Final
+              Hora Final *
             </Label>
             <Select
               value={formData.endTime || "placeholder"}
               onValueChange={v => { 
                 if (v !== "placeholder") setFormData(prev => ({ ...prev, endTime: v })); 
               }}
+              disabled={!formData.startTime}
             >
               <SelectTrigger className="border-gray-300">
                 <SelectValue placeholder="Selecciona hora" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="placeholder" disabled>Selecciona hora</SelectItem>
-                {TIME_SLOTS.map(t => (
+                {TIME_SLOTS.filter(t => !formData.startTime || t > formData.startTime).map(t => (
                   <SelectItem key={t} value={t}>{t}</SelectItem>
                 ))}
               </SelectContent>
@@ -379,7 +437,12 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
         <Button 
           variant="default" 
           onClick={onSubmit}
-          disabled={!formData.date || !formData.description.trim() || (affectationType === 'partial_hours' && (!formData.startTime || !formData.endTime))}
+          disabled={
+            !formData.date || 
+            !formData.description.trim() || 
+            (affectationType === 'partial_hours' && (!formData.startTime || !formData.endTime)) ||
+            (!isEmployee && !formData.employeeId)
+          }
         >
           {editingNews ? "Actualizar" : "Crear"} Novedad
         </Button>
