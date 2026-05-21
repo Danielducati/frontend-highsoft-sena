@@ -139,7 +139,7 @@ export function AppointmentFormDialog({
                     const currentMin = now.getHours() * 60 + now.getMinutes();
                     return TIME_SLOTS.map(t => {
                       const [h, m] = t.split(":").map(Number);
-                      const isPast = isToday && h * 60 + m <= currentMin;
+                      const isPast = isToday && h * 60 + m < currentMin;
                       return (
                         <SelectItem key={t} value={t} disabled={isPast}>
                           {t}{isPast ? " (pasado)" : ""}
