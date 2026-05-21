@@ -1,4 +1,4 @@
-﻿import { Eye, Pencil, Trash2, AlertCircle, Calendar as CalendarIcon } from "lucide-react";
+import { Eye, Pencil, Trash2, AlertCircle, Calendar as CalendarIcon } from "lucide-react";
 import { EmployeeNews } from "../types";
 import { getTypeConfig, getTypeColor, getStatusColor, getStatusLabel, formatDate } from "../utils";
 // Importamos los componentes de Select para el estado interactivo
@@ -93,7 +93,6 @@ export function NewsTable({ news, userRole, onView, onEdit, onDelete, onUpdateSt
                         <SelectItem value="pendiente">Pendiente</SelectItem>
                         <SelectItem value="aprobada">Aprobada</SelectItem>
                         <SelectItem value="rechazada">Rechazada</SelectItem>
-                        <SelectItem value="resuelta">Resuelta</SelectItem>
                       </SelectContent>
                     </Select>
                   ) : (

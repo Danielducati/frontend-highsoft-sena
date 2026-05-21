@@ -1,4 +1,4 @@
-﻿// src/features/news/components/NewsFormV2.tsx
+// src/features/news/components/NewsFormV2.tsx
 import { useState, useEffect } from "react";
 import { Label } from "../../../shared/ui/label";
 import { Textarea } from "../../../shared/ui/textarea";
@@ -61,16 +61,27 @@ export function NewsFormV2({
 
   // Validar selección cuando cambien los días o horarios
   useEffect(() => {
-    if (weekDays.length > 0) {
-      const validationResult = scheduleService.validateScheduleSelection(
-        formData.selectedDays,
-        weekDays,
-        formData.startTime,
-        formData.endTime
-      );
-      setValidation(validationResult);
+    const errors: string[] = [];
+    const warnings: string[] = [];
+    
+    if (!formData.date) {
+      errors.push("Debe seleccionar una Fecha Inicial");
     }
-  }, [formData.selectedDays, formData.startTime, formData.endTime, weekDays]);
+    
+    if (formData.affectationType === 'partial_hours') {
+      if (!formData.startTime || !formData.endTime) {
+        errors.push("Debe seleccionar hora de inicio y fin");
+      } else if (formData.startTime >= formData.endTime) {
+        errors.push("La hora de inicio debe ser menor que la hora de fin");
+      }
+    }
+    
+    setValidation({
+      isValid: errors.length === 0,
+      errors,
+      warnings
+    });
+  }, [formData.date, formData.affectationType, formData.startTime, formData.endTime]);
 
   const loadEmployeeSchedule = async () => {
     setLoading(true);
@@ -223,153 +234,72 @@ export function NewsFormV2({
         </Select>
       </div>
 
-      {/* Horario Semanal del Empleado */}
+      {/* Fechas de Novedad */}
       {formData.employeeId && (
-        <Card className="border-gray-200">
-          <CardHeader className="pb-3">
-            <CardTitle className="flex items-center gap-2 text-base">
-              <Calendar className="w-4 h-4 text-[#1a5c3a]" />
-              Horario Semanal - {formData.employeeName}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {/* Navegación de Semana */}
-            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => handleWeekNavigation('prev')}
-                className="h-8"
-              >
-                <ChevronLeft className="w-4 h-4" />
-              </Button>
-              
-              <div className="text-center">
-                <p className="text-sm font-medium text-gray-900">
-                  {getWeekRangeLabel()}
-                </p>
-                <p className="text-xs text-gray-500">
-                  Semana del {formData.selectedWeekStart}
-                </p>
-              </div>
-              
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => handleWeekNavigation('next')}
-                className="h-8"
-              >
-                <ChevronRight className="w-4 h-4" />
-              </Button>
-            </div>
-
-            {/* Días de la Semana */}
-            {loading ? (
-              <div className="text-center py-8 text-gray-500">
-                Cargando horario del empleado...
-              </div>
-            ) : weekDays.length === 0 ? (
-              <Alert>
-                <Info className="h-4 w-4" />
-                <AlertDescription>
-                  No se encontró horario para este empleado en la semana seleccionada.
-                </AlertDescription>
-              </Alert>
-            ) : (
-              <div className="space-y-3">
-                <Label className="text-sm font-medium">
-                  Selecciona los días afectados por la novedad:
-                </Label>
-                
-                {weekDays.map((day) => (
-                  <div key={day.dayIndex} className="space-y-2">
-                    <div className="flex items-center gap-3">
-                      <Checkbox
-                        id={`day-${day.dayIndex}`}
-                        checked={formData.selectedDays.includes(day.dayIndex)}
-                        onCheckedChange={() => handleDayToggle(day.dayIndex)}
-                        disabled={!day.available}
-                      />
-                      
-                      <label 
-                        htmlFor={`day-${day.dayIndex}`}
-                        className={`flex items-center gap-2 cursor-pointer select-none ${
-                          !day.available ? 'opacity-50' : ''
-                        }`}
-                      >
-                        <Badge 
-                          variant="secondary" 
-                          className={`text-xs ${getDayBadgeColor(day.dayIndex)}`}
-                        >
-                          {day.dayShort}
-                        </Badge>
-                        
-                        <span className="text-sm font-medium">
-                          {day.dayName}
-                        </span>
-                        
-                        <span className="text-xs text-gray-500">
-                          {day.date}
-                        </span>
-                        
-                        {day.schedule ? (
-                          <div className="flex items-center gap-1 text-xs text-gray-600">
-                            <Clock className="w-3 h-3" />
-                            {day.schedule.startTime} - {day.schedule.endTime}
-                          </div>
-                        ) : (
-                          <span className="text-xs text-gray-400">Sin horario</span>
-                        )}
-                      </label>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Tipo de Afectación */}
-      {formData.selectedDays.length > 0 && (
-        <div className="space-y-3">
-          <Label className="text-sm font-medium">Tipo de Afectación:</Label>
-          
+        <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <div className="flex items-center space-x-2">
-              <input
-                type="radio"
-                id="full_day"
-                name="affectationType"
-                value="full_day"
-                checked={formData.affectationType === 'full_day'}
-                onChange={(e) => handleAffectationTypeChange(e.target.value as any)}
-                className="text-[#1a5c3a]"
-              />
-              <label htmlFor="full_day" className="text-sm">
-                Día completo (toda la jornada laboral)
-              </label>
-            </div>
-            
-            <div className="flex items-center space-x-2">
-              <input
-                type="radio"
-                id="partial_hours"
-                name="affectationType"
-                value="partial_hours"
-                checked={formData.affectationType === 'partial_hours'}
-                onChange={(e) => handleAffectationTypeChange(e.target.value as any)}
-                className="text-[#1a5c3a]"
-              />
-              <label htmlFor="partial_hours" className="text-sm">
-                Horario específico (seleccionar horas)
-              </label>
-            </div>
+            <Label className="flex items-center gap-2">
+              <Calendar className="w-4 h-4 text-[#1a5c3a]" />
+              Fecha Inicial *
+            </Label>
+            <input
+              type="date"
+              className="flex h-10 w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1a5c3a] focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50"
+              value={formData.date || ""}
+              onChange={e => setFormData(prev => ({ ...prev, date: e.target.value }))}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label className="flex items-center gap-2">
+              <Calendar className="w-4 h-4 text-[#1a5c3a]" />
+              Fecha Final
+            </Label>
+            <input
+              type="date"
+              className="flex h-10 w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1a5c3a] focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50"
+              value={formData.fechaFinal || ""}
+              onChange={e => setFormData(prev => ({ ...prev, fechaFinal: e.target.value }))}
+            />
           </div>
         </div>
       )}
+
+      {/* Tipo de Afectación */}
+      <div className="space-y-3">
+        <Label className="text-sm font-medium">Tipo de Afectación:</Label>
+        
+        <div className="space-y-2">
+          <div className="flex items-center space-x-2">
+            <input
+              type="radio"
+              id="full_day"
+              name="affectationType"
+              value="full_day"
+              checked={formData.affectationType === 'full_day'}
+              onChange={(e) => handleAffectationTypeChange(e.target.value as any)}
+              className="text-[#1a5c3a]"
+            />
+            <label htmlFor="full_day" className="text-sm">
+              Día completo (toda la jornada laboral)
+            </label>
+          </div>
+          
+          <div className="flex items-center space-x-2">
+            <input
+              type="radio"
+              id="partial_hours"
+              name="affectationType"
+              value="partial_hours"
+              checked={formData.affectationType === 'partial_hours'}
+              onChange={(e) => handleAffectationTypeChange(e.target.value as any)}
+              className="text-[#1a5c3a]"
+            />
+            <label htmlFor="partial_hours" className="text-sm">
+              Horario específico (seleccionar horas)
+            </label>
+          </div>
+        </div>
+      </div>
 
       {/* Selección de Horarios (solo si es parcial) */}
       {formData.affectationType === 'partial_hours' && (
@@ -450,18 +380,14 @@ export function NewsFormV2({
       )}
 
       {/* Resumen de Selección */}
-      {formData.selectedDays.length > 0 && validation.isValid && (
+      {formData.date && validation.isValid && (
         <Alert>
           <CheckCircle className="h-4 w-4" />
           <AlertDescription>
             <div className="space-y-1">
               <p className="font-medium">Resumen de la novedad:</p>
               <p>
-                <strong>Días afectados:</strong> {
-                  formData.selectedDays
-                    .map(dayIndex => weekDays[dayIndex]?.dayName)
-                    .join(', ')
-                }
+                <strong>Fechas:</strong> {formData.date} {formData.fechaFinal ? `al ${formData.fechaFinal}` : ''}
               </p>
               {formData.affectationType === 'partial_hours' && formData.startTime && formData.endTime && (
                 <p>
