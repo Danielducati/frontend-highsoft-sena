@@ -1,4 +1,4 @@
-﻿//frontend-highsoft-sena\src\features\news\pages\NewsPage.tsx
+//frontend-highsoft-sena\src\features\news\pages\NewsPage.tsx
 import { useState } from "react";
 import { Card, CardContent } from "../../../shared/ui/card";
 import { Input } from "../../../shared/ui/input";
@@ -184,7 +184,6 @@ export function NewsPage({ userRole }: NewsModuleProps) {
                   <SelectItem value="pendiente">Pendiente</SelectItem>
                   <SelectItem value="aprobada">Aprobada</SelectItem>
                   <SelectItem value="rechazada">Rechazada</SelectItem>
-                  <SelectItem value="resuelta">Resuelta</SelectItem>
                 </SelectContent>
               </Select>
             </div>
