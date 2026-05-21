@@ -25,6 +25,7 @@ import { EmployeesModule }   from "../features/employees/EmployeesModule";
 import { UsersModule }       from "../features/users/UsersModule";
 import { RolesModule }       from "../features/roles/RolesModule";
 import { SettingsModule }    from "../features/settings/SettingsModule";
+import { AdminProfilePage }  from "../features/users/pages/AdminProfilePage";
 
 import { Toaster } from "sonner";
 
@@ -33,14 +34,15 @@ type Page =
   | "landing" | "login" | "register" | "reset-password"
   | "dashboard" | "services" | "categories" | "news"
   | "appointments" | "schedules" | "quotations" | "sales"
-  | "clients" | "employees" | "users" | "roles" | "settings";
+  | "clients" | "employees" | "users" | "roles" | "settings"
+  | "admin-profile";
 
 // Páginas fijas para roles base (admin siempre ve todo)
 const BASE_ALLOWED_PAGES: Record<string, Page[]> = {
   admin:    [
     "dashboard", "services", "categories", "news", "appointments",
     "schedules", "quotations", "sales", "clients", "employees",
-    "users", "roles", "settings",
+    "users", "roles", "settings", "admin-profile",
   ],
   client: ["appointments", "users"],
 };
@@ -81,6 +83,7 @@ function AppContent({ currentPage, userRole }: { currentPage: Page; userRole: No
       {currentPage === "appointments" && userRole === "client"  && <ClientAppointmentsPage />}
       {currentPage === "appointments" && userRole !== "client"  && can("appointments") && <AppointmentsModule userRole={userRole} />}
       {currentPage === "users"        && <UsersModule userRole={userRole} />}
+      {currentPage === "admin-profile" && <AdminProfilePage />}
     </>
   );
 }
@@ -105,7 +108,7 @@ export default function App() {
     const handler = () => {
       try {
         const stored = JSON.parse(localStorage.getItem("usuario") ?? "{}");
-        if (stored.foto) setUserPhoto(stored.foto);
+        if (stored.foto !== undefined) setUserPhoto(stored.foto);
         if (stored.nombre || stored.apellido) {
           setUserName(`${stored.nombre ?? ""} ${stored.apellido ?? ""}`.trim() || stored.correo || "");
         }
@@ -207,7 +210,7 @@ export default function App() {
       <Sidebar key={permVersion} activePage={currentPage} onNavigate={handleNavigate} onLogout={handleLogout} userRole={userRole} allowedPages={getAllowedPages(userRole)} />
 
       <div className="flex-1 flex flex-col" style={{ marginLeft: 240, backgroundColor: "var(--bg-app)" }}>
-        <Header userRole={userRole} userName={userName} userPhoto={userPhoto} onLogout={handleLogout} />
+        <Header userRole={userRole} userName={userName} userPhoto={userPhoto} onLogout={handleLogout} onNavigate={handleNavigate} />
 
         <main className="flex-1 overflow-y-auto p-8" style={{ backgroundColor: "var(--bg-app)" }}>
           <AppContent currentPage={currentPage} userRole={userRole} />

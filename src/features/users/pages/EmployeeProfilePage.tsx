@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { User, Upload, Loader2, Save, X, ImageIcon, Lock } from "lucide-react";
 import { SpaPage } from "../../../shared/components/layout/SpaPage";
 import { toast } from "sonner";
@@ -88,6 +88,12 @@ export function EmployeeProfilePage() {
       const url = await uploadImage(file);
       setForm(f => ({ ...f, image: url }));
       setImagePreview(url);
+      try {
+        const stored = JSON.parse(localStorage.getItem("usuario") ?? "{}");
+        stored.foto = url;
+        localStorage.setItem("usuario", JSON.stringify(stored));
+        window.dispatchEvent(new Event("usuario-updated"));
+      } catch { /* silencioso */ }
       toast.success("Imagen subida correctamente");
     } catch (err: any) {
       toast.error(err.message ?? "Error al subir imagen");
@@ -123,15 +129,15 @@ export function EmployeeProfilePage() {
         throw new Error(err.error ?? "Error al guardar");
       }
       // Actualizar foto en localStorage para que el Header la refleje
-      if (form.image) {
-        try {
-          const stored = JSON.parse(localStorage.getItem("usuario") ?? "{}");
-          stored.foto = form.image;
-          localStorage.setItem("usuario", JSON.stringify(stored));
-          // Disparar evento para que App.tsx recargue el userPhoto
-          window.dispatchEvent(new Event("usuario-updated"));
-        } catch { /* silencioso */ }
-      }
+      try {
+        const stored = JSON.parse(localStorage.getItem("usuario") ?? "{}");
+        stored.nombre = form.firstName.trim();
+        stored.apellido = form.lastName.trim();
+        stored.foto = form.image || "";
+        localStorage.setItem("usuario", JSON.stringify(stored));
+        // Disparar evento para que App.tsx recargue el userPhoto
+        window.dispatchEvent(new Event("usuario-updated"));
+      } catch { /* silencioso */ }
       toast.success("Perfil actualizado correctamente");
     } catch (err: any) {
       toast.error(err.message ?? "Error al guardar perfil");
@@ -221,11 +227,11 @@ export function EmployeeProfilePage() {
 
           <div>
             <label style={labelStyle}>Nombre *</label>
-            <input style={inputStyle} value={form.firstName} onChange={e => setForm(f => ({ ...f, firstName: e.target.value }))} placeholder="Ana" />
+            <input style={inputStyle} value={form.firstName} onChange={e => setForm(f => ({ ...f, firstName: e.target.value.replace(/[0-9]/g, '') }))} placeholder="Ana" />
           </div>
           <div>
             <label style={labelStyle}>Apellido *</label>
-            <input style={inputStyle} value={form.lastName} onChange={e => setForm(f => ({ ...f, lastName: e.target.value }))} placeholder="García" />
+            <input style={inputStyle} value={form.lastName} onChange={e => setForm(f => ({ ...f, lastName: e.target.value.replace(/[0-9]/g, '') }))} placeholder="García" />
           </div>
           <div>
             <label style={labelStyle}>Tipo de Documento</label>
@@ -236,7 +242,7 @@ export function EmployeeProfilePage() {
           </div>
           <div>
             <label style={labelStyle}>Número de Documento</label>
-            <input style={inputStyle} value={form.document} onChange={e => setForm(f => ({ ...f, document: e.target.value.replace(/\D/g, "") }))} placeholder="1234567890" />
+            <input style={inputStyle} value={form.document} maxLength={15} onChange={e => setForm(f => ({ ...f, document: e.target.value.replace(/\D/g, "") }))} placeholder="1234567890" />
           </div>
           <div>
             <label style={labelStyle}>Correo *</label>
@@ -244,7 +250,7 @@ export function EmployeeProfilePage() {
           </div>
           <div>
             <label style={labelStyle}>Teléfono</label>
-            <input style={inputStyle} value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} placeholder="+57 310 123 4567" />
+            <input style={inputStyle} value={form.phone} maxLength={10} onChange={e => setForm(f => ({ ...f, phone: e.target.value.replace(/\D/g, '') }))} placeholder="3101234567" />
           </div>
           <div>
             <label style={labelStyle}>Ciudad</label>

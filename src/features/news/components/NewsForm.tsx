@@ -16,7 +16,8 @@ import {
   Tag, 
   ChevronLeft, 
   ChevronRight,
-  Info
+  Info,
+  AlertCircle
 } from "lucide-react";
 
 import { NEWS_TYPES, TIME_SLOTS } from "../constants";
@@ -114,8 +115,6 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
     const emp = employees.find(e => String(e.id) === empId);
     if (emp) {
       setFormData(prev => ({ ...prev, employeeId: String(emp.id), employeeName: emp.name }));
-      setEmployeeSchedule(mockEmployeeSchedules[empId as keyof typeof mockEmployeeSchedules] || null);
-      setSelectedDays([]);
     }
   };
 
@@ -124,35 +123,6 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
     const offset = direction === 'prev' ? -7 : 7;
     currentDate.setDate(currentDate.getDate() + offset);
     setSelectedWeekStart(currentDate.toISOString().split('T')[0]);
-  };
-
-  const handleDayToggle = (dayIndex: number) => {
-    const isSelected = selectedDays.includes(dayIndex);
-    const newSelectedDays = isSelected
-      ? selectedDays.filter(d => d !== dayIndex)
-      : [...selectedDays, dayIndex];
-    
-    setSelectedDays(newSelectedDays);
-    
-    // Actualizar formData con la primera fecha seleccionada
-    if (newSelectedDays.length > 0) {
-      const firstDayIndex = Math.min(...newSelectedDays);
-      const weekStart = new Date(selectedWeekStart);
-      const selectedDate = new Date(weekStart);
-      selectedDate.setDate(weekStart.getDate() + firstDayIndex);
-      
-      setFormData(prev => ({ 
-        ...prev, 
-        date: selectedDate.toISOString().split('T')[0],
-        fechaFinal: newSelectedDays.length > 1 ? 
-          (() => {
-            const lastDayIndex = Math.max(...newSelectedDays);
-            const lastDate = new Date(weekStart);
-            lastDate.setDate(weekStart.getDate() + lastDayIndex);
-            return lastDate.toISOString().split('T')[0];
-          })() : ""
-      }));
-    }
   };
 
   const getWeekRangeLabel = () => {
@@ -189,6 +159,29 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
       setFormData(prev => ({ ...prev, startTime: "", endTime: "" }));
     }
   }, [affectationType, setFormData]);
+
+  // Validar si la fecha seleccionada cae en un día laboral del empleado
+  const isDateWorkingDay = (dateStr: string) => {
+    if (!dateStr || !employeeSchedule) return true;
+    
+    // Parseamos la fecha (agregamos T00:00:00 para evitar desajustes por zona horaria)
+    const d = new Date(`${dateStr}T00:00:00`);
+    
+    // getDay(): Dom=0, Lun=1... Sab=6
+    // Nuestro index: Lun=0, Mar=1... Dom=6
+    const dayIndex = d.getDay() === 0 ? 6 : d.getDay() - 1;
+    
+    const scheduleDay = employeeSchedule.schedule.find((s: any) => s.day === dayIndex);
+    return scheduleDay ? scheduleDay.available : false;
+  };
+
+  const isStartDateValid = isDateWorkingDay(formData.date);
+
+  // Validación: la fecha final no puede ser anterior a la fecha de inicio
+  const isEndDateInvalid =
+    !!formData.date &&
+    !!formData.fechaFinal &&
+    formData.fechaFinal < formData.date;
 
   return (
     <div className="space-y-6">
@@ -399,16 +392,11 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
               <p>
                 <strong>Fechas:</strong> {formData.date} {formData.fechaFinal ? `al ${formData.fechaFinal}` : ''}
               </p>
-              {affectationType === 'partial_hours' && formData.startTime && formData.endTime && (
+              {formData.startTime && formData.endTime && (
                 <p>
                   <strong>Horario:</strong> {formData.startTime} - {formData.endTime}
                 </p>
               )}
-              <p>
-                <strong>Tipo:</strong> {
-                  affectationType === 'full_day' ? 'Día completo' : 'Horario específico'
-                }
-              </p>
             </div>
           </AlertDescription>
         </Alert>

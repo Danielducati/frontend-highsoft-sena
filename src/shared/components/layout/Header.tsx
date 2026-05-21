@@ -1,5 +1,5 @@
-﻿import { useState, useEffect, useRef } from "react";
-import { Bell, Calendar, Clock, X, CheckCheck, LogOut } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { Bell, Calendar, Clock, X, CheckCheck, LogOut, UserCog } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "../../ui/avatar";
 import { Badge } from "../../ui/badge";
 
@@ -8,6 +8,7 @@ interface HeaderProps {
   userName?: string;
   userPhoto?: string;
   onLogout?: () => void;
+  onNavigate?: (page: string) => void;
 }
 
 interface Notification {
@@ -90,7 +91,7 @@ async function fetchUpcomingAppointments(userRole: string): Promise<Notification
     .sort((a, b) => a.daysUntil - b.daysUntil);
 }
 
-export function Header({ userRole, userName, userPhoto, onLogout }: HeaderProps) {
+export function Header({ userRole, userName, userPhoto, onLogout, onNavigate }: HeaderProps) {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [open,          setOpen]          = useState(false);
   const [avatarOpen,    setAvatarOpen]    = useState(false);
@@ -331,6 +332,24 @@ export function Header({ userRole, userName, userPhoto, onLogout }: HeaderProps)
                 <p style={{ fontSize: 13, fontWeight: 600, color: "#1a3a2a", margin: 0 }}>{displayName}</p>
                 <p style={{ fontSize: 11, color: "#6b7c6b", margin: "2px 0 0" }}>{rolLabel}</p>
               </div>
+              
+              {userRole === "admin" && (
+                <button
+                  onClick={() => { setAvatarOpen(false); onNavigate?.("admin-profile"); }}
+                  style={{
+                    width: "100%", display: "flex", alignItems: "center", gap: 10,
+                    padding: "10px 16px", border: "none", backgroundColor: "transparent",
+                    cursor: "pointer", fontSize: 13, color: "#1a3a2a", fontFamily: "var(--font-body)",
+                    borderBottom: "1px solid #E5E7EB"
+                  }}
+                  onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#F3F4F6")}
+                  onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
+                >
+                  <UserCog style={{ width: 15, height: 15, color: "#6b7c6b" }} />
+                  Mi Perfil
+                </button>
+              )}
+
               <button
                 onClick={() => { setAvatarOpen(false); onLogout?.(); }}
                 style={{
