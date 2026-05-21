@@ -178,99 +178,61 @@ export function EmployeeProfilePage() {
       subtitle="Actualiza tu información personal"
       icon={<User className="w-6 h-6" style={{ color: "#1a3a2a" }} />}
     >
-      <div style={{ fontFamily: "var(--font-body)", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20, alignItems: "stretch", maxWidth: 900 }}>
+      <div style={{ fontFamily: "var(--font-body)", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20, alignItems: "stretch" }}>
 
-        {/* ── Card izquierda: Foto + Datos personales ── */}
-        <div className="rounded-2xl p-6 shadow-sm" style={{ backgroundColor: "#ffffff", display: "flex", flexDirection: "column", gap: 16 }}>
+        {/* ── Card izquierda: Datos personales ── */}
+        <div className="rounded-2xl p-6 shadow-sm" style={{ backgroundColor: "#ffffff", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
 
-          {/* Foto */}
-          <div style={{ display: "flex", alignItems: "center", gap: 16, paddingBottom: 16, borderBottom: "1px solid #F3F4F6" }}>
-            <div style={{ position: "relative", flexShrink: 0 }}>
-              <div style={{
-                width: 72, height: 72, borderRadius: "50%", overflow: "hidden",
-                border: "3px solid #c8ead9", backgroundColor: "#edf7f4",
-                display: "flex", alignItems: "center", justifyContent: "center",
-              }}>
-                {uploadingImg
-                  ? <Loader2 style={{ width: 24, height: 24, color: "#9ca3af" }} className="animate-spin" />
-                  : imagePreview
-                    ? <img src={imagePreview} alt="Perfil" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                    : <ImageIcon style={{ width: 28, height: 28, color: "#9ca3af" }} />
-                }
-              </div>
-              {imagePreview && !uploadingImg && (
-                <button onClick={() => { setImagePreview(""); setForm(f => ({ ...f, image: "" })); }} style={{
-                  position: "absolute", top: -2, right: -2, width: 20, height: 20,
-                  borderRadius: "50%", backgroundColor: "#c0392b", color: "#fff",
-                  border: "2px solid #fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
-                }}>
-                  <X style={{ width: 10, height: 10 }} />
-                </button>
-              )}
+          <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+            <p style={{ fontSize: 13, fontWeight: 600, color: "#1a3a2a" }}>Datos Personales</p>
+
+            <div>
+              <label style={labelStyle}>Nombre *</label>
+              <input style={inputStyle} value={form.firstName} onChange={e => setForm(f => ({ ...f, firstName: e.target.value.replace(/[0-9]/g, '') }))} placeholder="Ana" />
             </div>
             <div>
-              <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} style={{ display: "none" }} />
-              <button onClick={() => fileInputRef.current?.click()} disabled={uploadingImg} style={{
-                display: "inline-flex", alignItems: "center", gap: 6,
-                padding: "7px 14px", borderRadius: 8, border: "1px solid #E5E7EB",
-                backgroundColor: "#fff", color: "#1a3a2a", fontSize: 12,
-                fontFamily: "var(--font-body)", cursor: uploadingImg ? "not-allowed" : "pointer",
-              }}>
-                {uploadingImg ? <><Loader2 style={{ width: 12, height: 12 }} className="animate-spin" /> Subiendo...</> : <><Upload style={{ width: 12, height: 12 }} /> {imagePreview ? "Cambiar foto" : "Subir foto"}</>}
-              </button>
-              <p style={{ fontSize: 10, color: "#9ca3af", marginTop: 4 }}>JPG, PNG o WEBP · máx. 5MB</p>
+              <label style={labelStyle}>Apellido *</label>
+              <input style={inputStyle} value={form.lastName} onChange={e => setForm(f => ({ ...f, lastName: e.target.value.replace(/[0-9]/g, '') }))} placeholder="García" />
             </div>
-          </div>
-
-          {/* Datos personales — 1 columna */}
-          <p style={{ fontSize: 13, fontWeight: 600, color: "#1a3a2a" }}>Datos Personales</p>
-
-          <div>
-            <label style={labelStyle}>Nombre *</label>
-            <input style={inputStyle} value={form.firstName} onChange={e => setForm(f => ({ ...f, firstName: e.target.value.replace(/[0-9]/g, '') }))} placeholder="Ana" />
-          </div>
-          <div>
-            <label style={labelStyle}>Apellido *</label>
-            <input style={inputStyle} value={form.lastName} onChange={e => setForm(f => ({ ...f, lastName: e.target.value.replace(/[0-9]/g, '') }))} placeholder="García" />
-          </div>
-          <div>
-            <label style={labelStyle}>Tipo de Documento</label>
-            <select style={inputStyle} value={form.documentType} onChange={e => setForm(f => ({ ...f, documentType: e.target.value }))}>
-              <option value="">Selecciona tipo</option>
-              {DOCUMENT_TYPES.map(({ value, label }) => <option key={value} value={value}>{label}</option>)}
-            </select>
-          </div>
-          <div>
-            <label style={labelStyle}>Número de Documento</label>
-            <input style={inputStyle} value={form.document} maxLength={15} onChange={e => setForm(f => ({ ...f, document: e.target.value.replace(/\D/g, "") }))} placeholder="1234567890" />
-          </div>
-          <div>
-            <label style={labelStyle}>Correo *</label>
-            <input style={inputStyle} type="email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} placeholder="correo@spa.com" />
-          </div>
-          <div>
-            <label style={labelStyle}>Teléfono</label>
-            <input style={inputStyle} value={form.phone} maxLength={10} onChange={e => setForm(f => ({ ...f, phone: e.target.value.replace(/\D/g, '') }))} placeholder="3101234567" />
-          </div>
-          <div>
-            <label style={labelStyle}>Ciudad</label>
-            <input style={inputStyle} value={form.city} onChange={e => setForm(f => ({ ...f, city: e.target.value }))} placeholder="Medellín" />
-          </div>
-          {esEmpleadoBase && (
             <div>
-              <label style={labelStyle}>Especialidad</label>
-              <select style={inputStyle} value={form.specialty} onChange={e => setForm(f => ({ ...f, specialty: e.target.value }))}>
-                <option value="">Selecciona especialidad</option>
-                {categories.map(c => <option key={c.id} value={c.nombre}>{c.nombre}</option>)}
+              <label style={labelStyle}>Tipo de Documento</label>
+              <select style={inputStyle} value={form.documentType} onChange={e => setForm(f => ({ ...f, documentType: e.target.value }))}>
+                <option value="">Selecciona tipo</option>
+                {DOCUMENT_TYPES.map(({ value, label }) => <option key={value} value={value}>{label}</option>)}
               </select>
             </div>
-          )}
-          <div>
-            <label style={labelStyle}>Dirección</label>
-            <input style={inputStyle} value={form.address} onChange={e => setForm(f => ({ ...f, address: e.target.value }))} placeholder="Calle 123 #45-67" />
+            <div>
+              <label style={labelStyle}>Número de Documento</label>
+              <input style={inputStyle} value={form.document} maxLength={15} onChange={e => setForm(f => ({ ...f, document: e.target.value.replace(/\D/g, "") }))} placeholder="1234567890" />
+            </div>
+            <div>
+              <label style={labelStyle}>Correo *</label>
+              <input style={inputStyle} type="email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} placeholder="correo@spa.com" />
+            </div>
+            <div>
+              <label style={labelStyle}>Teléfono</label>
+              <input style={inputStyle} value={form.phone} maxLength={10} onChange={e => setForm(f => ({ ...f, phone: e.target.value.replace(/\D/g, '') }))} placeholder="3101234567" />
+            </div>
+            <div>
+              <label style={labelStyle}>Ciudad</label>
+              <input style={inputStyle} value={form.city} onChange={e => setForm(f => ({ ...f, city: e.target.value }))} placeholder="Medellín" />
+            </div>
+            {esEmpleadoBase && (
+              <div>
+                <label style={labelStyle}>Especialidad</label>
+                <select style={inputStyle} value={form.specialty} onChange={e => setForm(f => ({ ...f, specialty: e.target.value }))}>
+                  <option value="">Selecciona especialidad</option>
+                  {categories.map(c => <option key={c.id} value={c.nombre}>{c.nombre}</option>)}
+                </select>
+              </div>
+            )}
+            <div>
+              <label style={labelStyle}>Dirección</label>
+              <input style={inputStyle} value={form.address} onChange={e => setForm(f => ({ ...f, address: e.target.value }))} placeholder="Calle 123 #45-67" />
+            </div>
           </div>
 
-          <div style={{ display: "flex", justifyContent: "flex-end", paddingTop: 8, borderTop: "1px solid #F3F4F6", marginTop: 4 }}>
+          <div style={{ display: "flex", justifyContent: "flex-end", paddingTop: 16, borderTop: "1px solid #F3F4F6", marginTop: 16 }}>
             <button onClick={handleSave} disabled={saving} style={{
               display: "inline-flex", alignItems: "center", gap: 8,
               padding: "10px 24px", borderRadius: 10, border: "none",
@@ -287,28 +249,76 @@ export function EmployeeProfilePage() {
           </div>
         </div>
 
-        {/* ── Card derecha: Cambiar contraseña ── */}
+        {/* ── Card derecha: Foto + Cambiar contraseña ── */}
         <div className="rounded-2xl p-6 shadow-sm" style={{ backgroundColor: "#ffffff", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <Lock style={{ width: 15, height: 15, color: "#6b7c6b" }} />
-            <p style={{ fontSize: 13, fontWeight: 600, color: "#1a3a2a" }}>Cambiar Contraseña</p>
-          </div>
-          <p style={{ fontSize: 11, color: "#9ca3af", marginTop: -8 }}>Mínimo 6 caracteres</p>
 
-          <div>
-            <label style={labelStyle}>Contraseña Actual</label>
-            <input style={inputStyle} type="password" value={passForm.current} onChange={e => setPassForm(f => ({ ...f, current: e.target.value }))} placeholder="••••••••" />
-          </div>
-          <div>
-            <label style={labelStyle}>Nueva Contraseña</label>
-            <input style={inputStyle} type="password" value={passForm.next} onChange={e => setPassForm(f => ({ ...f, next: e.target.value }))} placeholder="Mínimo 6 caracteres" />
-          </div>
-          <div>
-            <label style={labelStyle}>Confirmar Contraseña</label>
-            <input style={inputStyle} type="password" value={passForm.confirm} onChange={e => setPassForm(f => ({ ...f, confirm: e.target.value }))} placeholder="Repite la contraseña" />
+          <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
+
+            {/* Foto de perfil */}
+            <p style={{ fontSize: 13, fontWeight: 600, color: "#1a3a2a", marginBottom: 16 }}>Foto de Perfil</p>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14, paddingBottom: 24, borderBottom: "1px solid #F3F4F6" }}>
+              <div style={{ position: "relative" }}>
+                <div style={{
+                  width: 96, height: 96, borderRadius: "50%", overflow: "hidden",
+                  border: "3px solid #c8ead9", backgroundColor: "#edf7f4",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                }}>
+                  {uploadingImg
+                    ? <Loader2 style={{ width: 28, height: 28, color: "#9ca3af" }} className="animate-spin" />
+                    : imagePreview
+                      ? <img src={imagePreview} alt="Perfil" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                      : <ImageIcon style={{ width: 36, height: 36, color: "#9ca3af" }} />
+                  }
+                </div>
+                {imagePreview && !uploadingImg && (
+                  <button onClick={() => { setImagePreview(""); setForm(f => ({ ...f, image: "" })); }} style={{
+                    position: "absolute", top: -2, right: -2, width: 22, height: 22,
+                    borderRadius: "50%", backgroundColor: "#c0392b", color: "#fff",
+                    border: "2px solid #fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+                  }}>
+                    <X style={{ width: 11, height: 11 }} />
+                  </button>
+                )}
+              </div>
+              <div style={{ textAlign: "center" }}>
+                <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} style={{ display: "none" }} />
+                <button onClick={() => fileInputRef.current?.click()} disabled={uploadingImg} style={{
+                  display: "inline-flex", alignItems: "center", gap: 6,
+                  padding: "8px 18px", borderRadius: 8, border: "1px solid #E5E7EB",
+                  backgroundColor: "#fff", color: "#1a3a2a", fontSize: 13,
+                  fontFamily: "var(--font-body)", cursor: uploadingImg ? "not-allowed" : "pointer",
+                }}>
+                  {uploadingImg
+                    ? <><Loader2 style={{ width: 13, height: 13 }} className="animate-spin" /> Subiendo...</>
+                    : <><Upload style={{ width: 13, height: 13 }} /> {imagePreview ? "Cambiar foto" : "Subir foto"}</>
+                  }
+                </button>
+                <p style={{ fontSize: 11, color: "#9ca3af", marginTop: 6 }}>JPG, PNG o WEBP · máx. 5MB</p>
+              </div>
+            </div>
+
+            {/* Cambiar contraseña */}
+            <div style={{ paddingTop: 24, display: "flex", flexDirection: "column", gap: 14 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <Lock style={{ width: 14, height: 14, color: "#6b7c6b" }} />
+                <p style={{ fontSize: 13, fontWeight: 600, color: "#1a3a2a" }}>Cambiar Contraseña</p>
+              </div>
+              <div>
+                <label style={labelStyle}>Contraseña Actual</label>
+                <input style={inputStyle} type="password" value={passForm.current} onChange={e => setPassForm(f => ({ ...f, current: e.target.value }))} placeholder="••••••••" />
+              </div>
+              <div>
+                <label style={labelStyle}>Nueva Contraseña</label>
+                <input style={inputStyle} type="password" value={passForm.next} onChange={e => setPassForm(f => ({ ...f, next: e.target.value }))} placeholder="Mínimo 6 caracteres" />
+              </div>
+              <div>
+                <label style={labelStyle}>Confirmar Contraseña</label>
+                <input style={inputStyle} type="password" value={passForm.confirm} onChange={e => setPassForm(f => ({ ...f, confirm: e.target.value }))} placeholder="Repite la contraseña" />
+              </div>
+            </div>
           </div>
 
-          <div style={{ display: "flex", justifyContent: "flex-end", paddingTop: 8, borderTop: "1px solid #F3F4F6", marginTop: 4 }}>
+          <div style={{ display: "flex", justifyContent: "flex-end", paddingTop: 16, borderTop: "1px solid #F3F4F6", marginTop: 16 }}>
             <button onClick={handleChangePassword} disabled={savingPass} style={{
               display: "inline-flex", alignItems: "center", gap: 8,
               padding: "10px 24px", borderRadius: 10, border: "none",

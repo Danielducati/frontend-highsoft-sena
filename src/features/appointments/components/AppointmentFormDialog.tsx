@@ -1,4 +1,4 @@
-﻿//frontend-highsoft-sena\src\features\appointments\components\AppointmentFormDialog.tsx
+//frontend-highsoft-sena\src\features\appointments\components\AppointmentFormDialog.tsx
 import React from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../../../shared/ui/dialog";
 import { Button } from "../../../shared/ui/button";
@@ -139,7 +139,7 @@ export function AppointmentFormDialog({
                     const currentMin = now.getHours() * 60 + now.getMinutes();
                     return TIME_SLOTS.map(t => {
                       const [h, m] = t.split(":").map(Number);
-                      const isPast = isToday && h * 60 + m <= currentMin;
+                      const isPast = isToday && h * 60 + m < currentMin;
                       return (
                         <SelectItem key={t} value={t} disabled={isPast}>
                           {t}{isPast ? " (pasado)" : ""}
@@ -152,6 +152,12 @@ export function AppointmentFormDialog({
             </div>
           </div>
 
+          {employees.length === 0 && (
+            <div className="p-3 bg-red-50 border border-red-200 text-red-700 rounded-md text-sm text-center font-medium">
+              No hay ningún empleado disponible en la fecha seleccionada
+            </div>
+          )}
+
           {/* Servicios */}
           <div className="space-y-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
             <h3 className="text-gray-900">Agregar Servicios</h3>
@@ -162,17 +168,28 @@ export function AppointmentFormDialog({
                   onValueChange={v => setCurrentService({ serviceId: v, employeeId: "" })}>
                   <SelectTrigger><SelectValue placeholder="Selecciona servicio" /></SelectTrigger>
                   <SelectContent>
-                    {services.length === 0
-                      ? <SelectItem value="empty" disabled>Sin servicios disponibles</SelectItem>
-                      : services.map(s => (
-                          <SelectItem key={s.id} value={s.id}>
-                            <div className="flex flex-col">
-                              <span>{s.name}</span>
-                              <span className="text-xs text-gray-500">{s.category} • {s.duration} min</span>
-                            </div>
+                    {(() => {
+                      const availableServices = services.filter(s =>
+                        employees.some(e =>
+                          e.specialty?.toLowerCase().trim() === s.category?.toLowerCase().trim()
+                        )
+                      );
+                      if (availableServices.length === 0) {
+                        return (
+                          <SelectItem value="empty" disabled>
+                            No hay servicios con empleados disponibles para esta fecha
                           </SelectItem>
-                        ))
-                    }
+                        );
+                      }
+                      return availableServices.map(s => (
+                        <SelectItem key={s.id} value={s.id}>
+                          <div className="flex flex-col">
+                            <span>{s.name}</span>
+                            <span className="text-xs text-gray-500">{s.category} • {s.duration} min</span>
+                          </div>
+                        </SelectItem>
+                      ));
+                    })()}
                   </SelectContent>
                 </Select>
               </div>

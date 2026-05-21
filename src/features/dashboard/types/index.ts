@@ -1,13 +1,13 @@
 export interface DashboardStats {
-  ventasTotales:        number;
-  ventasChange:         string;
-  clientesActivos:      number;
-  citasDelPeriodo:      number;
-  citasChange:          string;
-  serviciosCompletados: number;
-  serviciosChange:      string;
-  ventasCompletadas: number
-  ventasCountChange: string
+  ventasTotales:         number;
+  ventasChange:          string;
+  clientesActivos:       number;
+  citasDelPeriodo:       number;
+  citasChange:           string;
+  serviciosCompletados?: number;   // opcional — no siempre viene del backend
+  serviciosChange?:      string;
+  ventasCompletadas:     number;
+  ventasCountChange:     string;
 }
 
 export interface DashboardData {

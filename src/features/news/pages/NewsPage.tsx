@@ -19,7 +19,7 @@ import { SpaPage } from "../../../shared/components/layout/SpaPage";
 
 export function NewsPage({ userRole }: NewsModuleProps) {
   // ← CAMBIO 2: desestructurar conflict, resolveConflict, dismissConflict del hook
-  const { employees, newsList, loading, createOrUpdate, remove, updateStatus, conflict, resolveConflict, dismissConflict} = useNews();
+  const { employees, newsList, loading, loggedEmployeeId, createOrUpdate, remove, updateStatus, conflict, resolveConflict, dismissConflict} = useNews();
 
   const [searchTerm,   setSearchTerm]   = useState("");
   const [filterType,   setFilterType]   = useState("all");
@@ -149,6 +149,8 @@ export function NewsPage({ userRole }: NewsModuleProps) {
                 editingNews={editingNews}
                 onSubmit={handleSubmit}
                 onCancel={resetForm}
+                loggedEmployeeId={loggedEmployeeId}
+                userRole={userRole}
               />
             </DialogContent>
           </Dialog>
