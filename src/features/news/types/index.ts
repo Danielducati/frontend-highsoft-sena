@@ -8,7 +8,7 @@ export interface EmployeeNews {
 id: number;
 employeeName: string;
 employeeId: string;
-type: "incapacidad" | "retraso" | "permiso" | "percance" | "ausencia" | "otro";
+type: "incapacidad" | "retraso" | "permiso" | "ausencia" | "otro" | string;
 date: string;
 fechaFinal?: string;
 startTime?: string;

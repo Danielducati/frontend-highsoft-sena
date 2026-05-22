@@ -50,21 +50,27 @@ const createOrUpdate = async (formData: NewsFormData, editingId?: number): Promi
     toast.error("Empleado, fecha y descripción son obligatorios");
     return false;
     }
+
+    // Garantizar que fechaFinal siempre tenga valor (mínimo igual a date)
+    const dataToSend = {
+      ...formData,
+      fechaFinal: formData.fechaFinal || formData.date,
+    };
     
     isProcessing.current = true;
     try {
     if (editingId) {
-        await newsApi.update(editingId, formData);
+        await newsApi.update(editingId, dataToSend);
         toast.success("Novedad actualizada");
         await reload();
         return true;
     }
 
     // Primera llamada — sin acción, detecta conflictos
-    const result = await newsApi.create(formData);
+    const result = await newsApi.create(dataToSend);
 
     if ("conflict" in result) {
-        setPendingFormData(formData);
+        setPendingFormData(dataToSend);
         setConflict(result);
         return false; // mantiene el form abierto
     }
