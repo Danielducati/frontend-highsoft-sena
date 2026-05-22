@@ -30,6 +30,8 @@ interface NewsFormProps {
   editingNews: EmployeeNews | null;
   onSubmit:    () => void;
   onCancel:    () => void;
+  loggedEmployeeId?: string | null;
+  userRole?: string;
 }
 
 // Mock data para horarios semanales (temporal hasta integrar con backend)
@@ -72,7 +74,7 @@ const mockEmployeeSchedules = {
   }
 };
 
-export function NewsForm({ formData, setFormData, employees, editingNews, onSubmit, onCancel }: NewsFormProps) {
+export function NewsForm({ formData, setFormData, employees, editingNews, onSubmit, onCancel, loggedEmployeeId, userRole }: NewsFormProps) {
   const [selectedWeekStart, setSelectedWeekStart] = useState(() => {
     // Obtener el lunes de la semana actual
     const today = new Date();
@@ -87,14 +89,27 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
   const [affectationType, setAffectationType] = useState<"full_day" | "partial_hours">("full_day");
   const [employeeSchedule, setEmployeeSchedule] = useState<any>(null);
 
-  // Sincronizar el horario cuando cambia el empleado (especialmente útil al editar)
+  // Obtener rol del usuario desde localStorage
+  const usuario = JSON.parse(localStorage.getItem("usuario") || "{}");
+  const rolNorm = (usuario.rol ?? "").toLowerCase();
+  const isEmployee = rolNorm === "empleado" || rolNorm === "barbero";
+
+  console.log('👤 Usuario:', usuario);
+  console.log('🎭 Rol normalizado:', rolNorm);
+  console.log('✅ Es empleado?:', isEmployee);
+  console.log('🆔 loggedEmployeeId:', loggedEmployeeId);
+
+  // Si es empleado y no hay formData.employeeId, establecer el empleado logueado
   useEffect(() => {
-    if (formData.employeeId) {
-      setEmployeeSchedule(mockEmployeeSchedules[formData.employeeId as keyof typeof mockEmployeeSchedules] || null);
-    } else {
-      setEmployeeSchedule(null);
+    if (isEmployee && loggedEmployeeId && !formData.employeeId && !editingNews) {
+      const emp = employees.find(e => String(e.id) === loggedEmployeeId);
+      if (emp) {
+        console.log('🔧 Estableciendo empleado:', emp);
+        setFormData(prev => ({ ...prev, employeeId: String(emp.id), employeeName: emp.name }));
+        setEmployeeSchedule(mockEmployeeSchedules[loggedEmployeeId as keyof typeof mockEmployeeSchedules] || null);
+      }
     }
-  }, [formData.employeeId]);
+  }, [isEmployee, loggedEmployeeId, employees, formData.employeeId, editingNews, setFormData]);
 
   const handleEmployeeChange = (empId: string) => {
     const emp = employees.find(e => String(e.id) === empId);
@@ -170,29 +185,44 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
 
   return (
     <div className="space-y-6">
-      {/* Selección de Empleado */}
-      <div className="space-y-2">
-        <Label className="flex items-center gap-2">
-          <User className="w-4 h-4 text-[#1a5c3a]" />
-          Empleado *
-        </Label>
-        <Select
-          value={formData.employeeId || "placeholder"}
-          onValueChange={v => { if (v !== "placeholder") handleEmployeeChange(v); }}
-        >
-          <SelectTrigger className="border-gray-300">
-            <SelectValue placeholder="Selecciona un empleado" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="placeholder" disabled>Selecciona un empleado</SelectItem>
-            {employees.map(emp => (
-              <SelectItem key={emp.id} value={String(emp.id)}>
-                {emp.name} {emp.specialty && `— ${emp.specialty}`}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+      {/* Selección de Empleado - Solo visible para admin */}
+      {!isEmployee && (
+        <div className="space-y-2">
+          <Label className="flex items-center gap-2">
+            <User className="w-4 h-4 text-[#1a5c3a]" />
+            Empleado *
+          </Label>
+          <Select
+            value={formData.employeeId || "placeholder"}
+            onValueChange={v => { if (v !== "placeholder") handleEmployeeChange(v); }}
+          >
+            <SelectTrigger className="border-gray-300">
+              <SelectValue placeholder="Selecciona un empleado" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="placeholder" disabled>Selecciona un empleado</SelectItem>
+              {employees.map(emp => (
+                <SelectItem key={emp.id} value={String(emp.id)}>
+                  {emp.name} {emp.specialty && `— ${emp.specialty}`}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
+
+      {/* Mostrar nombre del empleado si es empleado logueado */}
+      {isEmployee && formData.employeeName && (
+        <div className="space-y-2">
+          <Label className="flex items-center gap-2">
+            <User className="w-4 h-4 text-[#1a5c3a]" />
+            Empleado
+          </Label>
+          <div className="flex h-10 w-full rounded-md border border-gray-300 bg-gray-50 px-3 py-2 text-sm items-center">
+            {formData.employeeName}
+          </div>
+        </div>
+      )}
 
       {/* Tipo de Novedad */}
       <div className="space-y-2">
@@ -215,220 +245,140 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
         </Select>
       </div>
 
-      {/* Fechas de Novedad */}
-      {formData.employeeId && (
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label className="flex items-center gap-2">
-              <Calendar className="w-4 h-4 text-[#1a5c3a]" />
-              Horario Semanal - {formData.employeeName}
-            </Label>
-          </div>
-          <div className="space-y-4">
-            {/* Navegación de Semana */}
-            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => handleWeekNavigation('prev')}
-                className="h-8"
-              >
-                <ChevronLeft className="w-4 h-4" />
-              </Button>
-              
-              <div className="text-center">
-                <p className="text-sm font-medium text-gray-900">
-                  {getWeekRangeLabel()}
-                </p>
-                <p className="text-xs text-gray-500">
-                  Semana del {selectedWeekStart}
-                </p>
-              </div>
-              
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => handleWeekNavigation('next')}
-                className="h-8"
-              >
-                <ChevronRight className="w-4 h-4" />
-              </Button>
-            </div>
-
-            {/* Días de la Semana (Solo visualización) */}
-            <div className="space-y-3">
-              <Label className="text-sm font-medium">
-                Referencia del horario para la semana seleccionada:
-              </Label>
-              
-              {employeeSchedule.schedule.map((day: any) => (
-                <div key={day.day} className="space-y-2">
-                  <div className="flex items-center gap-3 opacity-80">
-                    <div className="w-4" /> {/* Spacer in place of checkbox */}
-                    
-                    <div className={`flex items-center gap-2 select-none ${
-                        !day.available ? 'opacity-50' : ''
-                      }`}>
-                      <Badge 
-                        variant="secondary" 
-                        className={`text-xs ${getDayBadgeColor(day.day)}`}
-                      >
-                        {day.short}
-                      </Badge>
-                      
-                      <span className="text-sm font-medium">
-                        {day.name}
-                      </span>
-                      
-                      {day.available ? (
-                        <div className="flex items-center gap-1 text-xs text-gray-600">
-                          <Clock className="w-3 h-3" />
-                          {day.hours}
-                        </div>
-                      ) : (
-                        <span className="text-xs text-gray-400">Sin horario</span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Validación estricta de horario */}
-      {formData.employeeId && !employeeSchedule && (
-        <Alert variant="destructive">
-          <Info className="h-4 w-4" />
-          <AlertDescription>
-            El empleado no tiene un horario registrado. No se puede registrar una novedad.
-          </AlertDescription>
-        </Alert>
-      )}
-
-      {/* Fechas explícitas */}
-      {formData.employeeId && employeeSchedule && (
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label className="flex items-center gap-2">
-              <Calendar className="w-4 h-4 text-[#1a5c3a]" />
-              Fecha Inicio *
-            </Label>
-            <input
-              type="date"
-              className={`w-full h-10 px-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#1a5c3a] focus:border-transparent ${!isStartDateValid && formData.date ? 'border-red-500' : 'border-gray-300'}`}
-              value={formData.date}
-              onChange={e => setFormData(prev => ({ ...prev, date: e.target.value }))}
-            />
-            {!isStartDateValid && formData.date && (
-              <p className="text-xs text-red-500 flex items-center gap-1 mt-1">
-                <AlertCircle className="w-3 h-3" />
-                El empleado no labora este día según su horario registrado.
-              </p>
-            )}
-          </div>
-          <div className="space-y-2">
-            <Label className="flex items-center gap-2">
-              <Calendar className="w-4 h-4 text-[#1a5c3a]" />
-              Fecha Fin (Opcional)
-            </Label>
-            <input
-              type="date"
-              className={`w-full h-10 px-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#1a5c3a] focus:border-transparent ${isEndDateInvalid ? 'border-red-500' : 'border-gray-300'}`}
-              value={formData.fechaFinal || ""}
-              min={formData.date || undefined}
-              onChange={e => setFormData(prev => ({ ...prev, fechaFinal: e.target.value }))}
-            />
-            {isEndDateInvalid && (
-              <p className="text-xs text-red-500 flex items-center gap-1 mt-1">
-                <AlertCircle className="w-3 h-3" />
-                La fecha final no puede ser anterior a la fecha de inicio.
-              </p>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Selección de Horarios (siempre obligatorio) */}
-      {formData.employeeId && employeeSchedule && formData.date && (
-        <div className="rounded-xl border border-[#78D1BD]/40 bg-[#f0faf6] p-4 space-y-3">
-          <Label className="flex items-center gap-2 text-sm font-semibold text-[#1a5c3a]">
-            <Clock className="w-4 h-4 text-[#1a5c3a]" />
-            Horario de la Novedad <span className="text-red-500">*</span>
+      {/* Fechas de Novedad - Siempre visible */}
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label className="flex items-center gap-2">
+            <Calendar className="w-4 h-4 text-[#1a5c3a]" />
+            Fecha Inicial *
           </Label>
+          <input
+            type="date"
+            className="flex h-10 w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1a5c3a] focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50"
+            value={formData.date || ""}
+            min={new Date().toISOString().split('T')[0]}
+            onChange={e => {
+              const newDate = e.target.value;
+              setFormData(prev => {
+                // Si la fecha final es anterior a la nueva fecha inicial, limpiarla
+                if (prev.fechaFinal && newDate > prev.fechaFinal) {
+                  return { ...prev, date: newDate, fechaFinal: "" };
+                }
+                return { ...prev, date: newDate };
+              });
+            }}
+          />
+        </div>
+        <div className="space-y-2">
+          <Label className="flex items-center gap-2">
+            <Calendar className="w-4 h-4 text-[#1a5c3a]" />
+            Fecha Final
+          </Label>
+          <input
+            type="date"
+            className="flex h-10 w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1a5c3a] focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50"
+            value={formData.fechaFinal || ""}
+            min={formData.date || new Date().toISOString().split('T')[0]}
+            onChange={e => setFormData(prev => ({ ...prev, fechaFinal: e.target.value }))}
+            disabled={!formData.date}
+          />
+        </div>
+      </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            {/* Hora Inicio */}
-            <div className="space-y-1.5">
-              <Label className="text-xs font-medium text-gray-600 flex items-center gap-1">
-                <Clock className="w-3 h-3 text-[#1a5c3a]" />
-                Hora Inicio <span className="text-red-500">*</span>
-              </Label>
-              <Select
-                value={formData.startTime || "placeholder"}
-                onValueChange={v => {
-                  if (v !== "placeholder") setFormData(prev => ({ ...prev, startTime: v }));
-                }}
-              >
-                <SelectTrigger className="bg-white border-[#78D1BD]/60 focus:ring-[#1a5c3a] h-10">
-                  <SelectValue placeholder="— Selecciona hora —" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="placeholder" disabled>— Selecciona hora —</SelectItem>
-                  {TIME_SLOTS.map(t => (
-                    <SelectItem key={t} value={t}>{t}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Hora Final */}
-            <div className="space-y-1.5">
-              <Label className="text-xs font-medium text-gray-600 flex items-center gap-1">
-                <Clock className="w-3 h-3 text-[#1a5c3a]" />
-                Hora Final <span className="text-red-500">*</span>
-              </Label>
-              <Select
-                value={formData.endTime || "placeholder"}
-                onValueChange={v => {
-                  if (v !== "placeholder") setFormData(prev => ({ ...prev, endTime: v }));
-                }}
-              >
-                <SelectTrigger className={`bg-white h-10 ${
-                  formData.startTime && formData.endTime && formData.endTime <= formData.startTime
-                    ? 'border-red-400 focus:ring-red-400'
-                    : 'border-[#78D1BD]/60 focus:ring-[#1a5c3a]'
-                }`}>
-                  <SelectValue placeholder="— Selecciona hora —" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="placeholder" disabled>— Selecciona hora —</SelectItem>
-                  {TIME_SLOTS.map(t => (
-                    <SelectItem key={t} value={t}>{t}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {formData.startTime && formData.endTime && formData.endTime <= formData.startTime && (
-                <p className="text-xs text-red-500 flex items-center gap-1 mt-1">
-                  <AlertCircle className="w-3 h-3" />
-                  La hora final debe ser mayor a la hora de inicio.
-                </p>
-              )}
-            </div>
+      {/* Tipo de Afectación */}
+      <div className="space-y-3">
+        <Label className="text-sm font-medium">Tipo de Afectación:</Label>
+        
+        <div className="space-y-2">
+          <div className="flex items-center space-x-2">
+            <input
+              type="radio"
+              id="full_day"
+              name="affectationType"
+              value="full_day"
+              checked={affectationType === 'full_day'}
+              onChange={(e) => setAffectationType(e.target.value as any)}
+              className="text-[#1a5c3a]"
+            />
+            <label htmlFor="full_day" className="text-sm">
+              Día completo (toda la jornada laboral)
+            </label>
           </div>
+          
+          <div className="flex items-center space-x-2">
+            <input
+              type="radio"
+              id="partial_hours"
+              name="affectationType"
+              value="partial_hours"
+              checked={affectationType === 'partial_hours'}
+              onChange={(e) => setAffectationType(e.target.value as any)}
+              className="text-[#1a5c3a]"
+            />
+            <label htmlFor="partial_hours" className="text-sm">
+              Horario específico (seleccionar horas)
+            </label>
+          </div>
+        </div>
+      </div>
 
-          {/* Resumen visual de horas seleccionadas */}
-          {formData.startTime && formData.endTime && formData.endTime > formData.startTime && (
-            <div className="flex items-center gap-2 mt-1 pt-2 border-t border-[#78D1BD]/30">
-              <Clock className="w-3.5 h-3.5 text-[#1a5c3a]" />
-              <span className="text-xs text-[#1a5c3a] font-medium">
-                Jornada: {formData.startTime} → {formData.endTime}
-              </span>
-            </div>
-          )}
+      {/* Selección de Horarios (solo si es parcial) */}
+      {affectationType === 'partial_hours' && (
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label className="flex items-center gap-2">
+              <Clock className="w-4 h-4 text-[#1a5c3a]" />
+              Hora Inicio *
+            </Label>
+            <Select
+              value={formData.startTime || "placeholder"}
+              onValueChange={v => { 
+                if (v !== "placeholder") {
+                  setFormData(prev => {
+                    // Si la hora final es anterior o igual a la nueva hora inicial, limpiarla
+                    if (prev.endTime && v >= prev.endTime) {
+                      return { ...prev, startTime: v, endTime: "" };
+                    }
+                    return { ...prev, startTime: v };
+                  });
+                }
+              }}
+            >
+              <SelectTrigger className="border-gray-300">
+                <SelectValue placeholder="Selecciona hora" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="placeholder" disabled>Selecciona hora</SelectItem>
+                {TIME_SLOTS.map(t => (
+                  <SelectItem key={t} value={t}>{t}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          
+          <div className="space-y-2">
+            <Label className="flex items-center gap-2">
+              <Clock className="w-4 h-4 text-[#1a5c3a]" />
+              Hora Final *
+            </Label>
+            <Select
+              value={formData.endTime || "placeholder"}
+              onValueChange={v => { 
+                if (v !== "placeholder") setFormData(prev => ({ ...prev, endTime: v })); 
+              }}
+              disabled={!formData.startTime}
+            >
+              <SelectTrigger className="border-gray-300">
+                <SelectValue placeholder="Selecciona hora" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="placeholder" disabled>Selecciona hora</SelectItem>
+                {TIME_SLOTS.filter(t => !formData.startTime || t > formData.startTime).map(t => (
+                  <SelectItem key={t} value={t}>{t}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
       )}
 
@@ -475,7 +425,12 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
         <Button 
           variant="default" 
           onClick={onSubmit}
-          disabled={!formData.date || !formData.description.trim() || (affectationType === 'partial_hours' && (!formData.startTime || !formData.endTime))}
+          disabled={
+            !formData.date || 
+            !formData.description.trim() || 
+            (affectationType === 'partial_hours' && (!formData.startTime || !formData.endTime)) ||
+            (!isEmployee && !formData.employeeId)
+          }
         >
           {editingNews ? "Actualizar" : "Crear"} Novedad
         </Button>
