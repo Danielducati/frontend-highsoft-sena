@@ -1,4 +1,4 @@
-import { Clock, AlertCircle, FileText, UserX, AlertTriangle } from "lucide-react";
+import { Clock, AlertCircle, FileText, UserX } from "lucide-react";
 import { NewsFormData } from "../types";
 
 export const API_BASE = "https://backend-highsoft-sena-production.up.railway.app";
@@ -11,12 +11,11 @@ export const TIME_SLOTS = [
   ];
 
 export const NEWS_TYPES = [
-{ value: "incapacidad", label: "Incapacidad", icon: UserX,         color: "text-red-600"    },
-{ value: "retraso",     label: "Retraso",      icon: Clock,         color: "text-yellow-600" },
-{ value: "permiso",     label: "Permiso",       icon: FileText,      color: "text-blue-600"   },
-{ value: "percance",    label: "Percance",      icon: AlertTriangle, color: "text-orange-600" },
-{ value: "ausencia",    label: "Ausencia",      icon: AlertCircle,   color: "text-[#1a5c3a]" },
-{ value: "otro",        label: "Otro",          icon: FileText,      color: "text-gray-600"   },
+{ value: "incapacidad", label: "Incapacidad", icon: UserX,       color: "text-red-600"    },
+{ value: "retraso",     label: "Retraso",      icon: Clock,       color: "text-yellow-600" },
+{ value: "permiso",     label: "Permiso",      icon: FileText,    color: "text-blue-600"   },
+{ value: "ausencia",    label: "Ausencia",     icon: AlertCircle, color: "text-[#1a5c3a]"  },
+{ value: "otro",        label: "Otro",         icon: FileText,    color: "text-gray-600"   },
 ];
 
 export const EMPTY_FORM: NewsFormData = {

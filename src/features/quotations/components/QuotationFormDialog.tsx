@@ -302,7 +302,25 @@ export function QuotationFormDialog({
                 onChange={e => setFormData({ ...formData, startTime: e.target.value })}
               >
                 <option value="">Selecciona una hora</option>
-                {TIME_SLOTS.map(t => <option key={t} value={t}>{t}</option>)}
+                {(() => {
+                  const now = new Date();
+                  const selectedDate = new Date(formData.date + "T00:00:00");
+                  const isToday =
+                    selectedDate.getFullYear() === now.getFullYear() &&
+                    selectedDate.getMonth() === now.getMonth() &&
+                    selectedDate.getDate() === now.getDate();
+                  const currentMin = now.getHours() * 60 + now.getMinutes();
+                  
+                  return TIME_SLOTS.map(t => {
+                    const [h, m] = t.split(":").map(Number);
+                    const isPast = isToday && h * 60 + m < currentMin;
+                    return (
+                      <option key={t} value={t} disabled={isPast}>
+                        {t}{isPast ? " (pasado)" : ""}
+                      </option>
+                    );
+                  });
+                })()}
               </select>
             </div>
           </div>
