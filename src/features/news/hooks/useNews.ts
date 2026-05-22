@@ -8,6 +8,7 @@ export function useNews() {
 const [employees, setEmployees] = useState<Employee[]>([]);
 const [newsList,  setNewsList]  = useState<EmployeeNews[]>([]);
 const [loading,   setLoading]   = useState(true);
+const [loggedEmployeeId, setLoggedEmployeeId] = useState<string | null>(null);
 
 // Protección contra doble clic
 const isProcessing = useRef(false);
@@ -19,6 +20,41 @@ const [pendingFormData, setPendingFormData] = useState<NewsFormData | null>(null
 useEffect(() => {
     async function fetchAll() {
     try {
+        // Obtener el usuario logueado y su rol
+        const usuario = JSON.parse(localStorage.getItem("usuario") || "{}");
+        const rol = usuario.rol?.toLowerCase();
+
+        console.log('🔍 Usuario logueado:', usuario);
+        console.log('🔍 Rol:', rol);
+
+        let empId: string | null = null;
+
+        // Si es empleado, obtener su ID desde el token
+        if (rol === "empleado" || rol === "barbero") {
+          try {
+            const token = localStorage.getItem("token");
+            const response = await fetch(
+              `${import.meta.env.VITE_API_URL ?? "https://backend-highsoft-sena-production.up.railway.app"}/auth/me`,
+              { headers: { Authorization: `Bearer ${token}` } }
+            );
+            if (response.ok) {
+              const meData = await response.json();
+              console.log('🔍 Datos de /auth/me:', meData);
+              
+              // Buscar el empleado asociado al usuario
+              if (meData.perfil?.id) {
+                empId = String(meData.perfil.id);
+                console.log('✅ Empleado ID encontrado:', empId);
+              }
+            }
+          } catch (err) {
+            console.error("❌ Error obteniendo empleado logueado:", err);
+          }
+        }
+
+        setLoggedEmployeeId(empId);
+        console.log('📌 loggedEmployeeId establecido:', empId);
+
         const [empData, newsData] = await Promise.all([
         newsApi.getEmployees(),
         newsApi.getAll(),
@@ -46,9 +82,24 @@ const createOrUpdate = async (formData: NewsFormData, editingId?: number): Promi
       return false;
     }
     
-    if (!formData.employeeId || !formData.date || !formData.description) {
-    toast.error("Empleado, fecha y descripción son obligatorios");
-    return false;
+    // Si es empleado y no tiene employeeId, usar el loggedEmployeeId
+    const dataToSend = { ...formData };
+    if (loggedEmployeeId && !dataToSend.employeeId) {
+      console.log('📝 Usando loggedEmployeeId:', loggedEmployeeId);
+      dataToSend.employeeId = loggedEmployeeId;
+    }
+    
+    console.log('📤 Datos a enviar:', dataToSend);
+    
+    // Validar campos requeridos (después de agregar loggedEmployeeId)
+    if (!dataToSend.date || !dataToSend.description) {
+      toast.error("Fecha y descripción son obligatorios");
+      return false;
+    }
+    
+    if (!dataToSend.employeeId) {
+      toast.error("No se pudo identificar el empleado");
+      return false;
     }
 
     // Garantizar que fechaFinal siempre tenga valor (mínimo igual a date)
@@ -151,7 +202,7 @@ const updateStatus = async (id: number, status: EmployeeNews["status"]): Promise
 
 
 return {
-    employees, newsList, loading,
+    employees, newsList, loading, loggedEmployeeId,
     createOrUpdate, remove, updateStatus,
     conflict, resolveConflict, dismissConflict,
 };

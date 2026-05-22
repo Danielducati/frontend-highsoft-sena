@@ -1,4 +1,4 @@
-﻿// src/features/roles/pages/RolesPage.tsx
+// src/features/roles/pages/RolesPage.tsx
 import { useState } from "react";
 import { Card, CardContent } from "../../../shared/ui/card";
 import { Input } from "../../../shared/ui/input";
@@ -193,6 +193,7 @@ export function RolesPage({ userRole }: RolesModuleProps) {
                   <tbody className="divide-y divide-gray-200">
                     {filteredRoles.map((role) => {
                       const isAdminRole = role.nombre?.toLowerCase() === "admin" || role.nombre?.toLowerCase() === "administrador";
+                      const isBaseRole  = ["administrador", "admin", "barbero", "babero", "cliente"].includes(role.nombre?.toLowerCase() ?? "");
                       return (
                         <tr key={role.id} className="hover:bg-gray-50/50 transition-colors">
                           {/* ROL */}
@@ -226,14 +227,14 @@ export function RolesPage({ userRole }: RolesModuleProps) {
                           <td className="px-4 py-3">
                             <div className="flex items-center gap-3">
                               <button
-                                onClick={() => !isAdminRole && handleToggleStatus(role)}
-                                disabled={isAdminRole}
-                                title={isAdminRole ? "No se puede desactivar el rol Administrador" : role.isActive ? "Desactivar" : "Activar"}
+                                onClick={() => !isBaseRole && handleToggleStatus(role)}
+                                disabled={isBaseRole}
+                                title={isBaseRole ? `No se puede desactivar el rol "${role.nombre}"` : role.isActive ? "Desactivar" : "Activar"}
                                 className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
                                 style={{
                                   backgroundColor: role.isActive ? "#10b981" : "#d1d5db",
-                                  cursor: isAdminRole ? "not-allowed" : "pointer",
-                                  opacity: isAdminRole ? 0.5 : 1,
+                                  cursor: isBaseRole ? "not-allowed" : "pointer",
+                                  opacity: isBaseRole ? 0.5 : 1,
                                 }}
                               >
                                 <span
@@ -290,16 +291,16 @@ export function RolesPage({ userRole }: RolesModuleProps) {
                                 </button>
 
                                 <button
-                                  onClick={() => { if (role.isActive) { setRoleToDelete(role.id); setDeleteDialogOpen(true); } }}
-                                  title={role.isActive ? "Eliminar" : "Activa el rol para eliminarlo"}
-                                  disabled={!role.isActive}
+                                  onClick={() => { if (role.isActive && !isBaseRole) { setRoleToDelete(role.id); setDeleteDialogOpen(true); } }}
+                                  title={isBaseRole ? "No se puede eliminar un rol base del sistema" : role.isActive ? "Eliminar" : "Activa el rol para eliminarlo"}
+                                  disabled={!role.isActive || isBaseRole}
                                   className="p-2 rounded-lg transition-colors"
                                   style={{
-                                    color: role.isActive ? "#EF4444" : "#d1d5db",
-                                    cursor: role.isActive ? "pointer" : "not-allowed",
-                                    opacity: role.isActive ? 1 : 0.5,
+                                    color: (role.isActive && !isBaseRole) ? "#EF4444" : "#d1d5db",
+                                    cursor: (role.isActive && !isBaseRole) ? "pointer" : "not-allowed",
+                                    opacity: (role.isActive && !isBaseRole) ? 1 : 0.5,
                                   }}
-                                  onMouseEnter={(e) => { if (role.isActive) e.currentTarget.style.backgroundColor = "#fef2f2"; }}
+                                  onMouseEnter={(e) => { if (role.isActive && !isBaseRole) e.currentTarget.style.backgroundColor = "#fef2f2"; }}
                                   onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
                                 >
                                   <Trash2 className="w-4 h-4" />

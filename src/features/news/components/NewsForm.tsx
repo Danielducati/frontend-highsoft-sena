@@ -4,7 +4,6 @@ import { Label } from "../../../shared/ui/label";
 import { Textarea } from "../../../shared/ui/textarea";
 import { Button } from "../../../shared/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../shared/ui/select";
-import { Badge } from "../../../shared/ui/badge";
 import { Alert, AlertDescription } from "../../../shared/ui/alert";
 import {
   User, Calendar, Clock, FileText, Tag,
@@ -16,13 +15,10 @@ import { Employee, EmployeeNews, NewsFormData } from "../types";
 import { scheduleService } from "../services/scheduleService";
 
 // ── Tipos que REQUIEREN horario registrado ────────────────────────────────────
-// retraso, percance, ausencia → el empleado debe tener horario en la fecha
-// permiso, incapacidad, otro  → no importa si tiene horario
 const REQUIRES_SCHEDULE: Array<EmployeeNews["type"]> = ["retraso", "ausencia"];
 
-// ── Tipos que REQUIEREN horas de inicio/fin ───────────────────────────────────
-// retraso y percance afectan una franja horaria concreta
-// ausencia, permiso, incapacidad, otro → día completo (horas opcionales)
+// ── Tipos que muestran el selector de horas ───────────────────────────────────
+// retraso: horas obligatorias | ausencia: horas opcionales
 const REQUIRES_HOURS: Array<EmployeeNews["type"]> = ["retraso", "ausencia"];
 
 interface NewsFormProps {
@@ -37,7 +33,7 @@ interface NewsFormProps {
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function getMonday(dateStr: string): string {
   const d = new Date(`${dateStr}T12:00:00Z`);
-  const day = d.getUTCDay(); // 0=Dom
+  const day = d.getUTCDay();
   const diff = day === 0 ? -6 : 1 - day;
   const monday = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate() + diff));
   return monday.toISOString().split("T")[0];
@@ -51,12 +47,10 @@ function getCurrentMonday(): string {
   return monday.toISOString().split("T")[0];
 }
 
-// dayIndex: 0=Lun … 6=Dom (igual que el backend)
 function getDayIndexFromDate(dateStr: string): number {
-  // Usar UTC para evitar desfase por zona horaria local
-  const d = new Date(`${dateStr}T12:00:00Z`); // mediodía UTC → siempre el día correcto
-  const jsDay = d.getUTCDay(); // 0=Dom, 1=Lun … 6=Sáb
-  return jsDay === 0 ? 6 : jsDay - 1; // Lun=0 … Dom=6
+  const d = new Date(`${dateStr}T12:00:00Z`);
+  const jsDay = d.getUTCDay();
+  return jsDay === 0 ? 6 : jsDay - 1;
 }
 
 const DAY_NAMES  = ["Lunes","Martes","Miércoles","Jueves","Viernes","Sábado","Domingo"];
@@ -65,19 +59,13 @@ const DAY_SHORTS = ["Lun","Mar","Mié","Jue","Vie","Sáb","Dom"];
 // ─────────────────────────────────────────────────────────────────────────────
 
 export function NewsForm({ formData, setFormData, employees, editingNews, onSubmit, onCancel }: NewsFormProps) {
-  // Horarios reales del empleado (array de semanas)
   const [employeeSchedules, setEmployeeSchedules] = useState<any[]>([]);
   const [loadingSchedule,   setLoadingSchedule]   = useState(false);
+  const [viewWeekStart,     setViewWeekStart]      = useState(getCurrentMonday());
 
-  // Semana que se muestra en la referencia visual
-  const [viewWeekStart, setViewWeekStart] = useState(getCurrentMonday());
-
-  // ── Cargar horarios reales cuando cambia el empleado ─────────────────────
+  // Cargar horarios reales cuando cambia el empleado
   useEffect(() => {
-    if (!formData.employeeId) {
-      setEmployeeSchedules([]);
-      return;
-    }
+    if (!formData.employeeId) { setEmployeeSchedules([]); return; }
     setLoadingSchedule(true);
     scheduleService
       .getEmployeeSchedule(formData.employeeId)
@@ -86,55 +74,48 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
       .finally(() => setLoadingSchedule(false));
   }, [formData.employeeId]);
 
-  // Cuando cambia la fecha de inicio, centrar la vista en esa semana
+  // Centrar vista en la semana de la fecha seleccionada
   useEffect(() => {
     if (formData.date) setViewWeekStart(getMonday(formData.date));
   }, [formData.date]);
 
-  // Limpiar horas si el tipo cambia a uno que no las requiere
-  // Y sincronizar fecha fin con fecha inicio si es día completo (excepto incapacidad)
+  // Al cambiar tipo: limpiar horas si no las necesita, sincronizar fecha fin
   useEffect(() => {
     if (!REQUIRES_HOURS.includes(formData.type)) {
       setFormData(prev => ({
         ...prev,
         startTime: "",
         endTime: "",
-        // Igualar fecha fin solo si NO es incapacidad
         fechaFinal: prev.type !== "incapacidad" && prev.fechaFinal === "" && prev.date
           ? prev.date
           : prev.fechaFinal,
       }));
     } else {
-      // retraso: siempre igualar fecha fin a fecha inicio
-      setFormData(prev => ({
-        ...prev,
-        fechaFinal: prev.date || prev.fechaFinal,
-      }));
+      // retraso/ausencia: fecha fin = fecha inicio (un solo día)
+      setFormData(prev => ({ ...prev, fechaFinal: prev.date || prev.fechaFinal }));
     }
   }, [formData.type, setFormData]);
 
-  // ── Helpers de horario ────────────────────────────────────────────────────
+  // ── Derivados ─────────────────────────────────────────────────────────────
   const requiresSchedule = REQUIRES_SCHEDULE.includes(formData.type);
   const requiresHours    = REQUIRES_HOURS.includes(formData.type);
 
-  /** Set de dayIndex (0=Lun…6=Dom) que el empleado tiene horario en ALGUNA semana */
+  // Fecha fin bloqueada = fecha inicio para todos excepto incapacidad
+  const lockEndDate = formData.type !== "incapacidad";
+
+  // Set de dayIndex disponibles del empleado
   const availableDayIndices: Set<number> = new Set(
-    employeeSchedules.flatMap(week =>
-      (week.daySchedules ?? []).map((ds: any) => ds.dayIndex)
-    )
+    employeeSchedules.flatMap(week => (week.daySchedules ?? []).map((ds: any) => ds.dayIndex))
   );
 
-  /** Devuelve true si el empleado trabaja ese día de la semana (en cualquier semana) */
   const isWorkingDay = (dateStr: string): boolean => {
     if (!dateStr || employeeSchedules.length === 0) return false;
     return availableDayIndices.has(getDayIndexFromDate(dateStr));
   };
 
-  /** Devuelve el daySchedule del empleado para una fecha concreta (o null) */
   const getDayScheduleForDate = (dateStr: string) => {
     if (!dateStr || employeeSchedules.length === 0) return null;
     const dayIdx = getDayIndexFromDate(dateStr);
-    // Buscar en todas las semanas del empleado
     for (const week of employeeSchedules) {
       const ds = (week.daySchedules ?? []).find((d: any) => d.dayIndex === dayIdx);
       if (ds) return ds;
@@ -142,56 +123,27 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
     return null;
   };
 
-  /** Devuelve los daySchedules de la semana visible (para la referencia visual) */
   const getViewWeekDays = () => {
     const week = employeeSchedules.find(w => w.weekStartDate === viewWeekStart);
-    const result = [];
-    for (let i = 0; i < 7; i++) {
+    return Array.from({ length: 7 }, (_, i) => {
       const ds = week?.daySchedules?.find((d: any) => d.dayIndex === i) ?? null;
-      result.push({
-        dayIndex: i,
-        name:  DAY_NAMES[i],
-        short: DAY_SHORTS[i],
-        startTime: ds?.startTime ?? null,
-        endTime:   ds?.endTime   ?? null,
-        available: !!ds,
-      });
-    }
-    return result;
+      return { dayIndex: i, name: DAY_NAMES[i], short: DAY_SHORTS[i], startTime: ds?.startTime ?? null, endTime: ds?.endTime ?? null, available: !!ds };
+    });
   };
 
   const viewWeekDays = getViewWeekDays();
 
-  // Tipos de día completo donde la fecha fin se bloquea (= fecha inicio)
-  // Incapacidad queda fuera porque puede abarcar varios días
-  // Retraso también bloquea fecha fin (es siempre un solo día)
-  const lockEndDate = !requiresHours && formData.type !== "incapacidad" || formData.type === "retraso";
-  const startDaySchedule = formData.date ? getDayScheduleForDate(formData.date) : null;
-  const endDaySchedule   = formData.fechaFinal ? getDayScheduleForDate(formData.fechaFinal) : null;
-
-  // ¿El empleado labora en la fecha de inicio?
+  const startDaySchedule   = formData.date      ? getDayScheduleForDate(formData.date)      : null;
   const startDateHasSchedule = !!startDaySchedule;
-  // ¿El empleado labora en la fecha fin?
-  const endDateHasSchedule   = !formData.fechaFinal || !!endDaySchedule;
+  const endDateInvalid     = !!formData.date && !!formData.fechaFinal && formData.fechaFinal < formData.date;
+  const hoursInvalid       = requiresHours && !!formData.startTime && !!formData.endTime && formData.endTime <= formData.startTime;
+  const startOutOfRange    = requiresHours && !!formData.startTime && !!startDaySchedule && formData.startTime < startDaySchedule.startTime;
+  const endOutOfRange      = requiresHours && !!formData.endTime   && !!startDaySchedule && formData.endTime   > startDaySchedule.endTime;
 
-  // Fecha fin anterior a fecha inicio
-  const endDateInvalid = !!formData.date && !!formData.fechaFinal && formData.fechaFinal < formData.date;
-
-  // Horas: fin <= inicio
-  const hoursInvalid = requiresHours && !!formData.startTime && !!formData.endTime && formData.endTime <= formData.startTime;
-
-  // Hora fuera del horario laboral
-  const startOutOfRange = requiresHours && !!formData.startTime && !!startDaySchedule &&
-    formData.startTime < startDaySchedule.startTime;
-  const endOutOfRange   = requiresHours && !!formData.endTime && !!startDaySchedule &&
-    formData.endTime > startDaySchedule.endTime;
-
-  // ¿Puede guardar?
   const canSubmit = (() => {
     if (!formData.employeeId || !formData.date || !formData.description.trim()) return false;
     if (endDateInvalid) return false;
     if (requiresSchedule && !startDateHasSchedule) return false;
-    // Retraso: horas obligatorias. Ausencia: horas opcionales pero si se ponen deben ser válidas
     if (formData.type === "retraso" && (!formData.startTime || !formData.endTime || hoursInvalid)) return false;
     if (formData.type === "ausencia" && formData.startTime && formData.endTime && hoursInvalid) return false;
     return true;
@@ -204,36 +156,37 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
   };
 
   const prevViewWeek = () => {
-    const d = new Date(`${viewWeekStart}T00:00:00`);
-    d.setDate(d.getDate() - 7);
+    const d = new Date(`${viewWeekStart}T12:00:00Z`);
+    d.setUTCDate(d.getUTCDate() - 7);
     setViewWeekStart(d.toISOString().split("T")[0]);
   };
   const nextViewWeek = () => {
-    const d = new Date(`${viewWeekStart}T00:00:00`);
-    d.setDate(d.getDate() + 7);
+    const d = new Date(`${viewWeekStart}T12:00:00Z`);
+    d.setUTCDate(d.getUTCDate() + 7);
     setViewWeekStart(d.toISOString().split("T")[0]);
   };
 
   const viewWeekLabel = (() => {
-    const s = new Date(`${viewWeekStart}T00:00:00`);
-    const e = new Date(s); e.setDate(s.getDate() + 6);
+    const s = new Date(`${viewWeekStart}T12:00:00Z`);
+    const e = new Date(s); e.setUTCDate(s.getUTCDate() + 6);
     return `${s.toLocaleDateString("es-ES", { day: "2-digit", month: "short" })} – ${e.toLocaleDateString("es-ES", { day: "2-digit", month: "short", year: "numeric" })}`;
   })();
 
-  // ── Descripción del tipo seleccionado ─────────────────────────────────────
+  // ── Mensajes por tipo ─────────────────────────────────────────────────────
   const typeInfo: Record<string, { msg: string; color: string; icon: React.ReactNode }> = {
-    retraso:     { msg: "Requiere horario registrado. Debes indicar la franja horaria afectada.", color: "text-yellow-700 bg-yellow-50 border-yellow-200", icon: <Clock className="w-3.5 h-3.5 text-yellow-600" /> },
+    retraso:     { msg: "Requiere horario registrado. Un solo día. Debes indicar la franja horaria afectada.", color: "text-yellow-700 bg-yellow-50 border-yellow-200", icon: <Clock className="w-3.5 h-3.5 text-yellow-600" /> },
     ausencia:    { msg: "Requiere horario registrado. Un solo día. Las horas son opcionales.", color: "text-green-800 bg-[#edf7f4] border-[#78D1BD]", icon: <AlertCircle className="w-3.5 h-3.5 text-[#1a5c3a]" /> },
     permiso:     { msg: "No requiere horario registrado. Puede ser cualquier día.", color: "text-blue-700 bg-blue-50 border-blue-200", icon: <FileText className="w-3.5 h-3.5 text-blue-600" /> },
     incapacidad: { msg: "No requiere horario registrado. Puede abarcar varios días.", color: "text-yellow-700 bg-yellow-50 border-yellow-200", icon: <AlertCircle className="w-3.5 h-3.5 text-yellow-600" /> },
     otro:        { msg: "No requiere horario registrado.", color: "text-gray-700 bg-gray-50 border-gray-200", icon: <FileText className="w-3.5 h-3.5 text-gray-500" /> },
   };
-  const currentTypeInfo = typeInfo[formData.type];
+  const currentTypeInfo = typeInfo[formData.type as string];
 
+  // ── Render ────────────────────────────────────────────────────────────────
   return (
     <div className="space-y-5">
 
-      {/* ── Empleado ── */}
+      {/* Empleado */}
       <div className="space-y-2">
         <Label className="flex items-center gap-2 text-sm font-medium">
           <User className="w-4 h-4 text-[#1a5c3a]" />
@@ -257,7 +210,7 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
         </Select>
       </div>
 
-      {/* ── Tipo de Novedad ── */}
+      {/* Tipo de Novedad */}
       <div className="space-y-2">
         <Label className="flex items-center gap-2 text-sm font-medium">
           <Tag className="w-4 h-4 text-[#1a5c3a]" />
@@ -276,8 +229,6 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
             ))}
           </SelectContent>
         </Select>
-
-        {/* Descripción del tipo */}
         {currentTypeInfo && (
           <div className={`flex items-start gap-2 text-xs px-3 py-2 rounded-lg border ${currentTypeInfo.color}`}>
             {currentTypeInfo.icon}
@@ -286,8 +237,9 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
         )}
       </div>
 
-      {/* ── Fechas ── */}
+      {/* Fechas */}
       <div className="grid grid-cols-2 gap-4">
+        {/* Fecha Inicio */}
         <div className="space-y-2">
           <Label className="flex items-center gap-2 text-sm font-medium">
             <Calendar className="w-4 h-4 text-[#1a5c3a]" />
@@ -303,36 +255,26 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
             value={formData.date}
             onChange={e => {
               const newDate = e.target.value;
-              // Si el tipo requiere horario y el día seleccionado no tiene → limpiar
-              if (requiresSchedule && newDate && employeeSchedules.length > 0 && !isWorkingDay(newDate)) {
-                setFormData(prev => ({ ...prev, date: newDate, fechaFinal: !requiresHours ? newDate : prev.fechaFinal }));
-                // El error se muestra via startDateHasSchedule
-                return;
-              }
               setFormData(prev => ({
                 ...prev,
                 date: newDate,
-                fechaFinal: !requiresHours
-                  ? (prev.fechaFinal === "" || prev.fechaFinal === prev.date ? newDate : prev.fechaFinal)
-                  : prev.fechaFinal,
+                // Sincronizar fecha fin si está bloqueada
+                fechaFinal: lockEndDate ? newDate : (prev.fechaFinal === "" || prev.fechaFinal === prev.date ? newDate : prev.fechaFinal),
               }));
             }}
           />
-          {/* Validación: requiere horario y no tiene */}
           {requiresSchedule && formData.date && !loadingSchedule && !startDateHasSchedule && (
             <p className="text-xs text-red-600 flex items-center gap-1">
               <AlertCircle className="w-3 h-3" />
               El empleado no tiene horario registrado para este día.
             </p>
           )}
-          {/* OK: tiene horario */}
           {requiresSchedule && formData.date && !loadingSchedule && startDateHasSchedule && (
             <p className="text-xs text-[#1a5c3a] flex items-center gap-1">
               <CheckCircle2 className="w-3 h-3" />
               Horario: {startDaySchedule!.startTime} – {startDaySchedule!.endTime}
             </p>
           )}
-          {/* Hint: días disponibles del empleado */}
           {requiresSchedule && !loadingSchedule && availableDayIndices.size > 0 && (
             <p className="text-xs text-gray-400 flex items-center gap-1 flex-wrap">
               <span>Días con horario:</span>
@@ -343,7 +285,6 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
               ))}
             </p>
           )}
-          {/* Permiso/incapacidad/otro: no requiere horario */}
           {!requiresSchedule && formData.date && (
             <p className="text-xs text-blue-600 flex items-center gap-1">
               <Info className="w-3 h-3" />
@@ -352,16 +293,14 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
           )}
         </div>
 
+        {/* Fecha Fin */}
         <div className="space-y-2">
           <Label className="flex items-center gap-2 text-sm font-medium">
             <Calendar className="w-4 h-4 text-[#1a5c3a]" />
             Fecha Fin
-            {lockEndDate && (
-              <span className="text-xs text-gray-400 font-normal">(igual al inicio)</span>
-            )}
-            {formData.type === "incapacidad" && (
-              <span className="text-xs text-yellow-600 font-normal">(puede ser varios días)</span>
-            )}          </Label>
+            {lockEndDate && <span className="text-xs text-gray-400 font-normal">(igual al inicio)</span>}
+            {formData.type === "incapacidad" && <span className="text-xs text-yellow-600 font-normal">(puede ser varios días)</span>}
+          </Label>
           <input
             type="date"
             className={`w-full h-10 px-3 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#1a5c3a] focus:border-transparent ${
@@ -374,9 +313,7 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
             value={lockEndDate ? (formData.date || "") : (formData.fechaFinal || "")}
             min={formData.date || undefined}
             readOnly={lockEndDate}
-            onChange={e => {
-              if (!lockEndDate) setFormData(prev => ({ ...prev, fechaFinal: e.target.value }));
-            }}
+            onChange={e => { if (!lockEndDate) setFormData(prev => ({ ...prev, fechaFinal: e.target.value })); }}
           />
           {endDateInvalid && (
             <p className="text-xs text-red-600 flex items-center gap-1">
@@ -384,26 +321,19 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
               La fecha fin no puede ser anterior a la fecha inicio.
             </p>
           )}
-          {requiresSchedule && formData.fechaFinal && !loadingSchedule && !endDateHasSchedule && (
-            <p className="text-xs text-yellow-700 flex items-center gap-1">
-              <AlertCircle className="w-3 h-3" />
-              El empleado no tiene horario en la fecha fin.
-            </p>
-          )}
         </div>
       </div>
 
-      {/* ── Horas (solo retraso / percance) ── */}
+      {/* Horas (retraso obligatorio, ausencia opcional) */}
       {requiresHours && (
         <div className="rounded-xl border border-[#78D1BD]/40 bg-[#f0faf6] p-4 space-y-3">
           <Label className="flex items-center gap-2 text-sm font-semibold text-[#1a5c3a]">
             <Clock className="w-4 h-4" />
             Franja horaria afectada
-            {formData.type === "retraso" && <span className="text-red-500">*</span>}
+            {formData.type === "retraso"  && <span className="text-red-500">*</span>}
             {formData.type === "ausencia" && <span className="text-xs font-normal text-gray-400">(opcional)</span>}
           </Label>
 
-          {/* Aviso si no hay horario en la fecha */}
           {formData.date && !loadingSchedule && !startDateHasSchedule && (
             <Alert variant="destructive" className="py-2">
               <AlertCircle className="h-4 w-4" />
@@ -428,9 +358,7 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="placeholder" disabled>— Hora —</SelectItem>
-                  {TIME_SLOTS.map(t => (
-                    <SelectItem key={t} value={t}>{t}</SelectItem>
-                  ))}
+                  {TIME_SLOTS.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
                 </SelectContent>
               </Select>
               {startOutOfRange && (
@@ -455,9 +383,7 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="placeholder" disabled>— Hora —</SelectItem>
-                  {TIME_SLOTS.map(t => (
-                    <SelectItem key={t} value={t}>{t}</SelectItem>
-                  ))}
+                  {TIME_SLOTS.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
                 </SelectContent>
               </Select>
               {hoursInvalid && (
@@ -475,7 +401,6 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
             </div>
           </div>
 
-          {/* Resumen de franja */}
           {formData.startTime && formData.endTime && !hoursInvalid && (
             <div className="flex items-center gap-2 pt-2 border-t border-[#78D1BD]/30">
               <Clock className="w-3.5 h-3.5 text-[#1a5c3a]" />
@@ -487,7 +412,7 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
         </div>
       )}
 
-      {/* ── Referencia visual del horario del empleado ── */}
+      {/* Referencia visual del horario del empleado */}
       {formData.employeeId && employeeSchedules.length > 0 && (
         <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 space-y-3">
           <div className="flex items-center justify-between">
@@ -495,26 +420,19 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
               Horario del empleado
             </Label>
             <div className="flex items-center gap-1">
-              <button type="button" onClick={prevViewWeek}
-                className="p-1 rounded hover:bg-gray-200 transition-colors">
+              <button type="button" onClick={prevViewWeek} className="p-1 rounded hover:bg-gray-200 transition-colors">
                 <span className="text-gray-500 text-xs">‹</span>
               </button>
               <span className="text-xs text-gray-600 font-medium px-2">{viewWeekLabel}</span>
-              <button type="button" onClick={nextViewWeek}
-                className="p-1 rounded hover:bg-gray-200 transition-colors">
+              <button type="button" onClick={nextViewWeek} className="p-1 rounded hover:bg-gray-200 transition-colors">
                 <span className="text-gray-500 text-xs">›</span>
               </button>
             </div>
           </div>
-
           <div className="grid grid-cols-7 gap-1">
             {viewWeekDays.map(day => (
               <div key={day.dayIndex}
-                className={`rounded-lg p-2 text-center border ${
-                  day.available
-                    ? "bg-white border-[#78D1BD]/40"
-                    : "bg-gray-100 border-gray-200 opacity-50"
-                }`}>
+                className={`rounded-lg p-2 text-center border ${day.available ? "bg-white border-[#78D1BD]/40" : "bg-gray-100 border-gray-200 opacity-50"}`}>
                 <p className="text-[10px] font-semibold text-gray-500">{day.short}</p>
                 {day.available ? (
                   <>
@@ -527,22 +445,19 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
               </div>
             ))}
           </div>
-
-          {/* Si la semana visible no tiene horario registrado */}
           {viewWeekDays.every(d => !d.available) && (
-            <p className="text-xs text-gray-400 text-center">
-              Sin horario registrado para esta semana.
-            </p>
+            <p className="text-xs text-gray-400 text-center">Sin horario registrado para esta semana.</p>
           )}
         </div>
       )}
 
-      {/* Sin horario en absoluto y tipo que lo requiere */}
+      {/* Sin horario y tipo que lo requiere */}
       {formData.employeeId && !loadingSchedule && employeeSchedules.length === 0 && requiresSchedule && (
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            Este empleado no tiene ningún horario registrado. Para registrar un <strong>{NEWS_TYPES.find(t => t.value === formData.type)?.label}</strong> es necesario que tenga horario.
+            Este empleado no tiene ningún horario registrado. Para registrar un{" "}
+            <strong>{NEWS_TYPES.find(t => t.value === formData.type)?.label}</strong> es necesario que tenga horario.
           </AlertDescription>
         </Alert>
       )}
@@ -552,12 +467,13 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
         <Alert>
           <Info className="h-4 w-4" />
           <AlertDescription>
-            El empleado no tiene horario registrado, pero el tipo <strong>{NEWS_TYPES.find(t => t.value === formData.type)?.label}</strong> no lo requiere.
+            El empleado no tiene horario registrado, pero el tipo{" "}
+            <strong>{NEWS_TYPES.find(t => t.value === formData.type)?.label}</strong> no lo requiere.
           </AlertDescription>
         </Alert>
       )}
 
-      {/* ── Resumen ── */}
+      {/* Resumen */}
       {formData.date && (
         <div className="rounded-lg border border-gray-200 bg-white p-3 space-y-1 text-xs text-gray-600">
           <p className="font-semibold text-gray-800 flex items-center gap-1.5">
@@ -565,14 +481,14 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
             Resumen de la novedad
           </p>
           <p><span className="font-medium">Tipo:</span> {NEWS_TYPES.find(t => t.value === formData.type)?.label}</p>
-          <p><span className="font-medium">Fecha:</span> {formData.date}{formData.fechaFinal ? ` al ${formData.fechaFinal}` : ""}</p>
+          <p><span className="font-medium">Fecha:</span> {formData.date}{formData.fechaFinal && formData.fechaFinal !== formData.date ? ` al ${formData.fechaFinal}` : ""}</p>
           {requiresHours && formData.startTime && formData.endTime && (
             <p><span className="font-medium">Franja:</span> {formData.startTime} – {formData.endTime}</p>
           )}
         </div>
       )}
 
-      {/* ── Descripción ── */}
+      {/* Descripción */}
       <div className="space-y-2">
         <Label className="flex items-center gap-2 text-sm font-medium">
           <FileText className="w-4 h-4 text-[#1a5c3a]" />
@@ -587,7 +503,7 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
         />
       </div>
 
-      {/* ── Botones ── */}
+      {/* Botones */}
       <div className="flex justify-end gap-3 pt-4 border-t">
         <Button variant="outline" onClick={onCancel}>Cancelar</Button>
         <Button
