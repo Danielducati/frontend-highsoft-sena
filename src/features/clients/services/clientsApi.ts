@@ -31,7 +31,7 @@ function mapClient(c: any): Client {
 
 export const clientsApi = {
   async getAll(): Promise<Client[]> {
-    const res = await fetch(`${API_URL}/clients`, {
+    const res = await fetch(`${API_URL}/clients?all=true`, {
       headers: { Authorization: `Bearer ${getToken()}` },
     });
     if (!res.ok) throw new Error("Error al cargar clientes");
