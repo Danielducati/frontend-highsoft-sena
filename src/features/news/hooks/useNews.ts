@@ -101,6 +101,12 @@ const createOrUpdate = async (formData: NewsFormData, editingId?: number): Promi
       toast.error("No se pudo identificar el empleado");
       return false;
     }
+
+    // Garantizar que fechaFinal siempre tenga valor (mínimo igual a date)
+    const dataToSend = {
+      ...formData,
+      fechaFinal: formData.fechaFinal || formData.date,
+    };
     
     isProcessing.current = true;
     try {

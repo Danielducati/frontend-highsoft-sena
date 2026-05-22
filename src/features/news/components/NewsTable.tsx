@@ -76,7 +76,11 @@ export function NewsTable({ news, userRole, onView, onEdit, onDelete, onUpdateSt
                       <span>{item.startTime}</span>
                       <span className="text-gray-400 text-xs">{item.endTime}</span>
                     </div>
-                  ) : <span className="text-xs text-gray-400">—</span>}
+                  ) : (
+                    <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-[#edf7f4] text-[#1a5c3a] border border-[#78D1BD]/40">
+                      Día completo
+                    </span>
+                  )}
                 </td>
 
                 {/* STATUS — solo admin puede cambiarlo */}

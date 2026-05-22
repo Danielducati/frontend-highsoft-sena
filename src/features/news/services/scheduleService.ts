@@ -15,11 +15,17 @@ export const scheduleService = {
     }
 
     try {
-      const response = await fetch(`${API_BASE}/api/schedules`);
+      const response = await fetch(`${API_BASE}/api/schedules`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token") ?? ""}`,
+        },
+      });
       if (!response.ok) throw new Error("Error al obtener horarios");
       
       const schedules: EmployeeSchedule[] = await response.json();
-      return schedules.filter(s => s.employeeId === employeeId);
+      // Comparar como string en ambos lados para evitar fallos por tipo number vs string
+      return schedules.filter(s => String(s.employeeId) === String(employeeId));
     } catch (error) {
       console.error("Error fetching employee schedule:", error);
       throw error;

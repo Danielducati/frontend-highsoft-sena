@@ -1,19 +1,23 @@
 import { NEWS_TYPES } from "../constants";
+import { FileText } from "lucide-react";
+
+// Fallback seguro para tipos que ya no existen (ej: "percance" eliminado)
+const FALLBACK_TYPE = { value: "otro", label: "Otro", icon: FileText, color: "text-gray-600" };
 
 export function getTypeConfig(type: string) {
-return NEWS_TYPES.find(t => t.value === type) ?? NEWS_TYPES[5];
+  return NEWS_TYPES.find(t => t.value === type) ?? FALLBACK_TYPE;
 }
 
 export function getTypeColor(type: string): string {
-const map: Record<string, string> = {
+  const map: Record<string, string> = {
     incapacidad: "bg-red-100 text-red-700 border-red-200",
     retraso:     "bg-yellow-100 text-yellow-700 border-yellow-200",
     permiso:     "bg-blue-100 text-blue-700 border-blue-200",
-    percance:    "bg-orange-100 text-orange-700 border-orange-200",
+    percance:    "bg-orange-100 text-orange-700 border-orange-200", // mantener para datos históricos
     ausencia:    "bg-[#edf7f4] text-[#1a5c3a] border-[#78D1BD]/50",
     otro:        "bg-gray-100 text-gray-700 border-gray-200",
-};
-return map[type] ?? map.otro;
+  };
+  return map[type] ?? map.otro;
 }
 
 export function getStatusColor(status: string): string {

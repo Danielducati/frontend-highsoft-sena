@@ -153,6 +153,8 @@ export function NewsFormV2({
     setFormData(prev => ({ 
       ...prev, 
       affectationType: type,
+      // Si cambia a día completo, igualar fecha fin a fecha inicio
+      fechaFinal: type === "full_day" ? prev.date : prev.fechaFinal,
       // Limpiar horarios si no es parcial
       startTime: type === 'partial_hours' ? prev.startTime : "",
       endTime: type === 'partial_hours' ? prev.endTime : ""
@@ -246,19 +248,40 @@ export function NewsFormV2({
               type="date"
               className="flex h-10 w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1a5c3a] focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50"
               value={formData.date || ""}
-              onChange={e => setFormData(prev => ({ ...prev, date: e.target.value }))}
+              onChange={e => {
+                const newDate = e.target.value;
+                setFormData(prev => ({
+                  ...prev,
+                  date: newDate,
+                  // Si es día completo, sincronizar fecha fin automáticamente
+                  fechaFinal: prev.affectationType === "full_day" ? newDate : prev.fechaFinal,
+                }));
+              }}
             />
           </div>
           <div className="space-y-2">
             <Label className="flex items-center gap-2">
               <Calendar className="w-4 h-4 text-[#1a5c3a]" />
               Fecha Final
+              {formData.affectationType === "full_day" && (
+                <span className="text-xs text-gray-400 font-normal">(igual al inicio)</span>
+              )}
             </Label>
             <input
               type="date"
-              className="flex h-10 w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1a5c3a] focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50"
-              value={formData.fechaFinal || ""}
-              onChange={e => setFormData(prev => ({ ...prev, fechaFinal: e.target.value }))}
+              className={`flex h-10 w-full rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1a5c3a] focus:border-transparent ${
+                formData.affectationType === "full_day"
+                  ? "border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed"
+                  : "border-gray-300 bg-transparent"
+              }`}
+              value={formData.affectationType === "full_day" ? (formData.date || "") : (formData.fechaFinal || "")}
+              min={formData.date || undefined}
+              readOnly={formData.affectationType === "full_day"}
+              onChange={e => {
+                if (formData.affectationType !== "full_day") {
+                  setFormData(prev => ({ ...prev, fechaFinal: e.target.value }));
+                }
+              }}
             />
           </div>
         </div>
