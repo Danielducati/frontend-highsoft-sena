@@ -18,9 +18,61 @@ servicio:      string;
 
 // Respuesta cuando hay conflicto
 export interface ConflictResponse {
-conflict:  true;
-message:   string;
-servicios: ConflictService[];
+conflict:              true;
+message:               string;
+servicios:             ConflictService[];
+empleadosDisponibles?: Array<{
+    id:        number;
+    name:      string;
+    specialty: string;
+}>;
+}
+
+// Cita afectada por aprobación de novedad
+export interface AffectedAppointment {
+citaId:           number;
+detalleId:        number;
+fecha:            string;
+hora:             string;
+servicio:         string;
+cliente:          string;
+clienteContacto:  {
+    correo?:   string;
+    telefono?: string;
+};
+}
+
+// Empleado disponible para reasignación
+export interface AvailableEmployee {
+id:           number;
+nombre:       string;
+especialidad: string;
+}
+
+// Opción de resolución de conflicto
+export interface ConflictOption {
+action:              string;
+label:               string;
+description:         string;
+requiresEmployeeId?: boolean;
+}
+
+// Respuesta de conflicto al aprobar novedad
+export interface ApprovalConflictResponse {
+conflict:              true;
+message:               string;
+novedad:               {
+    id:          number;
+    tipo:        string;
+    empleado:    string;
+    fechaInicio: string;
+    fechaFinal:  string;
+    horaInicio?: string;
+    horaFinal?:  string;
+};
+citasAfectadas:        AffectedAppointment[];
+empleadosDisponibles:  AvailableEmployee[];
+opciones:              ConflictOption[];
 }
 
 // Acción que toma el usuario al resolver el conflicto
@@ -80,14 +132,31 @@ update: async (id: number, formData: any) => {
     return res.json();
 },
 
-updateStatus: async (id: number, status: string) => {
+updateStatus: async (
+    id: number,
+    status: string,
+    conflictAction?: ConflictAction
+): Promise<{ ok: boolean; message?: string } | ApprovalConflictResponse> => {
+    const body: any = { status };
+    
+    // Si hay conflictAction, agregar action y opcionalmente reassignToEmployeeId
+    if (conflictAction) {
+        body.action = conflictAction.action;
+        if (conflictAction.action === "reassign" && "reassignToEmployeeId" in conflictAction) {
+            body.reassignToEmployeeId = Number(conflictAction.reassignToEmployeeId);
+        }
+    }
+
     const res = await fetch(`${API}/news/${id}/status`, {
     method:  "PATCH",
     headers: authHeaders(),
-    body:    JSON.stringify({ status }),
+    body:    JSON.stringify(body),
     });
-    if (!res.ok) throw new Error("Error al actualizar estado");
-    return res.json();
+
+    const data = await res.json();
+    if (res.status === 409) return data as ApprovalConflictResponse;
+    if (!res.ok) throw new Error(data.error ?? "Error al actualizar estado");
+    return data;
 },
 
 remove: async (id: number) => {
