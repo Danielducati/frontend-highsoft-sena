@@ -115,9 +115,13 @@ export async function fetchClientsForAppointments() {
 }
 
 export async function createAppointment(payload: any, isClient = false, isEmployee = false) {
-  const endpoint = isClient   ? `${API_BASE}/appointments/mis-citas`         :
-                   isEmployee ? `${API_BASE}/appointments/mis-citas-empleado` :
-                                `${API_BASE}/appointments`;
+  // Los empleados deben usar el endpoint principal que requiere permisos
+  // Solo los clientes usan /mis-citas para crear sus propias citas
+  const endpoint = isClient ? `${API_BASE}/appointments/mis-citas` : `${API_BASE}/appointments`;
+  
+  console.log('[createAppointment] Usando endpoint:', endpoint);
+  console.log('[createAppointment] isClient:', isClient, 'isEmployee:', isEmployee);
+  
   const res = await fetch(endpoint, {
     method:  "POST",
     headers: authHeaders(),
