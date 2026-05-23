@@ -1,7 +1,7 @@
 // news/hooks/useNews.ts
 import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
-import { newsApi, ConflictResponse, ConflictAction } from "../services/newsApi";
+import { newsApi, ConflictResponse, ConflictAction, ApprovalConflictResponse } from "../services/newsApi";
 import { Employee, EmployeeNews, NewsFormData } from "../types";
 
 export function useNews() {
@@ -13,9 +13,13 @@ const [loggedEmployeeId, setLoggedEmployeeId] = useState<string | null>(null);
 // Protección contra doble clic
 const isProcessing = useRef(false);
 
-// Estado del conflicto
+// Estado del conflicto (para creación)
 const [conflict,        setConflict]        = useState<ConflictResponse | null>(null);
 const [pendingFormData, setPendingFormData] = useState<NewsFormData | null>(null);
+
+// Estado del conflicto (para aprobación)
+const [approvalConflict, setApprovalConflict] = useState<ApprovalConflictResponse | null>(null);
+const [pendingApproval, setPendingApproval] = useState<{ id: number; status: EmployeeNews["status"] } | null>(null);
 
 useEffect(() => {
     async function fetchAll() {
@@ -183,15 +187,63 @@ const remove = async (id: number): Promise<boolean> => {
 
 
 const updateStatus = async (id: number, status: EmployeeNews["status"]): Promise<boolean> => {
-    try {
-    await newsApi.updateStatus(id, status);
+  try {
+    const response = await newsApi.updateStatus(id, status);
+
+    // Si hay conflicto, guardar el estado y mostrar el diálogo
+    if (response && typeof response === 'object' && 'conflict' in response && response.conflict) {
+      setPendingApproval({ id, status });
+      setApprovalConflict(response);
+      return false; // No cerrar el diálogo de estado
+    }
+
+    // Éxito — actualizar la lista
     setNewsList(prev => prev.map(n => n.id === id ? { ...n, status } : n));
     toast.success("Estado actualizado");
     return true;
-    } catch {
-    toast.error("Error al actualizar estado");
+  } catch (err: any) {
+    toast.error(err.message ?? "Error al actualizar estado");
     return false;
+  }
+};
+
+// Resolver conflicto de aprobación
+const resolveApprovalConflict = async (conflictAction: ConflictAction): Promise<boolean> => {
+  if (!pendingApproval) return false;
+
+  try {
+    const response = await newsApi.updateStatus(
+      pendingApproval.id,
+      pendingApproval.status,
+      conflictAction
+    );
+
+    // Si aún hay conflicto (no debería pasar)
+    if (response && typeof response === 'object' && 'conflict' in response && response.conflict) {
+      toast.error("Error inesperado al resolver conflicto");
+      return false;
     }
+
+    const messages: Record<string, string> = {
+      cancel: "Novedad aprobada y citas canceladas",
+      keep: "Novedad aprobada — citas sin cambios",
+      reassign: "Novedad aprobada y citas reasignadas",
+    };
+    toast.success(messages[conflictAction.action] ?? "Novedad aprobada");
+
+    setApprovalConflict(null);
+    setPendingApproval(null);
+    await reload();
+    return true;
+  } catch (err: any) {
+    toast.error(err.message ?? "Error al aprobar novedad");
+    return false;
+  }
+};
+
+const dismissApprovalConflict = () => {
+  setApprovalConflict(null);
+  setPendingApproval(null);
 };
 
 
@@ -199,5 +251,6 @@ return {
     employees, newsList, loading, loggedEmployeeId,
     createOrUpdate, remove, updateStatus,
     conflict, resolveConflict, dismissConflict,
+    approvalConflict, resolveApprovalConflict, dismissApprovalConflict,
 };
 }
