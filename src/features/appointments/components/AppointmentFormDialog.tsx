@@ -52,6 +52,16 @@ export function AppointmentFormDialog({
     }
   }, [currentService.serviceId, loadEmployeesForService]);
 
+  // Inicializar el primer cliente cuando se abre el diálogo (solo para empleados)
+  React.useEffect(() => {
+    const isEmployee = userRole && userRole !== "client" && userRole !== "Cliente";
+    if (isOpen && isEmployee && !editingAppointment && clients.length > 0 && !formData.clientId) {
+      const firstClient = clients[0];
+      console.log('[AppointmentFormDialog] Inicializando primer cliente:', firstClient);
+      onClientChange(String(firstClient.id));
+    }
+  }, [isOpen, clients, userRole, editingAppointment, formData.clientId, onClientChange]);
+
   // Validar si el empleado seleccionado sigue siendo válido cuando cambia la lista
   React.useEffect(() => {
     // Solo validar si hay un empleado seleccionado y hay empleados disponibles
@@ -107,8 +117,17 @@ export function AppointmentFormDialog({
                   </div>
                 );
               } else {
+                // Para empleados/admin: mostrar selector con el primer cliente seleccionado por defecto
+                const defaultClientId = formData.clientId || (clients.length > 0 ? String(clients[0].id) : "");
+                
                 return (
-                  <Select value={formData.clientId} onValueChange={onClientChange}>
+                  <Select 
+                    value={defaultClientId} 
+                    onValueChange={(value) => {
+                      console.log('[AppointmentFormDialog] Cliente seleccionado:', value);
+                      onClientChange(value);
+                    }}
+                  >
                     <SelectTrigger><SelectValue placeholder="Selecciona un cliente" /></SelectTrigger>
                     <SelectContent>
                       {clients.map(c => (
