@@ -12,6 +12,7 @@ import { NewsTable } from "../components/NewsTable";
 import { NewsDetailDialog } from "../components/NewsDetailDialog";
 import { NewsStatusDialog } from "../components/NewsStatusDialog";
 import { NewsConflictDialog } from "../components/NewsConflictDialog"; // ← CAMBIO 1: import
+import { NewsAppointmentConflictDialog } from "../components/NewsAppointmentConflictDialog"; // ← NUEVO: import para conflictos de aprobación
 import { NEWS_TYPES, EMPTY_FORM } from "../constants";
 import { EmployeeNews, NewsFormData, NewsModuleProps } from "../types";
 import { SpaPage } from "../../../shared/components/layout/SpaPage";
@@ -19,7 +20,12 @@ import { SpaPage } from "../../../shared/components/layout/SpaPage";
 
 export function NewsPage({ userRole }: NewsModuleProps) {
   // ← CAMBIO 2: desestructurar conflict, resolveConflict, dismissConflict del hook
-  const { employees, newsList, loading, loggedEmployeeId, createOrUpdate, remove, updateStatus, conflict, resolveConflict, dismissConflict} = useNews();
+  const { 
+    employees, newsList, loading, loggedEmployeeId, 
+    createOrUpdate, remove, updateStatus, 
+    conflict, resolveConflict, dismissConflict,
+    approvalConflict, resolveApprovalConflict, dismissApprovalConflict
+  } = useNews();
 
   const [searchTerm,   setSearchTerm]   = useState("");
   const [filterType,   setFilterType]   = useState("all");
@@ -87,15 +93,29 @@ export function NewsPage({ userRole }: NewsModuleProps) {
 
 
   const handleStatusConfirm = async () => {
-    if (newsToChangeStatus) await updateStatus(newsToChangeStatus.id, newStatus);
-    setStatusDialogOpen(false);
-    setNewsToChangeStatus(null);
+    if (!newsToChangeStatus) return;
+    const ok = await updateStatus(newsToChangeStatus.id, newStatus);
+    // Si hay conflicto, el hook abre NewsAppointmentConflictDialog automáticamente
+    // El diálogo de estado se queda abierto hasta que se resuelva el conflicto
+    if (ok) {
+      setStatusDialogOpen(false);
+      setNewsToChangeStatus(null);
+    }
   };
 
   // Cuando el usuario resuelve el conflicto, cerramos también el form
   const handleResolveConflict = async (action: any) => {
     const ok = await resolveConflict(action);
     if (ok) resetForm();
+  };
+
+  // Cuando el usuario resuelve el conflicto de aprobación
+  const handleResolveApprovalConflict = async (action: any) => {
+    const ok = await resolveApprovalConflict(action);
+    if (ok) {
+      setStatusDialogOpen(false);
+      setNewsToChangeStatus(null);
+    }
   };
 
   if (loading) return (
@@ -271,6 +291,14 @@ export function NewsPage({ userRole }: NewsModuleProps) {
         currentEmployeeId={formData.employeeId}
         onCancel={dismissConflict}
         onConfirm={handleResolveConflict}
+      />
+
+      {/* ← NUEVO: diálogo de conflictos de aprobación */}
+      <NewsAppointmentConflictDialog
+        open={approvalConflict !== null}
+        conflict={approvalConflict}
+        onResolve={handleResolveApprovalConflict}
+        onCancel={dismissApprovalConflict}
       />
       </div>
     </SpaPage>

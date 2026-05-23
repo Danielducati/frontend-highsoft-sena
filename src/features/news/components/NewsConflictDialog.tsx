@@ -25,7 +25,10 @@ export function NewsConflictDialog({
 
   if (!conflict) return null;
 
-  const availableEmployees = employees.filter(e => String(e.id) !== currentEmployeeId);
+  // Usar empleados disponibles del conflicto si existen, sino filtrar de la lista completa
+  const availableEmployees = conflict.empleadosDisponibles && conflict.empleadosDisponibles.length > 0
+    ? conflict.empleadosDisponibles
+    : employees.filter(e => String(e.id) !== currentEmployeeId);
 
   const handleReassignConfirm = () => {
     if (!selectedEmployee) return;
@@ -82,7 +85,7 @@ export function NewsConflictDialog({
               <SelectContent>
                 {availableEmployees.map(emp => (
                   <SelectItem key={emp.id} value={String(emp.id)}>
-                    {emp.name} {emp.specialty && `— ${emp.specialty}`}
+                    {emp.name || `${emp.nombre} ${emp.apellido}`} {(emp.specialty || emp.especialidad) && `— ${emp.specialty || emp.especialidad}`}
                   </SelectItem>
                 ))}
               </SelectContent>
