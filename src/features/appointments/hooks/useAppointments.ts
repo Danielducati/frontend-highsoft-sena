@@ -169,6 +169,21 @@ export function useAppointments(userRole?: string) {
     }
   }, [clients, userRole]);
 
+  // ── Inicializar primer cliente para empleados cuando se abre el diálogo ──
+  useEffect(() => {
+    const isEmployee = userRole && userRole !== "client" && userRole !== "Cliente";
+    if (isEmployee && isDialogOpen && !editingAppointment && clients.length > 0 && !formData.clientId) {
+      const firstClient = clients[0];
+      console.log("🔧 [useAppointments] Inicializando primer cliente para empleado:", firstClient);
+      setFormData(prev => ({
+        ...prev,
+        clientId:    String(firstClient.id),
+        clientName:  firstClient.name,
+        clientPhone: firstClient.phone,
+      }));
+    }
+  }, [isDialogOpen, clients, userRole, editingAppointment, formData.clientId]);
+
   // ── Semana ──
   const getWeekDates = () =>
     Array.from({ length: 7 }, (_, i) => {
@@ -366,8 +381,25 @@ export function useAppointments(userRole?: string) {
       if (userRole === "client" && !formData.clientId) {
         toast.error("Tu perfil aún está cargando, espera un momento e intenta de nuevo"); return;
       }
-      toast.error("Selecciona un cliente, hora y al menos un servicio"); return;
+      if (!formData.clientId) {
+        toast.error("Por favor selecciona un cliente"); return;
+      }
+      if (!startTime) {
+        toast.error("Por favor selecciona una hora de inicio"); return;
+      }
+      if (selectedServices.length === 0) {
+        toast.error("Por favor agrega al menos un servicio"); return;
+      }
+      return;
     }
+    
+    // Validar que el clientId no sea 0 o NaN
+    const clienteNumero = Number(formData.clientId);
+    if (!clienteNumero || clienteNumero === 0 || isNaN(clienteNumero)) {
+      toast.error("Por favor selecciona un cliente válido");
+      return;
+    }
+    
     const hoy = new Date(); hoy.setHours(0, 0, 0, 0);
     const fechaCita = new Date(formData.date); fechaCita.setHours(0, 0, 0, 0);
     if (fechaCita < hoy) {
@@ -375,7 +407,7 @@ export function useAppointments(userRole?: string) {
     }
 
     const payload = {
-      cliente:   Number(formData.clientId),
+      cliente:   clienteNumero,
       fecha:     formData.date.toISOString().split("T")[0],
       hora:      startTime,
       notas:     formData.notes || null,
@@ -386,6 +418,10 @@ export function useAppointments(userRole?: string) {
         detalle:          s.serviceName,
       })),
     };
+
+    console.log("📤 [CREATE APPOINTMENT] Payload a enviar:", JSON.stringify(payload, null, 2));
+    console.log("📤 [CREATE APPOINTMENT] formData.clientId:", formData.clientId);
+    console.log("📤 [CREATE APPOINTMENT] Number(formData.clientId):", Number(formData.clientId));
 
     isCreatingOrUpdating.current = true;
     try {
