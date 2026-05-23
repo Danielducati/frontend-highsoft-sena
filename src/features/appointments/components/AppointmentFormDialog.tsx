@@ -86,30 +86,44 @@ export function AppointmentFormDialog({
           {/* Cliente */}
           <div className="space-y-2">
             <Label>Cliente *</Label>
-            {userRole === "client" ? (
-              <div className="h-10 px-3 flex items-center rounded-md border border-input bg-[#edf7f4] text-sm font-medium text-[#1a5c3a]">
-                {formData.clientName
-                  ? formData.clientName
-                  : clients.length > 0
-                    ? clients[0].name
-                    : <span className="text-gray-400 font-normal">Cargando perfil...</span>
-                }
-              </div>
-            ) : (
-              <Select value={formData.clientId} onValueChange={onClientChange}>
-                <SelectTrigger><SelectValue placeholder="Selecciona un cliente" /></SelectTrigger>
-                <SelectContent>
-                  {clients.map(c => (
-                    <SelectItem key={c.id} value={String(c.id)}>
-                      <div className="flex flex-col">
-                        <span>{c.name}</span>
-                        <span className="text-xs text-gray-500">{c.phone}</span>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
+            {(() => {
+              // Debug: ver qué valor tiene userRole
+              console.log('[AppointmentFormDialog] userRole:', userRole);
+              console.log('[AppointmentFormDialog] userRole === "client":', userRole === "client");
+              
+              // Mostrar selector si NO es cliente (más robusto)
+              const isClient = userRole?.toLowerCase() === "client" || userRole?.toLowerCase() === "cliente";
+              console.log('[AppointmentFormDialog] isClient:', isClient);
+              
+              if (isClient) {
+                return (
+                  <div className="h-10 px-3 flex items-center rounded-md border border-input bg-[#edf7f4] text-sm font-medium text-[#1a5c3a]">
+                    {formData.clientName
+                      ? formData.clientName
+                      : clients.length > 0
+                        ? clients[0].name
+                        : <span className="text-gray-400 font-normal">Cargando perfil...</span>
+                    }
+                  </div>
+                );
+              } else {
+                return (
+                  <Select value={formData.clientId} onValueChange={onClientChange}>
+                    <SelectTrigger><SelectValue placeholder="Selecciona un cliente" /></SelectTrigger>
+                    <SelectContent>
+                      {clients.map(c => (
+                        <SelectItem key={c.id} value={String(c.id)}>
+                          <div className="flex flex-col">
+                            <span>{c.name}</span>
+                            <span className="text-xs text-gray-500">{c.phone}</span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                );
+              }
+            })()}
           </div>
 
           {/* Fecha y hora */}
