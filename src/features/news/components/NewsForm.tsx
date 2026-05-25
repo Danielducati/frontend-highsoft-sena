@@ -28,6 +28,8 @@ interface NewsFormProps {
   editingNews: EmployeeNews | null;
   onSubmit:    () => void;
   onCancel:    () => void;
+  loggedEmployeeId?: string | null;
+  userRole?: string;
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -58,10 +60,27 @@ const DAY_SHORTS = ["Lun","Mar","Mié","Jue","Vie","Sáb","Dom"];
 
 // ─────────────────────────────────────────────────────────────────────────────
 
-export function NewsForm({ formData, setFormData, employees, editingNews, onSubmit, onCancel }: NewsFormProps) {
+export function NewsForm({ formData, setFormData, employees, editingNews, onSubmit, onCancel, loggedEmployeeId, userRole }: NewsFormProps) {
   const [employeeSchedules, setEmployeeSchedules] = useState<any[]>([]);
   const [loadingSchedule,   setLoadingSchedule]   = useState(false);
   const [viewWeekStart,     setViewWeekStart]      = useState(getCurrentMonday());
+
+  // Determinar si el usuario es empleado (no admin)
+  const isEmployee = userRole && userRole !== "admin" && userRole !== "administrador";
+
+  // Auto-seleccionar empleado logueado si es empleado y no está editando
+  useEffect(() => {
+    if (isEmployee && loggedEmployeeId && !editingNews && !formData.employeeId) {
+      const emp = employees.find(e => String(e.id) === String(loggedEmployeeId));
+      if (emp) {
+        setFormData(prev => ({
+          ...prev,
+          employeeId: String(emp.id),
+          employeeName: emp.name,
+        }));
+      }
+    }
+  }, [isEmployee, loggedEmployeeId, editingNews, formData.employeeId, employees, setFormData]);
 
   // Cargar horarios reales cuando cambia el empleado
   useEffect(() => {
@@ -192,22 +211,36 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
           <User className="w-4 h-4 text-[#1a5c3a]" />
           Empleado *
         </Label>
-        <Select
-          value={formData.employeeId || "placeholder"}
-          onValueChange={v => { if (v !== "placeholder") handleEmployeeChange(v); }}
-        >
-          <SelectTrigger className="border-gray-300">
-            <SelectValue placeholder="Selecciona un empleado" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="placeholder" disabled>Selecciona un empleado</SelectItem>
-            {employees.map(emp => (
-              <SelectItem key={emp.id} value={String(emp.id)}>
-                {emp.name}{emp.specialty ? ` — ${emp.specialty}` : ""}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        {isEmployee ? (
+          // Empleado bloqueado para usuarios no-admin
+          <div className="w-full h-10 px-3 border border-gray-200 bg-gray-50 rounded-md flex items-center text-sm text-gray-700">
+            {formData.employeeName || "Cargando..."}
+          </div>
+        ) : (
+          // Selector normal para administradores
+          <Select
+            value={formData.employeeId || "placeholder"}
+            onValueChange={v => { if (v !== "placeholder") handleEmployeeChange(v); }}
+          >
+            <SelectTrigger className="border-gray-300">
+              <SelectValue placeholder="Selecciona un empleado" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="placeholder" disabled>Selecciona un empleado</SelectItem>
+              {employees.map(emp => (
+                <SelectItem key={emp.id} value={String(emp.id)}>
+                  {emp.name}{emp.specialty ? ` — ${emp.specialty}` : ""}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
+        {isEmployee && (
+          <p className="text-xs text-gray-500 flex items-center gap-1">
+            <Info className="w-3 h-3" />
+            Solo puedes crear novedades para tu propio perfil
+          </p>
+        )}
       </div>
 
       {/* Tipo de Novedad */}
