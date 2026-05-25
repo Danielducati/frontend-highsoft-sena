@@ -115,7 +115,7 @@ export function AppointmentViewDialog({
                   <Trash2 className="w-4 h-4 mr-2" />Eliminar
                 </Button>
               )}
-              {userRole !== "client" && apt.status !== "completed" && (
+              {userRole === "admin" && apt.status !== "completed" && (
                 <Button variant="outline"
                   onClick={() => { onEdit(apt); onClose(); }}
                   className="border-[#1a5c3a] text-[#1a5c3a] hover:bg-[#1a5c3a]/10">
