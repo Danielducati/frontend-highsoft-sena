@@ -21,6 +21,15 @@ const REQUIRES_SCHEDULE: Array<EmployeeNews["type"]> = ["retraso", "ausencia"];
 // retraso: horas obligatorias | ausencia: horas opcionales
 const REQUIRES_HOURS: Array<EmployeeNews["type"]> = ["retraso", "ausencia"];
 
+// ── Tipos que solo permiten UN DÍA (fecha fin = fecha inicio) ─────────────────
+const SINGLE_DAY_ONLY: Array<EmployeeNews["type"]> = ["retraso", "ausencia"];
+
+// ── Tipos que permiten MÚLTIPLES DÍAS ─────────────────────────────────────────
+const MULTIPLE_DAYS_ALLOWED: Array<EmployeeNews["type"]> = ["permiso", "incapacidad"];
+
+// ── Tipos que NO requieren horario registrado ──────────────────────────────────
+const NO_SCHEDULE_REQUIRED: Array<EmployeeNews["type"]> = ["permiso", "incapacidad", "otro"];
+
 interface NewsFormProps {
   formData:    NewsFormData;
   setFormData: React.Dispatch<React.SetStateAction<NewsFormData>>;
@@ -105,7 +114,8 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
         ...prev,
         startTime: "",
         endTime: "",
-        fechaFinal: prev.type !== "incapacidad" && prev.fechaFinal === "" && prev.date
+        // Si es de un solo día, sincronizar fecha fin con fecha inicio
+        fechaFinal: SINGLE_DAY_ONLY.includes(prev.type) && prev.date
           ? prev.date
           : prev.fechaFinal,
       }));
@@ -118,9 +128,11 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
   // ── Derivados ─────────────────────────────────────────────────────────────
   const requiresSchedule = REQUIRES_SCHEDULE.includes(formData.type);
   const requiresHours    = REQUIRES_HOURS.includes(formData.type);
+  const isSingleDayOnly  = SINGLE_DAY_ONLY.includes(formData.type);
+  const allowsMultipleDays = MULTIPLE_DAYS_ALLOWED.includes(formData.type);
 
-  // Fecha fin bloqueada = fecha inicio para todos excepto incapacidad
-  const lockEndDate = formData.type !== "incapacidad";
+  // Fecha fin bloqueada para tipos de un solo día
+  const lockEndDate = isSingleDayOnly;
 
   // Set de dayIndex disponibles del empleado
   const availableDayIndices: Set<number> = new Set(
@@ -162,9 +174,16 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
   const canSubmit = (() => {
     if (!formData.employeeId || !formData.date || !formData.description.trim()) return false;
     if (endDateInvalid) return false;
+    
+    // Validar horario solo para tipos que lo requieren
     if (requiresSchedule && !startDateHasSchedule) return false;
+    
+    // Retraso requiere horas obligatorias
     if (formData.type === "retraso" && (!formData.startTime || !formData.endTime || hoursInvalid)) return false;
+    
+    // Ausencia con horas opcionales, pero si las pone deben ser válidas
     if (formData.type === "ausencia" && formData.startTime && formData.endTime && hoursInvalid) return false;
+    
     return true;
   })();
 
@@ -193,11 +212,31 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
 
   // ── Mensajes por tipo ─────────────────────────────────────────────────────
   const typeInfo: Record<string, { msg: string; color: string; icon: React.ReactNode }> = {
-    retraso:     { msg: "Requiere horario registrado. Un solo día. Debes indicar la franja horaria afectada.", color: "text-yellow-700 bg-yellow-50 border-yellow-200", icon: <Clock className="w-3.5 h-3.5 text-yellow-600" /> },
-    ausencia:    { msg: "Requiere horario registrado. Un solo día. Las horas son opcionales.", color: "text-green-800 bg-[#edf7f4] border-[#78D1BD]", icon: <AlertCircle className="w-3.5 h-3.5 text-[#1a5c3a]" /> },
-    permiso:     { msg: "No requiere horario registrado. Puede ser cualquier día.", color: "text-blue-700 bg-blue-50 border-blue-200", icon: <FileText className="w-3.5 h-3.5 text-blue-600" /> },
-    incapacidad: { msg: "No requiere horario registrado. Puede abarcar varios días.", color: "text-yellow-700 bg-yellow-50 border-yellow-200", icon: <AlertCircle className="w-3.5 h-3.5 text-yellow-600" /> },
-    otro:        { msg: "No requiere horario registrado.", color: "text-gray-700 bg-gray-50 border-gray-200", icon: <FileText className="w-3.5 h-3.5 text-gray-500" /> },
+    retraso:     { 
+      msg: "⚠️ Solo un día. Requiere horario registrado. Debes indicar la franja horaria afectada.", 
+      color: "text-yellow-700 bg-yellow-50 border-yellow-200", 
+      icon: <Clock className="w-3.5 h-3.5 text-yellow-600" /> 
+    },
+    ausencia:    { 
+      msg: "⚠️ Solo un día. Requiere horario registrado. Las horas son opcionales.", 
+      color: "text-orange-700 bg-orange-50 border-orange-200", 
+      icon: <AlertCircle className="w-3.5 h-3.5 text-orange-600" /> 
+    },
+    permiso:     { 
+      msg: "✓ Puede ser varios días. No requiere horario registrado.", 
+      color: "text-blue-700 bg-blue-50 border-blue-200", 
+      icon: <FileText className="w-3.5 h-3.5 text-blue-600" /> 
+    },
+    incapacidad: { 
+      msg: "✓ Puede abarcar varios días. No requiere horario registrado.", 
+      color: "text-green-700 bg-green-50 border-green-200", 
+      icon: <AlertCircle className="w-3.5 h-3.5 text-green-600" /> 
+    },
+    otro:        { 
+      msg: "No requiere horario registrado.", 
+      color: "text-gray-700 bg-gray-50 border-gray-200", 
+      icon: <FileText className="w-3.5 h-3.5 text-gray-500" /> 
+    },
   };
   const currentTypeInfo = typeInfo[formData.type as string];
 
@@ -299,7 +338,7 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
           {requiresSchedule && formData.date && !loadingSchedule && !startDateHasSchedule && (
             <p className="text-xs text-red-600 flex items-center gap-1">
               <AlertCircle className="w-3 h-3" />
-              El empleado no tiene horario registrado para este día.
+              El empleado no tiene horario registrado para este día. Selecciona un día con horario.
             </p>
           )}
           {requiresSchedule && formData.date && !loadingSchedule && startDateHasSchedule && (
@@ -321,7 +360,7 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
           {!requiresSchedule && formData.date && (
             <p className="text-xs text-blue-600 flex items-center gap-1">
               <Info className="w-3 h-3" />
-              Este tipo no requiere horario registrado.
+              Este tipo no requiere horario registrado. Puedes seleccionar cualquier día.
             </p>
           )}
         </div>
@@ -331,8 +370,8 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
           <Label className="flex items-center gap-2 text-sm font-medium">
             <Calendar className="w-4 h-4 text-[#1a5c3a]" />
             Fecha Fin
-            {lockEndDate && <span className="text-xs text-gray-400 font-normal">(igual al inicio)</span>}
-            {formData.type === "incapacidad" && <span className="text-xs text-yellow-600 font-normal">(puede ser varios días)</span>}
+            {isSingleDayOnly && <span className="text-xs text-orange-600 font-normal">(mismo día)</span>}
+            {allowsMultipleDays && <span className="text-xs text-green-600 font-normal">(puede ser varios días)</span>}
           </Label>
           <input
             type="date"
@@ -348,6 +387,12 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
             readOnly={lockEndDate}
             onChange={e => { if (!lockEndDate) setFormData(prev => ({ ...prev, fechaFinal: e.target.value })); }}
           />
+          {isSingleDayOnly && (
+            <p className="text-xs text-orange-600 flex items-center gap-1">
+              <AlertCircle className="w-3 h-3" />
+              {formData.type === "retraso" ? "Retraso" : "Ausencia"} solo puede ser de un día.
+            </p>
+          )}
           {endDateInvalid && (
             <p className="text-xs text-red-600 flex items-center gap-1">
               <AlertCircle className="w-3 h-3" />
@@ -490,7 +535,7 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
             Este empleado no tiene ningún horario registrado. Para registrar un{" "}
-            <strong>{NEWS_TYPES.find(t => t.value === formData.type)?.label}</strong> es necesario que tenga horario.
+            <strong>{NEWS_TYPES.find(t => t.value === formData.type)?.label}</strong> es necesario que tenga horario en al menos un día.
           </AlertDescription>
         </Alert>
       )}
@@ -501,7 +546,7 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
           <Info className="h-4 w-4" />
           <AlertDescription>
             El empleado no tiene horario registrado, pero el tipo{" "}
-            <strong>{NEWS_TYPES.find(t => t.value === formData.type)?.label}</strong> no lo requiere.
+            <strong>{NEWS_TYPES.find(t => t.value === formData.type)?.label}</strong> no lo requiere. Puedes seleccionar cualquier día.
           </AlertDescription>
         </Alert>
       )}
@@ -514,9 +559,23 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
             Resumen de la novedad
           </p>
           <p><span className="font-medium">Tipo:</span> {NEWS_TYPES.find(t => t.value === formData.type)?.label}</p>
-          <p><span className="font-medium">Fecha:</span> {formData.date}{formData.fechaFinal && formData.fechaFinal !== formData.date ? ` al ${formData.fechaFinal}` : ""}</p>
+          <p>
+            <span className="font-medium">Fecha:</span> {formData.date}
+            {formData.fechaFinal && formData.fechaFinal !== formData.date ? ` al ${formData.fechaFinal}` : ""}
+            {isSingleDayOnly && <span className="text-orange-600 ml-1">(un solo día)</span>}
+          </p>
           {requiresHours && formData.startTime && formData.endTime && (
             <p><span className="font-medium">Franja:</span> {formData.startTime} – {formData.endTime}</p>
+          )}
+          {requiresSchedule && (
+            <p className="text-orange-600">
+              <span className="font-medium">⚠️ Requiere horario:</span> El empleado debe tener horario registrado
+            </p>
+          )}
+          {!requiresSchedule && (
+            <p className="text-blue-600">
+              <span className="font-medium">✓ Sin restricción:</span> No requiere horario registrado
+            </p>
           )}
         </div>
       )}
