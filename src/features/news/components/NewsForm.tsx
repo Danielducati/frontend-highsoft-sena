@@ -5,9 +5,10 @@ import { Textarea } from "../../../shared/ui/textarea";
 import { Button } from "../../../shared/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../shared/ui/select";
 import { Alert, AlertDescription } from "../../../shared/ui/alert";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "../../../shared/ui/accordion";
 import {
   User, Calendar, Clock, FileText, Tag,
-  AlertCircle, Info, CheckCircle2,
+  AlertCircle, Info, CheckCircle2, ChevronDown,
 } from "lucide-react";
 
 import { NEWS_TYPES, TIME_SLOTS } from "../constants";
@@ -490,43 +491,51 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
         </div>
       )}
 
-      {/* Referencia visual del horario del empleado */}
+      {/* Referencia visual del horario del empleado - ACORDEÓN */}
       {formData.employeeId && employeeSchedules.length > 0 && (
-        <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 space-y-3">
-          <div className="flex items-center justify-between">
-            <Label className="text-xs font-semibold text-gray-600 uppercase tracking-wide">
-              Horario del empleado
-            </Label>
-            <div className="flex items-center gap-1">
-              <button type="button" onClick={prevViewWeek} className="p-1 rounded hover:bg-gray-200 transition-colors">
-                <span className="text-gray-500 text-xs">‹</span>
-              </button>
-              <span className="text-xs text-gray-600 font-medium px-2">{viewWeekLabel}</span>
-              <button type="button" onClick={nextViewWeek} className="p-1 rounded hover:bg-gray-200 transition-colors">
-                <span className="text-gray-500 text-xs">›</span>
-              </button>
-            </div>
-          </div>
-          <div className="grid grid-cols-7 gap-1">
-            {viewWeekDays.map(day => (
-              <div key={day.dayIndex}
-                className={`rounded-lg p-2 text-center border ${day.available ? "bg-white border-[#78D1BD]/40" : "bg-gray-100 border-gray-200 opacity-50"}`}>
-                <p className="text-[10px] font-semibold text-gray-500">{day.short}</p>
-                {day.available ? (
-                  <>
-                    <p className="text-[9px] text-[#1a5c3a] font-medium mt-0.5">{day.startTime}</p>
-                    <p className="text-[9px] text-[#1a5c3a]">{day.endTime}</p>
-                  </>
-                ) : (
-                  <p className="text-[9px] text-gray-400 mt-0.5">—</p>
+        <Accordion type="single" collapsible className="w-full">
+          <AccordionItem value="schedule" className="border border-gray-200 rounded-xl bg-gray-50">
+            <AccordionTrigger className="px-4 py-3 hover:no-underline hover:bg-gray-100/50 rounded-t-xl">
+              <div className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+                <Clock className="w-4 h-4 text-[#1a5c3a]" />
+                <span>Ver horario del empleado</span>
+                <span className="text-xs font-normal text-gray-500">({viewWeekLabel})</span>
+              </div>
+            </AccordionTrigger>
+            <AccordionContent className="px-4 pb-4 pt-2">
+              <div className="space-y-3">
+                <div className="flex items-center justify-center gap-1">
+                  <button type="button" onClick={prevViewWeek} className="p-1.5 rounded hover:bg-gray-200 transition-colors">
+                    <span className="text-gray-500 text-sm">‹</span>
+                  </button>
+                  <span className="text-xs text-gray-600 font-medium px-3">{viewWeekLabel}</span>
+                  <button type="button" onClick={nextViewWeek} className="p-1.5 rounded hover:bg-gray-200 transition-colors">
+                    <span className="text-gray-500 text-sm">›</span>
+                  </button>
+                </div>
+                <div className="grid grid-cols-7 gap-1">
+                  {viewWeekDays.map(day => (
+                    <div key={day.dayIndex}
+                      className={`rounded-lg p-2 text-center border ${day.available ? "bg-white border-[#78D1BD]/40" : "bg-gray-100 border-gray-200 opacity-50"}`}>
+                      <p className="text-[10px] font-semibold text-gray-500">{day.short}</p>
+                      {day.available ? (
+                        <>
+                          <p className="text-[9px] text-[#1a5c3a] font-medium mt-0.5">{day.startTime}</p>
+                          <p className="text-[9px] text-[#1a5c3a]">{day.endTime}</p>
+                        </>
+                      ) : (
+                        <p className="text-[9px] text-gray-400 mt-0.5">—</p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+                {viewWeekDays.every(d => !d.available) && (
+                  <p className="text-xs text-gray-400 text-center">Sin horario registrado para esta semana.</p>
                 )}
               </div>
-            ))}
-          </div>
-          {viewWeekDays.every(d => !d.available) && (
-            <p className="text-xs text-gray-400 text-center">Sin horario registrado para esta semana.</p>
-          )}
-        </div>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
       )}
 
       {/* Sin horario y tipo que lo requiere */}

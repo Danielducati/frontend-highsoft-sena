@@ -18,6 +18,16 @@ interface Props {
 export function AppointmentViewDialog({
   appointment: apt, employees, userRole, onClose, onEdit, onDeleteRequest, onUpdateStatus,
 }: Props) {
+  // Obtener permisos del usuario desde localStorage
+  const permisos: string[] = (() => {
+    try { return JSON.parse(localStorage.getItem("permisos") ?? "[]"); } catch { return []; }
+  })();
+
+  // Verificar permisos específicos
+  const isAdmin = userRole === "admin";
+  const canEdit = isAdmin || permisos.includes("citas.editar");
+  const canDelete = isAdmin || permisos.includes("citas.eliminar");
+
   return (
     <Dialog open={!!apt} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl">
@@ -81,7 +91,7 @@ export function AppointmentViewDialog({
                     Esta cita está <span className="font-semibold text-blue-700">completada</span> y no se puede modificar su estado.
                   </p>
                 </div>
-              ) : (
+              ) : canEdit ? (
                 <div className="flex gap-2 flex-wrap">
                   {(["pending", "completed", "cancelled"] as const).map(s => (
                     <button key={s}
@@ -94,6 +104,12 @@ export function AppointmentViewDialog({
                       {getStatusLabel(s)}
                     </button>
                   ))}
+                </div>
+              ) : (
+                <div className="p-3 bg-gray-50 border border-gray-200 rounded-lg">
+                  <span className={`px-3 py-1.5 rounded-lg text-xs ${getStatusColor(apt.status)}`}>
+                    {getStatusLabel(apt.status)}
+                  </span>
                 </div>
               )}
             </div>
@@ -108,14 +124,14 @@ export function AppointmentViewDialog({
             )}
 
             <div className="flex justify-end gap-2 pt-4 border-t border-gray-200">
-              {userRole === "admin" && apt.status !== "completed" && (
+              {canDelete && apt.status !== "completed" && (
                 <Button variant="outline"
                   onClick={() => { onDeleteRequest(apt.id); onClose(); }}
                   className="border-[#F87171] text-[#F87171] hover:bg-[#F87171]/10">
                   <Trash2 className="w-4 h-4 mr-2" />Eliminar
                 </Button>
               )}
-              {userRole === "admin" && apt.status !== "completed" && (
+              {canEdit && apt.status !== "completed" && (
                 <Button variant="outline"
                   onClick={() => { onEdit(apt); onClose(); }}
                   className="border-[#1a5c3a] text-[#1a5c3a] hover:bg-[#1a5c3a]/10">
