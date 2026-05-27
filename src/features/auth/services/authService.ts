@@ -1,4 +1,25 @@
-import { API_URL } from "../constants";
+import { API_URL, resolveUserRole, resolveAllowedPages } from "../constants";
+import { UserRole } from "../types";
+
+export type GoogleProfileInput = {
+  nombre?: string;
+  apellido?: string;
+  foto?: string;
+  displayName?: string;
+};
+
+export type AuthSessionPayload = {
+  token: string;
+  usuario: {
+    id: number;
+    correo: string;
+    rol: string;
+    nombre?: string;
+    apellido?: string;
+    foto?: string;
+    registroViaGoogle?: boolean;
+  };
+};
 
 async function parseJsonSafe(res: Response) {
   const raw = await res.text();
@@ -35,11 +56,11 @@ export async function loginRequest(correo: string, contrasena: string) {
   return data;
 }
 
-export async function googleLoginRequest(idToken: string) {
+export async function googleLoginRequest(idToken: string, profile?: GoogleProfileInput) {
   const res = await fetch(`${API_URL}/auth/google`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ idToken }),
+    body: JSON.stringify({ idToken, ...profile }),
   });
 
   const data = await parseJsonSafe(res);
@@ -57,6 +78,39 @@ export async function googleLoginRequest(idToken: string) {
   }
 
   return data;
+}
+
+/** Guarda token, usuario y permisos tras login o registro con Google */
+export async function completeAuthSession(data: AuthSessionPayload) {
+  const rolBackend = data.usuario?.rol ?? "Cliente";
+  const rolFrontend: UserRole = resolveUserRole(rolBackend);
+
+  localStorage.setItem("token", data.token);
+  localStorage.setItem("usuario", JSON.stringify(data.usuario));
+
+  let permisos: string[] = [];
+  try {
+    const meRes = await fetch(`${API_URL}/auth/me`, {
+      headers: { Authorization: `Bearer ${data.token}` },
+    });
+    if (meRes.ok) {
+      const meData = await meRes.json();
+      permisos = meData.permisos ?? [];
+    }
+  } catch {
+    /* permisos vacíos si falla */
+  }
+
+  const allowedPages = resolveAllowedPages(permisos);
+  localStorage.setItem("permisos", JSON.stringify(permisos));
+  localStorage.setItem("allowedPages", JSON.stringify(allowedPages));
+
+  let firstPage: string | undefined;
+  if (rolFrontend !== "admin" && rolFrontend !== "client") {
+    firstPage = allowedPages.find((p) => p !== "users") ?? "users";
+  }
+
+  return { rolFrontend, rolBackend, firstPage };
 }
 
 export async function forgotPasswordRequest(correo: string) {
@@ -110,6 +164,29 @@ export async function validateResetTokenRequest(token: string) {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ token }),
+  });
+
+  const data = await parseJsonSafe(res);
+
+  if (!res.ok) {
+    const apiError =
+      (data && typeof data === "object" && "error" in data && typeof data.error === "string" && data.error) ||
+      `Error HTTP ${res.status}`;
+    throw new Error(apiError);
+  }
+
+  return data;
+}
+
+export async function setPasswordRequest(nuevaPassword: string) {
+  const token = localStorage.getItem("token");
+  const res = await fetch(`${API_URL}/auth/establecer-contrasena`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ nuevaPassword }),
   });
 
   const data = await parseJsonSafe(res);
@@ -190,16 +267,16 @@ export async function registerRequest(payload: {
   return data;
 }
 
-export type UserRole = "admin" | "employee" | "client";
-
 export interface LoginPageProps {
   onLogin: (role: UserRole, firstPage?: string) => void;
   onBack: () => void;
+  onRegister?: () => void;
 }
 
 export interface RegisterPageProps {
   onBack: () => void;
   onRegisterSuccess: () => void;
+  onLogin: (role: import("../types").UserRole, firstPage?: string) => void;
 }
 
 export interface RegisterFormData {

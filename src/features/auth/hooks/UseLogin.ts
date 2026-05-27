@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { UserRole } from "../types";
-import { resolveUserRole, resolveAllowedPages } from "../constants";
-import { loginRequest, forgotPasswordRequest } from "../services/authService";
+import { loginRequest, forgotPasswordRequest, completeAuthSession } from "../services/authService";
+import { getGoogleAuthErrorMessage } from "../utils/googleAuthError";
+import { signInWithGoogleBackend } from "../utils/googleSignIn";
 
 export function useLogin(onLogin: (role: UserRole) => void) {
   const [email,        setEmail]        = useState("");
@@ -26,39 +27,8 @@ export function useLogin(onLogin: (role: UserRole) => void) {
     setLoading(true);
     try {
       const data = await loginRequest(email, password);
-
-      const rolBackend  = data.usuario?.rol;
-      const rolFrontend: UserRole = resolveUserRole(rolBackend);
-
-      // Guardar token primero para poder llamar /auth/me
-      localStorage.setItem("token",   data.token);
-      localStorage.setItem("usuario", JSON.stringify(data.usuario));
-
-      // Obtener permisos reales desde /auth/me
-      let permisos: string[] = [];
-      try {
-        const meRes = await fetch(
-          `${import.meta.env.VITE_API_URL ?? "https://backend-highsoft-sena-production.up.railway.app"}/auth/me`,
-          { headers: { Authorization: `Bearer ${data.token}` } }
-        );
-        if (meRes.ok) {
-          const meData = await meRes.json();
-          permisos = meData.permisos ?? [];
-        }
-      } catch { /* usar permisos vacíos si falla */ }
-
-      const allowedPages = resolveAllowedPages(permisos);
-      localStorage.setItem("permisos",     JSON.stringify(permisos));
-      localStorage.setItem("allowedPages", JSON.stringify(allowedPages));
-
+      const { rolFrontend, rolBackend, firstPage } = await completeAuthSession(data);
       toast.success(`¡Bienvenido! Accediendo como ${rolBackend}`);
-
-      // Calcular primera página disponible para pasarla directamente
-      let firstPage: string | undefined;
-      if (rolFrontend !== "admin" && rolFrontend !== "client") {
-        firstPage = allowedPages.find(p => p !== "users") ?? "users";
-      }
-
       onLogin(rolFrontend, firstPage);
     } catch (err: any) {
       console.error("❌ ERROR LOGIN:", err);
@@ -99,6 +69,20 @@ export function useLogin(onLogin: (role: UserRole) => void) {
     setRecoverySuccess(false);
   };
 
+  const handleGoogleLogin = async () => {
+    setLoading(true);
+    try {
+      const data = await signInWithGoogleBackend();
+      const { rolFrontend, rolBackend, firstPage } = await completeAuthSession(data);
+      toast.success(`¡Bienvenido! Accediendo como ${rolBackend}`);
+      onLogin(rolFrontend, firstPage);
+    } catch (err: unknown) {
+      toast.error(getGoogleAuthErrorMessage(err));
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return {
     email, setEmail,
     password, setPassword,
@@ -109,6 +93,7 @@ export function useLogin(onLogin: (role: UserRole) => void) {
     recoverySuccess,
     recoveryLoading,
     handleLogin,
+    handleGoogleLogin,
     handleForgotPassword,
     handleCloseRecoveryDialog,
   };

@@ -4,6 +4,7 @@ import { Label } from "../../../shared/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../../shared/ui/card";
 import { Eye, EyeOff, HelpCircle, Loader2} from "lucide-react";
 import { ForgotPasswordDialog } from "../components/Forgotpassworddialog";
+import { GoogleAuthButton } from "../components/GoogleAuthButton";
 import { LoginPageProps } from "../types";
 import { useLogin } from "../hooks/UseLogin";
 
@@ -20,6 +21,7 @@ export function LoginPage({ onLogin, onBack, onRegister }: LoginPageProps) {
     recoverySuccess,
     recoveryLoading,
     handleLogin,
+    handleGoogleLogin,
     handleForgotPassword,
     handleCloseRecoveryDialog,
   } = useLogin(onLogin);
@@ -173,6 +175,18 @@ export function LoginPage({ onLogin, onBack, onRegister }: LoginPageProps) {
                   "Iniciar sesión"
                 )}
               </Button>
+
+              <div className="flex items-center gap-3 py-1">
+                <div className="flex-1 h-px" style={{ backgroundColor: "#d8d2c8" }} />
+                <span className="text-xs" style={{ color: "#6b7c6b" }}>o</span>
+                <div className="flex-1 h-px" style={{ backgroundColor: "#d8d2c8" }} />
+              </div>
+
+              <GoogleAuthButton
+                onClick={handleGoogleLogin}
+                loading={loading}
+                disabled={loading}
+              />
 
               <div className="pt-2 text-center space-y-1.5">
                 <p className="text-xs" style={{ color: "#6b7c6b", fontFamily: "var(--font-body)" }}>
