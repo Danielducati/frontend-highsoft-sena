@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { toast } from "sonner";
+import { signInWithPopup } from "firebase/auth";
 import { RegisterFormData } from "../types";
-import { registerRequest } from "../services/authService";
+import { registerRequest, googleLoginRequest } from "../services/authService";
+import { auth, googleProvider } from "../../../firebase";
 
 const EMPTY_FORM: RegisterFormData = {
   fullName: "", apellido: "", email: "", phone: "",
@@ -76,10 +78,31 @@ export function useRegister(onRegisterSuccess: () => void) {
     }
   };
 
+  const handleGoogleRegister = async () => {
+    setLoading(true);
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      const idToken = await result.user.getIdToken();
+      await googleLoginRequest(idToken);
+      setShowSuccess(true);
+      toast.success("¡Registro con Google exitoso!");
+      setTimeout(() => onRegisterSuccess(), 2500);
+    } catch (err: any) {
+      const message = err?.code === "auth/popup-closed-by-user"
+        ? "Se cerró la ventana de Google"
+        : err?.code === "auth/configuration-not-found"
+          ? "Google Auth no está habilitado en Firebase. Activa Google en Authentication > Sign-in method y verifica el dominio autorizado (localhost)."
+          : (err?.message ?? "No se pudo registrar con Google");
+      toast.error(message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return {
     formData, handleChange,
     errors,
     showSuccess, showPassword, setShowPassword,
-    loading, handleSubmit,
+    loading, handleSubmit, handleGoogleRegister,
   };
 }
