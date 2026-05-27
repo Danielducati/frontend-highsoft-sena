@@ -14,14 +14,16 @@ export function getPeriodLabel(period: string): string {
 
 // ── Paleta ────────────────────────────────────────────────────────────────────
 const C = {
-  primary:   "1A3A2A",
-  secondary: "2A5A40",
-  accent:    "EDF7F4",
-  rowAlt:    "F0FAF6",
+  primary:   "1A3A2A",  // Verde oscuro principal
+  secondary: "2A5A40",  // Verde medio
+  accent:    "EDF7F4",  // Verde muy claro
+  gold:      "D4AF37",  // Dorado para acentos
+  rowAlt:    "F0FAF6",  // Fila alternada
   white:     "FFFFFF",
   dark:      "1F2937",
   mid:       "6B7280",
   border:    "E5E7EB",
+  lightGreen: "78D1BD", // Verde claro para gráficos
 };
 
 // RGB arrays para jsPDF [r, g, b]
@@ -40,32 +42,93 @@ const RGB = {
 const baseFont = { name: "Calibri" };
 
 const S = {
-  title: {
-    font: { bold: true, color: { rgb: C.white }, sz: 14, ...baseFont },
+  // Header principal con logo
+  mainHeader: {
+    font: { bold: true, color: { rgb: C.gold }, sz: 18, ...baseFont },
     fill: { fgColor: { rgb: C.primary }, patternType: "solid" },
-    alignment: { horizontal: "center", vertical: "center" },
+    alignment: { horizontal: "left", vertical: "center" },
   },
-  subtitle: {
-    font: { italic: true, color: { rgb: C.mid }, sz: 10, ...baseFont },
-    fill: { fgColor: { rgb: C.accent }, patternType: "solid" },
-    alignment: { horizontal: "center", vertical: "center" },
-  },
-  section: {
+  // Subtítulo del header
+  headerSubtitle: {
     font: { bold: true, color: { rgb: C.white }, sz: 11, ...baseFont },
+    fill: { fgColor: { rgb: C.primary }, patternType: "solid" },
+    alignment: { horizontal: "left", vertical: "center" },
+  },
+  // Info de período y fecha (derecha del header)
+  headerInfo: {
+    font: { bold: false, color: { rgb: C.white }, sz: 9, ...baseFont },
+    fill: { fgColor: { rgb: C.primary }, patternType: "solid" },
+    alignment: { horizontal: "left", vertical: "center" },
+  },
+  // Título de sección con icono
+  sectionTitle: {
+    font: { bold: true, color: { rgb: C.white }, sz: 12, ...baseFont },
+    fill: { fgColor: { rgb: C.primary }, patternType: "solid" },
+    alignment: { horizontal: "left", vertical: "center" },
+  },
+  // Subtítulo de sección
+  sectionSubtitle: {
+    font: { bold: false, color: { rgb: C.white }, sz: 10, ...baseFont },
     fill: { fgColor: { rgb: C.secondary }, patternType: "solid" },
     alignment: { horizontal: "left", vertical: "center" },
   },
+  // Header de columna
   colHeader: {
     font: { bold: true, color: { rgb: C.white }, sz: 10, ...baseFont },
     fill: { fgColor: { rgb: C.primary }, patternType: "solid" },
     alignment: { horizontal: "center", vertical: "center", wrapText: true },
-    border: { top: { style: "thin", color: { rgb: C.primary } }, bottom: { style: "thin", color: { rgb: C.primary } }, left: { style: "thin", color: { rgb: C.primary } }, right: { style: "thin", color: { rgb: C.primary } } },
+    border: { 
+      top: { style: "thin", color: { rgb: C.primary } }, 
+      bottom: { style: "thin", color: { rgb: C.primary } }, 
+      left: { style: "thin", color: { rgb: C.primary } }, 
+      right: { style: "thin", color: { rgb: C.primary } } 
+    },
   },
+  // Fila de totales
   totalRow: {
     font: { bold: true, color: { rgb: C.white }, sz: 10, ...baseFont },
     fill: { fgColor: { rgb: C.secondary }, patternType: "solid" },
     alignment: { horizontal: "right", vertical: "center" },
-    border: { top: { style: "thin", color: { rgb: C.secondary } }, bottom: { style: "thin", color: { rgb: C.secondary } }, left: { style: "thin", color: { rgb: C.secondary } }, right: { style: "thin", color: { rgb: C.secondary } } },
+    border: { 
+      top: { style: "medium", color: { rgb: C.secondary } }, 
+      bottom: { style: "medium", color: { rgb: C.secondary } }, 
+      left: { style: "thin", color: { rgb: C.secondary } }, 
+      right: { style: "thin", color: { rgb: C.secondary } } 
+    },
+  },
+  // Estilo para KPI cards
+  kpiLabel: {
+    font: { bold: true, color: { rgb: C.dark }, sz: 9, ...baseFont },
+    fill: { fgColor: { rgb: C.accent }, patternType: "solid" },
+    alignment: { horizontal: "left", vertical: "center" },
+    border: { 
+      top: { style: "thin", color: { rgb: C.border } }, 
+      bottom: { style: "thin", color: { rgb: C.border } }, 
+      left: { style: "medium", color: { rgb: C.primary } }, 
+      right: { style: "thin", color: { rgb: C.border } } 
+    },
+  },
+  kpiValue: {
+    font: { bold: true, color: { rgb: C.primary }, sz: 14, ...baseFont },
+    fill: { fgColor: { rgb: C.white }, patternType: "solid" },
+    alignment: { horizontal: "right", vertical: "center" },
+    border: { 
+      top: { style: "thin", color: { rgb: C.border } }, 
+      bottom: { style: "thin", color: { rgb: C.border } }, 
+      left: { style: "thin", color: { rgb: C.border } }, 
+      right: { style: "thin", color: { rgb: C.border } } 
+    },
+  },
+  kpiChange: {
+    font: { bold: false, color: { rgb: C.secondary }, sz: 9, ...baseFont },
+    fill: { fgColor: { rgb: C.white }, patternType: "solid" },
+    alignment: { horizontal: "right", vertical: "center" },
+    border: { 
+      top: { style: "thin", color: { rgb: C.border } }, 
+      bottom: { style: "thin", color: { rgb: C.border } }, 
+      left: { style: "thin", color: { rgb: C.border } }, 
+      right: { style: "thin", color: { rgb: C.border } } 
+    },
   },
 };
 
@@ -103,45 +166,71 @@ export function exportDashboardReport(data: DashboardData, period: string, perio
         const now = new Date();
         const dateStr = now.toLocaleDateString("es-ES", { day: "2-digit", month: "long", year: "numeric" });
 
-        // ── HOJA 1: RESUMEN ───────────────────────────────────────────────
+        // ── HOJA 1: DASHBOARD PRINCIPAL ──────────────────────────────────
         const ws1: Record<string, unknown> = {};
-        let r = 0; const N = 4;
+        let r = 0; 
+        const COLS = 13; // A-M (13 columnas)
 
-        merge(ws1, r++, 0, N-1, "HIGHLIFE SPA & BAR — Reporte Dashboard", S.title);
-        merge(ws1, r++, 0, N-1, `Período: ${periodLabel}   |   Generado: ${dateStr}`, S.subtitle);
-        blank(ws1, r++, N);
+        // ═══ HEADER PRINCIPAL (filas 0-2) ═══
+        // Fila 0: Logo y título
+        xc(ws1, r, 0, "🌿", { ...S.mainHeader, alignment: { horizontal: "center", vertical: "center" } });
+        merge(ws1, r, 1, 5, "HIGHLIFE SPA & BAR", S.mainHeader);
+        
+        // Columnas de período y fecha generada (derecha)
+        merge(ws1, r, 7, 8, "PERÍODO", { ...S.headerInfo, alignment: { horizontal: "center", vertical: "center" } });
+        merge(ws1, r, 10, 11, "GENERADO", { ...S.headerInfo, alignment: { horizontal: "center", vertical: "center" } });
+        r++;
 
-        // KPIs
-        merge(ws1, r++, 0, N-1, "  Indicadores Clave (KPIs)", S.section);
-        ["Indicador", "Valor", "Cambio vs período anterior", ""].forEach((h, c) => xc(ws1, r, c, h, S.colHeader));
+        // Fila 1: Subtítulo
+        merge(ws1, r, 1, 5, "REPORTE DASHBOARD", S.headerSubtitle);
+        merge(ws1, r, 7, 8, periodLabel, { ...S.headerInfo, font: { bold: true, color: { rgb: C.white }, sz: 10, ...baseFont }, alignment: { horizontal: "center", vertical: "center" } });
+        merge(ws1, r, 10, 11, dateStr, { ...S.headerInfo, font: { bold: true, color: { rgb: C.white }, sz: 10, ...baseFont }, alignment: { horizontal: "center", vertical: "center" } });
+        r++;
+
+        // Fila 2: Espacio
+        blank(ws1, r++, COLS);
+
+        // ═══ SECCIÓN: INDICADORES CLAVE (KPIs) ═══
+        merge(ws1, r++, 0, COLS-1, "📊  INDICADORES CLAVE (KPIs)", S.sectionTitle);
+        
+        // Headers de columnas para KPIs
+        xc(ws1, r, 0, "INDICADOR", S.colHeader);
+        xc(ws1, r, 1, "VALOR", S.colHeader);
+        xc(ws1, r, 2, "CAMBIO VS. PERÍODO ANTERIOR", S.colHeader);
+        for (let c = 3; c < COLS; c++) xc(ws1, r, c, "", S.colHeader);
         r++;
 
         // Solo campos que el backend realmente devuelve
         const kpis: [string, number | string, string][] = [
-          ["Ingresos Totales",   stats.ventasTotales,    stats.ventasChange],
-          ["Clientes Activos",   stats.clientesActivos,  "—"],
-          ["Citas del Período",  stats.citasDelPeriodo,  stats.citasChange],
-          ["Ventas Completadas", stats.ventasCompletadas, stats.ventasCountChange],
+          ["💰 Ingresos Totales",   stats.ventasTotales,    stats.ventasChange],
+          ["👥 Clientes Activos",   stats.clientesActivos,  "—"],
+          ["📅 Citas del Período",  stats.citasDelPeriodo,  stats.citasChange],
+          ["✅ Ventas Completadas", stats.ventasCompletadas, stats.ventasCountChange],
         ];
         if (cancelRate) {
-          kpis.push(["Tasa de Cancelación", cancelRate.rate, `${cancelRate.cancelled} de ${cancelRate.total} citas`]);
+          kpis.push(["❌ Tasa de Cancelación", cancelRate.rate, `${cancelRate.cancelled} de ${cancelRate.total} citas`]);
         }
 
         kpis.forEach(([label, val, change], i) => {
           const ev = i % 2 === 0;
-          xc(ws1, r, 0, label, dataStyle(ev, true, "left"));
+          xc(ws1, r, 0, label, S.kpiLabel);
           const isNum = typeof val === "number";
-          xc(ws1, r, 1, val, dataStyle(ev, false, "right"), isNum && i === 0 ? '"$"#,##0' : isNum ? "#,##0" : undefined);
-          xc(ws1, r, 2, change, dataStyle(ev, false, "left"));
-          xc(ws1, r, 3, "", dataStyle(ev));
+          xc(ws1, r, 1, val, S.kpiValue, isNum && i === 0 ? '"$"#,##0' : isNum ? "#,##0" : undefined);
+          xc(ws1, r, 2, change, S.kpiChange);
+          for (let c = 3; c < COLS; c++) xc(ws1, r, c, "", dataStyle(ev));
           r++;
         });
 
-        blank(ws1, r++, N);
+        blank(ws1, r++, COLS);
 
-        // Evolución de ventas
-        merge(ws1, r++, 0, N-1, "  Evolución de Ventas por Período", S.section);
-        ["Mes / Período", "Ingresos ($)", "N° Transacciones", ""].forEach((h, c) => xc(ws1, r, c, h, S.colHeader));
+        // ═══ SECCIÓN: EVOLUCIÓN DE VENTAS ═══
+        merge(ws1, r++, 0, COLS-1, "📈  EVOLUCIÓN DE VENTAS POR PERÍODO", S.sectionTitle);
+        
+        // Headers
+        xc(ws1, r, 0, "MES / PERÍODO", S.colHeader);
+        xc(ws1, r, 1, "INGRESOS ($)", S.colHeader);
+        xc(ws1, r, 2, "N° TRANSACCIONES", S.colHeader);
+        for (let c = 3; c < COLS; c++) xc(ws1, r, c, "", S.colHeader);
         r++;
 
         salesData.forEach((row, i) => {
@@ -149,7 +238,7 @@ export function exportDashboardReport(data: DashboardData, period: string, perio
           xc(ws1, r, 0, row.month,     dataStyle(ev, false, "left"));
           xc(ws1, r, 1, row.ventas,    dataStyle(ev, false, "right"), '"$"#,##0');
           xc(ws1, r, 2, row.servicios, dataStyle(ev, false, "right"), "#,##0");
-          xc(ws1, r, 3, "",            dataStyle(ev));
+          for (let c = 3; c < COLS; c++) xc(ws1, r, c, "", dataStyle(ev));
           r++;
         });
 
@@ -158,13 +247,172 @@ export function exportDashboardReport(data: DashboardData, period: string, perio
         xc(ws1, r, 0, "TOTAL", S.totalRow);
         xc(ws1, r, 1, totV,   { ...S.totalRow }, '"$"#,##0');
         xc(ws1, r, 2, totT,   { ...S.totalRow }, "#,##0");
-        xc(ws1, r, 3, "",     S.totalRow);
+        for (let c = 3; c < COLS; c++) xc(ws1, r, c, "", S.totalRow);
         r++;
 
-        ws1["!cols"] = [{ wch: 28 }, { wch: 16 }, { wch: 26 }, { wch: 2 }];
-        ws1["!rows"] = [{ hpt: 26 }, { hpt: 16 }];
-        ws1["!ref"]  = XLSXStyle.utils.encode_range({ s: { r: 0, c: 0 }, e: { r: r-1, c: N-1 } });
-        XLSXStyle.utils.book_append_sheet(wb, ws1, "Resumen General");
+        blank(ws1, r++, COLS);
+
+        // ═══ SECCIÓN: DISTRIBUCIÓN DE SERVICIOS (Top 5) ═══
+        merge(ws1, r++, 0, COLS-1, "🎯  DISTRIBUCIÓN DE SERVICIOS", S.sectionTitle);
+        
+        // Headers
+        xc(ws1, r, 0, "SERVICIO", S.colHeader);
+        xc(ws1, r, 1, "N° CITAS", S.colHeader);
+        xc(ws1, r, 2, "% DEL TOTAL", S.colHeader);
+        xc(ws1, r, 3, "BARRA VISUAL", S.colHeader);
+        for (let c = 4; c < COLS; c++) xc(ws1, r, c, "", S.colHeader);
+        r++;
+
+        // Top 5 servicios con barra visual
+        const top5Services = servicesData.slice(0, 5);
+        const maxServiceValue = Math.max(...top5Services.map(s => s.value));
+        
+        top5Services.forEach((svc, i) => {
+          const ev = i % 2 === 0;
+          const pct = totT > 0 ? ((svc.value / totT) * 100).toFixed(1) : "0";
+          const barLength = Math.round((svc.value / maxServiceValue) * 20);
+          const bar = "█".repeat(barLength) + "░".repeat(20 - barLength);
+          
+          xc(ws1, r, 0, svc.name, dataStyle(ev, false, "left"));
+          xc(ws1, r, 1, svc.value, dataStyle(ev, false, "right"), "#,##0");
+          xc(ws1, r, 2, `${pct}%`, dataStyle(ev, false, "center"));
+          merge(ws1, r, 3, 8, bar, { ...dataStyle(ev, false, "left"), font: { ...baseFont, color: { rgb: C.primary }, sz: 10 } });
+          for (let c = 9; c < COLS; c++) xc(ws1, r, c, "", dataStyle(ev));
+          r++;
+        });
+
+        blank(ws1, r++, COLS);
+
+        // ═══ SECCIÓN: INGRESOS POR SERVICIO ═══
+        merge(ws1, r++, 0, COLS-1, "💰  INGRESOS POR SERVICIO", S.sectionTitle);
+        
+        // Headers
+        xc(ws1, r, 0, "SERVICIO", S.colHeader);
+        xc(ws1, r, 1, "INGRESOS ($)", S.colHeader);
+        xc(ws1, r, 2, "% DEL TOTAL", S.colHeader);
+        xc(ws1, r, 3, "BARRA VISUAL", S.colHeader);
+        for (let c = 4; c < COLS; c++) xc(ws1, r, c, "", S.colHeader);
+        r++;
+
+        // Top 5 servicios por ingresos con barra visual
+        const totRevenue = servicesData.reduce((s, d) => s + d.revenue, 0);
+        const maxRevenue = Math.max(...top5Services.map(s => s.revenue));
+        
+        top5Services.forEach((svc, i) => {
+          const ev = i % 2 === 0;
+          const pct = totRevenue > 0 ? ((svc.revenue / totRevenue) * 100).toFixed(1) : "0";
+          const barLength = Math.round((svc.revenue / maxRevenue) * 20);
+          const bar = "█".repeat(barLength) + "░".repeat(20 - barLength);
+          
+          xc(ws1, r, 0, svc.name, dataStyle(ev, false, "left"));
+          xc(ws1, r, 1, svc.revenue, dataStyle(ev, false, "right"), '"$"#,##0');
+          xc(ws1, r, 2, `${pct}%`, dataStyle(ev, false, "center"));
+          merge(ws1, r, 3, 8, bar, { ...dataStyle(ev, false, "left"), font: { ...baseFont, color: { rgb: C.lightGreen }, sz: 10 } });
+          for (let c = 9; c < COLS; c++) xc(ws1, r, c, "", dataStyle(ev));
+          r++;
+        });
+
+        blank(ws1, r++, COLS);
+
+        // ═══ SECCIÓN: TASA DE CANCELACIONES ═══
+        if (cancelRate) {
+          merge(ws1, r++, 0, COLS-1, "📊  TASA DE CANCELACIONES", S.sectionTitle);
+          
+          // Headers
+          xc(ws1, r, 0, "ESTADO", S.colHeader);
+          xc(ws1, r, 1, "CANTIDAD", S.colHeader);
+          xc(ws1, r, 2, "PORCENTAJE", S.colHeader);
+          xc(ws1, r, 3, "BARRA VISUAL", S.colHeader);
+          for (let c = 4; c < COLS; c++) xc(ws1, r, c, "", S.colHeader);
+          r++;
+
+          const totalCitas = cancelRate.total;
+          const completadas = stats.ventasCompletadas;
+          const canceladas = cancelRate.cancelled;
+          const pendientes = totalCitas - completadas - canceladas;
+
+          const distribucion = [
+            ["✅ Completadas / Pendientes", completadas + pendientes, totalCitas > 0 ? `${(((completadas + pendientes) / totalCitas) * 100).toFixed(1)}%` : "0%", C.lightGreen],
+            ["❌ Canceladas", canceladas, totalCitas > 0 ? `${((canceladas / totalCitas) * 100).toFixed(1)}%` : "0%", "EF4444"],
+          ];
+
+          distribucion.forEach(([estado, cant, pct, color], i) => {
+            const ev = i % 2 === 0;
+            const cantNum = cant as number;
+            const barLength = totalCitas > 0 ? Math.round((cantNum / totalCitas) * 20) : 0;
+            const bar = "█".repeat(barLength) + "░".repeat(20 - barLength);
+            
+            xc(ws1, r, 0, estado as string, dataStyle(ev, true, "left"));
+            xc(ws1, r, 1, cantNum, dataStyle(ev, false, "right"), "#,##0");
+            xc(ws1, r, 2, pct as string, dataStyle(ev, false, "center"));
+            merge(ws1, r, 3, 8, bar, { ...dataStyle(ev, false, "left"), font: { ...baseFont, color: { rgb: color as string }, sz: 10 } });
+            for (let c = 9; c < COLS; c++) xc(ws1, r, c, "", dataStyle(ev));
+            r++;
+          });
+
+          // Resumen
+          xc(ws1, r, 0, "TOTAL CITAS", S.totalRow);
+          xc(ws1, r, 1, totalCitas, { ...S.totalRow }, "#,##0");
+          xc(ws1, r, 2, "100%", { ...S.totalRow, alignment: { horizontal: "center", vertical: "center" } });
+          merge(ws1, r, 3, 8, `Tasa de cancelación: ${cancelRate.rate}`, { ...S.totalRow, alignment: { horizontal: "left", vertical: "center" } });
+          for (let c = 9; c < COLS; c++) xc(ws1, r, c, "", S.totalRow);
+          r++;
+
+          blank(ws1, r++, COLS);
+        }
+
+        // ═══ SECCIÓN: VENTAS MENSUALES (Gráfico de barras) ═══
+        merge(ws1, r++, 0, COLS-1, "📈  VENTAS MENSUALES - COMPARACIÓN", S.sectionTitle);
+        
+        // Headers
+        xc(ws1, r, 0, "MES", S.colHeader);
+        xc(ws1, r, 1, "INGRESOS ($)", S.colHeader);
+        xc(ws1, r, 2, "N° TRANSACCIONES", S.colHeader);
+        xc(ws1, r, 3, "GRÁFICO INGRESOS", S.colHeader);
+        for (let c = 4; c < COLS; c++) xc(ws1, r, c, "", S.colHeader);
+        r++;
+
+        const maxVentas = Math.max(...salesData.map(s => s.ventas));
+
+        salesData.forEach((row, i) => {
+          const ev = i % 2 === 0;
+          const barLengthVentas = Math.round((row.ventas / maxVentas) * 20);
+          const barVentas = "█".repeat(barLengthVentas) + "░".repeat(20 - barLengthVentas);
+          
+          xc(ws1, r, 0, row.month, dataStyle(ev, false, "left"));
+          xc(ws1, r, 1, row.ventas, dataStyle(ev, false, "right"), '"$"#,##0');
+          xc(ws1, r, 2, row.servicios, dataStyle(ev, false, "right"), "#,##0");
+          merge(ws1, r, 3, 8, barVentas, { ...dataStyle(ev, false, "left"), font: { ...baseFont, color: { rgb: C.primary }, sz: 10 } });
+          for (let c = 9; c < COLS; c++) xc(ws1, r, c, "", dataStyle(ev));
+          r++;
+        });
+
+        blank(ws1, r++, COLS);
+
+        // Configuración de columnas y filas
+        ws1["!cols"] = [
+          { wch: 22 }, // A - Indicador/Label
+          { wch: 14 }, // B - Valor
+          { wch: 24 }, // C - Cambio/Transacciones
+          { wch: 10 }, // D
+          { wch: 10 }, // E
+          { wch: 10 }, // F
+          { wch: 10 }, // G
+          { wch: 10 }, // H
+          { wch: 10 }, // I
+          { wch: 10 }, // J
+          { wch: 10 }, // K
+          { wch: 10 }, // L
+          { wch: 10 }, // M
+        ];
+        ws1["!rows"] = [
+          { hpt: 30 }, // Fila 0: Header con logo
+          { hpt: 22 }, // Fila 1: Subtítulo
+          { hpt: 8 },  // Fila 2: Espacio
+        ];
+        
+        ws1["!ref"] = XLSXStyle.utils.encode_range({ s: { r: 0, c: 0 }, e: { r: r-1, c: COLS-1 } });
+        XLSXStyle.utils.book_append_sheet(wb, ws1, "Dashboard");
 
         // ── HOJA 2: TOP SERVICIOS ─────────────────────────────────────────
         const ws2: Record<string, unknown> = {};
@@ -172,7 +420,7 @@ export function exportDashboardReport(data: DashboardData, period: string, perio
         const totRev   = servicesData.reduce((s, d) => s + d.revenue, 0);
         const totCitas = servicesData.reduce((s, d) => s + d.value, 0);
 
-        merge(ws2, r2++, 0, N2-1, `  Top Servicios — ${periodLabel}`, S.section);
+        merge(ws2, r2++, 0, N2-1, `🏆  Top Servicios — ${periodLabel}`, S.sectionTitle);
         ["#", "Servicio", "N° Citas", "Ingresos ($)", "% del Total"].forEach((h, c) => xc(ws2, r2, c, h, S.colHeader));
         r2++;
 
@@ -203,7 +451,7 @@ export function exportDashboardReport(data: DashboardData, period: string, perio
           const ws3: Record<string, unknown> = {};
           let r3 = 0; const N3 = 6;
 
-          merge(ws3, r3++, 0, N3-1, "  Próximas Citas", S.section);
+          merge(ws3, r3++, 0, N3-1, "📅  Próximas Citas", S.sectionTitle);
           ["Fecha", "Hora", "Cliente", "Empleado", "Servicio", "Estado"].forEach((h, c) => xc(ws3, r3, c, h, S.colHeader));
           r3++;
 

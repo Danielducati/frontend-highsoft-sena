@@ -169,6 +169,28 @@ export function useAppointments(userRole?: string) {
     }
   }, [clients, userRole]);
 
+  // ── Inicializar primer cliente para empleados cuando se abre el diálogo ──
+  useEffect(() => {
+    const isEmployee = userRole && userRole !== "client" && userRole !== "Cliente";
+    if (isEmployee && isDialogOpen && !editingAppointment && clients.length > 0) {
+      const firstClient = clients[0];
+      console.log("🔧 [useAppointments] Inicializando primer cliente para empleado:", firstClient);
+      setFormData(prev => {
+        // Solo establecer si está vacío
+        if (!prev.clientId || prev.clientId === "" || prev.clientId === "0") {
+          console.log("🔧 [useAppointments] Estableciendo clientId:", String(firstClient.id));
+          return {
+            ...prev,
+            clientId:    String(firstClient.id),
+            clientName:  firstClient.name,
+            clientPhone: firstClient.phone,
+          };
+        }
+        return prev;
+      });
+    }
+  }, [isDialogOpen, clients, userRole, editingAppointment]);
+
   // ── Semana ──
   const getWeekDates = () =>
     Array.from({ length: 7 }, (_, i) => {
@@ -366,8 +388,25 @@ export function useAppointments(userRole?: string) {
       if (userRole === "client" && !formData.clientId) {
         toast.error("Tu perfil aún está cargando, espera un momento e intenta de nuevo"); return;
       }
-      toast.error("Selecciona un cliente, hora y al menos un servicio"); return;
+      if (!formData.clientId) {
+        toast.error("Por favor selecciona un cliente"); return;
+      }
+      if (!startTime) {
+        toast.error("Por favor selecciona una hora de inicio"); return;
+      }
+      if (selectedServices.length === 0) {
+        toast.error("Por favor agrega al menos un servicio"); return;
+      }
+      return;
     }
+    
+    // Validar que el clientId no sea 0 o NaN
+    const clienteNumero = Number(formData.clientId);
+    if (!clienteNumero || clienteNumero === 0 || isNaN(clienteNumero)) {
+      toast.error("Por favor selecciona un cliente válido");
+      return;
+    }
+    
     const hoy = new Date(); hoy.setHours(0, 0, 0, 0);
     const fechaCita = new Date(formData.date); fechaCita.setHours(0, 0, 0, 0);
     if (fechaCita < hoy) {
@@ -375,7 +414,7 @@ export function useAppointments(userRole?: string) {
     }
 
     const payload = {
-      cliente:   Number(formData.clientId),
+      cliente:   clienteNumero,
       fecha:     formData.date.toISOString().split("T")[0],
       hora:      startTime,
       notas:     formData.notes || null,
@@ -386,6 +425,21 @@ export function useAppointments(userRole?: string) {
         detalle:          s.serviceName,
       })),
     };
+
+    console.log("📤 [CREATE APPOINTMENT] Payload a enviar:", JSON.stringify(payload, null, 2));
+    console.log("📤 [CREATE APPOINTMENT] formData.clientId:", formData.clientId);
+    console.log("📤 [CREATE APPOINTMENT] Number(formData.clientId):", Number(formData.clientId));
+    console.log("📤 [CREATE APPOINTMENT] clienteNumero:", clienteNumero);
+    console.log("📤 [CREATE APPOINTMENT] formData completo:", formData);
+
+    // VALIDACIÓN CRÍTICA: Si el cliente sigue siendo 0, abortar
+    if (clienteNumero === 0) {
+      console.error("❌ [CREATE APPOINTMENT] ERROR CRÍTICO: clienteNumero es 0");
+      console.error("❌ [CREATE APPOINTMENT] formData.clientId:", formData.clientId);
+      console.error("❌ [CREATE APPOINTMENT] clients disponibles:", clients);
+      toast.error("Error: No se pudo establecer el cliente. Por favor selecciona un cliente manualmente.");
+      return;
+    }
 
     isCreatingOrUpdating.current = true;
     try {
@@ -461,13 +515,29 @@ export function useAppointments(userRole?: string) {
   const resetForm = () => {
     setIsDialogOpen(false);
     setEditingAppointment(null);
+    
     // Para clientes, preservar su clientId/Name/Phone
-    setFormData(prev => ({
-      ...EMPTY_FORM,
-      clientId:    userRole === "client" ? prev.clientId    : "",
-      clientName:  userRole === "client" ? prev.clientName  : "",
-      clientPhone: userRole === "client" ? prev.clientPhone : "",
-    }));
+    // Para empleados, establecer el primer cliente disponible
+    const isEmployee = userRole && userRole !== "client" && userRole !== "Cliente";
+    
+    if (isEmployee && clients.length > 0) {
+      const firstClient = clients[0];
+      console.log("🔧 [resetForm] Estableciendo primer cliente para empleado:", firstClient);
+      setFormData({
+        ...EMPTY_FORM,
+        clientId:    String(firstClient.id),
+        clientName:  firstClient.name,
+        clientPhone: firstClient.phone,
+      });
+    } else {
+      setFormData(prev => ({
+        ...EMPTY_FORM,
+        clientId:    userRole === "client" ? prev.clientId    : "",
+        clientName:  userRole === "client" ? prev.clientName  : "",
+        clientPhone: userRole === "client" ? prev.clientPhone : "",
+      }));
+    }
+    
     setSelectedServices([]);
     setCurrentService({ serviceId: "", employeeId: "" });
   };

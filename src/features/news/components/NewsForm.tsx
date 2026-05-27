@@ -5,9 +5,10 @@ import { Textarea } from "../../../shared/ui/textarea";
 import { Button } from "../../../shared/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../shared/ui/select";
 import { Alert, AlertDescription } from "../../../shared/ui/alert";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "../../../shared/ui/accordion";
 import {
   User, Calendar, Clock, FileText, Tag,
-  AlertCircle, Info, CheckCircle2,
+  AlertCircle, Info, CheckCircle2, ChevronDown,
 } from "lucide-react";
 
 import { NEWS_TYPES, TIME_SLOTS } from "../constants";
@@ -21,6 +22,15 @@ const REQUIRES_SCHEDULE: Array<EmployeeNews["type"]> = ["retraso", "ausencia"];
 // retraso: horas obligatorias | ausencia: horas opcionales
 const REQUIRES_HOURS: Array<EmployeeNews["type"]> = ["retraso", "ausencia"];
 
+// ── Tipos que solo permiten UN DÍA (fecha fin = fecha inicio) ─────────────────
+const SINGLE_DAY_ONLY: Array<EmployeeNews["type"]> = ["retraso", "ausencia"];
+
+// ── Tipos que permiten MÚLTIPLES DÍAS ─────────────────────────────────────────
+const MULTIPLE_DAYS_ALLOWED: Array<EmployeeNews["type"]> = ["permiso", "incapacidad"];
+
+// ── Tipos que NO requieren horario registrado ──────────────────────────────────
+const NO_SCHEDULE_REQUIRED: Array<EmployeeNews["type"]> = ["permiso", "incapacidad", "otro"];
+
 interface NewsFormProps {
   formData:    NewsFormData;
   setFormData: React.Dispatch<React.SetStateAction<NewsFormData>>;
@@ -28,6 +38,8 @@ interface NewsFormProps {
   editingNews: EmployeeNews | null;
   onSubmit:    () => void;
   onCancel:    () => void;
+  loggedEmployeeId?: string | null;
+  userRole?: string;
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -58,10 +70,27 @@ const DAY_SHORTS = ["Lun","Mar","Mié","Jue","Vie","Sáb","Dom"];
 
 // ─────────────────────────────────────────────────────────────────────────────
 
-export function NewsForm({ formData, setFormData, employees, editingNews, onSubmit, onCancel }: NewsFormProps) {
+export function NewsForm({ formData, setFormData, employees, editingNews, onSubmit, onCancel, loggedEmployeeId, userRole }: NewsFormProps) {
   const [employeeSchedules, setEmployeeSchedules] = useState<any[]>([]);
   const [loadingSchedule,   setLoadingSchedule]   = useState(false);
   const [viewWeekStart,     setViewWeekStart]      = useState(getCurrentMonday());
+
+  // Determinar si el usuario es empleado (no admin)
+  const isEmployee = userRole && userRole !== "admin" && userRole !== "administrador";
+
+  // Auto-seleccionar empleado logueado si es empleado y no está editando
+  useEffect(() => {
+    if (isEmployee && loggedEmployeeId && !editingNews && !formData.employeeId) {
+      const emp = employees.find(e => String(e.id) === String(loggedEmployeeId));
+      if (emp) {
+        setFormData(prev => ({
+          ...prev,
+          employeeId: String(emp.id),
+          employeeName: emp.name,
+        }));
+      }
+    }
+  }, [isEmployee, loggedEmployeeId, editingNews, formData.employeeId, employees, setFormData]);
 
   // Cargar horarios reales cuando cambia el empleado
   useEffect(() => {
@@ -86,7 +115,8 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
         ...prev,
         startTime: "",
         endTime: "",
-        fechaFinal: prev.type !== "incapacidad" && prev.fechaFinal === "" && prev.date
+        // Si es de un solo día, sincronizar fecha fin con fecha inicio
+        fechaFinal: SINGLE_DAY_ONLY.includes(prev.type) && prev.date
           ? prev.date
           : prev.fechaFinal,
       }));
@@ -99,9 +129,11 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
   // ── Derivados ─────────────────────────────────────────────────────────────
   const requiresSchedule = REQUIRES_SCHEDULE.includes(formData.type);
   const requiresHours    = REQUIRES_HOURS.includes(formData.type);
+  const isSingleDayOnly  = SINGLE_DAY_ONLY.includes(formData.type);
+  const allowsMultipleDays = MULTIPLE_DAYS_ALLOWED.includes(formData.type);
 
-  // Fecha fin bloqueada = fecha inicio para todos excepto incapacidad
-  const lockEndDate = formData.type !== "incapacidad";
+  // Fecha fin bloqueada para tipos de un solo día
+  const lockEndDate = isSingleDayOnly;
 
   // Set de dayIndex disponibles del empleado
   const availableDayIndices: Set<number> = new Set(
@@ -143,9 +175,16 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
   const canSubmit = (() => {
     if (!formData.employeeId || !formData.date || !formData.description.trim()) return false;
     if (endDateInvalid) return false;
+    
+    // Validar horario solo para tipos que lo requieren
     if (requiresSchedule && !startDateHasSchedule) return false;
+    
+    // Retraso requiere horas obligatorias
     if (formData.type === "retraso" && (!formData.startTime || !formData.endTime || hoursInvalid)) return false;
+    
+    // Ausencia con horas opcionales, pero si las pone deben ser válidas
     if (formData.type === "ausencia" && formData.startTime && formData.endTime && hoursInvalid) return false;
+    
     return true;
   })();
 
@@ -174,11 +213,31 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
 
   // ── Mensajes por tipo ─────────────────────────────────────────────────────
   const typeInfo: Record<string, { msg: string; color: string; icon: React.ReactNode }> = {
-    retraso:     { msg: "Requiere horario registrado. Un solo día. Debes indicar la franja horaria afectada.", color: "text-yellow-700 bg-yellow-50 border-yellow-200", icon: <Clock className="w-3.5 h-3.5 text-yellow-600" /> },
-    ausencia:    { msg: "Requiere horario registrado. Un solo día. Las horas son opcionales.", color: "text-green-800 bg-[#edf7f4] border-[#78D1BD]", icon: <AlertCircle className="w-3.5 h-3.5 text-[#1a5c3a]" /> },
-    permiso:     { msg: "No requiere horario registrado. Puede ser cualquier día.", color: "text-blue-700 bg-blue-50 border-blue-200", icon: <FileText className="w-3.5 h-3.5 text-blue-600" /> },
-    incapacidad: { msg: "No requiere horario registrado. Puede abarcar varios días.", color: "text-yellow-700 bg-yellow-50 border-yellow-200", icon: <AlertCircle className="w-3.5 h-3.5 text-yellow-600" /> },
-    otro:        { msg: "No requiere horario registrado.", color: "text-gray-700 bg-gray-50 border-gray-200", icon: <FileText className="w-3.5 h-3.5 text-gray-500" /> },
+    retraso:     { 
+      msg: "⚠️ Solo un día. Requiere horario registrado. Debes indicar la franja horaria afectada.", 
+      color: "text-yellow-700 bg-yellow-50 border-yellow-200", 
+      icon: <Clock className="w-3.5 h-3.5 text-yellow-600" /> 
+    },
+    ausencia:    { 
+      msg: "⚠️ Solo un día. Requiere horario registrado. Las horas son opcionales.", 
+      color: "text-orange-700 bg-orange-50 border-orange-200", 
+      icon: <AlertCircle className="w-3.5 h-3.5 text-orange-600" /> 
+    },
+    permiso:     { 
+      msg: "✓ Puede ser varios días. No requiere horario registrado.", 
+      color: "text-blue-700 bg-blue-50 border-blue-200", 
+      icon: <FileText className="w-3.5 h-3.5 text-blue-600" /> 
+    },
+    incapacidad: { 
+      msg: "✓ Puede abarcar varios días. No requiere horario registrado.", 
+      color: "text-green-700 bg-green-50 border-green-200", 
+      icon: <AlertCircle className="w-3.5 h-3.5 text-green-600" /> 
+    },
+    otro:        { 
+      msg: "No requiere horario registrado.", 
+      color: "text-gray-700 bg-gray-50 border-gray-200", 
+      icon: <FileText className="w-3.5 h-3.5 text-gray-500" /> 
+    },
   };
   const currentTypeInfo = typeInfo[formData.type as string];
 
@@ -192,22 +251,36 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
           <User className="w-4 h-4 text-[#1a5c3a]" />
           Empleado *
         </Label>
-        <Select
-          value={formData.employeeId || "placeholder"}
-          onValueChange={v => { if (v !== "placeholder") handleEmployeeChange(v); }}
-        >
-          <SelectTrigger className="border-gray-300">
-            <SelectValue placeholder="Selecciona un empleado" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="placeholder" disabled>Selecciona un empleado</SelectItem>
-            {employees.map(emp => (
-              <SelectItem key={emp.id} value={String(emp.id)}>
-                {emp.name}{emp.specialty ? ` — ${emp.specialty}` : ""}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        {isEmployee ? (
+          // Empleado bloqueado para usuarios no-admin
+          <div className="w-full h-10 px-3 border border-gray-200 bg-gray-50 rounded-md flex items-center text-sm text-gray-700">
+            {formData.employeeName || "Cargando..."}
+          </div>
+        ) : (
+          // Selector normal para administradores
+          <Select
+            value={formData.employeeId || "placeholder"}
+            onValueChange={v => { if (v !== "placeholder") handleEmployeeChange(v); }}
+          >
+            <SelectTrigger className="border-gray-300">
+              <SelectValue placeholder="Selecciona un empleado" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="placeholder" disabled>Selecciona un empleado</SelectItem>
+              {employees.map(emp => (
+                <SelectItem key={emp.id} value={String(emp.id)}>
+                  {emp.name}{emp.specialty ? ` — ${emp.specialty}` : ""}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
+        {isEmployee && (
+          <p className="text-xs text-gray-500 flex items-center gap-1">
+            <Info className="w-3 h-3" />
+            Solo puedes crear novedades para tu propio perfil
+          </p>
+        )}
       </div>
 
       {/* Tipo de Novedad */}
@@ -266,7 +339,7 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
           {requiresSchedule && formData.date && !loadingSchedule && !startDateHasSchedule && (
             <p className="text-xs text-red-600 flex items-center gap-1">
               <AlertCircle className="w-3 h-3" />
-              El empleado no tiene horario registrado para este día.
+              El empleado no tiene horario registrado para este día. Selecciona un día con horario.
             </p>
           )}
           {requiresSchedule && formData.date && !loadingSchedule && startDateHasSchedule && (
@@ -288,7 +361,7 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
           {!requiresSchedule && formData.date && (
             <p className="text-xs text-blue-600 flex items-center gap-1">
               <Info className="w-3 h-3" />
-              Este tipo no requiere horario registrado.
+              Este tipo no requiere horario registrado. Puedes seleccionar cualquier día.
             </p>
           )}
         </div>
@@ -298,8 +371,8 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
           <Label className="flex items-center gap-2 text-sm font-medium">
             <Calendar className="w-4 h-4 text-[#1a5c3a]" />
             Fecha Fin
-            {lockEndDate && <span className="text-xs text-gray-400 font-normal">(igual al inicio)</span>}
-            {formData.type === "incapacidad" && <span className="text-xs text-yellow-600 font-normal">(puede ser varios días)</span>}
+            {isSingleDayOnly && <span className="text-xs text-orange-600 font-normal">(mismo día)</span>}
+            {allowsMultipleDays && <span className="text-xs text-green-600 font-normal">(puede ser varios días)</span>}
           </Label>
           <input
             type="date"
@@ -315,6 +388,12 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
             readOnly={lockEndDate}
             onChange={e => { if (!lockEndDate) setFormData(prev => ({ ...prev, fechaFinal: e.target.value })); }}
           />
+          {isSingleDayOnly && (
+            <p className="text-xs text-orange-600 flex items-center gap-1">
+              <AlertCircle className="w-3 h-3" />
+              {formData.type === "retraso" ? "Retraso" : "Ausencia"} solo puede ser de un día.
+            </p>
+          )}
           {endDateInvalid && (
             <p className="text-xs text-red-600 flex items-center gap-1">
               <AlertCircle className="w-3 h-3" />
@@ -412,43 +491,51 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
         </div>
       )}
 
-      {/* Referencia visual del horario del empleado */}
+      {/* Referencia visual del horario del empleado - ACORDEÓN */}
       {formData.employeeId && employeeSchedules.length > 0 && (
-        <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 space-y-3">
-          <div className="flex items-center justify-between">
-            <Label className="text-xs font-semibold text-gray-600 uppercase tracking-wide">
-              Horario del empleado
-            </Label>
-            <div className="flex items-center gap-1">
-              <button type="button" onClick={prevViewWeek} className="p-1 rounded hover:bg-gray-200 transition-colors">
-                <span className="text-gray-500 text-xs">‹</span>
-              </button>
-              <span className="text-xs text-gray-600 font-medium px-2">{viewWeekLabel}</span>
-              <button type="button" onClick={nextViewWeek} className="p-1 rounded hover:bg-gray-200 transition-colors">
-                <span className="text-gray-500 text-xs">›</span>
-              </button>
-            </div>
-          </div>
-          <div className="grid grid-cols-7 gap-1">
-            {viewWeekDays.map(day => (
-              <div key={day.dayIndex}
-                className={`rounded-lg p-2 text-center border ${day.available ? "bg-white border-[#78D1BD]/40" : "bg-gray-100 border-gray-200 opacity-50"}`}>
-                <p className="text-[10px] font-semibold text-gray-500">{day.short}</p>
-                {day.available ? (
-                  <>
-                    <p className="text-[9px] text-[#1a5c3a] font-medium mt-0.5">{day.startTime}</p>
-                    <p className="text-[9px] text-[#1a5c3a]">{day.endTime}</p>
-                  </>
-                ) : (
-                  <p className="text-[9px] text-gray-400 mt-0.5">—</p>
+        <Accordion type="single" collapsible className="w-full">
+          <AccordionItem value="schedule" className="border border-gray-200 rounded-xl bg-gray-50">
+            <AccordionTrigger className="px-4 py-3 hover:no-underline hover:bg-gray-100/50 rounded-t-xl">
+              <div className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+                <Clock className="w-4 h-4 text-[#1a5c3a]" />
+                <span>Ver horario del empleado</span>
+                <span className="text-xs font-normal text-gray-500">({viewWeekLabel})</span>
+              </div>
+            </AccordionTrigger>
+            <AccordionContent className="px-4 pb-4 pt-2">
+              <div className="space-y-3">
+                <div className="flex items-center justify-center gap-1">
+                  <button type="button" onClick={prevViewWeek} className="p-1.5 rounded hover:bg-gray-200 transition-colors">
+                    <span className="text-gray-500 text-sm">‹</span>
+                  </button>
+                  <span className="text-xs text-gray-600 font-medium px-3">{viewWeekLabel}</span>
+                  <button type="button" onClick={nextViewWeek} className="p-1.5 rounded hover:bg-gray-200 transition-colors">
+                    <span className="text-gray-500 text-sm">›</span>
+                  </button>
+                </div>
+                <div className="grid grid-cols-7 gap-1">
+                  {viewWeekDays.map(day => (
+                    <div key={day.dayIndex}
+                      className={`rounded-lg p-2 text-center border ${day.available ? "bg-white border-[#78D1BD]/40" : "bg-gray-100 border-gray-200 opacity-50"}`}>
+                      <p className="text-[10px] font-semibold text-gray-500">{day.short}</p>
+                      {day.available ? (
+                        <>
+                          <p className="text-[9px] text-[#1a5c3a] font-medium mt-0.5">{day.startTime}</p>
+                          <p className="text-[9px] text-[#1a5c3a]">{day.endTime}</p>
+                        </>
+                      ) : (
+                        <p className="text-[9px] text-gray-400 mt-0.5">—</p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+                {viewWeekDays.every(d => !d.available) && (
+                  <p className="text-xs text-gray-400 text-center">Sin horario registrado para esta semana.</p>
                 )}
               </div>
-            ))}
-          </div>
-          {viewWeekDays.every(d => !d.available) && (
-            <p className="text-xs text-gray-400 text-center">Sin horario registrado para esta semana.</p>
-          )}
-        </div>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
       )}
 
       {/* Sin horario y tipo que lo requiere */}
@@ -457,7 +544,7 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
             Este empleado no tiene ningún horario registrado. Para registrar un{" "}
-            <strong>{NEWS_TYPES.find(t => t.value === formData.type)?.label}</strong> es necesario que tenga horario.
+            <strong>{NEWS_TYPES.find(t => t.value === formData.type)?.label}</strong> es necesario que tenga horario en al menos un día.
           </AlertDescription>
         </Alert>
       )}
@@ -468,7 +555,7 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
           <Info className="h-4 w-4" />
           <AlertDescription>
             El empleado no tiene horario registrado, pero el tipo{" "}
-            <strong>{NEWS_TYPES.find(t => t.value === formData.type)?.label}</strong> no lo requiere.
+            <strong>{NEWS_TYPES.find(t => t.value === formData.type)?.label}</strong> no lo requiere. Puedes seleccionar cualquier día.
           </AlertDescription>
         </Alert>
       )}
@@ -481,9 +568,23 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
             Resumen de la novedad
           </p>
           <p><span className="font-medium">Tipo:</span> {NEWS_TYPES.find(t => t.value === formData.type)?.label}</p>
-          <p><span className="font-medium">Fecha:</span> {formData.date}{formData.fechaFinal && formData.fechaFinal !== formData.date ? ` al ${formData.fechaFinal}` : ""}</p>
+          <p>
+            <span className="font-medium">Fecha:</span> {formData.date}
+            {formData.fechaFinal && formData.fechaFinal !== formData.date ? ` al ${formData.fechaFinal}` : ""}
+            {isSingleDayOnly && <span className="text-orange-600 ml-1">(un solo día)</span>}
+          </p>
           {requiresHours && formData.startTime && formData.endTime && (
             <p><span className="font-medium">Franja:</span> {formData.startTime} – {formData.endTime}</p>
+          )}
+          {requiresSchedule && (
+            <p className="text-orange-600">
+              <span className="font-medium">⚠️ Requiere horario:</span> El empleado debe tener horario registrado
+            </p>
+          )}
+          {!requiresSchedule && (
+            <p className="text-blue-600">
+              <span className="font-medium">✓ Sin restricción:</span> No requiere horario registrado
+            </p>
           )}
         </div>
       )}
