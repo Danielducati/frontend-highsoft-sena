@@ -221,10 +221,16 @@ export function SchedulesPage({ userRole }: SchedulesModuleProps) {
                   overflow: "hidden",
                 }}>
                   {/* ── Cabecera de la card ── */}
-                  <div style={{
-                    padding: "14px 20px",
-                    display: "flex", alignItems: "center", gap: 16,
-                  }}>
+                  <div 
+                    onClick={() => toggleCard(cardId)}
+                    style={{
+                      padding: "14px 20px",
+                      display: "flex", alignItems: "center", gap: 16,
+                      cursor: "pointer",
+                    }}
+                    onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#fafbfc")}
+                    onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
+                  >
                     {/* Avatar */}
                     <div style={{
                       width: 40, height: 40, borderRadius: "50%",
@@ -283,7 +289,10 @@ export function SchedulesPage({ userRole }: SchedulesModuleProps) {
                     </div>
 
                     {/* Acciones CRUD + expand */}
-                    <div style={{ display: "flex", alignItems: "center", gap: 2, flexShrink: 0 }}>
+                    <div 
+                      onClick={(e) => e.stopPropagation()}
+                      style={{ display: "flex", alignItems: "center", gap: 2, flexShrink: 0 }}
+                    >
                       {userRole === "admin" && (
                         <>
                           <button onClick={() => handleRenewMonth(row.employeeId, row.monthKey, sortedWeeks)}
@@ -313,20 +322,15 @@ export function SchedulesPage({ userRole }: SchedulesModuleProps) {
                           </button>
                         </>
                       )}
-                      <button
-                        onClick={() => toggleCard(cardId)}
-                        style={{
-                          width: 32, height: 32, borderRadius: 6, border: "1px solid #E5E7EB",
-                          backgroundColor: "transparent", cursor: "pointer",
-                          display: "flex", alignItems: "center", justifyContent: "center", color: "#6b7c6b",
-                        }}
-                        onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#F3F4F6")}
-                        onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
-                      >
+                      <div style={{
+                        width: 32, height: 32, borderRadius: 6, border: "1px solid #E5E7EB",
+                        backgroundColor: "transparent",
+                        display: "flex", alignItems: "center", justifyContent: "center", color: "#6b7c6b",
+                      }}>
                         {expanded
                           ? <ChevronUp style={{ width: 15, height: 15 }} />
                           : <ChevronDown style={{ width: 15, height: 15 }} />}
-                      </button>
+                      </div>
                     </div>
                   </div>
 
@@ -437,7 +441,18 @@ export function SchedulesPage({ userRole }: SchedulesModuleProps) {
                     opacity: 0.9,
                   }}>
                     {/* Cabecera */}
-                    <div style={{ padding: "14px 20px", display: "flex", alignItems: "center", gap: 16 }}>
+                    <div 
+                      onClick={() => toggleCard(cardId)}
+                      style={{ 
+                        padding: "14px 20px", 
+                        display: "flex", 
+                        alignItems: "center", 
+                        gap: 16,
+                        cursor: "pointer",
+                      }}
+                      onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#fafbfc")}
+                      onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
+                    >
                       {/* Avatar */}
                       <div style={{
                         width: 40, height: 40, borderRadius: "50%",
@@ -494,21 +509,16 @@ export function SchedulesPage({ userRole }: SchedulesModuleProps) {
                       </div>
 
                       {/* Solo expand — sin acciones de edición */}
-                      <button
-                        onClick={() => toggleCard(cardId)}
-                        style={{
-                          width: 32, height: 32, borderRadius: 6, border: "1px solid #E5E7EB",
-                          backgroundColor: "transparent", cursor: "pointer",
-                          display: "flex", alignItems: "center", justifyContent: "center", color: "#6b7c6b",
-                          flexShrink: 0,
-                        }}
-                        onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#F3F4F6")}
-                        onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
-                      >
+                      <div style={{
+                        width: 32, height: 32, borderRadius: 6, border: "1px solid #E5E7EB",
+                        backgroundColor: "transparent",
+                        display: "flex", alignItems: "center", justifyContent: "center", color: "#6b7c6b",
+                        flexShrink: 0,
+                      }}>
                         {expanded
                           ? <ChevronUp style={{ width: 15, height: 15 }} />
                           : <ChevronDown style={{ width: 15, height: 15 }} />}
-                      </button>
+                      </div>
                     </div>
 
                     {/* Semanas expandidas */}
