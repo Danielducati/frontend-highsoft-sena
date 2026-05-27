@@ -118,7 +118,7 @@ export function useAppointments(userRole?: string) {
     const fechaStr = date instanceof Date
       ? `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,"0")}-${String(date.getDate()).padStart(2,"0")}`
       : String(date).split("T")[0];
-    fetchEmployeesByDate(fechaStr)
+    fetchEmployeesByDate(fechaStr, formData.startTime)
       .then(data => setEmployees(data))
       .catch(() => setEmployees([]));
     
@@ -126,7 +126,7 @@ export function useAppointments(userRole?: string) {
     if (currentService.serviceId) {
       loadEmployeesForService(currentService.serviceId);
     }
-  }, [formData.date, isDialogOpen, currentService.serviceId]);
+  }, [formData.date, formData.startTime, isDialogOpen, currentService.serviceId]);
 
   const reloadAppointments = async () => {
     const data = userRole === "client"   ? await fetchMyAppointments()         :
@@ -273,9 +273,10 @@ export function useAppointments(userRole?: string) {
         : String(formData.date).split("T")[0];
       
       console.log('[loadEmployeesForService] Fecha:', fechaStr);
+      console.log('[loadEmployeesForService] Hora:', formData.startTime);
       
-      // Obtener empleados disponibles en esa fecha
-      const empsDisponibles = await fetchEmployeesByDate(fechaStr);
+      // Obtener empleados disponibles en esa fecha y hora
+      const empsDisponibles = await fetchEmployeesByDate(fechaStr, formData.startTime);
       console.log('[loadEmployeesForService] Empleados con horario en fecha:', empsDisponibles.map(e => `${e.name} (${e.specialty})`));
       
       // Filtrar por especialidad que coincida con la categoría del servicio (case-insensitive y trim)
