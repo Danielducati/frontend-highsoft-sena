@@ -93,8 +93,11 @@ export async function fetchEmployees() {
   }));
 }
 
-export async function fetchEmployeesByDate(fecha: string): Promise<{ id: string; name: string; specialty: string; color: string }[]> {
-  const res  = await fetch(`${API_BASE}/employees/disponibles?fecha=${fecha}`, { headers: authHeaders() });
+export async function fetchEmployeesByDate(fecha: string, hora?: string): Promise<{ id: string; name: string; specialty: string; color: string }[]> {
+  const url = hora 
+    ? `${API_BASE}/employees/disponibles?fecha=${fecha}&hora=${hora}`
+    : `${API_BASE}/employees/disponibles?fecha=${fecha}`;
+  const res  = await fetch(url, { headers: authHeaders() });
   const data = await parseJsonOrThrow(res) as any[];
   return data.map((e: any) => ({
     id:        String(e.id),
