@@ -35,6 +35,30 @@ export async function loginRequest(correo: string, contrasena: string) {
   return data;
 }
 
+export async function googleLoginRequest(idToken: string) {
+  const res = await fetch(`${API_URL}/auth/google`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ idToken }),
+  });
+
+  const data = await parseJsonSafe(res);
+
+  if (!res.ok) {
+    const apiError =
+      (data &&
+        typeof data === "object" &&
+        "error" in data &&
+        typeof data.error === "string" &&
+        data.error) ||
+      `Error HTTP ${res.status}`;
+
+    throw new Error(apiError);
+  }
+
+  return data;
+}
+
 export async function forgotPasswordRequest(correo: string) {
   const res = await fetch(`${API_URL}/auth/forgot-password`, {
     method: "POST",
