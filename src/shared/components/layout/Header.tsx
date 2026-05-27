@@ -333,22 +333,23 @@ export function Header({ userRole, userName, userPhoto, onLogout, onNavigate }: 
                 <p style={{ fontSize: 11, color: "#6b7c6b", margin: "2px 0 0" }}>{rolLabel}</p>
               </div>
               
-              {userRole === "admin" && (
-                <button
-                  onClick={() => { setAvatarOpen(false); onNavigate?.("admin-profile"); }}
-                  style={{
-                    width: "100%", display: "flex", alignItems: "center", gap: 10,
-                    padding: "10px 16px", border: "none", backgroundColor: "transparent",
-                    cursor: "pointer", fontSize: 13, color: "#1a3a2a", fontFamily: "var(--font-body)",
-                    borderBottom: "1px solid #E5E7EB"
-                  }}
-                  onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#F3F4F6")}
-                  onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
-                >
-                  <UserCog style={{ width: 15, height: 15, color: "#6b7c6b" }} />
-                  Mi Perfil
-                </button>
-              )}
+              <button
+                onClick={() => { 
+                  setAvatarOpen(false); 
+                  onNavigate?.(userRole === "admin" ? "admin-profile" : "users"); 
+                }}
+                style={{
+                  width: "100%", display: "flex", alignItems: "center", gap: 10,
+                  padding: "10px 16px", border: "none", backgroundColor: "transparent",
+                  cursor: "pointer", fontSize: 13, color: "#1a3a2a", fontFamily: "var(--font-body)",
+                  borderBottom: "1px solid #E5E7EB"
+                }}
+                onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#F3F4F6")}
+                onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
+              >
+                <UserCog style={{ width: 15, height: 15, color: "#6b7c6b" }} />
+                Mi Perfil
+              </button>
 
               <button
                 onClick={() => { setAvatarOpen(false); onLogout?.(); }}
