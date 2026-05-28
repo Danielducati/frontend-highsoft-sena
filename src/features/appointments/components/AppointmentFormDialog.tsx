@@ -1,16 +1,79 @@
 //frontend-highsoft-sena\src\features\appointments\components\AppointmentFormDialog.tsx
-import React from "react";
+import React, { useState } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../../../shared/ui/dialog";
 import { Button } from "../../../shared/ui/button";
 import { Input } from "../../../shared/ui/input";
 import { Label } from "../../../shared/ui/label";
 import { Textarea } from "../../../shared/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../shared/ui/select";
-import { Combobox } from "../../../shared/ui/combobox";
 import { Plus, X, Clock, User, CalendarIcon } from "lucide-react";
 import { Appointment, AppointmentService, Client, CurrentService, Employee, FormData, Service } from "../types";
 import { calculateEndTime } from "../utils";
 import { TIME_SLOTS } from "../constants";
+
+// Componente de búsqueda de cliente (igual al de cotizaciones)
+function ClientSearch({ clients, selectedId, onSelect }: {
+  clients: Client[];
+  selectedId: string;
+  onSelect: (id: string) => void;
+}) {
+  const [search, setSearch] = useState("");
+  const [open, setOpen] = useState(false);
+
+  const filtered = clients.filter(c => {
+    const name = c.name || "";
+    return name.toLowerCase().includes(search.toLowerCase());
+  });
+
+  const selected = clients.find(c => String(c.id) === selectedId);
+  const selectedName = selected ? selected.name : "";
+
+  return (
+    <div className="space-y-2">
+      <Label className="text-gray-900">Cliente *</Label>
+      <div className="relative">
+        <input
+          type="text"
+          placeholder={selectedName || "Buscar cliente por nombre..."}
+          value={search}
+          onChange={e => { setSearch(e.target.value); setOpen(true); }}
+          onFocus={() => setOpen(true)}
+          onBlur={() => { setTimeout(() => setOpen(false), 150); }}
+          className={`w-full rounded-lg border px-3 py-2 text-sm bg-white text-gray-900 outline-none ${
+            selected ? "border-[#1a5c3a] bg-[#edf7f4]" : "border-gray-200"
+          }`}
+        />
+        {open && (
+          <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-56 overflow-y-auto">
+            {filtered.length === 0 ? (
+              <div className="px-3 py-2 text-sm text-gray-400">
+                {clients.length === 0 ? "No hay clientes" : "Sin resultados"}
+              </div>
+            ) : filtered.map(c => {
+              const name = c.name || "";
+              const phone = c.phone || "";
+              return (
+                <button
+                  key={c.id}
+                  type="button"
+                  onMouseDown={() => { onSelect(String(c.id)); setSearch(""); setOpen(false); }}
+                  className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 transition-colors ${
+                    String(c.id) === selectedId ? "bg-[#edf7f4] text-[#1a5c3a] font-medium" : "text-gray-900"
+                  }`}
+                >
+                  <div className="flex flex-col">
+                    <span>{name}</span>
+                    {phone && <span className="text-xs text-gray-500">{phone}</span>}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
 
 interface Props {
   isOpen: boolean;
@@ -95,8 +158,7 @@ export function AppointmentFormDialog({
           {/* Resumen de fecha/hora eliminado — la info ya está en los campos de abajo */}
 
           {/* Cliente */}
-          <div className="space-y-2">
-            <Label>Cliente *</Label>
+          <div>
             {(() => {
               // Debug: ver qué valor tiene userRole
               console.log('[AppointmentFormDialog] userRole:', userRole);
@@ -108,36 +170,30 @@ export function AppointmentFormDialog({
               
               if (isClient) {
                 return (
-                  <div className="h-10 px-3 flex items-center rounded-md border border-input bg-[#edf7f4] text-sm font-medium text-[#1a5c3a]">
-                    {formData.clientName
-                      ? formData.clientName
-                      : clients.length > 0
-                        ? clients[0].name
-                        : <span className="text-gray-400 font-normal">Cargando perfil...</span>
-                    }
+                  <div className="space-y-2">
+                    <Label>Cliente *</Label>
+                    <div className="h-10 px-3 flex items-center rounded-md border border-input bg-[#edf7f4] text-sm font-medium text-[#1a5c3a]">
+                      {formData.clientName
+                        ? formData.clientName
+                        : clients.length > 0
+                          ? clients[0].name
+                          : <span className="text-gray-400 font-normal">Cargando perfil...</span>
+                      }
+                    </div>
                   </div>
                 );
               } else {
-                // Para empleados/admin: mostrar combobox con búsqueda
+                // Para empleados/admin: mostrar búsqueda de cliente
                 const defaultClientId = formData.clientId || (clients.length > 0 ? String(clients[0].id) : "");
                 
-                const clientOptions = clients.map(c => ({
-                  value: String(c.id),
-                  label: c.name,
-                  subtitle: c.phone
-                }));
-                
                 return (
-                  <Combobox
-                    options={clientOptions}
-                    value={defaultClientId}
-                    onValueChange={(value) => {
-                      console.log('[AppointmentFormDialog] Cliente seleccionado:', value);
-                      onClientChange(value);
+                  <ClientSearch
+                    clients={clients}
+                    selectedId={defaultClientId}
+                    onSelect={(id) => {
+                      console.log('[AppointmentFormDialog] Cliente seleccionado:', id);
+                      onClientChange(id);
                     }}
-                    placeholder="Selecciona un cliente"
-                    searchPlaceholder="Buscar cliente..."
-                    emptyText="No se encontró el cliente"
                   />
                 );
               }

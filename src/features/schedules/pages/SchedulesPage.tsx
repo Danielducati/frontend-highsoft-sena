@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Input } from "../../../shared/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../shared/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../../shared/ui/tabs";
-import { Plus, Search, Calendar, User, Clock, ChevronDown, ChevronUp, Eye, Pencil, Trash2, History, Users, RefreshCw } from "lucide-react";
+import { Plus, Search, Calendar, User, Clock, Eye, Pencil, Trash2, History, Users, RefreshCw } from "lucide-react";
 import { SchedulesModuleProps } from "../types";
 import { useSchedules } from "../hooks/useSchedules";
 import { ScheduleFormDialog } from "../components/ScheduleFormDialog";
@@ -288,7 +288,7 @@ export function SchedulesPage({ userRole }: SchedulesModuleProps) {
                       </div>
                     </div>
 
-                    {/* Acciones CRUD + expand */}
+                    {/* Acciones CRUD */}
                     <div 
                       onClick={(e) => e.stopPropagation()}
                       style={{ display: "flex", alignItems: "center", gap: 2, flexShrink: 0 }}
@@ -322,15 +322,6 @@ export function SchedulesPage({ userRole }: SchedulesModuleProps) {
                           </button>
                         </>
                       )}
-                      <div style={{
-                        width: 32, height: 32, borderRadius: 6, border: "1px solid #E5E7EB",
-                        backgroundColor: "transparent",
-                        display: "flex", alignItems: "center", justifyContent: "center", color: "#6b7c6b",
-                      }}>
-                        {expanded
-                          ? <ChevronUp style={{ width: 15, height: 15 }} />
-                          : <ChevronDown style={{ width: 15, height: 15 }} />}
-                      </div>
                     </div>
                   </div>
 
@@ -508,17 +499,6 @@ export function SchedulesPage({ userRole }: SchedulesModuleProps) {
                         </div>
                       </div>
 
-                      {/* Solo expand — sin acciones de edición */}
-                      <div style={{
-                        width: 32, height: 32, borderRadius: 6, border: "1px solid #E5E7EB",
-                        backgroundColor: "transparent",
-                        display: "flex", alignItems: "center", justifyContent: "center", color: "#6b7c6b",
-                        flexShrink: 0,
-                      }}>
-                        {expanded
-                          ? <ChevronUp style={{ width: 15, height: 15 }} />
-                          : <ChevronDown style={{ width: 15, height: 15 }} />}
-                      </div>
                     </div>
 
                     {/* Semanas expandidas */}
