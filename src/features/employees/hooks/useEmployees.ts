@@ -2,8 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { Employee, EmployeeFormData } from "../types";
 import { ITEMS_PER_PAGE, ROL_MAP } from "../constants";
-import { fetchEmployeesApi, createEmployeeApi, updateEmployeeApi, deleteEmployeeApi } from "../services/employeesService";
-import { fetchCategoriesApi } from "../../categories/services/categoriesService";
+import { fetchEmployeesApi, createEmployeeApi, updateEmployeeApi, deleteEmployeeApi, fetchRolesApi } from "../services/employeesService";
 
 const EMPTY_FORM: EmployeeFormData = {
   firstName: "", lastName: "", documentType: "", document: "",
@@ -49,11 +48,12 @@ export function useEmployees() {
 
   const loadCategories = async () => {
     try {
-      const data = await fetchCategoriesApi();
-      const activas = data
-        .filter(c => c.isActive)
-        .map(c => ({ value: c.name, label: c.name }));
-      setCategories(activas);
+      const data = await fetchRolesApi();
+      // Filtrar solo roles de empleados (no admin ni cliente)
+      const rolesEmpleados = data
+        .filter(r => r.nombre.toLowerCase() !== 'admin' && r.nombre.toLowerCase() !== 'cliente')
+        .map(r => ({ value: r.nombre, label: r.nombre }));
+      setCategories(rolesEmpleados);
     } catch {
       toast.error("Error al cargar especialidades");
     }

@@ -75,6 +75,75 @@ function ClientSearch({ clients, selectedId, onSelect }: {
   );
 }
 
+// Componente de búsqueda de servicio (similar al de clientes)
+function ServiceSearch({ services, employees, selectedId, onSelect }: {
+  services: Service[];
+  employees: Employee[];
+  selectedId: string;
+  onSelect: (id: string) => void;
+}) {
+  const [search, setSearch] = useState("");
+  const [open, setOpen] = useState(false);
+
+  // Filtrar servicios que tienen empleados disponibles
+  const availableServices = services.filter(s =>
+    employees.some(e =>
+      e.specialty?.toLowerCase().trim() === s.category?.toLowerCase().trim()
+    )
+  );
+
+  const filtered = availableServices.filter(s => {
+    const name = s.name || "";
+    const category = s.category || "";
+    const searchLower = search.toLowerCase();
+    return name.toLowerCase().includes(searchLower) || category.toLowerCase().includes(searchLower);
+  });
+
+  const selected = availableServices.find(s => s.id === selectedId);
+  const selectedName = selected ? selected.name : "";
+
+  return (
+    <div className="relative">
+      <input
+        type="text"
+        placeholder={selectedName || "Buscar servicio..."}
+        value={search}
+        onChange={e => { setSearch(e.target.value); setOpen(true); }}
+        onFocus={() => setOpen(true)}
+        onBlur={() => { setTimeout(() => setOpen(false), 150); }}
+        className={`w-full rounded-lg border px-3 py-2 text-sm bg-white text-gray-900 outline-none ${
+          selected ? "border-[#1a5c3a] bg-[#edf7f4]" : "border-gray-200"
+        }`}
+      />
+      {open && (
+        <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-56 overflow-y-auto">
+          {filtered.length === 0 ? (
+            <div className="px-3 py-2 text-sm text-gray-400">
+              {availableServices.length === 0 
+                ? "No hay servicios con empleados disponibles" 
+                : "Sin resultados"}
+            </div>
+          ) : filtered.map(s => (
+            <button
+              key={s.id}
+              type="button"
+              onMouseDown={() => { onSelect(s.id); setSearch(""); setOpen(false); }}
+              className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 transition-colors ${
+                s.id === selectedId ? "bg-[#edf7f4] text-[#1a5c3a] font-medium" : "text-gray-900"
+              }`}
+            >
+              <div className="flex flex-col">
+                <span>{s.name}</span>
+                <span className="text-xs text-gray-500">{s.category} • {s.duration} min</span>
+              </div>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 interface Props {
   isOpen: boolean;
   onOpenChange: (v: boolean) => void;
@@ -252,34 +321,12 @@ export function AppointmentFormDialog({
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
                 <Label>Servicio</Label>
-                <Select value={currentService.serviceId}
-                  onValueChange={v => setCurrentService({ serviceId: v, employeeId: "" })}>
-                  <SelectTrigger><SelectValue placeholder="Selecciona servicio" /></SelectTrigger>
-                  <SelectContent>
-                    {(() => {
-                      const availableServices = services.filter(s =>
-                        employees.some(e =>
-                          e.specialty?.toLowerCase().trim() === s.category?.toLowerCase().trim()
-                        )
-                      );
-                      if (availableServices.length === 0) {
-                        return (
-                          <SelectItem value="empty" disabled>
-                            No hay servicios con empleados disponibles para esta fecha
-                          </SelectItem>
-                        );
-                      }
-                      return availableServices.map(s => (
-                        <SelectItem key={s.id} value={s.id}>
-                          <div className="flex flex-col">
-                            <span>{s.name}</span>
-                            <span className="text-xs text-gray-500">{s.category} • {s.duration} min</span>
-                          </div>
-                        </SelectItem>
-                      ));
-                    })()}
-                  </SelectContent>
-                </Select>
+                <ServiceSearch
+                  services={services}
+                  employees={employees}
+                  selectedId={currentService.serviceId}
+                  onSelect={v => setCurrentService({ serviceId: v, employeeId: "" })}
+                />
               </div>
               <div className="space-y-2">
                 <Label>Empleado</Label>
