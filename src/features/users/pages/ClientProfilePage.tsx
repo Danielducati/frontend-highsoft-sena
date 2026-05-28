@@ -130,12 +130,19 @@ export function ClientProfilePage() {
         const err = await res.json();
         throw new Error(err.error ?? "Error al guardar");
       }
+      const data = await res.json();
+      // Actualizar el estado local con la respuesta del servidor
+      setForm(f => ({
+        ...f,
+        image: data.foto_perfil ?? "",
+      }));
+      setImagePreview(data.foto_perfil ?? "");
       const stored = localStorage.getItem("usuario");
       if (stored) {
         const u = JSON.parse(stored);
         u.nombre = form.firstName.trim();
         u.apellido = form.lastName.trim();
-        u.foto = form.image || "";
+        u.foto = data.foto_perfil ?? "";
         localStorage.setItem("usuario", JSON.stringify(u));
       }
       window.dispatchEvent(new Event("usuario-updated"));
