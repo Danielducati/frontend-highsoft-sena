@@ -8,7 +8,7 @@ import { Alert, AlertDescription } from "../../../shared/ui/alert";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "../../../shared/ui/accordion";
 import {
   User, Calendar, Clock, FileText, Tag,
-  AlertCircle, Info, CheckCircle2, ChevronDown,
+  AlertCircle, Info, CheckCircle2,
 } from "lucide-react";
 
 import { NEWS_TYPES, TIME_SLOTS } from "../constants";
@@ -27,9 +27,6 @@ const SINGLE_DAY_ONLY: Array<EmployeeNews["type"]> = ["retraso", "ausencia"];
 
 // ── Tipos que permiten MÚLTIPLES DÍAS ─────────────────────────────────────────
 const MULTIPLE_DAYS_ALLOWED: Array<EmployeeNews["type"]> = ["permiso", "incapacidad"];
-
-// ── Tipos que NO requieren horario registrado ──────────────────────────────────
-const NO_SCHEDULE_REQUIRED: Array<EmployeeNews["type"]> = ["permiso", "incapacidad", "otro"];
 
 interface NewsFormProps {
   formData:    NewsFormData;
@@ -139,11 +136,6 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
   const availableDayIndices: Set<number> = new Set(
     employeeSchedules.flatMap(week => (week.daySchedules ?? []).map((ds: any) => ds.dayIndex))
   );
-
-  const isWorkingDay = (dateStr: string): boolean => {
-    if (!dateStr || employeeSchedules.length === 0) return false;
-    return availableDayIndices.has(getDayIndexFromDate(dateStr));
-  };
 
   const getDayScheduleForDate = (dateStr: string) => {
     if (!dateStr || employeeSchedules.length === 0) return null;
@@ -320,6 +312,8 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
           </Label>
           <input
             type="date"
+            min={new Date().toISOString().split("T")[0]}
+            max={(() => { const d = new Date(); d.setMonth(d.getMonth() + 3); return d.toISOString().split("T")[0]; })()}
             className={`w-full h-10 px-3 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#1a5c3a] focus:border-transparent ${
               requiresSchedule && formData.date && !startDateHasSchedule
                 ? "border-red-400 bg-red-50"
@@ -376,6 +370,8 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
           </Label>
           <input
             type="date"
+            min={formData.date || new Date().toISOString().split("T")[0]}
+            max={(() => { const d = new Date(); d.setMonth(d.getMonth() + 3); return d.toISOString().split("T")[0]; })()}
             className={`w-full h-10 px-3 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#1a5c3a] focus:border-transparent ${
               endDateInvalid
                 ? "border-red-400 bg-red-50"
@@ -384,7 +380,6 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
                 : "border-gray-300"
             }`}
             value={lockEndDate ? (formData.date || "") : (formData.fechaFinal || "")}
-            min={formData.date || undefined}
             readOnly={lockEndDate}
             onChange={e => { if (!lockEndDate) setFormData(prev => ({ ...prev, fechaFinal: e.target.value })); }}
           />
