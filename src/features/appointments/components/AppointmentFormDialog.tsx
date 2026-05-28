@@ -6,6 +6,7 @@ import { Input } from "../../../shared/ui/input";
 import { Label } from "../../../shared/ui/label";
 import { Textarea } from "../../../shared/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../shared/ui/select";
+import { Combobox } from "../../../shared/ui/combobox";
 import { Plus, X, Clock, User, CalendarIcon } from "lucide-react";
 import { Appointment, AppointmentService, Client, CurrentService, Employee, FormData, Service } from "../types";
 import { calculateEndTime } from "../utils";
@@ -117,29 +118,27 @@ export function AppointmentFormDialog({
                   </div>
                 );
               } else {
-                // Para empleados/admin: mostrar selector con el primer cliente seleccionado por defecto
+                // Para empleados/admin: mostrar combobox con búsqueda
                 const defaultClientId = formData.clientId || (clients.length > 0 ? String(clients[0].id) : "");
                 
+                const clientOptions = clients.map(c => ({
+                  value: String(c.id),
+                  label: c.name,
+                  subtitle: c.phone
+                }));
+                
                 return (
-                  <Select 
-                    value={defaultClientId} 
+                  <Combobox
+                    options={clientOptions}
+                    value={defaultClientId}
                     onValueChange={(value) => {
                       console.log('[AppointmentFormDialog] Cliente seleccionado:', value);
                       onClientChange(value);
                     }}
-                  >
-                    <SelectTrigger><SelectValue placeholder="Selecciona un cliente" /></SelectTrigger>
-                    <SelectContent>
-                      {clients.map(c => (
-                        <SelectItem key={c.id} value={String(c.id)}>
-                          <div className="flex flex-col">
-                            <span>{c.name}</span>
-                            <span className="text-xs text-gray-500">{c.phone}</span>
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    placeholder="Selecciona un cliente"
+                    searchPlaceholder="Buscar cliente..."
+                    emptyText="No se encontró el cliente"
+                  />
                 );
               }
             })()}
