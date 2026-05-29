@@ -3,7 +3,6 @@ import { toast } from "sonner";
 import { Employee, EmployeeFormData } from "../types";
 import { ITEMS_PER_PAGE, ROL_MAP } from "../constants";
 import { fetchEmployeesApi, createEmployeeApi, updateEmployeeApi, deleteEmployeeApi } from "../services/employeesService";
-import { fetchCategoriesApi } from "../../categories/services/categoriesService";
 
 const EMPTY_FORM: EmployeeFormData = {
   firstName: "", lastName: "", documentType: "", document: "",
@@ -49,11 +48,23 @@ export function useEmployees() {
 
   const loadCategories = async () => {
     try {
-      const data = await fetchCategoriesApi();
-      const activas = data
-        .filter(c => c.isActive)
-        .map(c => ({ value: c.name, label: c.name }));
-      setCategories(activas);
+      // Cargar ROLES en lugar de categorías
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/roles`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      
+      if (!response.ok) throw new Error('Error al cargar roles');
+      
+      const data = await response.json();
+      
+      // Filtrar solo roles de empleados (no Admin ni Cliente)
+      const rolesEmpleados = data
+        .filter((r: any) => !['Admin', 'Administrador', 'Cliente'].includes(r.nombre))
+        .map((r: any) => ({ value: r.nombre, label: r.nombre }));
+      
+      setCategories(rolesEmpleados);
     } catch {
       toast.error("Error al cargar especialidades");
     }
