@@ -57,11 +57,17 @@ export async function loginRequest(correo: string, contrasena: string) {
 }
 
 export async function googleLoginRequest(idToken: string, profile?: GoogleProfileInput) {
+  console.log("📤 [Google Login Request] Enviando petición al backend...");
+  console.log("📤 [Google Login Request] URL:", `${API_URL}/auth/google`);
+  console.log("📤 [Google Login Request] Profile:", profile);
+  
   const res = await fetch(`${API_URL}/auth/google`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ idToken, ...profile }),
   });
+
+  console.log("📥 [Google Login Request] Status:", res.status);
 
   const data = await parseJsonSafe(res);
 
@@ -74,9 +80,11 @@ export async function googleLoginRequest(idToken: string, profile?: GoogleProfil
         data.error) ||
       `Error HTTP ${res.status}`;
 
+    console.error("❌ [Google Login Request] Error del servidor:", apiError);
     throw new Error(apiError);
   }
 
+  console.log("✅ [Google Login Request] Respuesta exitosa");
   return data;
 }
 

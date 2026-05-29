@@ -4,6 +4,7 @@ import { Input } from "../../../shared/ui/input";
 import { Label } from "../../../shared/ui/label";
 import { Plus } from "lucide-react";
 import { Category, CategoryFormData } from "../types";
+import { useState, useEffect } from "react";
 
 interface CategoryFormDialogProps {
   isOpen: boolean;
@@ -21,6 +22,35 @@ export function CategoryFormDialog({
   isOpen, onOpenChange, editingCategory, formData, setFormData, onSubmit, onNewClick, userRole, canCreate,
 }: CategoryFormDialogProps) {
   const hasAccess = userRole === "admin" || canCreate;
+  const [roles, setRoles] = useState<Array<{ id: number; nombre: string }>>([]);
+
+  useEffect(() => {
+    // Cargar roles de empleados
+    const loadRoles = async () => {
+      try {
+        const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/roles`, {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+        
+        if (!response.ok) throw new Error('Error al cargar roles');
+        
+        const data = await response.json();
+        
+        // Filtrar solo roles de empleados (no Admin ni Cliente)
+        const rolesEmpleados = data.filter((r: any) => !['Admin', 'Administrador', 'Cliente'].includes(r.nombre));
+        setRoles(rolesEmpleados);
+      } catch (error) {
+        console.error('Error al cargar roles:', error);
+      }
+    };
+
+    if (isOpen) {
+      loadRoles();
+    }
+  }, [isOpen]);
+
   if (!hasAccess) return null;
 
   return (
@@ -89,6 +119,27 @@ export function CategoryFormDialog({
                 className="rounded-lg border-gray-200 flex-1"
               />
             </div>
+          </div>
+
+          {/* Rol Asociado */}
+          <div className="space-y-2">
+            <Label htmlFor="cat-role" className="text-gray-900">Rol Asociado (Especialidad)</Label>
+            <select
+              id="cat-role"
+              value={formData.rolId || ""}
+              onChange={(e) => setFormData({ ...formData, rolId: e.target.value })}
+              className="flex h-10 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm ring-offset-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-950 focus-visible:ring-offset-2"
+            >
+              <option value="">Sin rol asociado</option>
+              {roles.map((rol) => (
+                <option key={rol.id} value={String(rol.id)}>
+                  {rol.nombre}
+                </option>
+              ))}
+            </select>
+            <p className="text-xs text-gray-500">
+              Asocia esta categoría con un rol de empleado (Barbero, Cosmetóloga, etc.)
+            </p>
           </div>
 
           {/* Botones */}
