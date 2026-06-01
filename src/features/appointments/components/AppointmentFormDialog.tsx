@@ -321,12 +321,30 @@ export function AppointmentFormDialog({
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
                 <Label>Servicio</Label>
-                <ServiceSearch
-                  services={services}
-                  employees={employees}
-                  selectedId={currentService.serviceId}
-                  onSelect={v => setCurrentService({ serviceId: v, employeeId: "" })}
-                />
+                <Select value={currentService.serviceId}
+                  onValueChange={v => setCurrentService({ serviceId: v, employeeId: "" })}>
+                  <SelectTrigger><SelectValue placeholder="Selecciona servicio" /></SelectTrigger>
+                  <SelectContent>
+                    {(() => {
+                      // Mostrar TODOS los servicios activos, no filtrar por empleados disponibles
+                      if (services.length === 0) {
+                        return (
+                          <SelectItem value="empty" disabled>
+                            No hay servicios disponibles
+                          </SelectItem>
+                        );
+                      }
+                      return services.map(s => (
+                        <SelectItem key={s.id} value={s.id}>
+                          <div className="flex flex-col">
+                            <span>{s.name}</span>
+                            <span className="text-xs text-gray-500">{s.category} • {s.duration} min</span>
+                          </div>
+                        </SelectItem>
+                      ));
+                    })()}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="space-y-2">
                 <Label>Empleado</Label>
