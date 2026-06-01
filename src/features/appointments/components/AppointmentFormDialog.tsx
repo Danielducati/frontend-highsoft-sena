@@ -85,12 +85,8 @@ function ServiceSearch({ services, employees, selectedId, onSelect }: {
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
 
-  // Filtrar servicios que tienen empleados disponibles
-  const availableServices = services.filter(s =>
-    employees.some(e =>
-      e.specialty?.toLowerCase().trim() === s.category?.toLowerCase().trim()
-    )
-  );
+  // Mostrar TODOS los servicios, no filtrar por empleados disponibles
+  const availableServices = services;
 
   const filtered = availableServices.filter(s => {
     const name = s.name || "";
@@ -120,7 +116,7 @@ function ServiceSearch({ services, employees, selectedId, onSelect }: {
           {filtered.length === 0 ? (
             <div className="px-3 py-2 text-sm text-gray-400">
               {availableServices.length === 0 
-                ? "No hay servicios con empleados disponibles" 
+                ? "No hay servicios disponibles" 
                 : "Sin resultados"}
             </div>
           ) : filtered.map(s => (
