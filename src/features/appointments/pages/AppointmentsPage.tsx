@@ -287,29 +287,6 @@ export function AppointmentsPage({ userRole }: AppointmentsModuleProps) {
         {/* ── Vista Calendario ── */}
         {viewMode === "calendar" && (
           <>
-            {/* Navegación semana */}
-            <Card className="border-gray-200 shadow-sm">
-              <CardContent className="p-3">
-                <div className="flex items-center justify-between">
-                  <button onClick={goToPreviousWeek} className="p-2 hover:bg-gray-100 rounded-lg">
-                    <ChevronLeft className="w-5 h-5 text-gray-600" />
-                  </button>
-                  <div className="flex items-center gap-3">
-                    <h3 className="text-gray-900">
-                      {getWeekDates()[0].toLocaleDateString("es-ES", { day: "numeric", month: "long" })}
-                      {" - "}
-                      {getWeekDates()[6].toLocaleDateString("es-ES", { day: "numeric", month: "long", year: "numeric" })}
-                    </h3>
-                    <Button variant="outline" size="sm" onClick={goToToday}
-                      className="border-gray-300 rounded-lg h-8 text-sm">Hoy</Button>
-                  </div>
-                  <button onClick={goToNextWeek} className="p-2 hover:bg-gray-100 rounded-lg">
-                    <ChevronRight className="w-5 h-5 text-gray-600" />
-                  </button>
-                </div>
-              </CardContent>
-            </Card>
-
             {/* Leyenda */}
             <Card className="border-gray-200 shadow-sm">
               <CardContent className="p-3">
@@ -388,13 +365,33 @@ export function AppointmentsPage({ userRole }: AppointmentsModuleProps) {
                         return h * 60 + m <= now.getHours() * 60 + now.getMinutes();
                       };
 
-                      // Para cada franja, indica si hay citas solapadas
+                      // Para cada franja, indica si hay citas que EMPIEZAN en esa hora
                       const slotHasApts = (time: string): boolean => {
+                        return dayApts.some(a => a.startTime === time);
+                      };
+
+                      // Calcular la posición más baja de las citas QUE EMPIEZAN en esta franja
+                      const getLowestAptPosition = (time: string): number => {
                         const slotMin = toMin(time);
-                        const slotEnd = slotMin + 30;
-                        return dayApts.some(a =>
-                          toMin(a.startTime) < slotEnd && toMin(a.endTime) > slotMin
-                        );
+                        // Solo considerar citas que EMPIEZAN en esta hora exacta
+                        const aptsStartingHere = dayApts.filter(a => a.startTime === time);
+                        
+                        if (aptsStartingHere.length === 0) return 0;
+                        
+                        // Encontrar la posición más baja de las citas apiladas
+                        let maxBottom = 0;
+                        aptsStartingHere.forEach((apt, index) => {
+                          // Posición superior de la cita (con apilamiento)
+                          const aptTopPos = aptTop(apt) + (index * 30);
+                          // Altura de la cita (28px fijos)
+                          const aptBottomPos = aptTopPos + 28;
+                          
+                          if (aptBottomPos > maxBottom) {
+                            maxBottom = aptBottomPos;
+                          }
+                        });
+                        
+                        return maxBottom;
                       };
 
                       return (
@@ -428,52 +425,100 @@ export function AppointmentsPage({ userRole }: AppointmentsModuleProps) {
                             const top     = ((toMin(time) - firstSlotMin) / 30) * ROW_HEIGHT;
                             const blocked = isSlotBlocked(time);
                             const noSchedules = !scheduleInfo.hasSchedules;
+                            const lowestAptPos = hasApts ? getLowestAptPosition(time) : 0;
 
                             return (
                               <div key={time}>
-                                <div
-                                  className={`absolute transition-colors group ${
-                                    !blocked && !noSchedules
-                                      ? "hover:bg-[#1a3a2a]/5 cursor-pointer"
-                                      : "cursor-not-allowed"
-                                  }`}
-                                  style={{
-                                    top,
-                                    right:  0,
-                                    width:  hasApts ? FREE_LANE_PX : "100%",
-                                    height: ROW_HEIGHT,
-                                    zIndex: 5,
-                                    backgroundColor: (blocked || noSchedules) && !past ? "rgba(0,0,0,0.03)" : undefined,
-                                  }}
-                                  onClick={() => {
-                                    if (!blocked && !noSchedules) {
-                                      setFormData(prev => ({
-                                        ...EMPTY_FORM,
-                                        clientId:    prev.clientId    || "",
-                                        clientName:  prev.clientName  || "",
-                                        clientPhone: prev.clientPhone || "",
-                                        date,
-                                        startTime: time,
-                                      }));
-                                      setIsDialogOpen(true);
-                                    } else if (noSchedules) {
-                                      toast.error("No hay empleados con horarios disponibles para este día");
-                                    }
-                                  }}
-                                >
-                                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity">
-                                    {!noSchedules && (
-                                      <div className="flex flex-col items-center gap-0.5">
-                                        <Plus className="w-4 h-4 text-[#1a3a2a]/40" />
-                                        {hasApts && (
+                                {/* Cuando NO hay citas: área completa */}
+                                {!hasApts && (
+                                  <div
+                                    className={`absolute transition-colors group ${
+                                      !blocked && !noSchedules
+                                        ? "hover:bg-[#1a3a2a]/5 cursor-pointer"
+                                        : "cursor-not-allowed"
+                                    }`}
+                                    style={{
+                                      top,
+                                      left: 0,
+                                      right: 0,
+                                      height: ROW_HEIGHT,
+                                      zIndex: 5,
+                                      backgroundColor: (blocked || noSchedules) && !past ? "rgba(0,0,0,0.03)" : undefined,
+                                    }}
+                                    onClick={() => {
+                                      if (!blocked && !noSchedules) {
+                                        setFormData(prev => ({
+                                          ...EMPTY_FORM,
+                                          clientId:    prev.clientId    || "",
+                                          clientName:  prev.clientName  || "",
+                                          clientPhone: prev.clientPhone || "",
+                                          date,
+                                          startTime: time,
+                                        }));
+                                        setIsDialogOpen(true);
+                                      } else if (noSchedules) {
+                                        toast.error("No hay empleados con horarios disponibles para este día");
+                                      }
+                                    }}
+                                  >
+                                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity">
+                                      {!noSchedules && (
+                                        <div className="flex flex-col items-center gap-0.5">
+                                          <Plus className="w-4 h-4 text-[#1a3a2a]/40" />
                                           <span className="text-[9px] text-[#1a3a2a]/40 font-medium leading-none">
                                             {time}
                                           </span>
-                                        )}
-                                      </div>
-                                    )}
+                                        </div>
+                                      )}
+                                    </div>
                                   </div>
-                                </div>
+                                )}
+                                
+                                {/* Cuando SÍ hay citas: área DEBAJO de las citas, DENTRO de la misma franja */}
+                                {hasApts && (
+                                  <div
+                                    className={`absolute transition-colors group ${
+                                      !blocked && !noSchedules
+                                        ? "hover:bg-[#1a3a2a]/5 cursor-pointer"
+                                        : "cursor-not-allowed"
+                                    }`}
+                                    style={{
+                                      top: lowestAptPos + 4, // Justo debajo de la última cita
+                                      left: 0,
+                                      right: 0,
+                                      // Altura: desde donde termina la última cita hasta el final de la franja
+                                      height: Math.max((top + ROW_HEIGHT) - (lowestAptPos + 4), 32),
+                                      zIndex: 5,
+                                      backgroundColor: (blocked || noSchedules) && !past ? "rgba(0,0,0,0.03)" : undefined,
+                                    }}
+                                    onClick={() => {
+                                      if (!blocked && !noSchedules) {
+                                        setFormData(prev => ({
+                                          ...EMPTY_FORM,
+                                          clientId:    prev.clientId    || "",
+                                          clientName:  prev.clientName  || "",
+                                          clientPhone: prev.clientPhone || "",
+                                          date,
+                                          startTime: time,
+                                        }));
+                                        setIsDialogOpen(true);
+                                      } else if (noSchedules) {
+                                        toast.error("No hay empleados con horarios disponibles para este día");
+                                      }
+                                    }}
+                                  >
+                                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity">
+                                      {!noSchedules && (
+                                        <div className="flex flex-col items-center gap-0.5 bg-white rounded px-2 py-1 shadow-md border border-[#1a3a2a]/20">
+                                          <Plus className="w-3.5 h-3.5 text-[#1a3a2a]" />
+                                          <span className="text-[9px] text-[#1a3a2a] font-bold leading-none whitespace-nowrap">
+                                            {time}
+                                          </span>
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                )}
                               </div>
                             );
                           })}
@@ -514,6 +559,29 @@ export function AppointmentsPage({ userRole }: AppointmentsModuleProps) {
                   </div>
                 </div>
               </div>
+            </Card>
+
+            {/* Navegación semana - Movida abajo */}
+            <Card className="border-gray-200 shadow-sm">
+              <CardContent className="p-3">
+                <div className="flex items-center justify-between">
+                  <button onClick={goToPreviousWeek} className="p-2 hover:bg-gray-100 rounded-lg">
+                    <ChevronLeft className="w-5 h-5 text-gray-600" />
+                  </button>
+                  <div className="flex items-center gap-3">
+                    <h3 className="text-gray-900">
+                      {getWeekDates()[0].toLocaleDateString("es-ES", { day: "numeric", month: "long" })}
+                      {" - "}
+                      {getWeekDates()[6].toLocaleDateString("es-ES", { day: "numeric", month: "long", year: "numeric" })}
+                    </h3>
+                    <Button variant="outline" size="sm" onClick={goToToday}
+                      className="border-gray-300 rounded-lg h-8 text-sm">Hoy</Button>
+                  </div>
+                  <button onClick={goToNextWeek} className="p-2 hover:bg-gray-100 rounded-lg">
+                    <ChevronRight className="w-5 h-5 text-gray-600" />
+                  </button>
+                </div>
+              </CardContent>
             </Card>
           </>
         )}

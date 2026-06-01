@@ -69,7 +69,6 @@ const GROUPS = [
 const FLAT_ITEMS = [
   { id: "appointments", label: "Citas",     icon: Calendar,  roles: ["employee", "client"] },
   { id: "news",         label: "Novedades", icon: Newspaper, roles: ["employee"] },
-  { id: "users",        label: "Mi Perfil", icon: UserCog,   roles: ["employee", "client"] },
 ];
 
 export function Sidebar({ activePage, onNavigate, onLogout, userRole, allowedPages }: SidebarProps) {

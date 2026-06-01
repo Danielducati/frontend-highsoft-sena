@@ -94,6 +94,16 @@ export function useSchedules() {
     setSelectedMonth(prev => {
       const m = prev.month === 0 ? 11 : prev.month - 1;
       const y = prev.month === 0 ? prev.year - 1 : prev.year;
+      
+      // No permitir meses pasados
+      const now = new Date();
+      const currentYear = now.getFullYear();
+      const currentMonth = now.getMonth();
+      
+      if (y < currentYear || (y === currentYear && m < currentMonth)) {
+        return prev; // No cambiar si es un mes pasado
+      }
+      
       return { year: y, month: m };
     });
   };
@@ -102,6 +112,17 @@ export function useSchedules() {
     setSelectedMonth(prev => {
       const m = prev.month === 11 ? 0 : prev.month + 1;
       const y = prev.month === 11 ? prev.year + 1 : prev.year;
+      
+      // No permitir más de 3 meses en el futuro
+      const now = new Date();
+      const maxDate = new Date(now.getFullYear(), now.getMonth() + 3, 1);
+      const maxYear = maxDate.getFullYear();
+      const maxMonth = maxDate.getMonth();
+      
+      if (y > maxYear || (y === maxYear && m > maxMonth)) {
+        return prev; // No cambiar si excede 3 meses
+      }
+      
       return { year: y, month: m };
     });
   };

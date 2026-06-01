@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { uploadImage } from "../../../shared/utils/uploadImage";
 import { DOCUMENT_TYPES } from "../../employees/constants";
 import { changePasswordRequest } from "../../auth/services/authService";
-import { fetchCategoriesApi } from "../../employees/services/employeesService";
+import { fetchRolesApi } from "../../employees/services/employeesService";
 
 const API_URL = import.meta.env.VITE_API_URL ?? "https://backend-highsoft-sena-production.up.railway.app";
 const getToken = () => localStorage.getItem("token");
@@ -51,7 +51,13 @@ export function EmployeeProfilePage() {
   const [savingPass,  setSavingPass]  = useState(false);
 
   useEffect(() => {
-    fetchCategoriesApi().then(setCategories).catch(() => {});
+    fetchRolesApi().then(cats => {
+      // Filtrar solo roles de empleados
+      const rolesEmpleados = cats.filter(r => 
+        r.nombre.toLowerCase() !== 'admin' && r.nombre.toLowerCase() !== 'cliente'
+      );
+      setCategories(rolesEmpleados);
+    }).catch(() => {});
   }, []);
 
   useEffect(() => {

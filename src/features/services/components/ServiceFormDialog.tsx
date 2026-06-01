@@ -160,11 +160,34 @@ export function ServiceFormDialog({
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label className="flex items-center gap-2"><Clock className="w-4 h-4 text-[#1a5c3a]" />Duración (minutos) *</Label>
-                <Input type="number" min="1" value={formData.duration} onChange={(e) => setFormData({ ...formData, duration: Number(e.target.value) })} placeholder="60" className="border-gray-300" />
+                <Input 
+                  type="text" 
+                  inputMode="numeric"
+                  value={formData.duration || ""} 
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/[^0-9]/g, "");
+                    setFormData({ ...formData, duration: value ? Number(value) : 0 });
+                  }} 
+                  placeholder="60" 
+                  className="border-gray-300" 
+                />
               </div>
               <div className="space-y-2">
                 <Label className="flex items-center gap-2"><DollarSign className="w-4 h-4 text-[#1a5c3a]" />Precio *</Label>
-                <Input type="number" step="0.01" min="0" value={formData.price} onChange={(e) => setFormData({ ...formData, price: Number(e.target.value) })} placeholder="100.00" className="border-gray-300" />
+                <Input 
+                  type="text" 
+                  inputMode="decimal"
+                  value={formData.price || ""} 
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/[^0-9.]/g, "");
+                    // Permitir solo un punto decimal
+                    const parts = value.split(".");
+                    const formatted = parts.length > 2 ? parts[0] + "." + parts.slice(1).join("") : value;
+                    setFormData({ ...formData, price: formatted ? Number(formatted) : 0 });
+                  }} 
+                  placeholder="100.00" 
+                  className="border-gray-300" 
+                />
               </div>
             </div>
 
