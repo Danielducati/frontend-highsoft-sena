@@ -8,12 +8,75 @@ import { Alert, AlertDescription } from "../../../shared/ui/alert";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "../../../shared/ui/accordion";
 import {
   User, Calendar, Clock, FileText, Tag,
-  AlertCircle, Info, CheckCircle2, ChevronDown,
+  AlertCircle, Info, CheckCircle2,
 } from "lucide-react";
 
 import { NEWS_TYPES, TIME_SLOTS } from "../constants";
 import { Employee, EmployeeNews, NewsFormData } from "../types";
 import { scheduleService } from "../services/scheduleService";
+
+// Componente de búsqueda de empleado (similar al ClientSearch de citas)
+function EmployeeSearch({ employees, selectedId, onSelect }: {
+  employees: Employee[];
+  selectedId: string;
+  onSelect: (id: string, name: string) => void;
+}) {
+  const [search, setSearch] = useState("");
+  const [open, setOpen] = useState(false);
+
+  const filtered = employees.filter(e => {
+    const name = e.name || "";
+    const specialty = e.specialty || "";
+    return name.toLowerCase().includes(search.toLowerCase()) || 
+           specialty.toLowerCase().includes(search.toLowerCase());
+  });
+
+  const selected = employees.find(e => String(e.id) === selectedId);
+  const selectedName = selected ? selected.name : "";
+
+  return (
+    <div className="relative">
+      <input
+        type="text"
+        placeholder={selectedName || "Buscar empleado por nombre..."}
+        value={search}
+        onChange={e => { setSearch(e.target.value); setOpen(true); }}
+        onFocus={() => setOpen(true)}
+        onBlur={() => { setTimeout(() => setOpen(false), 150); }}
+        className={`w-full rounded-lg border px-3 py-2 text-sm bg-white text-gray-900 outline-none focus:ring-2 focus:ring-[#1a5c3a] focus:border-transparent ${
+          selected ? "border-[#1a5c3a] bg-[#edf7f4]" : "border-gray-300"
+        }`}
+      />
+      {open && (
+        <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-56 overflow-y-auto">
+          {filtered.length === 0 ? (
+            <div className="px-3 py-2 text-sm text-gray-400">
+              {employees.length === 0 ? "No hay empleados" : "Sin resultados"}
+            </div>
+          ) : filtered.map(e => {
+            const name = e.name || "";
+            const specialty = e.specialty || "";
+            return (
+              <button
+                key={e.id}
+                type="button"
+                onMouseDown={() => { onSelect(String(e.id), name); setSearch(""); setOpen(false); }}
+                className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 transition-colors ${
+                  String(e.id) === selectedId ? "bg-[#edf7f4] text-[#1a5c3a] font-medium" : "text-gray-900"
+                }`}
+              >
+                <div className="flex flex-col">
+                  <span>{name}</span>
+                  {specialty && <span className="text-xs text-gray-500">{specialty}</span>}
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
 
 // ── Tipos que REQUIEREN horario registrado ────────────────────────────────────
 const REQUIRES_SCHEDULE: Array<EmployeeNews["type"]> = ["retraso", "ausencia"];
@@ -27,9 +90,6 @@ const SINGLE_DAY_ONLY: Array<EmployeeNews["type"]> = ["retraso", "ausencia"];
 
 // ── Tipos que permiten MÚLTIPLES DÍAS ─────────────────────────────────────────
 const MULTIPLE_DAYS_ALLOWED: Array<EmployeeNews["type"]> = ["permiso", "incapacidad"];
-
-// ── Tipos que NO requieren horario registrado ──────────────────────────────────
-const NO_SCHEDULE_REQUIRED: Array<EmployeeNews["type"]> = ["permiso", "incapacidad", "otro"];
 
 interface NewsFormProps {
   formData:    NewsFormData;
@@ -140,11 +200,6 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
     employeeSchedules.flatMap(week => (week.daySchedules ?? []).map((ds: any) => ds.dayIndex))
   );
 
-  const isWorkingDay = (dateStr: string): boolean => {
-    if (!dateStr || employeeSchedules.length === 0) return false;
-    return availableDayIndices.has(getDayIndexFromDate(dateStr));
-  };
-
   const getDayScheduleForDate = (dateStr: string) => {
     if (!dateStr || employeeSchedules.length === 0) return null;
     const dayIdx = getDayIndexFromDate(dateStr);
@@ -189,9 +244,8 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
   })();
 
   // ── Handlers ──────────────────────────────────────────────────────────────
-  const handleEmployeeChange = (empId: string) => {
-    const emp = employees.find(e => String(e.id) === empId);
-    if (emp) setFormData(prev => ({ ...prev, employeeId: String(emp.id), employeeName: emp.name }));
+  const handleEmployeeChange = (empId: string, empName: string) => {
+    setFormData(prev => ({ ...prev, employeeId: empId, employeeName: empName }));
   };
 
   const prevViewWeek = () => {
@@ -257,23 +311,12 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
             {formData.employeeName || "Cargando..."}
           </div>
         ) : (
-          // Selector normal para administradores
-          <Select
-            value={formData.employeeId || "placeholder"}
-            onValueChange={v => { if (v !== "placeholder") handleEmployeeChange(v); }}
-          >
-            <SelectTrigger className="border-gray-300">
-              <SelectValue placeholder="Selecciona un empleado" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="placeholder" disabled>Selecciona un empleado</SelectItem>
-              {employees.map(emp => (
-                <SelectItem key={emp.id} value={String(emp.id)}>
-                  {emp.name}{emp.specialty ? ` — ${emp.specialty}` : ""}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          // Búsqueda de empleado para administradores
+          <EmployeeSearch
+            employees={employees}
+            selectedId={formData.employeeId || ""}
+            onSelect={handleEmployeeChange}
+          />
         )}
         {isEmployee && (
           <p className="text-xs text-gray-500 flex items-center gap-1">
@@ -320,6 +363,8 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
           </Label>
           <input
             type="date"
+            min={new Date().toISOString().split("T")[0]}
+            max={(() => { const d = new Date(); d.setMonth(d.getMonth() + 3); return d.toISOString().split("T")[0]; })()}
             className={`w-full h-10 px-3 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#1a5c3a] focus:border-transparent ${
               requiresSchedule && formData.date && !startDateHasSchedule
                 ? "border-red-400 bg-red-50"
@@ -376,6 +421,8 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
           </Label>
           <input
             type="date"
+            min={formData.date || new Date().toISOString().split("T")[0]}
+            max={(() => { const d = new Date(); d.setMonth(d.getMonth() + 3); return d.toISOString().split("T")[0]; })()}
             className={`w-full h-10 px-3 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#1a5c3a] focus:border-transparent ${
               endDateInvalid
                 ? "border-red-400 bg-red-50"
@@ -384,7 +431,6 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
                 : "border-gray-300"
             }`}
             value={lockEndDate ? (formData.date || "") : (formData.fechaFinal || "")}
-            min={formData.date || undefined}
             readOnly={lockEndDate}
             onChange={e => { if (!lockEndDate) setFormData(prev => ({ ...prev, fechaFinal: e.target.value })); }}
           />

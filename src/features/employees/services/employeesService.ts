@@ -79,11 +79,11 @@ export async function resetEmployeePasswordApi(id: number, nuevaContrasena: stri
   }
 }
 
-export async function fetchCategoriesApi(): Promise<{ id: number; nombre: string }[]> {
-  const res = await fetch(`${API_URL}/categories?all=false`, {
+export async function fetchRolesApi(): Promise<{ id: number; nombre: string }[]> {
+  const res = await fetch(`${API_URL}/api/users/roles`, {
     headers: { Authorization: `Bearer ${getToken()}` },
   });
   if (!res.ok) return [];
   const data = await res.json();
-  return data.map((c: any) => ({ id: c.id, nombre: c.nombre ?? c.name }));
+  return data.map((r: any) => ({ id: r.id, nombre: r.nombre ?? r.name }));
 }

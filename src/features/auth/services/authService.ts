@@ -33,27 +33,31 @@ async function parseJsonSafe(res: Response) {
 }
 
 export async function loginRequest(correo: string, contrasena: string) {
-  const res = await fetch(`${API_URL}/auth/login`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ correo, contrasena }),
-  });
+  try {
+    const res = await fetch(`${API_URL}/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ correo, contrasena }),
+    });
 
-  const data = await parseJsonSafe(res);
+    const data = await parseJsonSafe(res);
 
-  if (!res.ok) {
-    const apiError =
-      (data &&
-        typeof data === "object" &&
-        "error" in data &&
-        typeof data.error === "string" &&
-        data.error) ||
-      `Error HTTP ${res.status}`;
+    if (!res.ok) {
+      const apiError =
+        (data &&
+          typeof data === "object" &&
+          "error" in data &&
+          typeof data.error === "string" &&
+          data.error) ||
+        `Error al iniciar sesión. Código: ${res.status}`;
 
-    throw new Error(apiError);
+      throw new Error(apiError);
+    }
+
+    return data;
+  } catch (error: any) {
+    throw new Error(handleFetchError(error));
   }
-
-  return data;
 }
 
 export async function googleLoginRequest(idToken: string, profile?: GoogleProfileInput) {
@@ -122,68 +126,80 @@ export async function completeAuthSession(data: AuthSessionPayload) {
 }
 
 export async function forgotPasswordRequest(correo: string) {
-  const res = await fetch(`${API_URL}/auth/forgot-password`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ correo }),
-  });
+  try {
+    const res = await fetch(`${API_URL}/auth/forgot-password`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ correo }),
+    });
 
-  const data = await parseJsonSafe(res);
+    const data = await parseJsonSafe(res);
 
-  if (!res.ok) {
-    const apiError =
-      (data &&
-        typeof data === "object" &&
-        "error" in data &&
-        typeof data.error === "string" &&
-        data.error) ||
-      `Error HTTP ${res.status}`;
+    if (!res.ok) {
+      const apiError =
+        (data &&
+          typeof data === "object" &&
+          "error" in data &&
+          typeof data.error === "string" &&
+          data.error) ||
+        `Error al enviar correo de recuperación. Código: ${res.status}`;
 
-    throw new Error(apiError);
+      throw new Error(apiError);
+    }
+
+    return data;
+  } catch (error: any) {
+    throw new Error(handleFetchError(error));
   }
-
-  return data;
 }
 
 export async function resetPasswordRequest(
   token: string,
   nuevaPassword: string
 ) {
-  const res = await fetch(`${API_URL}/auth/reset-password`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ token, nuevaPassword }),
-  });
+  try {
+    const res = await fetch(`${API_URL}/auth/reset-password`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token, nuevaPassword }),
+    });
 
-  const data = await parseJsonSafe(res);
+    const data = await parseJsonSafe(res);
 
-  if (!res.ok) {
-    const apiError =
-      (data && typeof data === "object" && "error" in data && typeof data.error === "string" && data.error) ||
-      `Error HTTP ${res.status}`;
-    throw new Error(apiError);
+    if (!res.ok) {
+      const apiError =
+        (data && typeof data === "object" && "error" in data && typeof data.error === "string" && data.error) ||
+        `Error al restablecer contraseña. Código: ${res.status}`;
+      throw new Error(apiError);
+    }
+
+    return data;
+  } catch (error: any) {
+    throw new Error(handleFetchError(error));
   }
-
-  return data;
 }
 
 export async function validateResetTokenRequest(token: string) {
-  const res = await fetch(`${API_URL}/auth/validate-reset-token`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ token }),
-  });
+  try {
+    const res = await fetch(`${API_URL}/auth/validate-reset-token`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token }),
+    });
 
-  const data = await parseJsonSafe(res);
+    const data = await parseJsonSafe(res);
 
-  if (!res.ok) {
-    const apiError =
-      (data && typeof data === "object" && "error" in data && typeof data.error === "string" && data.error) ||
-      `Error HTTP ${res.status}`;
-    throw new Error(apiError);
+    if (!res.ok) {
+      const apiError =
+        (data && typeof data === "object" && "error" in data && typeof data.error === "string" && data.error) ||
+        `El enlace de recuperación no es válido o ha expirado`;
+      throw new Error(apiError);
+    }
+
+    return data;
+  } catch (error: any) {
+    throw new Error(handleFetchError(error));
   }
-
-  return data;
 }
 
 export async function setPasswordRequest(nuevaPassword: string) {
@@ -210,26 +226,30 @@ export async function setPasswordRequest(nuevaPassword: string) {
 }
 
 export async function changePasswordRequest(contrasenaActual: string, nuevaPassword: string) {
-  const token = localStorage.getItem("token");
-  const res = await fetch(`${API_URL}/auth/change-password`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify({ contrasenaActual, nuevaPassword }),
-  });
+  try {
+    const token = localStorage.getItem("token");
+    const res = await fetch(`${API_URL}/auth/change-password`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ contrasenaActual, nuevaPassword }),
+    });
 
-  const data = await parseJsonSafe(res);
+    const data = await parseJsonSafe(res);
 
-  if (!res.ok) {
-    const apiError =
-      (data && typeof data === "object" && "error" in data && typeof data.error === "string" && data.error) ||
-      `Error HTTP ${res.status}`;
-    throw new Error(apiError);
+    if (!res.ok) {
+      const apiError =
+        (data && typeof data === "object" && "error" in data && typeof data.error === "string" && data.error) ||
+        `Error al cambiar contraseña. Código: ${res.status}`;
+      throw new Error(apiError);
+    }
+
+    return data;
+  } catch (error: any) {
+    throw new Error(handleFetchError(error));
   }
-
-  return data;
 }
 
 export async function registerRequest(payload: {
@@ -241,38 +261,42 @@ export async function registerRequest(payload: {
   tipocedula?: string;
   cedula?: string;
 }) {
-  // Mapear los nombres del frontend a los que espera el backend
-  const body = {
-    correo:           payload.email,
-    contrasena:       payload.password,
-    nombre:           payload.fullName,
-    apellido:         payload.apellido,
-    telefono:         payload.phone,
-    tipo_documento:   payload.tipocedula,
-    numero_documento: payload.cedula,
-  };
+  try {
+    // Mapear los nombres del frontend a los que espera el backend
+    const body = {
+      correo:           payload.email,
+      contrasena:       payload.password,
+      nombre:           payload.fullName,
+      apellido:         payload.apellido,
+      telefono:         payload.phone,
+      tipo_documento:   payload.tipocedula,
+      numero_documento: payload.cedula,
+    };
 
-  const res  = await fetch(`${API_URL}/auth/register`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  });
+    const res  = await fetch(`${API_URL}/auth/register`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
 
-  const data = await parseJsonSafe(res);
+    const data = await parseJsonSafe(res);
 
-  if (!res.ok) {
-    const apiError =
-      (data &&
-        typeof data === "object" &&
-        "error" in data &&
-        typeof data.error === "string" &&
-        data.error) ||
-      `Error HTTP ${res.status}`;
+    if (!res.ok) {
+      const apiError =
+        (data &&
+          typeof data === "object" &&
+          "error" in data &&
+          typeof data.error === "string" &&
+          data.error) ||
+        `Error al registrar usuario. Código: ${res.status}`;
 
-    throw new Error(apiError);
+      throw new Error(apiError);
+    }
+
+    return data;
+  } catch (error: any) {
+    throw new Error(handleFetchError(error));
   }
-
-  return data;
 }
 
 export interface LoginPageProps {
