@@ -279,8 +279,16 @@ export function useAppointments(userRole?: string) {
       const empsDisponibles = await fetchEmployeesByDate(fechaStr, formData.startTime);
       console.log('[loadEmployeesForService] Empleados con horario en fecha:', empsDisponibles.map(e => `${e.name} (${e.specialty})`));
       
-      // Filtrar por especialidad que coincida con la categoría del servicio (case-insensitive y trim)
+      // Filtrar por rolId si ambos tienen el campo, sino por especialidad/categoría
       const empsEspecialistas = empsDisponibles.filter(e => {
+        // Comparación por rolId (más confiable)
+        if (service.categoryRolId && e.specialtyRolId) {
+          const match = e.specialtyRolId === service.categoryRolId;
+          console.log(`[loadEmployeesForService] ${e.name}: rolId ${e.specialtyRolId} === ${service.categoryRolId} ? ${match}`);
+          return match;
+        }
+        
+        // Fallback: comparación por string (menos confiable)
         const empSpecialty = (e.specialty || '').toLowerCase().trim();
         const serviceCategory = (service.category || '').toLowerCase().trim();
         const match = empSpecialty === serviceCategory;

@@ -3,6 +3,7 @@ export interface Service {
   id: string;
   name: string;
   category: string;
+  categoryRolId?: number | null; // ID del rol asociado a la categoría
   duration: number;
   price: number;
 }
@@ -11,6 +12,7 @@ export interface Employee {
   id: string;
   name: string;
   specialty: string;
+  specialtyRolId?: number | null; // ID del rol del usuario (especialidad)
   color: string;
 }
 
