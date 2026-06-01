@@ -4,7 +4,7 @@ import { Category, CategoryFormData } from "../types";
 import { fetchCategoriesApi, createCategoryApi, updateCategoryApi, deleteCategoryApi, } from "../services/categoriesService";
 import { DEFAULT_COLOR } from "../constants";
 
-const EMPTY_FORM: CategoryFormData = { name: "", description: "", color: DEFAULT_COLOR };
+const EMPTY_FORM: CategoryFormData = { name: "", description: "", color: DEFAULT_COLOR, rolId: "" };
 
 export function useCategories() {
   const [categories,        setCategories]        = useState<Category[]>([]);
@@ -150,7 +150,12 @@ export function useCategories() {
 
   const handleEdit = (category: Category) => {
     setEditingCategory(category);
-    setFormData({ name: category.name, description: category.description, color: category.color });
+    setFormData({ 
+      name: category.name, 
+      description: category.description, 
+      color: category.color,
+      rolId: category.rolId ? String(category.rolId) : ""
+    });
     setIsDialogOpen(true);
   };
 

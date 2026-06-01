@@ -3,7 +3,7 @@ import { User, Upload, Loader2, Save, X, ImageIcon, Lock } from "lucide-react";
 import { SpaPage } from "../../../shared/components/layout/SpaPage";
 import { toast } from "sonner";
 import { uploadImage } from "../../../shared/utils/uploadImage";
-import { changePasswordRequest } from "../../auth/services/authService";
+import { changePasswordRequest, setPasswordRequest } from "../../auth/services/authService";
 
 const API_URL = import.meta.env.VITE_API_URL ?? "https://backend-highsoft-sena-production.up.railway.app";
 const getToken = () => localStorage.getItem("token");
@@ -47,8 +47,21 @@ export function ClientProfilePage() {
 
   const [passForm,   setPassForm]   = useState({ current: "", next: "", confirm: "" });
   const [savingPass, setSavingPass] = useState(false);
+  const [registroViaGoogle, setRegistroViaGoogle] = useState(false);
 
   useEffect(() => {
+    fetch(`${API_URL}/auth/me`, { headers: authHeaders() })
+      .then(r => r.ok ? r.json() : null)
+      .then(me => {
+        if (me?.registroViaGoogle) setRegistroViaGoogle(true);
+      })
+      .catch(() => {
+        try {
+          const u = JSON.parse(localStorage.getItem("usuario") ?? "{}");
+          if (u.registroViaGoogle) setRegistroViaGoogle(true);
+        } catch { /* silencioso */ }
+      });
+
     fetch(`${API_URL}/clients/mi-perfil`, { headers: authHeaders() })
       .then(r => r.json())
       .then(data => {
@@ -117,12 +130,19 @@ export function ClientProfilePage() {
         const err = await res.json();
         throw new Error(err.error ?? "Error al guardar");
       }
+      const data = await res.json();
+      // Actualizar el estado local con la respuesta del servidor
+      setForm(f => ({
+        ...f,
+        image: data.foto_perfil ?? "",
+      }));
+      setImagePreview(data.foto_perfil ?? "");
       const stored = localStorage.getItem("usuario");
       if (stored) {
         const u = JSON.parse(stored);
         u.nombre = form.firstName.trim();
         u.apellido = form.lastName.trim();
-        u.foto = form.image || "";
+        u.foto = data.foto_perfil ?? "";
         localStorage.setItem("usuario", JSON.stringify(u));
       }
       window.dispatchEvent(new Event("usuario-updated"));
@@ -135,8 +155,11 @@ export function ClientProfilePage() {
   };
 
   const handleChangePassword = async () => {
-    if (!passForm.current || !passForm.next) {
+    if (!passForm.next) {
       toast.error("Completa todos los campos"); return;
+    }
+    if (!registroViaGoogle && !passForm.current) {
+      toast.error("Ingresa tu contraseña actual"); return;
     }
     if (passForm.next.length < 6) {
       toast.error("La nueva contraseña debe tener mínimo 6 caracteres"); return;
@@ -146,8 +169,13 @@ export function ClientProfilePage() {
     }
     setSavingPass(true);
     try {
-      await changePasswordRequest(passForm.current, passForm.next);
-      toast.success("Contraseña actualizada correctamente");
+      if (registroViaGoogle) {
+        await setPasswordRequest(passForm.next);
+        toast.success("Contraseña creada. Ya puedes entrar con correo y contraseña.");
+      } else {
+        await changePasswordRequest(passForm.current, passForm.next);
+        toast.success("Contraseña actualizada correctamente");
+      }
       setPassForm({ current: "", next: "", confirm: "" });
     } catch (err: any) {
       toast.error(err.message ?? "Error al cambiar contraseña");
@@ -281,12 +309,21 @@ export function ClientProfilePage() {
             <div style={{ paddingTop: 24, display: "flex", flexDirection: "column", gap: 14 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <Lock style={{ width: 14, height: 14, color: "#6b7c6b" }} />
-                <p style={{ fontSize: 13, fontWeight: 600, color: "#1a3a2a" }}>Cambiar Contraseña</p>
+                <p style={{ fontSize: 13, fontWeight: 600, color: "#1a3a2a" }}>
+                  {registroViaGoogle ? "Crear contraseña (opcional)" : "Cambiar Contraseña"}
+                </p>
               </div>
-              <div>
-                <label style={labelStyle}>Contraseña Actual</label>
-                <input style={inputStyle} type="password" value={passForm.current} onChange={e => setPassForm(f => ({ ...f, current: e.target.value }))} placeholder="••••••••" />
-              </div>
+              {registroViaGoogle && (
+                <p style={{ fontSize: 11, color: "#6b7c6b", lineHeight: 1.5, marginTop: -8 }}>
+                  Entraste con Google. Si quieres, crea una contraseña para entrar también con correo. Si no, sigue usando Google.
+                </p>
+              )}
+              {!registroViaGoogle && (
+                <div>
+                  <label style={labelStyle}>Contraseña Actual</label>
+                  <input style={inputStyle} type="password" value={passForm.current} onChange={e => setPassForm(f => ({ ...f, current: e.target.value }))} placeholder="••••••••" />
+                </div>
+              )}
               <div>
                 <label style={labelStyle}>Nueva Contraseña</label>
                 <input style={inputStyle} type="password" value={passForm.next} onChange={e => setPassForm(f => ({ ...f, next: e.target.value }))} placeholder="Mínimo 6 caracteres" />
@@ -310,7 +347,7 @@ export function ClientProfilePage() {
               onMouseLeave={e => { if (!savingPass) e.currentTarget.style.backgroundColor = "#c0392b"; }}
             >
               {savingPass ? <Loader2 style={{ width: 14, height: 14 }} className="animate-spin" /> : <Lock style={{ width: 14, height: 14 }} />}
-              {savingPass ? "Guardando..." : "Actualizar Contraseña"}
+              {savingPass ? "Guardando..." : registroViaGoogle ? "Crear contraseña" : "Actualizar Contraseña"}
             </button>
           </div>
         </div>

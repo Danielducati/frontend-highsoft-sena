@@ -170,6 +170,8 @@ export default function App() {
     setUserRole(null);
     setUserName("");
     setUserPhoto("");
+    localStorage.removeItem("token");
+    localStorage.removeItem("usuario");
     localStorage.removeItem("allowedPages");
     localStorage.removeItem("permisos");
     setCurrentPage("landing");
@@ -196,7 +198,7 @@ export default function App() {
   );
 
   if (currentPage === "register") return (
-    <><RegisterPage onBack={() => setCurrentPage("login")} onRegisterSuccess={() => setCurrentPage("login")} /><Toaster /></>
+    <><RegisterPage onBack={() => setCurrentPage("login")} onRegisterSuccess={() => setCurrentPage("login")} onLogin={handleLogin} /><Toaster /></>
   );
 
   if (currentPage === "reset-password") return (

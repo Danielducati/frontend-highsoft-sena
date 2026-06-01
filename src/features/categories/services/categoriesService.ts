@@ -40,6 +40,8 @@ export async function fetchCategoriesApi(): Promise<Category[]> {
     color:         cat.color || "#78D1BD",
     isActive:      (cat.estado ?? cat.Estado) === "Activo",
     servicesCount: cat.servicesCount || 0,
+    rolId:         cat.rolId,
+    rolNombre:     cat.rolNombre,
   }));
 }
 
@@ -51,6 +53,7 @@ export async function createCategoryApi(formData: CategoryFormData): Promise<voi
       nombre:      formData.name,
       descripcion: formData.description,
       color:       formData.color,
+      rolId:       formData.rolId && formData.rolId !== "" ? Number(formData.rolId) : null,
     }),
   });
 
@@ -78,6 +81,9 @@ export async function updateCategoryApi(
   if (formData.description !== undefined) body.descripcion = formData.description;
   if (formData.color !== undefined) body.color = formData.color;
   if (estadoFinal !== undefined) body.estado = estadoFinal;
+  if (formData.rolId !== undefined) {
+    body.rolId = formData.rolId && formData.rolId !== "" ? Number(formData.rolId) : null;
+  }
 
   console.log("Body a enviar:", JSON.stringify(body, null, 2)); // DEBUG
 

@@ -1,5 +1,25 @@
-import { API_URL } from "../constants";
-import { handleFetchError } from "../../../shared/utils/errorHandler";
+import { API_URL, resolveUserRole, resolveAllowedPages } from "../constants";
+import { UserRole } from "../types";
+
+export type GoogleProfileInput = {
+  nombre?: string;
+  apellido?: string;
+  foto?: string;
+  displayName?: string;
+};
+
+export type AuthSessionPayload = {
+  token: string;
+  usuario: {
+    id: number;
+    correo: string;
+    rol: string;
+    nombre?: string;
+    apellido?: string;
+    foto?: string;
+    registroViaGoogle?: boolean;
+  };
+};
 
 async function parseJsonSafe(res: Response) {
   const raw = await res.text();
@@ -40,32 +60,69 @@ export async function loginRequest(correo: string, contrasena: string) {
   }
 }
 
-export async function googleLoginRequest(idToken: string) {
-  try {
-    const res = await fetch(`${API_URL}/auth/google`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ idToken }),
-    });
+export async function googleLoginRequest(idToken: string, profile?: GoogleProfileInput) {
+  console.log("📤 [Google Login Request] Enviando petición al backend...");
+  console.log("📤 [Google Login Request] URL:", `${API_URL}/auth/google`);
+  console.log("📤 [Google Login Request] Profile:", profile);
+  
+  const res = await fetch(`${API_URL}/auth/google`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ idToken, ...profile }),
+  });
 
-    const data = await parseJsonSafe(res);
+  console.log("📥 [Google Login Request] Status:", res.status);
 
-    if (!res.ok) {
-      const apiError =
-        (data &&
-          typeof data === "object" &&
-          "error" in data &&
-          typeof data.error === "string" &&
-          data.error) ||
-        `Error al iniciar sesión con Google. Código: ${res.status}`;
+  const data = await parseJsonSafe(res);
 
-      throw new Error(apiError);
-    }
+  if (!res.ok) {
+    const apiError =
+      (data &&
+        typeof data === "object" &&
+        "error" in data &&
+        typeof data.error === "string" &&
+        data.error) ||
+      `Error HTTP ${res.status}`;
 
-    return data;
-  } catch (error: any) {
-    throw new Error(handleFetchError(error));
+    console.error("❌ [Google Login Request] Error del servidor:", apiError);
+    throw new Error(apiError);
   }
+
+  console.log("✅ [Google Login Request] Respuesta exitosa");
+  return data;
+}
+
+/** Guarda token, usuario y permisos tras login o registro con Google */
+export async function completeAuthSession(data: AuthSessionPayload) {
+  const rolBackend = data.usuario?.rol ?? "Cliente";
+  const rolFrontend: UserRole = resolveUserRole(rolBackend);
+
+  localStorage.setItem("token", data.token);
+  localStorage.setItem("usuario", JSON.stringify(data.usuario));
+
+  let permisos: string[] = [];
+  try {
+    const meRes = await fetch(`${API_URL}/auth/me`, {
+      headers: { Authorization: `Bearer ${data.token}` },
+    });
+    if (meRes.ok) {
+      const meData = await meRes.json();
+      permisos = meData.permisos ?? [];
+    }
+  } catch {
+    /* permisos vacíos si falla */
+  }
+
+  const allowedPages = resolveAllowedPages(permisos);
+  localStorage.setItem("permisos", JSON.stringify(permisos));
+  localStorage.setItem("allowedPages", JSON.stringify(allowedPages));
+
+  let firstPage: string | undefined;
+  if (rolFrontend !== "admin" && rolFrontend !== "client") {
+    firstPage = allowedPages.find((p) => p !== "users") ?? "users";
+  }
+
+  return { rolFrontend, rolBackend, firstPage };
 }
 
 export async function forgotPasswordRequest(correo: string) {
@@ -145,6 +202,29 @@ export async function validateResetTokenRequest(token: string) {
   }
 }
 
+export async function setPasswordRequest(nuevaPassword: string) {
+  const token = localStorage.getItem("token");
+  const res = await fetch(`${API_URL}/auth/establecer-contrasena`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ nuevaPassword }),
+  });
+
+  const data = await parseJsonSafe(res);
+
+  if (!res.ok) {
+    const apiError =
+      (data && typeof data === "object" && "error" in data && typeof data.error === "string" && data.error) ||
+      `Error HTTP ${res.status}`;
+    throw new Error(apiError);
+  }
+
+  return data;
+}
+
 export async function changePasswordRequest(contrasenaActual: string, nuevaPassword: string) {
   try {
     const token = localStorage.getItem("token");
@@ -219,16 +299,16 @@ export async function registerRequest(payload: {
   }
 }
 
-export type UserRole = "admin" | "employee" | "client";
-
 export interface LoginPageProps {
   onLogin: (role: UserRole, firstPage?: string) => void;
   onBack: () => void;
+  onRegister?: () => void;
 }
 
 export interface RegisterPageProps {
   onBack: () => void;
   onRegisterSuccess: () => void;
+  onLogin: (role: import("../types").UserRole, firstPage?: string) => void;
 }
 
 export interface RegisterFormData {

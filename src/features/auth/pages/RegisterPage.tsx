@@ -8,6 +8,7 @@ import { DOCUMENT_TYPES } from "../constants";
 import { RegisterPageProps } from "../types";
 import { useRegister } from "../hooks/UseRegister";
 import { RegisterSuccessScreen } from "../components/Registersuccessscreen";
+import { GoogleAuthButton } from "../components/GoogleAuthButton";
 
 const Err = ({ msg }: { msg?: string }) =>
   msg ? <p className="text-[10px] mt-0.5" style={{ color: "#e53e3e" }}>{msg}</p> : null;
@@ -18,13 +19,13 @@ const inputStyle = (err?: string) => ({
   ...(err ? { outline: "1.5px solid #e53e3e" } : {}),
 });
 
-export function RegisterPage({ onBack, onRegisterSuccess }: RegisterPageProps) {
+export function RegisterPage({ onBack, onRegisterSuccess, onLogin }: RegisterPageProps) {
   const {
     formData, handleChange,
     errors,
     showSuccess, showPassword, setShowPassword,
     loading, handleSubmit, handleGoogleRegister,
-  } = useRegister(onRegisterSuccess);
+  } = useRegister(onRegisterSuccess, onLogin);
 
   if (showSuccess) return <RegisterSuccessScreen />;
 
@@ -79,40 +80,12 @@ export function RegisterPage({ onBack, onRegisterSuccess }: RegisterPageProps) {
                 <p className="text-xs mb-3" style={{ color: "rgba(255,255,255,0.75)", fontFamily: "var(--font-body)" }}>
                   Registro rápido
                 </p>
-                <Button
-                  type="button"
-                  className="w-full h-12 rounded-full border text-base flex items-center justify-center gap-3 transition-all"
-                  style={{
-                    backgroundColor: "#ffffff",
-                    color: "#1f2937",
-                    borderColor: "#d1d5db",
-                    fontWeight: 500,
-                    boxShadow: "0 4px 12px rgba(0,0,0,0.12)",
-                  }}
-                  disabled={loading}
+                <GoogleAuthButton
                   onClick={handleGoogleRegister}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = "translateY(-1px)";
-                    e.currentTarget.style.boxShadow = "0 8px 18px rgba(0,0,0,0.2)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = "translateY(0)";
-                    e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.12)";
-                  }}
-                >
-                  <span
-                    className="w-6 h-6 rounded-full bg-white flex items-center justify-center border"
-                    style={{ borderColor: "#e5e7eb" }}
-                  >
-                    <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
-                      <path fill="#EA4335" d="M12 10.2v3.9h5.5c-.2 1.2-1.4 3.6-5.5 3.6-3.3 0-6-2.8-6-6.2s2.7-6.2 6-6.2c1.9 0 3.2.8 3.9 1.5l2.7-2.6C16.9 2.5 14.7 1.6 12 1.6 6.9 1.6 2.8 5.9 2.8 11s4.1 9.4 9.2 9.4c5.3 0 8.8-3.8 8.8-9.1 0-.6-.1-1-.1-1.1H12z" />
-                      <path fill="#34A853" d="M2.8 7.1l3.2 2.3c.9-2.1 3-3.6 6-3.6 1.9 0 3.2.8 3.9 1.5l2.7-2.6C16.9 2.5 14.7 1.6 12 1.6 8.3 1.6 5 3.7 2.8 7.1z" />
-                      <path fill="#4A90E2" d="M12 20.4c2.6 0 4.8-.9 6.4-2.5l-3-2.5c-.8.6-2 1.1-3.4 1.1-2.9 0-5.3-1.9-6.1-4.5l-3.2 2.5c2.1 3.5 5.6 5.9 9.3 5.9z" />
-                      <path fill="#FBBC05" d="M5.9 12c-.2-.6-.3-1.2-.3-1.9s.1-1.3.3-1.9L2.8 5.7C2 7.2 1.6 9 1.6 10.8s.4 3.6 1.2 5.1L5.9 12z" />
-                    </svg>
-                  </span>
-                  Continuar con Google
-                </Button>
+                  loading={loading}
+                  disabled={loading}
+                  label="Continuar con Google"
+                />
               </div>
 
               {[

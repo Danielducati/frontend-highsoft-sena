@@ -98,7 +98,7 @@ export function EmployeeFormDialog({
     const errs = validate(formData, !editingEmployee);
     setTouched(Object.keys(formData).reduce((acc, k) => ({ ...acc, [k]: true }), {}));
     if (Object.keys(errs).length > 0) {
-      toast.error("Revisa los campos marcados en rojo.");
+      toast.error("Por favor completa todos los campos obligatorios (*)");
       return;
     }
     onSubmit(formData);

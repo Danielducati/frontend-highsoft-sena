@@ -9,6 +9,7 @@ export interface LoginPageProps {
 export interface RegisterPageProps {
   onBack: () => void;
   onRegisterSuccess: () => void;
+  onLogin: (role: UserRole, firstPage?: string) => void;
 }
 
 export interface RegisterFormData {

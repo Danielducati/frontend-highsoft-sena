@@ -120,9 +120,8 @@ export function ClientFormDialog({
                 onValueChange={v => setFormData({
                   ...formData,
                   documentType: v,
-                  // Limpiar campos NIT al cambiar tipo
+                  // Solo limpiar campos exclusivos de NIT al cambiar tipo
                   razonSocial: "", representanteLegal: "", digitoVerificacion: "",
-                  firstName: "", lastName: "",
                 })}
               >
                 <SelectTrigger className="rounded-lg border-gray-200"><SelectValue placeholder="Seleccionar tipo" /></SelectTrigger>
