@@ -287,6 +287,29 @@ export function AppointmentsPage({ userRole }: AppointmentsModuleProps) {
         {/* ── Vista Calendario ── */}
         {viewMode === "calendar" && (
           <>
+            {/* Navegación semana */}
+            <Card className="border-gray-200 shadow-sm">
+              <CardContent className="p-3">
+                <div className="flex items-center justify-between">
+                  <button onClick={goToPreviousWeek} className="p-2 hover:bg-gray-100 rounded-lg">
+                    <ChevronLeft className="w-5 h-5 text-gray-600" />
+                  </button>
+                  <div className="flex items-center gap-3">
+                    <h3 className="text-gray-900">
+                      {getWeekDates()[0].toLocaleDateString("es-ES", { day: "numeric", month: "long" })}
+                      {" - "}
+                      {getWeekDates()[6].toLocaleDateString("es-ES", { day: "numeric", month: "long", year: "numeric" })}
+                    </h3>
+                    <Button variant="outline" size="sm" onClick={goToToday}
+                      className="border-gray-300 rounded-lg h-8 text-sm">Hoy</Button>
+                  </div>
+                  <button onClick={goToNextWeek} className="p-2 hover:bg-gray-100 rounded-lg">
+                    <ChevronRight className="w-5 h-5 text-gray-600" />
+                  </button>
+                </div>
+              </CardContent>
+            </Card>
+
             {/* Leyenda */}
             <Card className="border-gray-200 shadow-sm">
               <CardContent className="p-3">
@@ -559,29 +582,6 @@ export function AppointmentsPage({ userRole }: AppointmentsModuleProps) {
                   </div>
                 </div>
               </div>
-            </Card>
-
-            {/* Navegación semana - Movida abajo */}
-            <Card className="border-gray-200 shadow-sm">
-              <CardContent className="p-3">
-                <div className="flex items-center justify-between">
-                  <button onClick={goToPreviousWeek} className="p-2 hover:bg-gray-100 rounded-lg">
-                    <ChevronLeft className="w-5 h-5 text-gray-600" />
-                  </button>
-                  <div className="flex items-center gap-3">
-                    <h3 className="text-gray-900">
-                      {getWeekDates()[0].toLocaleDateString("es-ES", { day: "numeric", month: "long" })}
-                      {" - "}
-                      {getWeekDates()[6].toLocaleDateString("es-ES", { day: "numeric", month: "long", year: "numeric" })}
-                    </h3>
-                    <Button variant="outline" size="sm" onClick={goToToday}
-                      className="border-gray-300 rounded-lg h-8 text-sm">Hoy</Button>
-                  </div>
-                  <button onClick={goToNextWeek} className="p-2 hover:bg-gray-100 rounded-lg">
-                    <ChevronRight className="w-5 h-5 text-gray-600" />
-                  </button>
-                </div>
-              </CardContent>
             </Card>
           </>
         )}
