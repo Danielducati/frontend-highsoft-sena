@@ -202,19 +202,15 @@ export function AppointmentFormDialog({
                   <SelectTrigger><SelectValue placeholder="Selecciona servicio" /></SelectTrigger>
                   <SelectContent>
                     {(() => {
-                      const availableServices = services.filter(s =>
-                        employees.some(e =>
-                          e.specialty?.toLowerCase().trim() === s.category?.toLowerCase().trim()
-                        )
-                      );
-                      if (availableServices.length === 0) {
+                      // Mostrar TODOS los servicios activos, no filtrar por empleados disponibles
+                      if (services.length === 0) {
                         return (
                           <SelectItem value="empty" disabled>
-                            No hay servicios con empleados disponibles para esta fecha
+                            No hay servicios disponibles
                           </SelectItem>
                         );
                       }
-                      return availableServices.map(s => (
+                      return services.map(s => (
                         <SelectItem key={s.id} value={s.id}>
                           <div className="flex flex-col">
                             <span>{s.name}</span>
