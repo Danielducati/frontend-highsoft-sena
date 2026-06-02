@@ -128,9 +128,16 @@ function ServiceSearch({ services, employees, selectedId, onSelect }: {
                 s.id === selectedId ? "bg-[#edf7f4] text-[#1a5c3a] font-medium" : "text-gray-900"
               }`}
             >
-              <div className="flex flex-col">
-                <span>{s.name}</span>
-                <span className="text-xs text-gray-500">{s.category} • {s.duration} min</span>
+              <div className="flex items-center justify-between">
+                <div className="flex flex-col">
+                  <span>{s.name}</span>
+                  <span className="text-xs text-gray-500">{s.category} • {s.duration} min</span>
+                </div>
+                {s.price > 0 && (
+                  <span className="text-xs font-semibold text-[#1a5c3a] ml-2 flex-shrink-0">
+                    ${s.price.toLocaleString("es-CO")}
+                  </span>
+                )}
               </div>
             </button>
           ))}
@@ -393,7 +400,14 @@ export function AppointmentFormDialog({
                     <div key={i} className="flex items-center justify-between p-3 bg-white rounded-lg border-l-4"
                       style={{ borderLeftColor: emp?.color ?? "#ccc" }}>
                       <div className="flex-1">
-                        <p className="text-sm text-gray-900">{s.serviceName}</p>
+                        <div className="flex items-center justify-between">
+                          <p className="text-sm text-gray-900">{s.serviceName}</p>
+                          {s.price > 0 && (
+                            <span className="text-sm font-semibold text-[#1a5c3a]">
+                              ${s.price.toLocaleString("es-CO")}
+                            </span>
+                          )}
+                        </div>
                         <div className="flex items-center gap-3 mt-1 text-xs text-gray-600">
                           <span className="flex items-center gap-1"><User className="w-3 h-3" />{s.employeeName}</span>
                           <span className="flex items-center gap-1">
@@ -402,7 +416,7 @@ export function AppointmentFormDialog({
                           </span>
                         </div>
                       </div>
-                      <button onClick={() => onRemoveService(i)} className="p-1 hover:bg-red-50 rounded text-[#F87171]">
+                      <button onClick={() => onRemoveService(i)} className="p-1 hover:bg-red-50 rounded text-[#F87171] ml-2">
                         <X className="w-4 h-4" />
                       </button>
                     </div>
@@ -417,6 +431,17 @@ export function AppointmentFormDialog({
                     )}`}
                   </p>
                 </div>
+                {(() => {
+                  const total = selectedServices.reduce((sum, s) => sum + (s.price ?? 0), 0);
+                  return total > 0 ? (
+                    <div className="flex items-center justify-between px-3 py-2 bg-[#edf7f4] border border-[#c8ead9] rounded-lg">
+                      <span className="text-sm font-semibold text-[#1a3a2a]">Total estimado</span>
+                      <span className="text-base font-bold text-[#1a3a2a]">
+                        ${total.toLocaleString("es-CO")}
+                      </span>
+                    </div>
+                  ) : null;
+                })()}
               </div>
             )}
           </div>

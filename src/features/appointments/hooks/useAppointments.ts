@@ -351,6 +351,7 @@ export function useAppointments(userRole?: string) {
       employeeName: employee.name,
       duration:     service.duration,
       startTime:    serviceStartTime,
+      price:        service.price ?? 0,
     }]);
     setCurrentService({ serviceId: "", employeeId: "" });
     toast.success("Servicio agregado");

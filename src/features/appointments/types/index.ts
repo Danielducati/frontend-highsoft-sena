@@ -29,6 +29,7 @@ export interface AppointmentService {
   employeeName: string;
   duration: number;
   startTime: string;
+  price: number;
 }
 
 export interface AppointmentItem {
