@@ -109,10 +109,10 @@
 .hl-hero {
   position: relative;
   height: 100vh;
-  min-height: 600px;
+  min-height: 640px;
   display: flex;
   flex-direction: column;
- justify-content: space-between;
+  justify-content: space-between;
 }
 
 .hl-hero__bg {
@@ -144,8 +144,12 @@
   z-index: 2;
   text-align: center;
   padding: 4%;
-  margin-top: auto;
-  padding-top: 12rem;
+  padding-top: clamp(6rem, 15vh, 12rem);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 .hl-hero__eyebrow {
@@ -172,7 +176,7 @@
   color: rgba(255,255,255,0.78);
   line-height: 1.75;
   max-width: 520px;
-  margin: 0 auto 2.75rem;
+  margin: 0 auto clamp(1.5rem, 4vh, 2.75rem);
 }
 
 .hl-hero__actions {
@@ -647,6 +651,8 @@
 }
 
 /* ─── Responsive ─── */
+
+/* Pantallas medianas: ~1024px */
 @media (max-width: 1024px) {
   .hl-grid {
     grid-template-columns: 1fr 1fr;
@@ -659,8 +665,45 @@
   .hl-about { grid-template-columns: 1fr; gap: 2.5rem; }
   .hl-footer { grid-template-columns: 1fr 1fr; }
   .hl-contact__grid { grid-template-columns: 1fr; max-width: 420px; }
+
+  /* Hero */
+  .hl-hero { height: auto; min-height: 100svh; }
+  .hl-hero__content { padding-top: clamp(5rem, 12vh, 10rem); }
+
+  /* Stats: comprimir en fila */
+  .hl-stats {
+    gap: 1.2rem;
+    padding: 1.25rem 1.5rem;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+  }
+  .hl-stat strong { font-size: 0.82rem; }
+  .hl-stat span   { font-size: 0.62rem; }
+  .hl-stat__cta   { padding: 0.45rem 0.9rem; font-size: 0.75rem; flex-shrink: 0; }
+
+  /* Secciones: reducir padding lateral */
+  .hl-services-intro,
+  .hl-grid,
+  .hl-about,
+  .hl-quote,
+  .hl-contact { padding-left: 2rem; padding-right: 2rem; }
 }
 
+/* Stats 2 columnas cuando no caben en fila */
+@media (max-width: 860px) {
+  .hl-stats {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem 1.5rem;
+    padding: 1.5rem;
+    justify-items: center;
+    text-align: center;
+  }
+  .hl-stat { flex-direction: column; gap: 0.3rem; align-items: center; }
+  .hl-stat__cta { grid-column: 1 / -1; width: auto; min-width: 160px; }
+}
+
+/* Móvil: 768px */
 @media (max-width: 768px) {
   .hl-landing { font-size: 16px; }
   .hl-header { padding: 1rem 1.25rem; }
@@ -668,57 +711,70 @@
   .hl-header__auth { gap: 0.5rem; }
   .hl-btn-register,
   .hl-btn-reserve { padding: 0.6rem 0.85rem; font-size: 0.75rem; }
-  
-  .hl-hero__content { padding-top: 8rem; }
-  .hl-hero__title { font-size: clamp(2.5rem, 8vw, 4rem); }
-  .hl-hero__subtitle { font-size: 1rem; padding: 0 1rem; }
-  
-  .hl-stats { 
-    flex-direction: column; 
-    gap: 1.5rem; 
-    padding: 2rem 1.5rem; 
-    align-items: center; 
+
+  .hl-hero { min-height: 0; height: auto; }
+  .hl-hero__content {
+    padding-top: clamp(5rem, 14vh, 8rem);
+    padding-bottom: 1.5rem;
+  }
+  .hl-hero__title { font-size: clamp(2rem, 8vw, 3.2rem); }
+  .hl-hero__subtitle { font-size: 0.95rem; padding: 0 1rem; margin-bottom: 1.75rem; }
+
+  .hl-stats {
+    display: flex !important;
+    flex-direction: column;
+    gap: 1.25rem;
+    padding: 2rem 1.5rem;
+    align-items: center;
     text-align: center;
   }
-  .hl-stat { flex-direction: column; gap: 0.5rem; }
-  .hl-stat__cta { margin-top: 0.5rem; width: 100%; }
+  .hl-stat { flex-direction: column; gap: 0.4rem; align-items: center; }
+  .hl-stat strong { font-size: 0.95rem; }
+  .hl-stat span   { font-size: 0.7rem; }
+  .hl-stat__cta   { margin-top: 0.5rem; width: 100%; max-width: 240px; }
 
   .hl-services-intro,
   .hl-grid,
   .hl-about,
   .hl-quote,
   .hl-contact { padding-left: 1.5rem; padding-right: 1.5rem; }
-  
+
   .hl-services-intro { flex-direction: column; gap: 1.5rem; }
-  
+
   .hl-grid {
     grid-template-columns: 1fr;
     grid-template-areas: "featured" "tall" "portrait" "cta";
   }
   .hl-card--tall { min-height: 380px; }
-  
+
   .hl-about { grid-template-columns: 1fr; gap: 3rem; }
   .hl-about__images { grid-template-columns: 1fr; gap: 1.5rem; }
   .hl-about__img-wrap--offset { margin-top: 0; }
   .hl-about__stats { flex-direction: column; gap: 1.5rem; align-items: center; text-align: center; }
   .hl-about__text { display: flex; flex-direction: column; align-items: center; text-align: center; }
-  
+
   .hl-quote__text { font-size: 1.4rem; }
-  
+
   .hl-contact__grid { grid-template-columns: 1fr; gap: 1.5rem; width: 100%; max-width: 100%; }
-  
+
   .hl-footer { grid-template-columns: 1fr; gap: 2.5rem; text-align: center; }
   .hl-footer__col { align-items: center; }
   .hl-footer__social { justify-content: center; }
 }
 
+/* Móvil pequeño: 480px */
 @media (max-width: 480px) {
   .hl-header__logo { font-size: 1.2rem; }
   .hl-btn-register, .hl-btn-reserve { padding: 0.5rem 0.65rem; font-size: 0.7rem; }
-  
+
+  .hl-hero__content { padding-top: clamp(4.5rem, 12vh, 7rem); }
+  .hl-hero__eyebrow { display: none; }
+  .hl-hero__title { margin-bottom: 0.85rem; }
+  .hl-hero__subtitle { margin-bottom: 1.5rem; }
+
   .hl-hero__actions { flex-direction: column; width: 100%; }
   .hl-hero__actions button { width: 100%; }
-  
+
   .hl-section-title { font-size: 2rem; }
 }
 
@@ -779,11 +835,11 @@
 /* Info panel */
 .hl-carousel__info {
   position: absolute;
-  left: 0;
+  left: 5rem;
   top: 50%;
   transform: translateY(-50%);
-  padding: 0 5rem;
-  max-width: 560px;
+  padding: 0 2rem 0 0;
+  max-width: 520px;
   display: flex;
   flex-direction: column;
   gap: 1rem;
@@ -862,7 +918,7 @@
   transform: translateY(-50%) scale(1.08);
 }
 
-.hl-carousel__arrow--prev { left: 2rem; }
+.hl-carousel__arrow--prev { left: 1.5rem; }
 .hl-carousel__arrow--next { right: 2rem; }
 
 /* Dots */
@@ -937,4 +993,4 @@
     transform: none;
     padding: 0 1.25rem;
   }
-}
+}
