@@ -100,7 +100,7 @@ function QuotClientSearch({ clients, selectedId, onSelect, error, onBlur }: {
           placeholder={selectedName || "Buscar cliente por nombre..."}
           value={search}
           onChange={e => { setSearch(e.target.value); setOpen(true); }}
-          onFocus={() => setOpen(true)}
+          onClick={() => setOpen(true)}
           onBlur={() => { setTimeout(() => setOpen(false), 150); onBlur?.(); }}
           className={`w-full rounded-lg border px-3 py-2 text-sm bg-white text-gray-900 outline-none ${
             error ? "border-red-500 bg-red-50" : selected ? "border-[#1a5c3a] bg-[#edf7f4]" : "border-gray-200"

@@ -90,7 +90,7 @@ getAll: async () => {
 },
 
 getEmployees: async () => {
-    const res = await fetch(`${API}/employees`, { headers: authHeaders() });
+    const res = await fetch(`${API}/employees?activos=true`, { headers: authHeaders() });
     if (!res.ok) throw new Error("Error al cargar empleados");
     const data = await res.json();
     return data.map((e: any) => ({
