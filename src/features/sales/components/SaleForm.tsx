@@ -33,7 +33,19 @@ type Errors = { client?: string; services?: string; payment?: string; appointmen
 function validateDirect(data: SaleFormData): Errors {
   const e: Errors = {};
   if (data.guestMode) {
-    if (!data.guestFirstName?.trim()) e.client = "El nombre del cliente es obligatorio.";
+    if (!data.guestFirstName?.trim()) {
+      e.client = "El nombre del cliente es obligatorio.";
+    } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s]+$/.test(data.guestFirstName.trim())) {
+      e.client = "El nombre solo puede contener letras.";
+    } else if (data.guestFirstName.trim().length > 50) {
+      e.client = "El nombre no puede superar 50 caracteres.";
+    }
+
+    if (data.guestLastName?.trim() && !/^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s]+$/.test(data.guestLastName.trim())) {
+      e.client = "El apellido solo puede contener letras.";
+    } else if ((data.guestLastName?.trim().length ?? 0) > 50) {
+      e.client = "El apellido no puede superar 50 caracteres.";
+    }
     
     // Validación de teléfono: debe tener exactamente 10 dígitos si se proporciona
     if (data.guestPhone?.trim()) {
@@ -398,8 +410,12 @@ export function SaleForm({
                     <Input
                       className={`rounded-lg ${liveErr.client ? "border-red-500 bg-red-50" : "border-gray-200"}`}
                       value={formData.guestFirstName ?? ""}
-                      onChange={e => setFormData(prev => ({ ...prev, guestFirstName: e.target.value }))}
+                      onChange={e => {
+                        const val = e.target.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s]/g, "").slice(0, 50);
+                        setFormData(prev => ({ ...prev, guestFirstName: val }));
+                      }}
                       placeholder="Juan"
+                      maxLength={50}
                       onBlur={() => touch("client")}
                     />
                   </div>
@@ -408,8 +424,12 @@ export function SaleForm({
                     <Input
                       className="rounded-lg border-gray-200"
                       value={formData.guestLastName ?? ""}
-                      onChange={e => setFormData(prev => ({ ...prev, guestLastName: e.target.value }))}
+                      onChange={e => {
+                        const val = e.target.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s]/g, "").slice(0, 50);
+                        setFormData(prev => ({ ...prev, guestLastName: val }));
+                      }}
                       placeholder="Pérez"
+                      maxLength={50}
                     />
                   </div>
                 </div>
