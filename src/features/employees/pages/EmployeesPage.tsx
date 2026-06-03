@@ -13,7 +13,10 @@ import { EmployeeDeleteDialog } from "../components/EmployeeDeleteDialog";
 import { ImageWithFallback } from "../../guidelines/figma/ImageWithFallback";
 import { SpaPage } from "../../../shared/components/layout/SpaPage";
 
+import { usePermisos } from "../../../shared/hooks/usePermisos";
+
 export function EmployeesPage({ userRole }: EmployeesModuleProps) {
+  const { can } = usePermisos();
   const {
     employees, categories, loading, saving,
     searchTerm, setSearchTerm,
@@ -39,7 +42,7 @@ export function EmployeesPage({ userRole }: EmployeesModuleProps) {
       subtitle={`${employees.length} empleados • ${activeEmployees} activos`}
       icon={<Users className="w-6 h-6" style={{ color: "#1a3a2a" }} />}
       action={
-        userRole === "admin" ? (
+        can("empleados.crear") ? (
           <button
             onClick={() => { resetForm(); setIsDialogOpen(true); }}
             style={{
@@ -132,7 +135,7 @@ export function EmployeesPage({ userRole }: EmployeesModuleProps) {
                       <th className="text-left px-4 py-3 text-sm text-gray-700">Especialidad</th>
                       <th className="text-left px-4 py-3 text-sm text-gray-700">Contacto</th>
                       <th className="text-left px-4 py-3 text-sm text-gray-700">Estado</th>
-                      {userRole === "admin" && (
+                      {(can("empleados.editar") || can("empleados.eliminar")) && (
                         <th className="text-center px-4 py-3 text-sm text-gray-700 w-32">Acciones</th>
                       )}
                     </tr>
@@ -186,7 +189,7 @@ export function EmployeesPage({ userRole }: EmployeesModuleProps) {
 
                         {/* Estado */}
                         <td className="px-4 py-3">
-                          {userRole === "admin" ? (
+                          {can("empleados.editar") ? (
                             <div className="flex items-center gap-2">
                               <Switch
                                 checked={employee.isActive}
@@ -213,7 +216,7 @@ export function EmployeesPage({ userRole }: EmployeesModuleProps) {
                         </td>
 
                         {/* Acciones */}
-                        {userRole === "admin" && (
+                        {(can("empleados.editar") || can("empleados.eliminar")) && (
                           <td className="px-4 py-3">
                             <div className="flex items-center justify-center gap-1">
                               <button
@@ -227,29 +230,33 @@ export function EmployeesPage({ userRole }: EmployeesModuleProps) {
                                 <Eye className="w-4 h-4" />
                               </button>
 
-                              <button
-                                onClick={() => employee.isActive && handleEdit(employee)}
-                                title={employee.isActive ? "Editar" : "Activa el empleado para editar"}
-                                disabled={!employee.isActive}
-                                className="p-2 rounded-lg transition-colors"
-                                style={{ color: employee.isActive ? "#1a5c3a" : "#d1d5db", cursor: employee.isActive ? "pointer" : "not-allowed" }}
-                                onMouseEnter={e => { if (employee.isActive) e.currentTarget.style.backgroundColor = "#edf7f4"; }}
-                                onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
-                              >
-                                <Pencil className="w-4 h-4" />
-                              </button>
+                              {can("empleados.editar") && (
+                                <button
+                                  onClick={() => employee.isActive && handleEdit(employee)}
+                                  title={employee.isActive ? "Editar" : "Activa el empleado para editar"}
+                                  disabled={!employee.isActive}
+                                  className="p-2 rounded-lg transition-colors"
+                                  style={{ color: employee.isActive ? "#1a5c3a" : "#d1d5db", cursor: employee.isActive ? "pointer" : "not-allowed" }}
+                                  onMouseEnter={e => { if (employee.isActive) e.currentTarget.style.backgroundColor = "#edf7f4"; }}
+                                  onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
+                                >
+                                  <Pencil className="w-4 h-4" />
+                                </button>
+                              )}
 
-                              <button
-                                onClick={() => employee.isActive && confirmDelete(employee.id)}
-                                title={employee.isActive ? "Eliminar" : "Activa el empleado para eliminar"}
-                                disabled={!employee.isActive}
-                                className="p-2 rounded-lg transition-colors"
-                                style={{ color: employee.isActive ? "#EF4444" : "#d1d5db", cursor: employee.isActive ? "pointer" : "not-allowed" }}
-                                onMouseEnter={e => { if (employee.isActive) e.currentTarget.style.backgroundColor = "#fef2f2"; }}
-                                onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </button>
+                              {can("empleados.eliminar") && (
+                                <button
+                                  onClick={() => employee.isActive && confirmDelete(employee.id)}
+                                  title={employee.isActive ? "Eliminar" : "Activa el empleado para eliminar"}
+                                  disabled={!employee.isActive}
+                                  className="p-2 rounded-lg transition-colors"
+                                  style={{ color: employee.isActive ? "#EF4444" : "#d1d5db", cursor: employee.isActive ? "pointer" : "not-allowed" }}
+                                  onMouseEnter={e => { if (employee.isActive) e.currentTarget.style.backgroundColor = "#fef2f2"; }}
+                                  onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              )}
                             </div>
                           </td>
                         )}

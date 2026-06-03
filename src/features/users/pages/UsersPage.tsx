@@ -12,8 +12,10 @@ import { useUsers } from "../hooks/useUsers";
 import { UserFormDialog } from "../components/UserFormDialog";
 import { UserViewDialog } from "../components/UserViewDialog";
 import { UserDeleteDialog } from "../components/UserDeleteDialog";
+import { usePermisos } from "../../../shared/hooks/usePermisos";
 
 export function UsersPage({ userRole }: UsersModuleProps) {
+  const { can } = usePermisos();
   const {
     users, roles, loading, activeUsers,
     searchTerm, setSearchTerm,
@@ -39,7 +41,7 @@ export function UsersPage({ userRole }: UsersModuleProps) {
       subtitle={`${users.length} usuarios • ${activeUsers} activos`}
       icon={<UsersIcon className="w-6 h-6" style={{ color: "#1a3a2a" }} />}
       action={
-        userRole === "admin" ? (
+        can("usuarios.crear") ? (
           <button
             onClick={() => { resetForm(); setIsDialogOpen(true); }}
             style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "10px 20px", borderRadius: 10, backgroundColor: "#1a3a2a", color: "#ffffff", fontSize: 14, fontWeight: 600, fontFamily: "var(--font-body)", border: "none", cursor: "pointer" }}
@@ -164,7 +166,7 @@ export function UsersPage({ userRole }: UsersModuleProps) {
 
                           {/* SWITCH DE ESTADO */}
                           <td className="px-4 py-3">
-                            {userRole === "admin" ? (
+                            {can("usuarios.editar") ? (
                               <button
                                 onClick={() => !isAdmin && handleToggleStatus(user)}
                                 title={isAdmin ? "No se puede desactivar un administrador" : user.isActive ? "Desactivar usuario" : "Activar usuario"}
@@ -206,7 +208,7 @@ export function UsersPage({ userRole }: UsersModuleProps) {
 
                           {/* ACCIONES */}
                           <td className="px-4 py-3">
-                            {userRole === "admin" && (
+                            {(can("usuarios.editar") || can("usuarios.eliminar")) && (
                               <div className="flex items-center justify-center gap-1">
                                 <button
                                   onClick={() => setViewingUser(user)}
@@ -218,40 +220,36 @@ export function UsersPage({ userRole }: UsersModuleProps) {
                                 >
                                   <Eye className="w-4 h-4" />
                                 </button>
-                                <button
-                                  onClick={() => user.isActive && handleEdit(user)}
-                                  title={user.isActive ? "Editar" : "Activa el usuario para editar"}
-                                  disabled={!user.isActive}
-                                  className="p-2 rounded-lg transition-colors"
-                                  style={{ color: user.isActive ? "#1a5c3a" : "#d1d5db", cursor: user.isActive ? "pointer" : "not-allowed" }}
-                                  onMouseEnter={(e) => { if (user.isActive) e.currentTarget.style.backgroundColor = "#edf7f4"; }}
-                                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
-                                >
-                                  <Pencil className="w-4 h-4" />
-                                </button>
-                                <button
-                                  onClick={() => user.isActive && !isAdmin && confirmDelete(user.id)}
-                                  title={
-                                    !user.isActive
-                                      ? "Activa el usuario para eliminar"
-                                      : isAdmin
-                                        ? "No se puede eliminar un administrador"
-                                        : "Eliminar"
-                                  }
-                                  disabled={!user.isActive || isAdmin}
-                                  className="p-2 rounded-lg transition-colors"
-                                  style={{
-                                    color: (user.isActive && !isAdmin) ? "#EF4444" : "#d1d5db",
-                                    cursor: (user.isActive && !isAdmin) ? "pointer" : "not-allowed"
-                                  }}
-                                  onMouseEnter={(e) => {
-                                    if (user.isActive && !isAdmin)
-                                      e.currentTarget.style.backgroundColor = "#fef2f2";
-                                  }}
-                                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
-                                >
-                                  <Trash2 className="w-4 h-4" />
-                                </button>
+                                {can("usuarios.editar") && (
+                                  <button
+                                    onClick={() => user.isActive && handleEdit(user)}
+                                    title={user.isActive ? "Editar" : "Activa el usuario para editar"}
+                                    disabled={!user.isActive}
+                                    className="p-2 rounded-lg transition-colors"
+                                    style={{ color: user.isActive ? "#1a5c3a" : "#d1d5db", cursor: user.isActive ? "pointer" : "not-allowed" }}
+                                    onMouseEnter={(e) => { if (user.isActive) e.currentTarget.style.backgroundColor = "#edf7f4"; }}
+                                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+                                  >
+                                    <Pencil className="w-4 h-4" />
+                                  </button>
+                                )}
+                                {can("usuarios.eliminar") && (
+                                  <button
+                                    onClick={() => user.isActive && !isAdmin && confirmDelete(user.id)}
+                                    title={
+                                      !user.isActive ? "Activa el usuario para eliminar"
+                                      : isAdmin ? "No se puede eliminar un administrador"
+                                      : "Eliminar"
+                                    }
+                                    disabled={!user.isActive || isAdmin}
+                                    className="p-2 rounded-lg transition-colors"
+                                    style={{ color: (user.isActive && !isAdmin) ? "#EF4444" : "#d1d5db", cursor: (user.isActive && !isAdmin) ? "pointer" : "not-allowed" }}
+                                    onMouseEnter={(e) => { if (user.isActive && !isAdmin) e.currentTarget.style.backgroundColor = "#fef2f2"; }}
+                                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </button>
+                                )}
                               </div>
                             )}
                           </td>

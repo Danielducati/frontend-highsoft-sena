@@ -12,12 +12,18 @@ import { RoleFormDialog }   from "../components/RoleFormDialog";
 import { RoleViewDialog }   from "../components/RoleViewDialog";
 import { RoleDeleteDialog } from "../components/RoleDeleteDialog";
 import { SpaPage } from "../../../shared/components/layout/SpaPage";
+import { usePermisos } from "../../../shared/hooks/usePermisos";
 
 interface RolesModuleProps {
   userRole: "admin" | "employee" | "client";
 }
 
 export function RolesPage({ userRole }: RolesModuleProps) {
+  const { can } = usePermisos();
+  const canCreateRoles = can("roles.crear");
+  const canEditRoles   = can("roles.editar");
+  const canDeleteRoles = can("roles.eliminar");
+  const canViewRoles   = can("roles.ver");
   const { roles, availablePermissions, loading, createRole, updateRole, deleteRole, toggleRoleStatus } = useRoles();
 
   const [searchTerm,       setSearchTerm]       = useState("");
@@ -120,7 +126,7 @@ export function RolesPage({ userRole }: RolesModuleProps) {
       subtitle={`${roles.length} roles • ${roles.filter(r => r.isActive).length} activos`}
       icon={<Shield className="w-6 h-6" style={{ color: "#1a3a2a" }} />}
       action={
-        userRole === "admin" ? (
+        canCreateRoles ? (
           <button
             onClick={() => { closeDialog(); setIsDialogOpen(true); }}
             style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "10px 20px", borderRadius: 10, backgroundColor: "#1a3a2a", color: "#ffffff", fontSize: 14, fontWeight: 600, fontFamily: "var(--font-body)", border: "none", cursor: "pointer" }}
@@ -227,8 +233,8 @@ export function RolesPage({ userRole }: RolesModuleProps) {
                           <td className="px-4 py-3">
                             <div className="flex items-center gap-3">
                               <button
-                                onClick={() => !isBaseRole && handleToggleStatus(role)}
-                                disabled={isBaseRole}
+                                onClick={() => canEditRoles && !isBaseRole && handleToggleStatus(role)}
+                                disabled={isBaseRole || !canEditRoles}
                                 title={isBaseRole ? `No se puede desactivar el rol "${role.nombre}"` : role.isActive ? "Desactivar" : "Activar"}
                                 className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
                                 style={{
@@ -261,7 +267,7 @@ export function RolesPage({ userRole }: RolesModuleProps) {
 
                           {/* ACCIONES */}
                           <td className="px-4 py-3">
-                            {userRole === "admin" ? (
+                            {canViewRoles || canEditRoles || canDeleteRoles ? (
                               <div className="flex items-center justify-center gap-1">
                                 <button
                                   onClick={() => { setViewingRole(role); setIsViewDialogOpen(true); }}
@@ -274,6 +280,7 @@ export function RolesPage({ userRole }: RolesModuleProps) {
                                   <Eye className="w-4 h-4" />
                                 </button>
 
+                                {canEditRoles && (
                                 <button
                                   onClick={() => role.isActive && handleEdit(role)}
                                   title={role.isActive ? "Editar" : "Activa el rol para editarlo"}
@@ -289,7 +296,9 @@ export function RolesPage({ userRole }: RolesModuleProps) {
                                 >
                                   <Pencil className="w-4 h-4" />
                                 </button>
+                                )}
 
+                                {canDeleteRoles && (
                                 <button
                                   onClick={() => { if (role.isActive && !isBaseRole) { setRoleToDelete(role.id); setDeleteDialogOpen(true); } }}
                                   title={isBaseRole ? "No se puede eliminar un rol base del sistema" : role.isActive ? "Eliminar" : "Activa el rol para eliminarlo"}
@@ -305,6 +314,7 @@ export function RolesPage({ userRole }: RolesModuleProps) {
                                 >
                                   <Trash2 className="w-4 h-4" />
                                 </button>
+                                )}
                               </div>
                             ) : null}
                           </td>

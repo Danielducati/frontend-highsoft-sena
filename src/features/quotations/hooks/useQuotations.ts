@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { isRestrictedEmployee } from "../../../shared/utils/permissionScope";
+import { isSystemClienteRole } from "../../auth/constants";
 import { toast } from "sonner";
 import { Quotation, QuotationFormData, QuotationItem, QuotationStatus } from "../types";
 import { ITEMS_PER_PAGE, API_URL } from "../constants";
@@ -66,10 +68,16 @@ export function useQuotations(userRole?: string) {
 
   useEffect(() => {
     loadQuotations();
-    if (userRole === "client") {
+    let storedRol = "";
+    try {
+      const u = JSON.parse(localStorage.getItem("usuario") ?? "{}");
+      storedRol = u.rol ?? "";
+    } catch {}
+
+    if (isSystemClienteRole(storedRol) || userRole === "client") {
       loadServices();
       loadMyProfile();
-    } else if (userRole === "employee") {
+    } else if (isRestrictedEmployee()) {
       loadClients();
       Promise.all([fetchMyEmployeeServicesApi(), fetchMyEmployeeProfileApi()])
         .then(async ([svcData, emp]) => {

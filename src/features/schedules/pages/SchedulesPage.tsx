@@ -12,8 +12,10 @@ import { ScheduleDeleteDialog } from "../components/ScheduleDeleteDialog";
 import { ScheduleHistoryDialog } from "../components/ScheduleHistoryDialog";
 import { formatWeekRange, getDayLabel } from "../utils";
 import { SpaPage } from "../../../shared/components/layout/SpaPage";
+import { usePermisos } from "../../../shared/hooks/usePermisos";
 
 export function SchedulesPage({ userRole }: SchedulesModuleProps) {
+  const { can } = usePermisos();
   const [historyDialogOpen, setHistoryDialogOpen] = useState(false);
   const [historyEmployee, setHistoryEmployee] = useState<{ id: string; name: string; weekStart?: string } | null>(null);
   const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());
@@ -119,7 +121,7 @@ export function SchedulesPage({ userRole }: SchedulesModuleProps) {
       subtitle="Gestión de turnos y disponibilidad del personal"
       icon={<Calendar className="w-5 h-5 text-[#1a5c3a]" />}
       action={
-        userRole === "admin" ? (
+        can("horarios.crear") ? (
           <button
             style={{
               display: "inline-flex", alignItems: "center", justifyContent: "center",
@@ -293,7 +295,15 @@ export function SchedulesPage({ userRole }: SchedulesModuleProps) {
                       onClick={(e) => e.stopPropagation()}
                       style={{ display: "flex", alignItems: "center", gap: 2, flexShrink: 0 }}
                     >
-                      {userRole === "admin" && (
+                      {can("horarios.ver") && (
+                        <button onClick={() => handleViewDetail(firstWeek)} title="Ver detalles"
+                          style={{ width: 32, height: 32, borderRadius: 6, border: "none", backgroundColor: "transparent", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#1a3a2a" }}
+                          onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#edf7f4")}
+                          onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}>
+                          <Eye style={{ width: 15, height: 15 }} />
+                        </button>
+                      )}
+                      {can("horarios.editar") && (
                         <>
                           <button onClick={() => handleRenewMonth(row.employeeId, row.monthKey, sortedWeeks)}
                             title={`Copiar horario al mes siguiente`}
@@ -302,25 +312,21 @@ export function SchedulesPage({ userRole }: SchedulesModuleProps) {
                             onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}>
                             <RefreshCw style={{ width: 15, height: 15 }} />
                           </button>
-                          <button onClick={() => handleViewDetail(firstWeek)} title="Ver detalles"
-                            style={{ width: 32, height: 32, borderRadius: 6, border: "none", backgroundColor: "transparent", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#1a3a2a" }}
-                            onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#edf7f4")}
-                            onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}>
-                            <Eye style={{ width: 15, height: 15 }} />
-                          </button>
                           <button onClick={() => handleEdit(firstWeek)} title="Editar"
                             style={{ width: 32, height: 32, borderRadius: 6, border: "none", backgroundColor: "transparent", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#1a3a2a" }}
                             onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#edf7f4")}
                             onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}>
                             <Pencil style={{ width: 15, height: 15 }} />
                           </button>
-                          <button onClick={() => confirmDelete(row.employeeId, row.monthKey, sortedWeeks)} title="Eliminar mes"
-                            style={{ width: 32, height: 32, borderRadius: 6, border: "none", backgroundColor: "transparent", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#ef4444" }}
-                            onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#fdf0ee")}
-                            onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}>
-                            <Trash2 style={{ width: 15, height: 15 }} />
-                          </button>
                         </>
+                      )}
+                      {can("horarios.eliminar") && (
+                        <button onClick={() => confirmDelete(row.employeeId, row.monthKey, sortedWeeks)} title="Eliminar mes"
+                          style={{ width: 32, height: 32, borderRadius: 6, border: "none", backgroundColor: "transparent", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#ef4444" }}
+                          onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#fdf0ee")}
+                          onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}>
+                          <Trash2 style={{ width: 15, height: 15 }} />
+                        </button>
                       )}
                     </div>
                   </div>
@@ -350,7 +356,7 @@ export function SchedulesPage({ userRole }: SchedulesModuleProps) {
                             <span style={{ fontSize: 11, color: "#9ca3af", marginLeft: "auto" }}>
                               {w.daySchedules.length} días
                             </span>
-                            {userRole === "admin" && (
+                            {can("horarios.eliminar") && (
                               <button
                                 onClick={() => handleDeleteWeek(w)}
                                 title="Eliminar esta semana"

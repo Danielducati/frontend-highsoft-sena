@@ -16,9 +16,10 @@ import { NewsAppointmentConflictDialog } from "../components/NewsAppointmentConf
 import { NEWS_TYPES, EMPTY_FORM } from "../constants";
 import { EmployeeNews, NewsFormData, NewsModuleProps } from "../types";
 import { SpaPage } from "../../../shared/components/layout/SpaPage";
-
+import { usePermisos } from "../../../shared/hooks/usePermisos";
 
 export function NewsPage({ userRole }: NewsModuleProps) {
+  const { can } = usePermisos();
   // ← CAMBIO 2: desestructurar conflict, resolveConflict, dismissConflict del hook
   const { 
     employees, newsList, loading, loggedEmployeeId, 
@@ -128,7 +129,7 @@ export function NewsPage({ userRole }: NewsModuleProps) {
       subtitle="Gestión de incapacidades, retrasos, permisos y percances"
       icon={<AlertCircle className="w-5 h-5 text-[#1a5c3a]" />}
       action={
-        (userRole === "admin" || userRole === "employee") ? (
+        (userRole === "employee" || can("novedades.crear")) ? (
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
               <button

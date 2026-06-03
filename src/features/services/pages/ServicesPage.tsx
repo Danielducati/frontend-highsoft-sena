@@ -10,8 +10,10 @@ import { ServiceDeleteDialog } from "../components/ServiceDeleteDialog";
 import { Switch } from "../../../shared/ui/switch";
 import { ImageWithFallback } from "../../guidelines/figma/ImageWithFallback";
 import { SpaPage } from "../../../shared/components/layout/SpaPage";
+import { usePermisos } from "../../../shared/hooks/usePermisos";
 
 export function ServicesPage({ userRole }: ServicesModuleProps) {
+  const { can } = usePermisos();
   const {
     categories, loading,
     searchTerm, setSearchTerm,
@@ -199,7 +201,7 @@ export function ServicesPage({ userRole }: ServicesModuleProps) {
                           </p>
                         </td>
                         <td className="px-4 py-3">
-                          {userRole === "admin" ? (
+                          {can("servicios.editar") ? (
                             <div className="flex items-center gap-2">
                               <Switch
                                 checked={service.isActive}
@@ -228,7 +230,7 @@ export function ServicesPage({ userRole }: ServicesModuleProps) {
                             >
                               <Eye className="w-4 h-4" />
                             </button>
-                            {userRole === "admin" && (
+                            {can("servicios.editar") && (
                               <>
                                 <button
                                   onClick={() => service.isActive && handleEdit(service)}
@@ -241,17 +243,19 @@ export function ServicesPage({ userRole }: ServicesModuleProps) {
                                 >
                                   <Pencil className="w-4 h-4" />
                                 </button>
-                                <button
-                                  onClick={() => service.isActive && confirmDelete(service.id)}
-                                  title={service.isActive ? "Eliminar" : "Activa el servicio para eliminar"}
-                                  disabled={!service.isActive}
-                                  className="p-2 rounded-lg transition-colors"
-                                  style={{ color: service.isActive ? "#EF4444" : "#d1d5db", cursor: service.isActive ? "pointer" : "not-allowed" }}
-                                  onMouseEnter={(e) => { if (service.isActive) e.currentTarget.style.backgroundColor = "#fef2f2"; }}
-                                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
-                                >
-                                  <Trash2 className="w-4 h-4" />
-                                </button>
+                                {can("servicios.eliminar") && (
+                                  <button
+                                    onClick={() => service.isActive && confirmDelete(service.id)}
+                                    title={service.isActive ? "Eliminar" : "Activa el servicio para eliminar"}
+                                    disabled={!service.isActive}
+                                    className="p-2 rounded-lg transition-colors"
+                                    style={{ color: service.isActive ? "#EF4444" : "#d1d5db", cursor: service.isActive ? "pointer" : "not-allowed" }}
+                                    onMouseEnter={(e) => { if (service.isActive) e.currentTarget.style.backgroundColor = "#fef2f2"; }}
+                                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </button>
+                                )}
                               </>
                             )}
                           </div>

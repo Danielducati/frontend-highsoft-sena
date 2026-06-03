@@ -114,11 +114,11 @@ export function RoleFormDialog({
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-gray-700 uppercase tracking-wide">Descripción</Label>
+              <Label className="text-xs font-semibold text-gray-700 uppercase tracking-wide">Descripción *</Label>
               <Textarea
                 value={formData.descripcion}
                 onChange={e => setFormData({ ...formData, descripcion: e.target.value })}
-                placeholder="Describe las responsabilidades de este rol... (opcional)"
+                placeholder="Describe las responsabilidades de este rol. "
                 rows={2}
                 className="rounded-xl border-gray-200 text-sm resize-none"
               />

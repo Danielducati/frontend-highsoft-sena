@@ -14,7 +14,10 @@ import { Sale, SaleFormData, SalesModuleProps } from "../types";
 import { toast } from "sonner";
 import { SpaPage } from "../../../shared/components/layout/SpaPage";
 
+import { usePermisos } from "../../../shared/hooks/usePermisos";
+
 export function SalesPage({ userRole }: SalesModuleProps) {
+  const { can } = usePermisos();
   const { sales, appointments, availableServices, clients, employees, loading, saving, registerSale, employeesForService, loadEmployeesForService, monthlyStats } = useSales();
 
   const [searchTerm,     setSearchTerm]    = useState("");
@@ -104,7 +107,7 @@ export function SalesPage({ userRole }: SalesModuleProps) {
       subtitle="Registra y administra las transacciones del spa"
       icon={<ShoppingCart className="w-6 h-6" style={{ color: "#1a3a2a" }} />}
       action={
-        userRole !== "client" ? (
+        userRole !== "client" && can("ventas.crear") ? (
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
               <button

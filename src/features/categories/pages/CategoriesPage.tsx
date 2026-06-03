@@ -10,17 +10,14 @@ import { CategoryDetailDialog } from "../components/CategoryDetailDialog";
 import { CategoryDeleteDialog } from "../components/CategoryDeleteDialog";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "../../../shared/ui/select";
 import { SpaPage } from "../../../shared/components/layout/SpaPage";
+import { usePermisos } from "../../../shared/hooks/usePermisos";
 
 export function CategoriesPage({ userRole }: CategoriesModuleProps) {
-  // Determinar permisos reales desde localStorage
-  const permisos: string[] = (() => {
-    try { return JSON.parse(localStorage.getItem("permisos") ?? "[]"); } catch { return []; }
-  })();
-  const isAdmin      = userRole === "admin";
-  const canCreate    = isAdmin || permisos.some(p => p.startsWith("categorias.crear") || p === "categorias.crear");
-  const canEdit      = isAdmin || permisos.some(p => p === "categorias.editar");
-  const canDelete    = isAdmin || permisos.some(p => p === "categorias.eliminar");
-  const canToggle    = isAdmin || permisos.some(p => p === "categorias.editar");
+  const { can } = usePermisos();
+  const canCreate = can("categorias.crear");
+  const canEdit   = can("categorias.editar");
+  const canDelete = can("categorias.eliminar");
+  const canToggle = can("categorias.editar");
   const showActions  = canCreate || canEdit || canDelete;
 
   const {

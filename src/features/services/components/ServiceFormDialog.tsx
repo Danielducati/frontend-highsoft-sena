@@ -10,6 +10,7 @@ import { ImageWithFallback } from "../../guidelines/figma/ImageWithFallback";
 import { Service, ServiceFormData } from "../types";
 import { toast } from "sonner";
 import { uploadImage } from "../../../shared/utils/uploadImage";
+import { usePermisos } from "../../../shared/hooks/usePermisos";
 
 interface ServiceFormDialogProps {
   isOpen: boolean;
@@ -33,8 +34,10 @@ export function ServiceFormDialog({
 }: ServiceFormDialogProps) {
   const fileInputRef   = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
+  const { can } = usePermisos();
 
-  if (userRole !== "admin") return null;
+  const canOpen = editingService ? can("servicios.editar") : can("servicios.crear");
+  if (!canOpen) return null;
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

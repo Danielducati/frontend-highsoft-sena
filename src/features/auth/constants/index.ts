@@ -42,47 +42,95 @@ export const PERMISO_PAGINA: Record<string, string> = {
   "configuracion":  "settings",
 };
 
+/** Rol base "Cliente" del sistema (no roles personalizados con "cliente" en el nombre). */
+export function isSystemClienteRole(rolBackend: string): boolean {
+  if (!rolBackend) return false;
+  const trimmed = rolBackend.trim();
+  if (ROL_MAP[trimmed] === "client") return true;
+  const lower = trimmed.toLowerCase();
+  return lower === "cliente" || lower === "client";
+}
+
+/** Rol base de administrador del sistema. */
+export function isSystemAdminRole(rolBackend: string): boolean {
+  if (!rolBackend) return false;
+  const trimmed = rolBackend.trim();
+  if (ROL_MAP[trimmed] === "admin") return true;
+  const lower = trimmed.toLowerCase();
+  return lower === "admin" || lower === "administrador";
+}
+
 /**
- * Dado el nombre del rol y la lista de permisos, devuelve el UserRole
- * y las páginas que el usuario puede ver.
+ * Mapea el nombre del rol del backend al UserRole del frontend.
+ * Roles personalizados → "employee" (la UI se arma solo con permisos).
  */
 export function resolveUserRole(rolBackend: string): UserRole {
-  if (!rolBackend) return "client";
-  const known = ROL_MAP[rolBackend];
+  if (!rolBackend) return "employee";
+  const known = ROL_MAP[rolBackend.trim()];
   if (known) return known;
-  const lower = rolBackend.toLowerCase();
-  if (lower.includes("admin")) return "admin";
-  if (lower.includes("cliente") || lower.includes("client")) return "client";
   return "employee";
 }
 
 export function resolveAllowedPages(permisos: string[]): string[] {
   const pages = new Set<string>();
-  pages.add("users");
 
-  // Mapa para permisos legacy (sin punto, con mayúscula)
   const LEGACY_MAP: Record<string, string> = {
-    "dashboard":  "dashboard",
-    "usuarios":   "users",
-    "empleados":  "employees",
-    "servicios":  "services",
-    "clientes":   "clients",
-    "citas":      "appointments",
-    "ventas":     "sales",
-    "reportes":   "dashboard",
+    dashboard:  "dashboard",
+    usuarios:   "users",
+    empleados:  "employees",
+    servicios:  "services",
+    clientes:   "clients",
+    citas:      "appointments",
+    ventas:     "sales",
+    reportes:   "dashboard",
+    novedades:  "news",
+    horarios:   "schedules",
+    cotizaciones: "quotations",
+    categorias: "categories",
+    roles:      "roles",
   };
 
   for (const p of permisos) {
     if (!p.includes(".")) {
-      // Permiso legacy — comparar en minúsculas
       const page = LEGACY_MAP[p.toLowerCase()];
       if (page) pages.add(page);
       continue;
     }
-    // Permiso moderno (con punto)
     const prefix = p.split(".")[0].toLowerCase();
     const page   = PERMISO_PAGINA[prefix];
     if (page) pages.add(page);
+    if (prefix === "perfil") pages.add("users");
   }
+
   return Array.from(pages);
+}
+
+/** Primera pantalla tras login según permisos (no vistas fijas por rol). */
+const PAGE_PRIORITY = [
+  "dashboard",
+  "appointments",
+  "sales",
+  "clients",
+  "employees",
+  "services",
+  "categories",
+  "news",
+  "schedules",
+  "quotations",
+  "roles",
+  "users",
+  "settings",
+] as const;
+
+export function resolveFirstPage(
+  allowedPages: string[],
+  rolBackend?: string
+): string {
+  if (allowedPages.length === 0) {
+    return isSystemClienteRole(rolBackend ?? "") ? "appointments" : "users";
+  }
+  for (const page of PAGE_PRIORITY) {
+    if (allowedPages.includes(page)) return page;
+  }
+  return allowedPages[0];
 }

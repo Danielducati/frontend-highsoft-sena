@@ -10,6 +10,7 @@ import { Plus, X, Clock, User, CalendarIcon } from "lucide-react";
 import { Appointment, AppointmentService, Client, CurrentService, Employee, FormData, Service } from "../types";
 import { calculateEndTime } from "../utils";
 import { TIME_SLOTS } from "../constants";
+import { isRestrictedEmployee } from "../../../shared/utils/permissionScope";
 
 // Componente de búsqueda de cliente (igual al de cotizaciones)
 function ClientSearch({ clients, selectedId, onSelect }: {
@@ -181,6 +182,8 @@ export function AppointmentFormDialog({
   employeesForService = [],
   loadEmployeesForService,
 }: Props) {
+  const lockEmployeeToSelf = isRestrictedEmployee() && Boolean(myEmployeeProfile);
+
   // Cargar empleados cuando se selecciona un servicio
   React.useEffect(() => {
     if (currentService.serviceId && loadEmployeesForService) {
@@ -333,7 +336,7 @@ export function AppointmentFormDialog({
               </div>
               <div className="space-y-2">
                 <Label>Empleado</Label>
-                {userRole === "employee" && myEmployeeProfile ? (
+                {lockEmployeeToSelf ? (
                   <div className="h-10 px-3 flex items-center rounded-md border border-input bg-[#edf7f4] text-sm font-medium text-[#1a5c3a]">
                     {myEmployeeProfile.name}
                   </div>

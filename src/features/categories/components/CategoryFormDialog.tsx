@@ -21,7 +21,7 @@ interface CategoryFormDialogProps {
 export function CategoryFormDialog({
   isOpen, onOpenChange, editingCategory, formData, setFormData, onSubmit, onNewClick, userRole, canCreate,
 }: CategoryFormDialogProps) {
-  const hasAccess = userRole === "admin" || canCreate;
+  const hasAccess = canCreate;
   const [roles, setRoles] = useState<Array<{ id: number; nombre: string }>>([]);
 
   useEffect(() => {
