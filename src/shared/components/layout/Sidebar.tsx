@@ -66,6 +66,22 @@ const GROUPS = [
   },
 ];
 
+// Todos los ítems posibles para empleados con permisos dinámicos
+const ALL_EMPLOYEE_ITEMS = [
+  { id: "dashboard",    label: "Dashboard",            icon: LayoutDashboard },
+  { id: "appointments", label: "Citas",                icon: Calendar        },
+  { id: "news",         label: "Novedades",            icon: Newspaper       },
+  { id: "schedules",    label: "Horarios",             icon: Clock           },
+  { id: "employees",    label: "Empleados",            icon: Briefcase       },
+  { id: "clients",      label: "Clientes",             icon: Users           },
+  { id: "services",     label: "Servicios",            icon: Package         },
+  { id: "categories",   label: "Categorías",           icon: FolderOpen      },
+  { id: "quotations",   label: "Cotizaciones",         icon: FileText        },
+  { id: "sales",        label: "Ventas",               icon: ShoppingCart    },
+  { id: "roles",        label: "Roles y Permisos",     icon: Shield          },
+  { id: "users",        label: "Usuarios",             icon: UserCog         },
+];
+
 const FLAT_ITEMS = [
   { id: "appointments", label: "Citas",     icon: Calendar,  roles: ["employee", "client"] },
   { id: "news",         label: "Novedades", icon: Newspaper, roles: ["employee"] },
@@ -228,14 +244,71 @@ export function Sidebar({ activePage, onNavigate, onLogout, userRole, allowedPag
               );
             })
           ) : (
-            FLAT_ITEMS
-              .filter(item => {
-                if (!item.roles.includes(userRole)) return false;
-                if (allowedPages?.length) return allowedPages.includes(item.id);
-                return true;
-              })
-              .map(item => {
-                const Icon     = item.icon;
+            // Para employee/client: mostrar ítems según allowedPages (permisos dinámicos)
+            // Si es cliente, solo citas; si es employee con permisos, mostrar todos los permitidos
+            (() => {
+              const pages = allowedPages ?? [];
+              const isClient = userRole === "client";
+
+              if (isClient) {
+                // El cliente solo ve Citas
+                return FLAT_ITEMS
+                  .filter(item => item.roles.includes("client"))
+                  .map(item => {
+                    const Icon = item.icon;
+                    const isActive = activePage === item.id;
+                    return (
+                      <button key={item.id} onClick={() => onNavigate(item.id)}
+                        style={{
+                          width: "100%", display: "flex", alignItems: "center", gap: 10,
+                          padding: "8px 10px", borderRadius: 8, border: "none", cursor: "pointer",
+                          backgroundColor: isActive ? "#0f5b43" : "transparent",
+                          color: isActive ? "#fff" : "#4b5563",
+                          fontFamily: "var(--font-body)", fontSize: 13,
+                          textAlign: "left", marginBottom: 1,
+                        }}
+                        onMouseEnter={e => { if (!isActive) e.currentTarget.style.backgroundColor = "#ece9e3"; }}
+                        onMouseLeave={e => { if (!isActive) e.currentTarget.style.backgroundColor = "transparent"; }}
+                      >
+                        <Icon style={{ width: 16, height: 16, flexShrink: 0 }} />
+                        {item.label}
+                      </button>
+                    );
+                  });
+              }
+
+              // Empleado con permisos dinámicos
+              const visibleItems = ALL_EMPLOYEE_ITEMS.filter(item => pages.includes(item.id));
+
+              if (visibleItems.length === 0) {
+                // Fallback: mostrar al menos Citas y Novedades
+                return FLAT_ITEMS
+                  .filter(item => item.roles.includes("employee"))
+                  .map(item => {
+                    const Icon = item.icon;
+                    const isActive = activePage === item.id;
+                    return (
+                      <button key={item.id} onClick={() => onNavigate(item.id)}
+                        style={{
+                          width: "100%", display: "flex", alignItems: "center", gap: 10,
+                          padding: "8px 10px", borderRadius: 8, border: "none", cursor: "pointer",
+                          backgroundColor: isActive ? "#0f5b43" : "transparent",
+                          color: isActive ? "#fff" : "#4b5563",
+                          fontFamily: "var(--font-body)", fontSize: 13,
+                          textAlign: "left", marginBottom: 1,
+                        }}
+                        onMouseEnter={e => { if (!isActive) e.currentTarget.style.backgroundColor = "#ece9e3"; }}
+                        onMouseLeave={e => { if (!isActive) e.currentTarget.style.backgroundColor = "transparent"; }}
+                      >
+                        <Icon style={{ width: 16, height: 16, flexShrink: 0 }} />
+                        {item.label}
+                      </button>
+                    );
+                  });
+              }
+
+              return visibleItems.map(item => {
+                const Icon = item.icon;
                 const isActive = activePage === item.id;
                 return (
                   <button key={item.id} onClick={() => onNavigate(item.id)}
@@ -254,7 +327,8 @@ export function Sidebar({ activePage, onNavigate, onLogout, userRole, allowedPag
                     {item.label}
                   </button>
                 );
-              })
+              });
+            })()
           )}
         </nav>
 
