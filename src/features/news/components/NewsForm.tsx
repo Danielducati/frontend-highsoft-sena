@@ -416,8 +416,6 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
           <Label className="flex items-center gap-2 text-sm font-medium">
             <Calendar className="w-4 h-4 text-[#1a5c3a]" />
             Fecha Fin
-            {isSingleDayOnly && <span className="text-xs text-orange-600 font-normal">(mismo día)</span>}
-            {allowsMultipleDays && <span className="text-xs text-green-600 font-normal">(puede ser varios días)</span>}
           </Label>
           <input
             type="date"
@@ -438,6 +436,12 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
             <p className="text-xs text-orange-600 flex items-center gap-1">
               <AlertCircle className="w-3 h-3" />
               {formData.type === "retraso" ? "Retraso" : "Ausencia"} solo puede ser de un día.
+            </p>
+          )}
+          {allowsMultipleDays && (
+            <p className="text-xs text-green-600 flex items-center gap-1">
+              <Info className="w-3 h-3" />
+              Puede abarcar varios días
             </p>
           )}
           {endDateInvalid && (
