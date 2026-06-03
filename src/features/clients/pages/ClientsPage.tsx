@@ -11,8 +11,10 @@ import { useClients } from "../hooks/useClients";
 import { ClientFormDialog } from "../components/ClientFormDialog";
 import { ClientViewDialog } from "../components/ClientViewDialog";
 import { ClientDeleteDialog } from "../components/ClientDeleteDialog";
+import { usePermisos } from "../../../shared/hooks/usePermisos";
 
 export function ClientsPage({ userRole }: ClientsModuleProps) {
+  const { can } = usePermisos();
   const {
     clients, filteredClients, paginatedClients,
     searchTerm, handleSearchChange,
@@ -38,18 +40,20 @@ export function ClientsPage({ userRole }: ClientsModuleProps) {
       subtitle={`${clients.length} clientes • ${activeClients} activos`}
       icon={<User className="w-6 h-6" style={{ color: "#1a3a2a" }} />}
       action={
-        <ClientFormDialog
-          isOpen={isDialogOpen}
-          onOpenChange={setIsDialogOpen}
-          editingClient={editingClient}
-          formData={formData}
-          setFormData={setFormData}
-          imagePreview={imagePreview}
-          setImagePreview={setImagePreview}
-          onSubmit={handleCreateOrUpdate}
-          onCancel={resetForm}
-          onNewClick={handleNewClick}
-        />
+        can("clientes.crear") ? (
+          <ClientFormDialog
+            isOpen={isDialogOpen}
+            onOpenChange={setIsDialogOpen}
+            editingClient={editingClient}
+            formData={formData}
+            setFormData={setFormData}
+            imagePreview={imagePreview}
+            setImagePreview={setImagePreview}
+            onSubmit={handleCreateOrUpdate}
+            onCancel={resetForm}
+            onNewClick={handleNewClick}
+          />
+        ) : undefined
       }
     >
       <div className="space-y-4">
@@ -148,7 +152,7 @@ export function ClientsPage({ userRole }: ClientsModuleProps) {
 
                         {/* SWITCH DE ESTADO */}
                         <td className="px-4 py-3">
-                          {userRole === "admin" ? (
+                          {can("clientes.editar") ? (
                             <button
                               onClick={() => handleToggleStatus(client.id)}
                               title={client.isActive ? "Desactivar cliente" : "Activar cliente"}
@@ -199,31 +203,31 @@ export function ClientsPage({ userRole }: ClientsModuleProps) {
                             >
                               <Eye className="w-4 h-4" />
                             </button>
-                            {userRole === "admin" && (
-                              <>
-                                <button
-                                  onClick={() => client.isActive && handleEdit(client)}
-                                  title={client.isActive ? "Editar" : "Activa el cliente para editar"}
-                                  disabled={!client.isActive}
-                                  className="p-2 rounded-lg transition-colors"
-                                  style={{ color: client.isActive ? "#1a5c3a" : "#d1d5db", cursor: client.isActive ? "pointer" : "not-allowed" }}
-                                  onMouseEnter={(e) => { if (client.isActive) e.currentTarget.style.backgroundColor = "#edf7f4"; }}
-                                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
-                                >
-                                  <Pencil className="w-4 h-4" />
-                                </button>
-                                <button
-                                  onClick={() => client.isActive && confirmDelete(client.id)}
-                                  title={client.isActive ? "Eliminar" : "Activa el cliente para eliminar"}
-                                  disabled={!client.isActive}
-                                  className="p-2 rounded-lg transition-colors"
-                                  style={{ color: client.isActive ? "#EF4444" : "#d1d5db", cursor: client.isActive ? "pointer" : "not-allowed" }}
-                                  onMouseEnter={(e) => { if (client.isActive) e.currentTarget.style.backgroundColor = "#fef2f2"; }}
-                                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
-                                >
-                                  <Trash2 className="w-4 h-4" />
-                                </button>
-                              </>
+                            {can("clientes.editar") && (
+                              <button
+                                onClick={() => client.isActive && handleEdit(client)}
+                                title={client.isActive ? "Editar" : "Activa el cliente para editar"}
+                                disabled={!client.isActive}
+                                className="p-2 rounded-lg transition-colors"
+                                style={{ color: client.isActive ? "#1a5c3a" : "#d1d5db", cursor: client.isActive ? "pointer" : "not-allowed" }}
+                                onMouseEnter={(e) => { if (client.isActive) e.currentTarget.style.backgroundColor = "#edf7f4"; }}
+                                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+                              >
+                                <Pencil className="w-4 h-4" />
+                              </button>
+                            )}
+                            {can("clientes.eliminar") && (
+                              <button
+                                onClick={() => client.isActive && confirmDelete(client.id)}
+                                title={client.isActive ? "Eliminar" : "Activa el cliente para eliminar"}
+                                disabled={!client.isActive}
+                                className="p-2 rounded-lg transition-colors"
+                                style={{ color: client.isActive ? "#EF4444" : "#d1d5db", cursor: client.isActive ? "pointer" : "not-allowed" }}
+                                onMouseEnter={(e) => { if (client.isActive) e.currentTarget.style.backgroundColor = "#fef2f2"; }}
+                                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
                             )}
                           </div>
                         </td>

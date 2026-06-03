@@ -66,9 +66,20 @@ const GROUPS = [
   },
 ];
 
-const FLAT_ITEMS = [
-  { id: "appointments", label: "Citas",     icon: Calendar,  roles: ["employee", "client"] },
-  { id: "news",         label: "Novedades", icon: Newspaper, roles: ["employee"] },
+// Todos los ítems posibles para empleados con permisos dinámicos
+const ALL_EMPLOYEE_ITEMS = [
+  { id: "dashboard",    label: "Dashboard",            icon: LayoutDashboard },
+  { id: "appointments", label: "Citas",                icon: Calendar        },
+  { id: "news",         label: "Novedades",            icon: Newspaper       },
+  { id: "schedules",    label: "Horarios",             icon: Clock           },
+  { id: "employees",    label: "Empleados",            icon: Briefcase       },
+  { id: "clients",      label: "Clientes",             icon: Users           },
+  { id: "services",     label: "Servicios",            icon: Package         },
+  { id: "categories",   label: "Categorías",           icon: FolderOpen      },
+  { id: "quotations",   label: "Cotizaciones",         icon: FileText        },
+  { id: "sales",        label: "Ventas",               icon: ShoppingCart    },
+  { id: "roles",        label: "Roles y Permisos",     icon: Shield          },
+  { id: "users",        label: "Usuarios",             icon: UserCog         },
 ];
 
 export function Sidebar({ activePage, onNavigate, onLogout, userRole, allowedPages }: SidebarProps) {
@@ -228,14 +239,13 @@ export function Sidebar({ activePage, onNavigate, onLogout, userRole, allowedPag
               );
             })
           ) : (
-            FLAT_ITEMS
-              .filter(item => {
-                if (!item.roles.includes(userRole)) return false;
-                if (allowedPages?.length) return allowedPages.includes(item.id);
-                return true;
-              })
-              .map(item => {
-                const Icon     = item.icon;
+            // Roles personalizados y empleados: menú solo según permisos (allowedPages)
+            (() => {
+              const pages = allowedPages ?? [];
+              const visibleItems = ALL_EMPLOYEE_ITEMS.filter(item => pages.includes(item.id));
+
+              return visibleItems.map(item => {
+                const Icon = item.icon;
                 const isActive = activePage === item.id;
                 return (
                   <button key={item.id} onClick={() => onNavigate(item.id)}
@@ -254,7 +264,8 @@ export function Sidebar({ activePage, onNavigate, onLogout, userRole, allowedPag
                     {item.label}
                   </button>
                 );
-              })
+              });
+            })()
           )}
         </nav>
 

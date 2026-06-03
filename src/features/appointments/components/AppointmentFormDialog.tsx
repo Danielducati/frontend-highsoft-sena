@@ -10,6 +10,7 @@ import { Plus, X, Clock, User, CalendarIcon } from "lucide-react";
 import { Appointment, AppointmentService, Client, CurrentService, Employee, FormData, Service } from "../types";
 import { calculateEndTime } from "../utils";
 import { TIME_SLOTS } from "../constants";
+import { isRestrictedEmployee } from "../../../shared/utils/permissionScope";
 
 // Componente de búsqueda de cliente (igual al de cotizaciones)
 function ClientSearch({ clients, selectedId, onSelect }: {
@@ -85,12 +86,8 @@ function ServiceSearch({ services, employees, selectedId, onSelect }: {
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
 
-  // Filtrar servicios que tienen empleados disponibles
-  const availableServices = services.filter(s =>
-    employees.some(e =>
-      e.specialty?.toLowerCase().trim() === s.category?.toLowerCase().trim()
-    )
-  );
+  // Mostrar TODOS los servicios, no filtrar por empleados disponibles
+  const availableServices = services;
 
   const filtered = availableServices.filter(s => {
     const name = s.name || "";
@@ -120,7 +117,7 @@ function ServiceSearch({ services, employees, selectedId, onSelect }: {
           {filtered.length === 0 ? (
             <div className="px-3 py-2 text-sm text-gray-400">
               {availableServices.length === 0 
-                ? "No hay servicios con empleados disponibles" 
+                ? "No hay servicios disponibles" 
                 : "Sin resultados"}
             </div>
           ) : filtered.map(s => (
@@ -132,9 +129,16 @@ function ServiceSearch({ services, employees, selectedId, onSelect }: {
                 s.id === selectedId ? "bg-[#edf7f4] text-[#1a5c3a] font-medium" : "text-gray-900"
               }`}
             >
-              <div className="flex flex-col">
-                <span>{s.name}</span>
-                <span className="text-xs text-gray-500">{s.category} • {s.duration} min</span>
+              <div className="flex items-center justify-between">
+                <div className="flex flex-col">
+                  <span>{s.name}</span>
+                  <span className="text-xs text-gray-500">{s.category} • {s.duration} min</span>
+                </div>
+                {s.price > 0 && (
+                  <span className="text-xs font-semibold text-[#1a5c3a] ml-2 flex-shrink-0">
+                    ${s.price.toLocaleString("es-CO")}
+                  </span>
+                )}
               </div>
             </button>
           ))}
@@ -178,6 +182,8 @@ export function AppointmentFormDialog({
   employeesForService = [],
   loadEmployeesForService,
 }: Props) {
+  const lockEmployeeToSelf = isRestrictedEmployee() && Boolean(myEmployeeProfile);
+
   // Cargar empleados cuando se selecciona un servicio
   React.useEffect(() => {
     if (currentService.serviceId && loadEmployeesForService) {
@@ -330,7 +336,7 @@ export function AppointmentFormDialog({
               </div>
               <div className="space-y-2">
                 <Label>Empleado</Label>
-                {userRole === "employee" && myEmployeeProfile ? (
+                {lockEmployeeToSelf ? (
                   <div className="h-10 px-3 flex items-center rounded-md border border-input bg-[#edf7f4] text-sm font-medium text-[#1a5c3a]">
                     {myEmployeeProfile.name}
                   </div>
@@ -397,7 +403,14 @@ export function AppointmentFormDialog({
                     <div key={i} className="flex items-center justify-between p-3 bg-white rounded-lg border-l-4"
                       style={{ borderLeftColor: emp?.color ?? "#ccc" }}>
                       <div className="flex-1">
-                        <p className="text-sm text-gray-900">{s.serviceName}</p>
+                        <div className="flex items-center justify-between">
+                          <p className="text-sm text-gray-900">{s.serviceName}</p>
+                          {s.price > 0 && (
+                            <span className="text-sm font-semibold text-[#1a5c3a]">
+                              ${s.price.toLocaleString("es-CO")}
+                            </span>
+                          )}
+                        </div>
                         <div className="flex items-center gap-3 mt-1 text-xs text-gray-600">
                           <span className="flex items-center gap-1"><User className="w-3 h-3" />{s.employeeName}</span>
                           <span className="flex items-center gap-1">
@@ -406,7 +419,7 @@ export function AppointmentFormDialog({
                           </span>
                         </div>
                       </div>
-                      <button onClick={() => onRemoveService(i)} className="p-1 hover:bg-red-50 rounded text-[#F87171]">
+                      <button onClick={() => onRemoveService(i)} className="p-1 hover:bg-red-50 rounded text-[#F87171] ml-2">
                         <X className="w-4 h-4" />
                       </button>
                     </div>
@@ -421,6 +434,17 @@ export function AppointmentFormDialog({
                     )}`}
                   </p>
                 </div>
+                {(() => {
+                  const total = selectedServices.reduce((sum, s) => sum + (s.price ?? 0), 0);
+                  return total > 0 ? (
+                    <div className="flex items-center justify-between px-3 py-2 bg-[#edf7f4] border border-[#c8ead9] rounded-lg">
+                      <span className="text-sm font-semibold text-[#1a3a2a]">Total estimado</span>
+                      <span className="text-base font-bold text-[#1a3a2a]">
+                        ${total.toLocaleString("es-CO")}
+                      </span>
+                    </div>
+                  ) : null;
+                })()}
               </div>
             )}
           </div>

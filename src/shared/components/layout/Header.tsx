@@ -310,7 +310,7 @@ export function Header({ userRole, userName, userPhoto, onLogout, onNavigate }: 
             onClick={() => setAvatarOpen(o => !o)}
             style={{ background: "none", border: "none", cursor: "pointer", padding: 0, borderRadius: "50%" }}
           >
-            <Avatar className="w-9 h-9">
+            <Avatar className="w-9 h-9" style={{ border: "2px solid #c8ead9", borderRadius: "50%" }}>
               {userPhoto && <AvatarImage src={userPhoto} alt={displayName} className="object-cover" />}
               <AvatarFallback style={{ background: "linear-gradient(135deg, #1a3a2a, #2a5a40)", color: "#fff" }}>
                 {displayName.charAt(0).toUpperCase()}

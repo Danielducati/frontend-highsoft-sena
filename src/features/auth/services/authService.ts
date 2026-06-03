@@ -1,4 +1,10 @@
-import { API_URL, resolveUserRole, resolveAllowedPages } from "../constants";
+import {
+  API_URL,
+  resolveUserRole,
+  resolveAllowedPages,
+  resolveFirstPage,
+  isSystemAdminRole,
+} from "../constants";
 import { UserRole } from "../types";
 
 export type GoogleProfileInput = {
@@ -10,6 +16,7 @@ export type GoogleProfileInput = {
 
 export type AuthSessionPayload = {
   token: string;
+  permisos?: string[];
   usuario: {
     id: number;
     correo: string;
@@ -100,17 +107,19 @@ export async function completeAuthSession(data: AuthSessionPayload) {
   localStorage.setItem("token", data.token);
   localStorage.setItem("usuario", JSON.stringify(data.usuario));
 
-  let permisos: string[] = [];
-  try {
-    const meRes = await fetch(`${API_URL}/auth/me`, {
-      headers: { Authorization: `Bearer ${data.token}` },
-    });
-    if (meRes.ok) {
-      const meData = await meRes.json();
-      permisos = meData.permisos ?? [];
+  let permisos: string[] = Array.isArray(data.permisos) ? data.permisos : [];
+  if (permisos.length === 0) {
+    try {
+      const meRes = await fetch(`${API_URL}/auth/me`, {
+        headers: { Authorization: `Bearer ${data.token}` },
+      });
+      if (meRes.ok) {
+        const meData = await meRes.json();
+        permisos = meData.permisos ?? [];
+      }
+    } catch {
+      /* permisos vacíos si falla */
     }
-  } catch {
-    /* permisos vacíos si falla */
   }
 
   const allowedPages = resolveAllowedPages(permisos);
@@ -118,11 +127,11 @@ export async function completeAuthSession(data: AuthSessionPayload) {
   localStorage.setItem("allowedPages", JSON.stringify(allowedPages));
 
   let firstPage: string | undefined;
-  if (rolFrontend !== "admin" && rolFrontend !== "client") {
-    firstPage = allowedPages.find((p) => p !== "users") ?? "users";
+  if (!isSystemAdminRole(rolBackend)) {
+    firstPage = resolveFirstPage(allowedPages, rolBackend);
   }
 
-  return { rolFrontend, rolBackend, firstPage };
+  return { rolFrontend, rolBackend, firstPage, allowedPages };
 }
 
 export async function forgotPasswordRequest(correo: string) {

@@ -1,7 +1,7 @@
 // src/features/appointments/services/appointmentsService.ts
 import { API_BASE } from "../constants";
-import { Appointment } from "../types";
 import { mapApiToAppointment } from "../utils";
+import { Appointment, Service, Employee } from "../types";
 
 // Helper — siempre lee el token fresco del localStorage
 const authHeaders = () => ({
@@ -65,45 +65,58 @@ export async function fetchAppointments(): Promise<Appointment[]> {
 
 export async function fetchServices() {
   const res = await fetch(`${API_BASE}/services`, { headers: authHeaders() });
-  const data = await parseJsonOrThrow(res) as any[];
+  const json = await parseJsonOrThrow(res) as any;
+  // El backend devuelve { ok: true, data: [...] }
+  const data = Array.isArray(json) ? json : (json.data ?? []);
   return data.map((s: any) => ({
-    id:       String(s.id),
-    name:     s.name     ?? s.nombre     ?? "",
-    category: s.category ?? s.categoria  ?? "",
-    duration: s.duration ?? s.duracion   ?? 60,
-    price:    s.price    ?? s.precio     ?? 0,
+    id:            String(s.id),
+    name:          s.name     ?? s.nombre     ?? "",
+    category:      s.category ?? s.categoria  ?? "",
+    categoryRolId: s.categoryRolId ?? null,
+    duration:      s.duration ?? s.duracion   ?? 60,
+    price:         s.price    ?? s.precio     ?? 0,
   }));
 }
 
-export async function fetchMyEmployeeServices(): Promise<{ id: string; name: string; category: string; duration: number; price: number }[]> {
+export async function fetchMyEmployeeServices() {
   const res  = await fetch(`${API_BASE}/employees/mis-servicios`, { headers: authHeaders() });
   if (!res.ok) return [];
-  const data = await res.json();
-  return Array.isArray(data) ? data : [];
+  const json = await res.json();
+  const data = Array.isArray(json) ? json : (json.data ?? []);
+  return data.map((s: any) => ({
+    id:            String(s.id),
+    name:          s.name     ?? s.nombre     ?? "",
+    category:      s.category ?? s.categoria  ?? "",
+    categoryRolId: s.categoryRolId ?? null,
+    duration:      s.duration ?? s.duracion   ?? 60,
+    price:         s.price    ?? s.precio     ?? 0,
+  }));
 }
 
 export async function fetchEmployees() {
   const res = await fetch(`${API_BASE}/employees?activos=true`, { headers: authHeaders() });
   const data = await parseJsonOrThrow(res) as any[];
   return data.map((e: any) => ({
-    id:        String(e.id),
-    name:      e.name      ?? `${e.nombre ?? ""} ${e.apellido ?? ""}`.trim(),
-    specialty: e.specialty ?? e.especialidad ?? "",
-    color:     e.color     ?? "#78D1BD",
+    id:             String(e.id),
+    name:           e.name      ?? `${e.nombre ?? ""} ${e.apellido ?? ""}`.trim(),
+    specialty:      e.specialty ?? e.especialidad ?? "",
+    specialtyRolId: e.specialtyRolId ?? null,
+    color:          e.color     ?? "#78D1BD",
   }));
 }
 
-export async function fetchEmployeesByDate(fecha: string, hora?: string): Promise<{ id: string; name: string; specialty: string; color: string }[]> {
+export async function fetchEmployeesByDate(fecha: string, hora?: string): Promise<Employee[]> {
   const url = hora 
     ? `${API_BASE}/employees/disponibles?fecha=${fecha}&hora=${hora}`
     : `${API_BASE}/employees/disponibles?fecha=${fecha}`;
   const res  = await fetch(url, { headers: authHeaders() });
   const data = await parseJsonOrThrow(res) as any[];
   return data.map((e: any) => ({
-    id:        String(e.id),
-    name:      e.name      ?? `${e.nombre ?? ""} ${e.apellido ?? ""}`.trim(),
-    specialty: e.specialty ?? e.especialidad ?? "",
-    color:     e.color     ?? "#78D1BD",
+    id:             String(e.id),
+    name:           e.name      ?? `${e.nombre ?? ""} ${e.apellido ?? ""}`.trim(),
+    specialty:      e.specialty ?? e.especialidad ?? "",
+    specialtyRolId: e.specialtyRolId ?? null,
+    color:          e.color     ?? "#78D1BD",
   }));
 }
 

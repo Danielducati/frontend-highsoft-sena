@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { isRestrictedEmployee } from "../../../shared/utils/permissionScope";
+import { isSystemClienteRole } from "../../auth/constants";
 import { toast } from "sonner";
 import { Quotation, QuotationFormData, QuotationItem, QuotationStatus } from "../types";
 import { ITEMS_PER_PAGE, API_URL } from "../constants";
@@ -66,10 +68,16 @@ export function useQuotations(userRole?: string) {
 
   useEffect(() => {
     loadQuotations();
-    if (userRole === "client") {
+    let storedRol = "";
+    try {
+      const u = JSON.parse(localStorage.getItem("usuario") ?? "{}");
+      storedRol = u.rol ?? "";
+    } catch {}
+
+    if (isSystemClienteRole(storedRol) || userRole === "client") {
       loadServices();
       loadMyProfile();
-    } else if (userRole === "employee") {
+    } else if (isRestrictedEmployee()) {
       loadClients();
       Promise.all([fetchMyEmployeeServicesApi(), fetchMyEmployeeProfileApi()])
         .then(async ([svcData, emp]) => {
@@ -225,6 +233,7 @@ export function useQuotations(userRole?: string) {
       toast.error("Por favor agrega al menos un servicio");
       return;
     }
+    
     const body: any = {
       id_cliente:  formData.guestMode ? null : parseInt(formData.clientId),
       fecha:       formData.date,
@@ -391,12 +400,23 @@ export function useQuotations(userRole?: string) {
   const handleEdit = (quotation: Quotation) => {
     setEditingQuotation(quotation);
     const client = clients.find(c => `${c.nombre} ${c.apellido}` === quotation.clientName);
+    
+    // Mapear los servicios con sus datos completos
+    const mappedServices = (quotation.items || []).map(item => ({
+      serviceId:    item.serviceId,
+      serviceName:  item.serviceName,
+      price:        item.price,
+      quantity:     item.quantity,
+      empleadoId:   item.empleadoId,
+      empleadoName: item.empleadoName,
+    }));
+    
     setFormData({
       clientId:         client?.id?.toString() || quotation.FK_id_cliente?.toString() || "",
       date:             quotation.date?.split("T")[0] || new Date().toISOString().split("T")[0],
       startTime:        quotation.startTime || "",
       notes:            quotation.notes || "",
-      selectedServices: quotation.items || [],
+      selectedServices: mappedServices,
       discount:         quotation.discount?.toString() || "0",
     });
     setIsDialogOpen(true);

@@ -28,12 +28,28 @@ interface SaleFormProps {
   onRemoveService:     (id: number) => void;
 }
 
-type Errors = { client?: string; services?: string; payment?: string; appointment?: string };
+type Errors = { client?: string; services?: string; payment?: string; appointment?: string; guestPhone?: string; guestEmail?: string };
 
 function validateDirect(data: SaleFormData): Errors {
   const e: Errors = {};
   if (data.guestMode) {
     if (!data.guestFirstName?.trim()) e.client = "El nombre del cliente es obligatorio.";
+    
+    // Validación de teléfono: debe tener exactamente 10 dígitos si se proporciona
+    if (data.guestPhone?.trim()) {
+      const phoneDigits = data.guestPhone.replace(/\D/g, "");
+      if (phoneDigits.length !== 10) {
+        e.guestPhone = "El teléfono debe tener exactamente 10 dígitos.";
+      }
+    }
+    
+    // Validación de correo: formato válido si se proporciona
+    if (data.guestEmail?.trim()) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(data.guestEmail.trim())) {
+        e.guestEmail = "El correo electrónico no es válido.";
+      }
+    }
   } else {
     if (!data.clienteId) e.client = "Selecciona un cliente.";
   }
@@ -43,6 +59,9 @@ function validateDirect(data: SaleFormData): Errors {
   // Validar descuento
   const subtotal = calcSubtotal(data.selectedServices);
   const discount = parseFloat(data.discount) || 0;
+  if (discount < 0) {
+    e.payment = "El descuento no puede ser negativo.";
+  }
   if (discount > subtotal) {
     e.payment = "El descuento no puede ser mayor al subtotal.";
   }
@@ -58,6 +77,9 @@ function validateAppointment(data: SaleFormData): Errors {
   // Validar descuento
   const subtotal = calcSubtotal(data.selectedServices);
   const discount = parseFloat(data.discount) || 0;
+  if (discount < 0) {
+    e.payment = "El descuento no puede ser negativo.";
+  }
   if (discount > subtotal) {
     e.payment = "El descuento no puede ser mayor al subtotal.";
   }
@@ -226,9 +248,13 @@ export function SaleForm({
   const touch = (f: keyof Errors) => setTouched(t => ({ ...t, [f]: true }));
 
   const handleSubmit = () => {
-    setTouched({ client: true, services: true, payment: true, appointment: true });
-    if (Object.keys(validate(formData)).length > 0) {
-      toast.error("Revisa los campos marcados antes de continuar.");
+    setTouched({ client: true, services: true, payment: true, appointment: true, guestPhone: true, guestEmail: true });
+    const errors = validate(formData);
+    if (Object.keys(errors).length > 0) {
+      // Mostrar el primer error encontrado
+      const firstError = errors.guestEmail || errors.guestPhone || errors.payment || errors.services || errors.client || errors.appointment;
+      if (firstError) toast.error(firstError);
+      else toast.error("Revisa los campos marcados antes de continuar.");
       return;
     }
     onSubmit();
@@ -395,21 +421,25 @@ export function SaleForm({
                   <Label className="text-gray-900">Correo</Label>
                   <Input
                     type="email"
-                    className="rounded-lg border-gray-200"
+                    className={`rounded-lg ${liveErr.guestEmail ? "border-red-500 bg-red-50" : "border-gray-200"}`}
                     value={formData.guestEmail ?? ""}
                     onChange={e => setFormData(prev => ({ ...prev, guestEmail: e.target.value }))}
+                    onBlur={() => touch("guestEmail")}
                     placeholder="correo@ejemplo.com"
                   />
+                  {liveErr.guestEmail && <p className="text-xs text-red-500">⚠ {liveErr.guestEmail}</p>}
                 </div>
                 <div className="space-y-2">
                   <Label className="text-gray-900">Teléfono</Label>
                   <Input
-                    className="rounded-lg border-gray-200"
+                    className={`rounded-lg ${liveErr.guestPhone ? "border-red-500 bg-red-50" : "border-gray-200"}`}
                     value={formData.guestPhone ?? ""}
-                    onChange={e => setFormData(prev => ({ ...prev, guestPhone: e.target.value.replace(/\D/g,"") }))}
+                    onChange={e => setFormData(prev => ({ ...prev, guestPhone: e.target.value.replace(/\D/g,"").slice(0, 10) }))}
+                    onBlur={() => touch("guestPhone")}
                     placeholder="3001234567"
                     maxLength={10}
                   />
+                  {liveErr.guestPhone && <p className="text-xs text-red-500">⚠ {liveErr.guestPhone}</p>}
                 </div>
               </div>
               {liveErr.client && <p className="text-xs text-red-500">⚠ {liveErr.client}</p>}

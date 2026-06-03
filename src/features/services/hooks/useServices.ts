@@ -196,7 +196,8 @@ export function useServices() {
   const filteredServices = services.filter(s => {
     const matchSearch   = s.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                           s.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchCategory = filterCategory === "all" || s.category === filterCategory;
+    // Comparar por categoryId en lugar de nombre de categoría (string)
+    const matchCategory = filterCategory === "all" || s.categoryId?.toString() === filterCategory;
     const matchStatus   = filterStatus === "all" ||
                           (filterStatus === "active"   &&  s.isActive) ||
                           (filterStatus === "inactive" && !s.isActive);

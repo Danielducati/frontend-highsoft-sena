@@ -28,6 +28,7 @@ import { SettingsModule }    from "../features/settings/SettingsModule";
 import { AdminProfilePage }  from "../features/users/pages/AdminProfilePage";
 
 import { Toaster } from "sonner";
+import { isSystemClienteRole } from "../features/auth/constants";
 
 type UserRole = "admin" | "employee" | "client" | null;
 type Page =
@@ -54,7 +55,11 @@ function getAllowedPages(userRole: UserRole): Page[] {
   try {
     const stored = localStorage.getItem("allowedPages");
     if (stored) {
-      const pages = JSON.parse(stored) as Page[];
+      let pages = JSON.parse(stored) as Page[];
+      // Los clientes nunca deben ver el módulo de usuarios
+      if (userRole === "client") {
+        pages = pages.filter(p => p !== "users");
+      }
       if (pages.length > 0) return pages;
     }
   } catch {}
@@ -63,9 +68,19 @@ function getAllowedPages(userRole: UserRole): Page[] {
   return ["users"];
 }
 
+function getStoredRolBackend(): string {
+  try {
+    const u = JSON.parse(localStorage.getItem("usuario") ?? "{}");
+    return u.rol ?? "";
+  } catch {
+    return "";
+  }
+}
+
 function AppContent({ currentPage, userRole }: { currentPage: Page; userRole: NonNullable<UserRole> }) {
   const allowed = getAllowedPages(userRole);
   const can = (page: string) => allowed.includes(page as Page);
+  const useClienteAppointments = isSystemClienteRole(getStoredRolBackend());
 
   return (
     <>
@@ -80,9 +95,9 @@ function AppContent({ currentPage, userRole }: { currentPage: Page; userRole: No
       {currentPage === "sales"        && can("sales")        && <SalesModule       userRole={userRole} />}
       {currentPage === "clients"      && can("clients")      && <ClientsModule     userRole={userRole} />}
       {currentPage === "services"     && can("services")     && <ServicesModule    userRole={userRole} />}
-      {currentPage === "appointments" && userRole === "client"  && <ClientAppointmentsPage />}
-      {currentPage === "appointments" && userRole !== "client"  && can("appointments") && <AppointmentsModule userRole={userRole} />}
-      {currentPage === "users"        && <UsersModule userRole={userRole} />}
+      {currentPage === "appointments" && useClienteAppointments && can("appointments") && <ClientAppointmentsPage />}
+      {currentPage === "appointments" && !useClienteAppointments && can("appointments") && <AppointmentsModule userRole={userRole} />}
+      {currentPage === "users"        && can("users")        && <UsersModule userRole={userRole} />}
       {currentPage === "admin-profile" && <AdminProfilePage />}
     </>
   );
@@ -139,7 +154,10 @@ export default function App() {
         if (JSON.stringify(newPages) !== current) {
           localStorage.setItem("allowedPages", JSON.stringify(newPages));
           localStorage.setItem("permisos",     JSON.stringify(permisos));
-          setPermVersion(v => v + 1); // fuerza re-render
+          setPermVersion(v => v + 1);
+          setCurrentPage((prev) =>
+            newPages.includes(prev) ? prev : (newPages[0] as Page) ?? prev
+          );
         }
       } catch {}
     };
@@ -159,11 +177,14 @@ export default function App() {
     setUserRole(role);
     if (role === "admin") {
       setCurrentPage("dashboard");
-    } else if (role === "client") {
-      setCurrentPage("appointments");
-    } else {
-      setCurrentPage((firstPage ?? "users") as Page);
+      return;
     }
+    const allowed = getAllowedPages(role);
+    const target =
+      firstPage && allowed.includes(firstPage as Page)
+        ? firstPage
+        : allowed[0];
+    setCurrentPage((target ?? "users") as Page);
   };
 
   const handleLogout = () => {

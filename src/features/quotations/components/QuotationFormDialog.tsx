@@ -38,16 +38,38 @@ interface QuotationFormDialogProps {
   myClientData?: { id: number; nombre: string; apellido: string } | null;
 }
 
-type Errors = { clientId?: string; date?: string; services?: string; discount?: string };
+type Errors = { clientId?: string; date?: string; services?: string; discount?: string; guestPhone?: string; guestEmail?: string };
 
-function validate(data: QuotationFormData): Errors {
+function validate(data: QuotationFormData, subtotal: number): Errors {
   const e: Errors = {};
   if (!data.guestMode && !data.clientId)                       e.clientId = "Selecciona un cliente.";
   if (data.guestMode && !data.guestFirstName?.trim())          e.clientId = "El nombre del cliente es obligatorio.";
   if (!data.date)                                              e.date     = "La fecha es obligatoria.";
   if (data.selectedServices.length === 0)                      e.services = "Agrega al menos un servicio.";
   if (data.discount && isNaN(Number(data.discount)))           e.discount = "El descuento debe ser un número.";
-  if (Number(data.discount) < 0)                               e.discount = "El descuento no puede ser negativo.";
+  const discountValue = Number(data.discount) || 0;
+  if (discountValue < 0)                                       e.discount = "El descuento no puede ser negativo.";
+  if (discountValue > subtotal)                                e.discount = `El descuento no puede ser mayor al subtotal ($${subtotal.toLocaleString("es-CO")}).`;
+  
+  // Validaciones para cliente ocasional
+  if (data.guestMode) {
+    // Validación de teléfono: debe tener exactamente 10 dígitos si se proporciona
+    if (data.guestPhone?.trim()) {
+      const phoneDigits = data.guestPhone.replace(/\D/g, "");
+      if (phoneDigits.length !== 10) {
+        e.guestPhone = "El teléfono debe tener exactamente 10 dígitos.";
+      }
+    }
+    
+    // Validación de correo: formato válido si se proporciona
+    if (data.guestEmail?.trim()) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(data.guestEmail.trim())) {
+        e.guestEmail = "El correo electrónico no es válido.";
+      }
+    }
+  }
+  
   return e;
 }
 
@@ -148,7 +170,8 @@ export function QuotationFormDialog({
 
   if (userRole === "client") return null;
 
-  const allErrs = validate(formData);
+  const subtotal = calculateSubtotal();
+  const allErrs = validate(formData, subtotal);
   const liveErrors: Errors = {};
   (Object.keys(touched) as Array<keyof Errors>).forEach(k => {
     if (touched[k] && allErrs[k]) (liveErrors as any)[k] = (allErrs as any)[k];
@@ -157,9 +180,15 @@ export function QuotationFormDialog({
   const touch = (f: keyof Errors) => setTouched(t => ({ ...t, [f]: true }));
 
   const handleSubmit = () => {
-    const errs = validate(formData);
-    setTouched({ clientId: true, date: true, services: true, discount: true });
-    if (Object.keys(errs).length > 0) { toast.error("Revisa los campos marcados antes de continuar."); return; }
+    const errs = validate(formData, subtotal);
+    setTouched({ clientId: true, date: true, services: true, discount: true, guestPhone: true, guestEmail: true });
+    if (Object.keys(errs).length > 0) { 
+      // Mostrar el primer error encontrado
+      const firstError = errs.guestEmail || errs.guestPhone || errs.discount || errs.services || errs.clientId || errs.date;
+      if (firstError) toast.error(firstError);
+      else toast.error("Revisa los campos marcados antes de continuar.");
+      return; 
+    }
     onSubmit();
   };
 
@@ -254,21 +283,26 @@ export function QuotationFormDialog({
                       <div className="space-y-1">
                         <Label className="text-gray-900">Teléfono</Label>
                         <input
-                          className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm bg-white text-gray-900 outline-none"
+                          className={`w-full rounded-lg border px-3 py-2 text-sm bg-white text-gray-900 outline-none ${liveErrors.guestPhone ? "border-red-500 bg-red-50" : "border-gray-200"}`}
                           value={formData.guestPhone ?? ""}
-                          onChange={e => setFormData({ ...formData, guestPhone: e.target.value.replace(/\D/g, "") })}
+                          onChange={e => setFormData({ ...formData, guestPhone: e.target.value.replace(/\D/g, "").slice(0, 10) })}
+                          onBlur={() => touch("guestPhone")}
                           placeholder="3001234567"
+                          maxLength={10}
                         />
+                        {liveErrors.guestPhone && <p className="text-xs text-red-500">⚠ {liveErrors.guestPhone}</p>}
                       </div>
                       <div className="space-y-1">
                         <Label className="text-gray-900">Correo</Label>
                         <input
                           type="email"
-                          className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm bg-white text-gray-900 outline-none"
+                          className={`w-full rounded-lg border px-3 py-2 text-sm bg-white text-gray-900 outline-none ${liveErrors.guestEmail ? "border-red-500 bg-red-50" : "border-gray-200"}`}
                           value={formData.guestEmail ?? ""}
                           onChange={e => setFormData({ ...formData, guestEmail: e.target.value })}
+                          onBlur={() => touch("guestEmail")}
                           placeholder="correo@ejemplo.com"
                         />
+                        {liveErrors.guestEmail && <p className="text-xs text-red-500">⚠ {liveErrors.guestEmail}</p>}
                       </div>
                     </div>
                     {liveErrors.clientId && <p className="text-xs text-red-500">⚠ {liveErrors.clientId}</p>}

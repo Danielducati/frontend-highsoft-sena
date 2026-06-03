@@ -1,8 +1,8 @@
 import { Eye, Pencil, Trash2, AlertCircle, Calendar as CalendarIcon } from "lucide-react";
 import { EmployeeNews } from "../types";
 import { getTypeConfig, getTypeColor, getStatusColor, getStatusLabel, formatDate } from "../utils";
-// Importamos los componentes de Select para el estado interactivo
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../shared/ui/select";
+import { usePermisos } from "../../../shared/hooks/usePermisos";
 
 interface NewsTableProps {
   news:           EmployeeNews[];
@@ -10,11 +10,11 @@ interface NewsTableProps {
   onView:         (item: EmployeeNews) => void;
   onEdit:         (item: EmployeeNews) => void;
   onDelete:       (id: number) => void;
-  // Cambiamos el nombre a uno más descriptivo para la acción directa
   onUpdateStatus: (id: number, status: string) => void; 
 }
 
 export function NewsTable({ news, userRole, onView, onEdit, onDelete, onUpdateStatus }: NewsTableProps) {
+  const { can } = usePermisos();
   return (
     <div className="overflow-x-auto">
       <table className="w-full">
@@ -83,9 +83,9 @@ export function NewsTable({ news, userRole, onView, onEdit, onDelete, onUpdateSt
                   )}
                 </td>
 
-                {/* STATUS — solo admin puede cambiarlo */}
+                {/* STATUS — solo con permiso puede cambiarlo */}
                 <td className="px-4 py-3">
-                  {userRole === "admin" ? (
+                  {can("novedades.editar") ? (
                     <Select
                       value={item.status}
                       onValueChange={(value) => onUpdateStatus(item.id, value)}
@@ -119,7 +119,7 @@ export function NewsTable({ news, userRole, onView, onEdit, onDelete, onUpdateSt
                       <Eye className="w-4 h-4" />
                     </button>
 
-                    {userRole === "admin" && (
+                    {can("novedades.editar") && (
                       <button
                         onClick={() => item.status === "pendiente" && onEdit(item)}
                         disabled={item.status !== "pendiente"}
@@ -133,7 +133,7 @@ export function NewsTable({ news, userRole, onView, onEdit, onDelete, onUpdateSt
                       </button>
                     )}
 
-                    {userRole === "admin" && (
+                    {can("novedades.eliminar") && (
                       <button
                         onClick={() => item.status === "pendiente" && onDelete(item.id)}
                         disabled={item.status !== "pendiente"}

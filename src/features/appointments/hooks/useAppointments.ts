@@ -13,6 +13,8 @@ import {
   cancelAppointment, updateAppointmentStatus,
   fetchAvailableTimeSlots,
 } from "../services/appointmentsService";
+import { isRestrictedEmployee } from "../../../shared/utils/permissionScope";
+import { isSystemClienteRole } from "../../auth/constants";
 
 const TODAY = new Date();
 
@@ -55,14 +57,19 @@ export function useAppointments(userRole?: string) {
   useEffect(() => {
     async function loadAll() {
       try {
-        const isClient   = userRole === "client";
-        const isEmployee = userRole === "employee";
+        let storedRol = "";
+        try {
+          const u = JSON.parse(localStorage.getItem("usuario") ?? "{}");
+          storedRol = u.rol ?? "";
+        } catch {}
+        const isClient   = isSystemClienteRole(storedRol) || userRole === "client";
+        const restricted = isRestrictedEmployee();
 
         const [sData, eData, aData] = await Promise.all([
-          isEmployee ? fetchMyEmployeeServices() : fetchServices(),
+          restricted ? fetchMyEmployeeServices() : fetchServices(),
           fetchEmployees(),
           isClient   ? fetchMyAppointments()         :
-          isEmployee ? fetchMyEmployeeAppointments() :
+          restricted ? fetchMyEmployeeAppointments() :
                        fetchAppointments(),
         ]);
 
@@ -80,7 +87,7 @@ export function useAppointments(userRole?: string) {
             clientName:  myProfile.name || myProfile.id,
             clientPhone: myProfile.phone,
           }));
-        } else if (isEmployee) {
+        } else if (restricted) {
           const [cData, myProfile] = await Promise.all([
             fetchClientsForAppointments(),
             fetchMyEmployeeProfile(),
@@ -129,9 +136,16 @@ export function useAppointments(userRole?: string) {
   }, [formData.date, formData.startTime, isDialogOpen, currentService.serviceId]);
 
   const reloadAppointments = async () => {
-    const data = userRole === "client"   ? await fetchMyAppointments()         :
-                 userRole === "employee" ? await fetchMyEmployeeAppointments() :
-                                          await fetchAppointments();
+    let storedRol = "";
+    try {
+      const u = JSON.parse(localStorage.getItem("usuario") ?? "{}");
+      storedRol = u.rol ?? "";
+    } catch {}
+    const isClient = isSystemClienteRole(storedRol) || userRole === "client";
+    const restricted = isRestrictedEmployee();
+    const data = isClient   ? await fetchMyAppointments()         :
+                 restricted ? await fetchMyEmployeeAppointments() :
+                              await fetchAppointments();
     setAppointments(data);
   };
 
@@ -279,8 +293,16 @@ export function useAppointments(userRole?: string) {
       const empsDisponibles = await fetchEmployeesByDate(fechaStr, formData.startTime);
       console.log('[loadEmployeesForService] Empleados con horario en fecha:', empsDisponibles.map(e => `${e.name} (${e.specialty})`));
       
-      // Filtrar por especialidad que coincida con la categoría del servicio (case-insensitive y trim)
+      // Filtrar por rolId si ambos tienen el campo, sino por especialidad/categoría
       const empsEspecialistas = empsDisponibles.filter(e => {
+        // Comparación por rolId (más confiable)
+        if (service.categoryRolId && e.specialtyRolId) {
+          const match = e.specialtyRolId === service.categoryRolId;
+          console.log(`[loadEmployeesForService] ${e.name}: rolId ${e.specialtyRolId} === ${service.categoryRolId} ? ${match}`);
+          return match;
+        }
+        
+        // Fallback: comparación por string (menos confiable)
         const empSpecialty = (e.specialty || '').toLowerCase().trim();
         const serviceCategory = (service.category || '').toLowerCase().trim();
         const match = empSpecialty === serviceCategory;
@@ -312,8 +334,7 @@ export function useAppointments(userRole?: string) {
       toast.error("Selecciona un servicio"); return;
     }
 
-    // Si es empleado, usar su propio perfil; si no, requerir selección de empleado
-    const effectiveEmployeeId = userRole === "employee" && myEmployeeProfile
+    const effectiveEmployeeId = isRestrictedEmployee() && myEmployeeProfile
       ? myEmployeeProfile.id
       : currentService.employeeId;
 
@@ -324,7 +345,7 @@ export function useAppointments(userRole?: string) {
     const service  = services.find(s => s.id === currentService.serviceId);
     // Para empleado logueado, usar su perfil directamente si no está en la lista
     const employee = employees.find(e => e.id === effectiveEmployeeId)
-      ?? (userRole === "employee" && myEmployeeProfile && myEmployeeProfile.id === effectiveEmployeeId
+      ?? (isRestrictedEmployee() && myEmployeeProfile && myEmployeeProfile.id === effectiveEmployeeId
           ? { id: myEmployeeProfile.id, name: myEmployeeProfile.name, specialty: myEmployeeProfile.specialty, color: "#1a5c3a" }
           : undefined);
     if (!service || !employee) return;
@@ -343,6 +364,7 @@ export function useAppointments(userRole?: string) {
       employeeName: employee.name,
       duration:     service.duration,
       startTime:    serviceStartTime,
+      price:        service.price ?? 0,
     }]);
     setCurrentService({ serviceId: "", employeeId: "" });
     toast.success("Servicio agregado");
