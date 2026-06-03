@@ -22,13 +22,14 @@ getAll: async () => {
 },
 
 getEmployees: async () => {
-    const res = await fetch(`${API}/employees`, { headers: authHeaders() });
+    const res = await fetch(`${API}/employees?activos=true`, { headers: authHeaders() });
     await throwIfError(res, "Error al cargar empleados");
     const data = await res.json();
     return data.map((e: any) => ({
-    id:        String(e.id ?? e.PK_id_empleado),
-    name:      `${e.nombre} ${e.apellido}`,
-    specialty: e.especialidad ?? "",
+      id:        String(e.id ?? e.PK_id_empleado),
+      name:      `${e.nombre} ${e.apellido}`,
+      specialty: e.especialidad ?? "",
+      isActive:  e.isActive !== undefined ? e.isActive : (e.estado ?? e.Estado) === "Activo",
     }));
 },
 

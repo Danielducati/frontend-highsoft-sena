@@ -83,7 +83,7 @@ export async function fetchMyEmployeeServices(): Promise<{ id: string; name: str
 }
 
 export async function fetchEmployees() {
-  const res = await fetch(`${API_BASE}/employees`, { headers: authHeaders() });
+  const res = await fetch(`${API_BASE}/employees?activos=true`, { headers: authHeaders() });
   const data = await parseJsonOrThrow(res) as any[];
   return data.map((e: any) => ({
     id:        String(e.id),

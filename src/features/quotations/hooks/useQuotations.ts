@@ -139,7 +139,7 @@ export function useQuotations(userRole?: string) {
 
   const loadEmployees = async () => {
     try {
-      const res  = await fetch(`${API_URL}/employees`, { headers: { Authorization: `Bearer ${getToken()}` } });
+      const res  = await fetch(`${API_URL}/employees?activos=true`, { headers: { Authorization: `Bearer ${getToken()}` } });
       if (!res.ok) throw new Error("Error al cargar empleados");
       const data = await res.json();
       const list = Array.isArray(data) ? data : [];
