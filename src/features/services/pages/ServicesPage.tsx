@@ -104,7 +104,7 @@ export function ServicesPage({ userRole }: ServicesModuleProps) {
                   <SelectContent>
                     <SelectItem value="all">Todas las categorías</SelectItem>
                     {categories.map(cat => (
-                      <SelectItem key={cat.id} value={cat.nombre}>{cat.nombre}</SelectItem>
+                      <SelectItem key={cat.id} value={cat.id.toString()}>{cat.nombre}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>

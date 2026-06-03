@@ -286,15 +286,15 @@ export function QuotationsPage({ userRole }: QuotationsModuleProps) {
                         <>
                           <button 
                             onClick={() => handleEdit(q)} 
-                            title={q.status === "approved" ? "No se pueden editar cotizaciones aprobadas" : "Editar"}
-                            disabled={q.status === "approved"}
+                            title={q.status !== "pending" ? "Solo se pueden editar cotizaciones pendientes" : "Editar"}
+                            disabled={q.status !== "pending"}
                             className="p-2 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed" 
-                            style={{ color: q.status === "approved" ? "#9ca3af" : "#6b7c6b" }}
-                            onMouseEnter={e => { if (q.status !== "approved") e.currentTarget.style.backgroundColor = "#F3F4F6"; }}
+                            style={{ color: q.status === "pending" ? "#6b7c6b" : "#9ca3af" }}
+                            onMouseEnter={e => { if (q.status === "pending") e.currentTarget.style.backgroundColor = "#F3F4F6"; }}
                             onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}>
                             <Pencil className="w-4 h-4" />
                           </button>
-                          {q.status !== "cancelled" && (
+                          {q.status === "pending" && (
                             <button onClick={() => confirmCancel(q.id)} title="Cancelar cotización"
                               className="p-2 rounded-lg transition-colors" style={{ color: "#c0392b" }}
                               onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#fdf0ee")}
@@ -315,51 +315,39 @@ export function QuotationsPage({ userRole }: QuotationsModuleProps) {
 
       {/* ── Paginación ── */}
       {totalPages > 1 && (
-        <div className="flex justify-between items-center mt-6 px-2" style={{ fontFamily: "var(--font-body)" }}>
+        <div className="flex items-center justify-between mt-2 px-1" style={{ fontFamily: "var(--font-body)" }}>
           <p className="text-sm" style={{ color: "#6b7c6b" }}>
-            Mostrando {startIndex + 1} - {Math.min(startIndex + ITEMS_PER_PAGE, filteredQuotations.length)} de {filteredQuotations.length} cotizaciones
+            Mostrando {startIndex + 1}–{Math.min(startIndex + ITEMS_PER_PAGE, filteredQuotations.length)} de {filteredQuotations.length} cotizaciones
           </p>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
             <button
-              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
               disabled={currentPage === 1}
-              className="px-4 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-              style={{
-                backgroundColor: currentPage === 1 ? "#f3f4f6" : "#ffffff",
-                color: currentPage === 1 ? "#9ca3af" : "#1a3a2a",
-                border: "1px solid #E5E7EB",
-              }}
-            >
-              Anterior
-            </button>
-            <div className="flex items-center gap-1">
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
-                <button
-                  key={page}
-                  onClick={() => setCurrentPage(page)}
-                  className="w-10 h-10 rounded-lg text-sm font-medium transition-colors"
-                  style={{
-                    backgroundColor: currentPage === page ? "#1a3a2a" : "#ffffff",
-                    color: currentPage === page ? "#ffffff" : "#1a3a2a",
-                    border: currentPage === page ? "none" : "1px solid #E5E7EB",
-                  }}
-                >
-                  {page}
-                </button>
-              ))}
-            </div>
+              className="w-8 h-8 flex items-center justify-center rounded-lg text-sm disabled:opacity-30"
+              style={{ color: "#1a3a2a" }}
+              onMouseEnter={(e) => { if (!e.currentTarget.disabled) e.currentTarget.style.backgroundColor = "#E5E7EB"; }}
+              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+            >‹</button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+              <button
+                key={page}
+                onClick={() => setCurrentPage(page)}
+                className="w-8 h-8 flex items-center justify-center rounded-lg text-sm font-medium"
+                style={page === currentPage ? { backgroundColor: "#1a3a2a", color: "#ffffff" } : { color: "#1a3a2a" }}
+                onMouseEnter={(e) => { if (page !== currentPage) e.currentTarget.style.backgroundColor = "#E5E7EB"; }}
+                onMouseLeave={(e) => { if (page !== currentPage) e.currentTarget.style.backgroundColor = "transparent"; }}
+              >
+                {page}
+              </button>
+            ))}
             <button
-              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
               disabled={currentPage === totalPages}
-              className="px-4 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-              style={{
-                backgroundColor: currentPage === totalPages ? "#f3f4f6" : "#ffffff",
-                color: currentPage === totalPages ? "#9ca3af" : "#1a3a2a",
-                border: "1px solid #E5E7EB",
-              }}
-            >
-              Siguiente
-            </button>
+              className="w-8 h-8 flex items-center justify-center rounded-lg text-sm disabled:opacity-30"
+              style={{ color: "#1a3a2a" }}
+              onMouseEnter={(e) => { if (!e.currentTarget.disabled) e.currentTarget.style.backgroundColor = "#E5E7EB"; }}
+              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+            >›</button>
           </div>
         </div>
       )}
