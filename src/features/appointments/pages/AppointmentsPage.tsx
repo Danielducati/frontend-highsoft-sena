@@ -245,14 +245,17 @@ export function AppointmentsPage({ userRole }: AppointmentsModuleProps) {
                         <>
                           <button
                             onClick={() => handleEdit(apt)}
-                            disabled={apt.status === "completed"}
-                            title={apt.status === "completed" ? "No se puede editar una cita completada" : "Editar"}
+                            disabled={apt.status === "completed" || apt.status === "cancelled"}
+                            title={
+                              apt.status === "completed" ? "No se puede editar una cita completada" :
+                              apt.status === "cancelled" ? "No se puede editar una cita cancelada" : "Editar"
+                            }
                             className="p-2 rounded-lg transition-colors"
                             style={{
-                              color: apt.status === "completed" ? "#d1d5db" : "#6b7c6b",
-                              cursor: apt.status === "completed" ? "not-allowed" : "pointer",
+                              color: (apt.status === "completed" || apt.status === "cancelled") ? "#d1d5db" : "#6b7c6b",
+                              cursor: (apt.status === "completed" || apt.status === "cancelled") ? "not-allowed" : "pointer",
                             }}
-                            onMouseEnter={e => { if (apt.status !== "completed") e.currentTarget.style.backgroundColor = "#F3F4F6"; }}
+                            onMouseEnter={e => { if (apt.status !== "completed" && apt.status !== "cancelled") e.currentTarget.style.backgroundColor = "#F3F4F6"; }}
                             onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
                           >
                             <Pencil className="w-4 h-4" />

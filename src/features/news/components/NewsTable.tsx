@@ -121,12 +121,13 @@ export function NewsTable({ news, userRole, onView, onEdit, onDelete, onUpdateSt
 
                     {userRole === "admin" && (
                       <button
-                        onClick={() => onEdit(item)}
-                        title="Editar"
-                        className="p-2 rounded-lg transition-colors"
-                        style={{ color: "#6b7c6b" }}
-                        onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#F3F4F6")}
-                        onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
+                        onClick={() => item.status === "pendiente" && onEdit(item)}
+                        disabled={item.status !== "pendiente"}
+                        title={item.status !== "pendiente" ? "No se puede editar una novedad aprobada/rechazada" : "Editar"}
+                        className={`p-2 rounded-lg transition-colors ${item.status !== "pendiente" ? "opacity-40 cursor-not-allowed" : ""}`}
+                        style={{ color: item.status !== "pendiente" ? "#9ca3af" : "#6b7c6b" }}
+                        onMouseEnter={e => item.status === "pendiente" && (e.currentTarget.style.backgroundColor = "#F3F4F6")}
+                        onMouseLeave={e => item.status === "pendiente" && (e.currentTarget.style.backgroundColor = "transparent")}
                       >
                         <Pencil className="w-4 h-4" />
                       </button>
@@ -134,12 +135,13 @@ export function NewsTable({ news, userRole, onView, onEdit, onDelete, onUpdateSt
 
                     {userRole === "admin" && (
                       <button
-                        onClick={() => onDelete(item.id)}
-                        title="Eliminar"
-                        className="p-2 rounded-lg transition-colors"
-                        style={{ color: "#c0392b" }}
-                        onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#fdf0ee")}
-                        onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
+                        onClick={() => item.status === "pendiente" && onDelete(item.id)}
+                        disabled={item.status !== "pendiente"}
+                        title={item.status !== "pendiente" ? "No se puede eliminar una novedad aprobada/rechazada" : "Eliminar"}
+                        className={`p-2 rounded-lg transition-colors ${item.status !== "pendiente" ? "opacity-40 cursor-not-allowed" : ""}`}
+                        style={{ color: item.status !== "pendiente" ? "#9ca3af" : "#c0392b" }}
+                        onMouseEnter={e => item.status === "pendiente" && (e.currentTarget.style.backgroundColor = "#fdf0ee")}
+                        onMouseLeave={e => item.status === "pendiente" && (e.currentTarget.style.backgroundColor = "transparent")}
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>

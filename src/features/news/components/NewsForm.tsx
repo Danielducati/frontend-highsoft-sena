@@ -16,10 +16,11 @@ import { Employee, EmployeeNews, NewsFormData } from "../types";
 import { scheduleService } from "../services/scheduleService";
 
 // Componente de búsqueda de empleado (similar al ClientSearch de citas)
-function EmployeeSearch({ employees, selectedId, onSelect }: {
+function EmployeeSearch({ employees, selectedId, onSelect, disabled = false }: {
   employees: Employee[];
   selectedId: string;
   onSelect: (id: string, name: string) => void;
+  disabled?: boolean;
 }) {
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
@@ -34,6 +35,14 @@ function EmployeeSearch({ employees, selectedId, onSelect }: {
   const selected = employees.find(e => String(e.id) === selectedId);
   const selectedName = selected ? selected.name : "";
 
+  if (disabled) {
+    return (
+      <div className="w-full h-10 px-3 border border-gray-200 bg-gray-50 rounded-md flex items-center text-sm text-gray-700">
+        {selectedName || "Empleado no seleccionado"}
+      </div>
+    );
+  }
+
   return (
     <div className="relative">
       <input
@@ -41,7 +50,7 @@ function EmployeeSearch({ employees, selectedId, onSelect }: {
         placeholder={selectedName || "Buscar empleado por nombre..."}
         value={search}
         onChange={e => { setSearch(e.target.value); setOpen(true); }}
-        onFocus={() => setOpen(true)}
+        onClick={() => setOpen(true)}
         onBlur={() => { setTimeout(() => setOpen(false), 150); }}
         className={`w-full rounded-lg border px-3 py-2 text-sm bg-white text-gray-900 outline-none focus:ring-2 focus:ring-[#1a5c3a] focus:border-transparent ${
           selected ? "border-[#1a5c3a] bg-[#edf7f4]" : "border-gray-300"
@@ -305,23 +314,29 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
           <User className="w-4 h-4 text-[#1a5c3a]" />
           Empleado *
         </Label>
-        {isEmployee ? (
-          // Empleado bloqueado para usuarios no-admin
+        {isEmployee || !!editingNews ? (
+          // Empleado bloqueado para usuarios no-admin o cuando se está editando
           <div className="w-full h-10 px-3 border border-gray-200 bg-gray-50 rounded-md flex items-center text-sm text-gray-700">
             {formData.employeeName || "Cargando..."}
           </div>
         ) : (
-          // Búsqueda de empleado para administradores
+          // Búsqueda de empleado para administradores (solo en modo creación)
           <EmployeeSearch
             employees={employees}
             selectedId={formData.employeeId || ""}
             onSelect={handleEmployeeChange}
           />
         )}
-        {isEmployee && (
+        {isEmployee && !editingNews && (
           <p className="text-xs text-gray-500 flex items-center gap-1">
             <Info className="w-3 h-3" />
             Solo puedes crear novedades para tu propio perfil
+          </p>
+        )}
+        {editingNews && (
+          <p className="text-xs text-orange-600 flex items-center gap-1">
+            <AlertCircle className="w-3 h-3" />
+            No se puede cambiar el empleado al editar una novedad
           </p>
         )}
       </div>
