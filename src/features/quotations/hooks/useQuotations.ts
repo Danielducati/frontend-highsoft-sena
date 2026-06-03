@@ -233,6 +233,7 @@ export function useQuotations(userRole?: string) {
       toast.error("Por favor agrega al menos un servicio");
       return;
     }
+    
     const body: any = {
       id_cliente:  formData.guestMode ? null : parseInt(formData.clientId),
       fecha:       formData.date,
@@ -399,12 +400,23 @@ export function useQuotations(userRole?: string) {
   const handleEdit = (quotation: Quotation) => {
     setEditingQuotation(quotation);
     const client = clients.find(c => `${c.nombre} ${c.apellido}` === quotation.clientName);
+    
+    // Mapear los servicios con sus datos completos
+    const mappedServices = (quotation.items || []).map(item => ({
+      serviceId:    item.serviceId,
+      serviceName:  item.serviceName,
+      price:        item.price,
+      quantity:     item.quantity,
+      empleadoId:   item.empleadoId,
+      empleadoName: item.empleadoName,
+    }));
+    
     setFormData({
       clientId:         client?.id?.toString() || quotation.FK_id_cliente?.toString() || "",
       date:             quotation.date?.split("T")[0] || new Date().toISOString().split("T")[0],
       startTime:        quotation.startTime || "",
       notes:            quotation.notes || "",
-      selectedServices: quotation.items || [],
+      selectedServices: mappedServices,
       discount:         quotation.discount?.toString() || "0",
     });
     setIsDialogOpen(true);

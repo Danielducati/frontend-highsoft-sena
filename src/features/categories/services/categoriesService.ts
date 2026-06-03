@@ -16,9 +16,22 @@ async function handleError(res: Response, defaultMsg: string) {
 
     try {
       const err = JSON.parse(text);
-      throw new Error(err.message || err.error || defaultMsg);
-    } catch {
+      // Priorizar error sobre message para ser consistente con el backend
+      const errorMessage = err.error || err.message || defaultMsg;
+      throw new Error(errorMessage);
+    } catch (e) {
+      // Si falla el parse de JSON
+      if (e instanceof Error && e.message !== defaultMsg) {
+        // Si ya es un Error que lanzamos arriba, relanzarlo
+        throw e;
+      }
       // 🔥 Si NO es JSON (html, texto, etc)
+      // Intentar extraer solo el mensaje sin HTML
+      if (text.includes('<')) {
+        // Es HTML, solo mostrar el mensaje por defecto
+        throw new Error(defaultMsg);
+      }
+      // Si es texto plano, mostrarlo
       throw new Error(text || defaultMsg);
     }
   }
