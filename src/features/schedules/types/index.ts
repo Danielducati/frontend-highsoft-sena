@@ -2,6 +2,7 @@ export interface Employee {
   id: string;
   name: string;
   specialty: string;
+  isActive: boolean;
 }
 
 export interface DaySchedule {

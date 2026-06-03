@@ -88,12 +88,12 @@ export function AppointmentViewDialog({
               {apt.status === "completed" ? (
                 <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
                   <p className="text-sm text-gray-700">
-                    Esta cita está <span className="font-semibold text-blue-700">completada</span> y no se puede modificar su estado.
+                    Esta cita está <span className="font-semibold text-blue-700">completada</span> y solo se puede modificar desde el módulo de ventas.
                   </p>
                 </div>
               ) : canEdit ? (
                 <div className="flex gap-2 flex-wrap">
-                  {(["pending", "completed", "cancelled"] as const).map(s => (
+                  {(["pending", "cancelled"] as const).map(s => (
                     <button key={s}
                       onClick={() => onUpdateStatus(apt.id, s)}
                       className={`px-3 py-1.5 rounded-lg text-xs transition-all ${
@@ -131,7 +131,7 @@ export function AppointmentViewDialog({
                   <Trash2 className="w-4 h-4 mr-2" />Eliminar
                 </Button>
               )}
-              {canEdit && apt.status !== "completed" && (
+              {canEdit && apt.status !== "completed" && apt.status !== "cancelled" && (
                 <Button variant="outline"
                   onClick={() => { onEdit(apt); onClose(); }}
                   className="border-[#1a5c3a] text-[#1a5c3a] hover:bg-[#1a5c3a]/10">

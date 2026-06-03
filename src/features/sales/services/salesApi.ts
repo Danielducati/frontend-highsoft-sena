@@ -70,18 +70,16 @@ export const salesApi = {
   },
 
   async getEmployees(): Promise<any[]> {
-    const res = await fetch(`${API_URL}/employees`, {
+    const res = await fetch(`${API_URL}/employees?activos=true`, {
       headers: { Authorization: `Bearer ${getToken()}` },
     });
     if (!res.ok) throw new Error("Error al cargar empleados");
     const data = await res.json();
-    return data
-      .filter((e: any) => (e.estado ?? e.Estado) === "Activo" || e.isActive)
-      .map((e: any) => ({
-        id:        e.id,
-        name:      e.name ?? `${e.nombre ?? ""} ${e.apellido ?? ""}`.trim(),
-        specialty: e.specialty ?? e.especialidad ?? "",
-      }));
+    return data.map((e: any) => ({
+      id:        e.id,
+      name:      e.name ?? `${e.nombre ?? ""} ${e.apellido ?? ""}`.trim(),
+      specialty: e.specialty ?? e.especialidad ?? "",
+    }));
   },
 
   async create(formData: SaleFormData, saleType: "appointment" | "direct"): Promise<void> {

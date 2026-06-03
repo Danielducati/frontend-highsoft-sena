@@ -76,7 +76,7 @@ export function ScheduleFormDialog({
             >
               <SelectTrigger><SelectValue placeholder="Seleccionar empleado" /></SelectTrigger>
               <SelectContent>
-                {employees.map(emp => (
+                {employees.filter(emp => emp.isActive).map(emp => (
                   <SelectItem key={emp.id} value={emp.id}>
                     <div className="flex flex-col">
                       <span>{emp.name}</span>
