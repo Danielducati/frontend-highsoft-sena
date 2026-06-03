@@ -55,7 +55,11 @@ function getAllowedPages(userRole: UserRole): Page[] {
   try {
     const stored = localStorage.getItem("allowedPages");
     if (stored) {
-      const pages = JSON.parse(stored) as Page[];
+      let pages = JSON.parse(stored) as Page[];
+      // Los clientes nunca deben ver el módulo de usuarios
+      if (userRole === "client") {
+        pages = pages.filter(p => p !== "users");
+      }
       if (pages.length > 0) return pages;
     }
   } catch {}

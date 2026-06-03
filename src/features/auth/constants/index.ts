@@ -99,7 +99,6 @@ export function resolveAllowedPages(permisos: string[]): string[] {
     const prefix = p.split(".")[0].toLowerCase();
     const page   = PERMISO_PAGINA[prefix];
     if (page) pages.add(page);
-    if (prefix === "perfil") pages.add("users");
   }
 
   return Array.from(pages);
