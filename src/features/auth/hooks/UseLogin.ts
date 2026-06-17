@@ -31,8 +31,12 @@ export function useLogin(onLogin: (role: UserRole) => void) {
       toast.success(`¡Bienvenido! Accediendo como ${rolBackend}`);
       onLogin(rolFrontend, firstPage);
     } catch (err: any) {
-      console.error("❌ ERROR LOGIN:", err);
-      toast.error(err.message ?? "No se pudo conectar con el servidor");
+      const raw = err.message ?? "";
+      const friendly =
+        raw.toLowerCase().includes("credenciales") || raw.toLowerCase().includes("incorrect")
+          ? "Contraseña incorrecta. Verifica tus datos e intenta de nuevo."
+          : raw || "No se pudo conectar con el servidor";
+      toast.error(friendly);
     } finally {
       setLoading(false);
     }

@@ -6,6 +6,7 @@ import {
   isSystemAdminRole,
 } from "../constants";
 import { UserRole } from "../types";
+import { handleFetchError } from "../../../shared/utils/errorHandler";
 
 export type GoogleProfileInput = {
   nombre?: string;
@@ -63,6 +64,10 @@ export async function loginRequest(correo: string, contrasena: string) {
 
     return data;
   } catch (error: any) {
+    // Si el error ya tiene un mensaje personalizado (del bloque if !res.ok), relanzarlo tal cual
+    if (error instanceof Error && !error.message.includes("fetch") && !error.message.includes("Failed")) {
+      throw error;
+    }
     throw new Error(handleFetchError(error));
   }
 }
