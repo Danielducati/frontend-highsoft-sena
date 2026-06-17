@@ -25,7 +25,9 @@ import { EmployeesModule }   from "../features/employees/EmployeesModule";
 import { UsersModule }       from "../features/users/UsersModule";
 import { RolesModule }       from "../features/roles/RolesModule";
 import { SettingsModule }    from "../features/settings/SettingsModule";
-import { AdminProfilePage }  from "../features/users/pages/AdminProfilePage";
+import { AdminProfilePage }    from "../features/users/pages/AdminProfilePage";
+import { ClientProfilePage }   from "../features/users/pages/ClientProfilePage";
+import { EmployeeProfilePage } from "../features/users/pages/EmployeeProfilePage";
 
 import { Toaster } from "sonner";
 import { isSystemClienteRole } from "../features/auth/constants";
@@ -36,7 +38,7 @@ type Page =
   | "dashboard" | "services" | "categories" | "news"
   | "appointments" | "schedules" | "quotations" | "sales"
   | "clients" | "employees" | "users" | "roles" | "settings"
-  | "admin-profile";
+  | "admin-profile" | "client-profile" | "employee-profile";
 
 // Páginas fijas para roles base (admin siempre ve todo)
 const BASE_ALLOWED_PAGES: Record<string, Page[]> = {
@@ -98,7 +100,9 @@ function AppContent({ currentPage, userRole }: { currentPage: Page; userRole: No
       {currentPage === "appointments" && useClienteAppointments && can("appointments") && <ClientAppointmentsPage />}
       {currentPage === "appointments" && !useClienteAppointments && can("appointments") && <AppointmentsModule userRole={userRole} />}
       {currentPage === "users"        && can("users")        && <UsersModule userRole={userRole} />}
-      {currentPage === "admin-profile" && <AdminProfilePage />}
+      {currentPage === "admin-profile"    && <AdminProfilePage />}
+      {currentPage === "client-profile"   && <ClientProfilePage />}
+      {currentPage === "employee-profile" && <EmployeeProfilePage />}
     </>
   );
 }
@@ -204,6 +208,12 @@ export default function App() {
       return;
     }
     if (!userRole) return;
+    // Las páginas de perfil siempre son accesibles sin importar los permisos
+    const profilePages = ["admin-profile", "client-profile", "employee-profile"];
+    if (profilePages.includes(page)) {
+      setCurrentPage(page as Page);
+      return;
+    }
     const allowed = getAllowedPages(userRole);
     if (allowed.includes(page as Page)) {
       setCurrentPage(page as Page);

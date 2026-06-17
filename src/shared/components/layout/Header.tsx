@@ -333,7 +333,9 @@ export function Header({ userRole, userName, userPhoto, onLogout, onNavigate }: 
               <button
                 onClick={() => { 
                   setAvatarOpen(false); 
-                  onNavigate?.(userRole === "admin" ? "admin-profile" : "users"); 
+                  if (userRole === "admin") onNavigate?.("admin-profile");
+                  else if (userRole === "client") onNavigate?.("client-profile");
+                  else onNavigate?.("employee-profile");
                 }}
                 style={{
                   width: "100%", display: "flex", alignItems: "center", gap: 10,
