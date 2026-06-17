@@ -163,12 +163,32 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
 
   // Cargar horarios reales cuando cambia el empleado
   useEffect(() => {
-    if (!formData.employeeId) { setEmployeeSchedules([]); return; }
+    if (!formData.employeeId) { 
+      console.log('[NewsForm] ⚠️ No employeeId, clearing schedules');
+      setEmployeeSchedules([]); 
+      return; 
+    }
+    
+    console.log('═══════════════════════════════════════════');
+    console.log('[NewsForm] 📝 Loading schedules for employee');
+    console.log('[NewsForm] 🆔 employeeId:', formData.employeeId);
+    console.log('[NewsForm] 🆔 employeeId type:', typeof formData.employeeId);
+    console.log('[NewsForm] 👤 Employee name:', formData.employeeName);
+    console.log('═══════════════════════════════════════════');
+    
     setLoadingSchedule(true);
     scheduleService
       .getEmployeeSchedule(formData.employeeId)
-      .then(data => setEmployeeSchedules(data ?? []))
-      .catch(() => setEmployeeSchedules([]))
+      .then(data => {
+        console.log('[NewsForm] ✅ Schedules loaded successfully!');
+        console.log('[NewsForm] 📊 Number of weeks:', data.length);
+        console.log('[NewsForm] 📋 Schedule data:', JSON.stringify(data, null, 2));
+        setEmployeeSchedules(data ?? []);
+      })
+      .catch((err) => {
+        console.error('[NewsForm] ❌ Error loading schedules:', err);
+        setEmployeeSchedules([]);
+      })
       .finally(() => setLoadingSchedule(false));
   }, [formData.employeeId]);
 
@@ -210,12 +230,36 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
   );
 
   const getDayScheduleForDate = (dateStr: string) => {
-    if (!dateStr || employeeSchedules.length === 0) return null;
-    const dayIdx = getDayIndexFromDate(dateStr);
-    for (const week of employeeSchedules) {
-      const ds = (week.daySchedules ?? []).find((d: any) => d.dayIndex === dayIdx);
-      if (ds) return ds;
+    console.log('[NewsForm] 🔍 getDayScheduleForDate called with:', dateStr);
+    
+    if (!dateStr) {
+      console.log('[NewsForm] ⚠️ No date provided');
+      return null;
     }
+    
+    if (employeeSchedules.length === 0) {
+      console.log('[NewsForm] ⚠️ No employee schedules available');
+      return null;
+    }
+    
+    const dayIdx = getDayIndexFromDate(dateStr);
+    console.log('[NewsForm] 📅 Date:', dateStr, '→ Day Index:', dayIdx, `(${DAY_NAMES[dayIdx]})`);
+    console.log('[NewsForm] 📊 Available schedules:', employeeSchedules.length, 'weeks');
+    
+    for (const week of employeeSchedules) {
+      console.log('[NewsForm] 🔎 Checking week:', week.weekStartDate);
+      console.log('[NewsForm] 📋 Week daySchedules:', week.daySchedules);
+      
+      const ds = (week.daySchedules ?? []).find((d: any) => d.dayIndex === dayIdx);
+      if (ds) {
+        console.log('[NewsForm] ✅ FOUND schedule for day index', dayIdx, ':', ds);
+        return ds;
+      } else {
+        console.log('[NewsForm] ⚠️ No schedule found for day index', dayIdx, 'in this week');
+      }
+    }
+    
+    console.log('[NewsForm] ❌ No schedule found for date', dateStr, 'across all weeks');
     return null;
   };
 

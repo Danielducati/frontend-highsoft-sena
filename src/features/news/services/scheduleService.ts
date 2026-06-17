@@ -3,31 +3,66 @@ import { EmployeeSchedule, WeekDay } from "../types/schedule";
 import { mockScheduleService } from "./mockScheduleService";
 
 const API_BASE = import.meta.env.VITE_API_URL || "https://backend-highsoft-sena-production.up.railway.app";
-const USE_MOCK = import.meta.env.DEV; // Usar mock en desarrollo
+
+const authHeaders = () => ({
+  "Content-Type": "application/json",
+  Authorization: `Bearer ${localStorage.getItem("token") ?? ""}`,
+});
 
 export const scheduleService = {
   /**
    * Obtiene el horario semanal de un empleado
    */
   async getEmployeeSchedule(employeeId: string): Promise<EmployeeSchedule[]> {
-    if (USE_MOCK) {
-      return mockScheduleService.getEmployeeSchedule(employeeId);
-    }
-
     try {
-      const response = await fetch(`${API_BASE}/api/schedules`, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token") ?? ""}`,
-        },
-      });
-      if (!response.ok) throw new Error("Error al obtener horarios");
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('[scheduleService] 🔍 Fetching schedules for employee:', employeeId);
+      console.log('[scheduleService] 🔍 employeeId type:', typeof employeeId);
+      console.log('[scheduleService] 🔍 API URL:', `${API_BASE}/schedules`);
       
-      const schedules: EmployeeSchedule[] = await response.json();
+      const response = await fetch(`${API_BASE}/schedules`, {
+        headers: authHeaders(),
+      });
+      
+      if (!response.ok) {
+        console.error('[scheduleService] ❌ HTTP error:', response.status, response.statusText);
+        throw new Error("Error al obtener horarios");
+      }
+      
+      const allSchedules: any[] = await response.json();
+      console.log('[scheduleService] 📊 Total schedules received:', allSchedules.length);
+      
+      if (allSchedules.length === 0) {
+        console.warn('[scheduleService] ⚠️ No schedules found in system');
+        return [];
+      }
+      
+      console.log('[scheduleService] 📋 First schedule structure:', JSON.stringify(allSchedules[0], null, 2));
+      console.log('[scheduleService] 👥 All employee IDs in system:', allSchedules.map(s => `${s.employeeId} (${typeof s.employeeId})`));
+      
       // Comparar como string en ambos lados para evitar fallos por tipo number vs string
-      return schedules.filter(s => String(s.employeeId) === String(employeeId));
+      const filtered = allSchedules.filter(s => {
+        const schedEmpId = String(s.employeeId);
+        const targetEmpId = String(employeeId);
+        const matches = schedEmpId === targetEmpId;
+        console.log(`[scheduleService] 🔎 Comparing: "${schedEmpId}" === "${targetEmpId}" => ${matches}`);
+        return matches;
+      });
+      
+      console.log('[scheduleService] ✅ Filtered schedules count:', filtered.length);
+      
+      if (filtered.length > 0) {
+        console.log('[scheduleService] 📅 Schedule details:', JSON.stringify(filtered, null, 2));
+      } else {
+        console.error('[scheduleService] ❌❌❌ NO SCHEDULES FOUND FOR EMPLOYEE:', employeeId);
+        console.error('[scheduleService] Available employee IDs:', allSchedules.map(s => s.employeeId));
+        console.error('[scheduleService] Comparison failed - check if IDs match!');
+      }
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      
+      return filtered;
     } catch (error) {
-      console.error("Error fetching employee schedule:", error);
+      console.error("[scheduleService] ❌ Error fetching employee schedule:", error);
       throw error;
     }
   },
@@ -36,10 +71,6 @@ export const scheduleService = {
    * Obtiene el horario efectivo de un empleado para una semana específica
    */
   async getWeekSchedule(employeeId: string, weekStartDate: string): Promise<EmployeeSchedule | null> {
-    if (USE_MOCK) {
-      return mockScheduleService.getWeekSchedule(employeeId, weekStartDate);
-    }
-
     try {
       const schedules = await this.getEmployeeSchedule(employeeId);
       return schedules.find(s => s.weekStartDate === weekStartDate) || null;
@@ -53,9 +84,7 @@ export const scheduleService = {
    * Genera los días de la semana con información de horarios
    */
   generateWeekDays(weekStartDate: string, schedule?: EmployeeSchedule): WeekDay[] {
-    return USE_MOCK 
-      ? mockScheduleService.generateWeekDays(weekStartDate, schedule)
-      : this._generateWeekDaysReal(weekStartDate, schedule);
+    return this._generateWeekDaysReal(weekStartDate, schedule);
   },
 
   _generateWeekDaysReal(weekStartDate: string, schedule?: EmployeeSchedule): WeekDay[] {
@@ -125,10 +154,6 @@ export const scheduleService = {
     startTime?: string, 
     endTime?: string
   ): { isValid: boolean; errors: string[]; warnings: string[] } {
-    if (USE_MOCK) {
-      return mockScheduleService.validateScheduleSelection(selectedDays, weekDays, startTime, endTime);
-    }
-
     const errors: string[] = [];
     const warnings: string[] = [];
 

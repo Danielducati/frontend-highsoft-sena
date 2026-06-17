@@ -24,51 +24,78 @@ const [pendingApproval, setPendingApproval] = useState<{ id: number; status: Emp
 useEffect(() => {
     async function fetchAll() {
     try {
+        console.log('╔═══════════════════════════════════════════════╗');
+        console.log('║      INICIANDO CARGA DE DATOS DE NEWS        ║');
+        console.log('╚═══════════════════════════════════════════════╝');
+        
         // Obtener el usuario logueado y su rol
         const usuario = JSON.parse(localStorage.getItem("usuario") || "{}");
         const rol = usuario.rol?.toLowerCase();
 
-        console.log('🔍 Usuario logueado:', usuario);
-        console.log('🔍 Rol:', rol);
+        console.log('[useNews] 👤 Usuario logueado:', JSON.stringify(usuario, null, 2));
+        console.log('[useNews] 🎭 Rol:', rol);
 
         let empId: string | null = null;
 
         // Si es empleado, obtener su ID desde el token
         if (rol === "empleado" || rol === "barbero") {
+          console.log('[useNews] 🔐 Usuario es empleado, obteniendo ID desde /auth/me');
           try {
             const token = localStorage.getItem("token");
+            console.log('[useNews] 🎫 Token presente:', !!token);
+            
+            const apiUrl = import.meta.env.VITE_API_URL ?? "https://backend-highsoft-sena-production.up.railway.app";
+            console.log('[useNews] 🌐 Fetching from:', `${apiUrl}/auth/me`);
+            
             const response = await fetch(
-              `${import.meta.env.VITE_API_URL ?? "https://backend-highsoft-sena-production.up.railway.app"}/auth/me`,
+              `${apiUrl}/auth/me`,
               { headers: { Authorization: `Bearer ${token}` } }
             );
+            
+            console.log('[useNews] 📡 Response status:', response.status);
+            
             if (response.ok) {
               const meData = await response.json();
-              console.log('🔍 Datos de /auth/me:', meData);
+              console.log('[useNews] 📦 /auth/me response:', JSON.stringify(meData, null, 2));
               
               // Buscar el empleado asociado al usuario
               if (meData.perfil?.id) {
                 empId = String(meData.perfil.id);
-                console.log('✅ Empleado ID encontrado:', empId);
+                console.log('[useNews] ✅ Empleado ID encontrado:', empId, '(type:', typeof empId, ')');
+              } else {
+                console.error('[useNews] ❌ No se encontró perfil.id en respuesta');
+                console.error('[useNews] Estructura de meData:', Object.keys(meData));
               }
+            } else {
+              console.error('[useNews] ❌ Error HTTP al obtener /auth/me:', response.statusText);
             }
           } catch (err) {
-            console.error("❌ Error obteniendo empleado logueado:", err);
+            console.error("[useNews] ❌ Error obteniendo empleado logueado:", err);
           }
+        } else {
+          console.log('[useNews] ℹ️ Usuario NO es empleado (rol:', rol, '), no se obtiene employeeId');
         }
 
         setLoggedEmployeeId(empId);
-        console.log('📌 loggedEmployeeId establecido:', empId);
+        console.log('[useNews] 📌 loggedEmployeeId establecido en state:', empId);
+        console.log('─────────────────────────────────────────────────');
 
         const [empData, newsData] = await Promise.all([
         newsApi.getEmployees(),
         newsApi.getAll(),
         ]);
+        
+        console.log('[useNews] 👥 Employees loaded:', empData.length);
+        console.log('[useNews] 📰 News loaded:', newsData.length);
+        
         setEmployees(empData);
         setNewsList(newsData);
-    } catch {
+    } catch (err) {
+        console.error('[useNews] ❌ Error general:', err);
         toast.error("Error al conectar con el servidor");
     } finally {
         setLoading(false);
+        console.log('[useNews] ✅ Carga completada');
     }
     }
     fetchAll();

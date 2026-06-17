@@ -125,8 +125,13 @@ export function useAppointments(userRole?: string) {
     const fechaStr = date instanceof Date
       ? `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,"0")}-${String(date.getDate()).padStart(2,"0")}`
       : String(date).split("T")[0];
+    
+    // Forzar recarga de empleados disponibles (sin caché)
     fetchEmployeesByDate(fechaStr, formData.startTime)
-      .then(data => setEmployees(data))
+      .then(data => {
+        console.log('[useAppointments] Empleados disponibles actualizados:', data.length);
+        setEmployees(data);
+      })
       .catch(() => setEmployees([]));
     
     // Si hay un servicio seleccionado, recargar empleados para ese servicio
