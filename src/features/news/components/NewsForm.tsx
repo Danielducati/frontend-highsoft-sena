@@ -244,24 +244,33 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
     }
     
     const dayIdx = getDayIndexFromDate(dateStr);
+    const weekStart = getMonday(dateStr);
+    
     console.log('[NewsForm] 📅 Date:', dateStr, '→ Day Index:', dayIdx, `(${DAY_NAMES[dayIdx]})`);
+    console.log('[NewsForm] 📅 Week start for this date:', weekStart);
     console.log('[NewsForm] 📊 Available schedules:', employeeSchedules.length, 'weeks');
     
-    for (const week of employeeSchedules) {
-      console.log('[NewsForm] 🔎 Checking week:', week.weekStartDate);
-      console.log('[NewsForm] 📋 Week daySchedules:', week.daySchedules);
-      
-      const ds = (week.daySchedules ?? []).find((d: any) => d.dayIndex === dayIdx);
-      if (ds) {
-        console.log('[NewsForm] ✅ FOUND schedule for day index', dayIdx, ':', ds);
-        return ds;
-      } else {
-        console.log('[NewsForm] ⚠️ No schedule found for day index', dayIdx, 'in this week');
-      }
+    // Buscar la semana que contiene esta fecha
+    const weekSchedule = employeeSchedules.find(w => w.weekStartDate === weekStart);
+    
+    if (!weekSchedule) {
+      console.log('[NewsForm] ⚠️ No schedule found for week starting', weekStart);
+      console.log('[NewsForm] 📋 Available weeks:', employeeSchedules.map(w => w.weekStartDate).join(', '));
+      return null;
     }
     
-    console.log('[NewsForm] ❌ No schedule found for date', dateStr, 'across all weeks');
-    return null;
+    console.log('[NewsForm] ✅ Found week schedule:', weekSchedule.weekStartDate);
+    console.log('[NewsForm] 📋 Week daySchedules:', weekSchedule.daySchedules);
+    
+    const ds = (weekSchedule.daySchedules ?? []).find((d: any) => d.dayIndex === dayIdx);
+    
+    if (ds) {
+      console.log('[NewsForm] ✅ FOUND schedule for day index', dayIdx, ':', ds);
+      return ds;
+    } else {
+      console.log('[NewsForm] ⚠️ No schedule found for day index', dayIdx, 'in week', weekStart);
+      return null;
+    }
   };
 
   const getViewWeekDays = () => {
@@ -475,7 +484,12 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
           {requiresSchedule && formData.date && !loadingSchedule && !startDateHasSchedule && (
             <p className="text-xs text-red-600 flex items-center gap-1">
               <AlertCircle className="w-3 h-3" />
-              El empleado no tiene horario registrado para este día. Selecciona un día con horario.
+              El empleado no tiene horario registrado para este día ({formData.date}). 
+              {availableDayIndices.size > 0 && (
+                <span className="ml-1">
+                  Tiene horarios en: {[...availableDayIndices].sort().map(i => DAY_SHORTS[i]).join(', ')}
+                </span>
+              )}
             </p>
           )}
           {requiresSchedule && formData.date && !loadingSchedule && startDateHasSchedule && (
