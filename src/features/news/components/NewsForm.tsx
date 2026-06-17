@@ -143,6 +143,7 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
   const [employeeSchedules, setEmployeeSchedules] = useState<any[]>([]);
   const [loadingSchedule,   setLoadingSchedule]   = useState(false);
   const [viewWeekStart,     setViewWeekStart]      = useState(getCurrentMonday());
+  const [diagnosticInfo,    setDiagnosticInfo]     = useState<any>(null);
 
   // Determinar si el usuario es empleado (no admin)
   const isEmployee = userRole && userRole !== "admin" && userRole !== "administrador";
@@ -317,6 +318,37 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
     const e = new Date(s); e.setUTCDate(s.getUTCDate() + 6);
     return `${s.toLocaleDateString("es-ES", { day: "2-digit", month: "short" })} – ${e.toLocaleDateString("es-ES", { day: "2-digit", month: "short", year: "numeric" })}`;
   })();
+
+  // Función para ejecutar diagnóstico
+  const runDiagnostic = async () => {
+    if (!formData.employeeId) {
+      alert('Selecciona un empleado primero');
+      return;
+    }
+    
+    try {
+      const API_BASE = import.meta.env.VITE_API_URL || "https://backend-highsoft-sena-production.up.railway.app";
+      const response = await fetch(`${API_BASE}/schedules/diagnostic/${formData.employeeId}`, {
+        headers: {
+          "Authorization": `Bearer ${localStorage.getItem("token")}`,
+          "Content-Type": "application/json",
+        },
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log('🩺 [DIAGNOSTIC] Response:', data);
+        setDiagnosticInfo(data);
+      } else {
+        const error = await response.json();
+        console.error('🩺 [DIAGNOSTIC] Error:', error);
+        alert(`Error: ${error.error || 'No se pudo obtener información de diagnóstico'}`);
+      }
+    } catch (err) {
+      console.error('🩺 [DIAGNOSTIC] Exception:', err);
+      alert('Error de conexión');
+    }
+  };
 
   // ── Mensajes por tipo ─────────────────────────────────────────────────────
   const typeInfo: Record<string, { msg: string; color: string; icon: React.ReactNode }> = {
@@ -652,8 +684,49 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            Este empleado no tiene ningún horario registrado. Para registrar un{" "}
-            <strong>{NEWS_TYPES.find(t => t.value === formData.type)?.label}</strong> es necesario que tenga horario en al menos un día.
+            <div className="space-y-2">
+              <p className="font-semibold">
+                Este empleado no tiene ningún horario registrado.
+              </p>
+              <p className="text-sm">
+                Para registrar un <strong>{NEWS_TYPES.find(t => t.value === formData.type)?.label}</strong> es necesario que tenga horario en al menos un día.
+              </p>
+              <div className="text-xs bg-red-50 p-3 rounded border border-red-200 mt-2 space-y-1">
+                <p><strong>ID del empleado:</strong> {formData.employeeId}</p>
+                <p><strong>Nombre:</strong> {formData.employeeName}</p>
+                <p><strong>Solución:</strong> Ve al módulo de <strong>Horarios</strong> y crea un horario para este empleado primero.</p>
+              </div>
+              <button
+                type="button"
+                onClick={runDiagnostic}
+                className="mt-2 text-xs px-3 py-1.5 bg-red-100 hover:bg-red-200 text-red-700 rounded border border-red-300 transition-colors"
+              >
+                🩺 Ejecutar Diagnóstico (para soporte técnico)
+              </button>
+              {diagnosticInfo && (
+                <div className="text-xs bg-white p-3 rounded border border-red-300 mt-2 space-y-1 max-h-48 overflow-y-auto">
+                  <p className="font-semibold text-red-700">Información de Diagnóstico:</p>
+                  <p><strong>Total registros de horario:</strong> {diagnosticInfo.totalScheduleRecords}</p>
+                  <p><strong>Total semanas:</strong> {diagnosticInfo.totalWeeks}</p>
+                  <p><strong>Estado empleado:</strong> {diagnosticInfo.employeeStatus}</p>
+                  <p><strong>Email:</strong> {diagnosticInfo.userEmail}</p>
+                  {diagnosticInfo.rawSchedules?.length > 0 && (
+                    <div className="mt-2">
+                      <p className="font-semibold">Horarios encontrados:</p>
+                      {diagnosticInfo.rawSchedules.slice(0, 5).map((s: any, i: number) => (
+                        <p key={i} className="pl-2">• {s.fecha} {s.dia}: {s.horaInicio} - {s.horaFinal}</p>
+                      ))}
+                      {diagnosticInfo.rawSchedules.length > 5 && (
+                        <p className="pl-2 text-gray-500">... y {diagnosticInfo.rawSchedules.length - 5} más</p>
+                      )}
+                    </div>
+                  )}
+                  <p className="text-xs text-gray-500 mt-2 italic">
+                    Copia esta información y envíala al soporte técnico si el problema persiste.
+                  </p>
+                </div>
+              )}
+            </div>
           </AlertDescription>
         </Alert>
       )}
