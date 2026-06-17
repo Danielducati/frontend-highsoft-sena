@@ -18,9 +18,12 @@ export const scheduleService = {
       console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
       console.log('[scheduleService] 🔍 Fetching schedules for employee:', employeeId);
       console.log('[scheduleService] 🔍 employeeId type:', typeof employeeId);
-      console.log('[scheduleService] 🔍 API URL:', `${API_BASE}/schedules`);
       
-      const response = await fetch(`${API_BASE}/schedules`, {
+      // Usar endpoint especial para empleados que no requiere permisos
+      const endpoint = `${API_BASE}/schedules/my-schedules`;
+      console.log('[scheduleService] 🔍 API URL:', endpoint);
+      
+      const response = await fetch(endpoint, {
         headers: authHeaders(),
       });
       
