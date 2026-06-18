@@ -146,27 +146,49 @@ export function Header({ userRole, userName, userPhoto, onLogout, onNavigate, on
 
   return (
     <header
-      className="h-16 sticky top-0 z-50 flex items-center justify-between px-4 md:px-8"
-      style={{ backgroundColor: "var(--bg-app)", borderBottom: "1px solid var(--border)" }}
+      className="h-16 sticky top-0 z-40 flex items-center justify-between"
+      style={{ backgroundColor: "var(--bg-app)", borderBottom: "1px solid var(--border)", paddingLeft: "1rem", paddingRight: "1rem" }}
     >
-      {/* Botón hamburguesa — solo móvil */}
+      {/* Botón hamburguesa — solo móvil, usando CSS inline */}
       <button
         onClick={onMenuToggle}
-        className="md:hidden flex items-center justify-center w-9 h-9 rounded-lg mr-2"
-        style={{ border: "none", background: "transparent", cursor: "pointer", color: "#1a3a2a", flexShrink: 0 }}
+        className="hl-hamburger-btn"
         aria-label="Abrir menú"
       >
         <Menu style={{ width: 22, height: 22 }} />
       </button>
+      <style>{`
+        .hl-hamburger-btn {
+          display: none;
+          align-items: center;
+          justify-content: center;
+          width: 36px;
+          height: 36px;
+          border-radius: 8px;
+          border: none;
+          background: transparent;
+          cursor: pointer;
+          color: #1a3a2a;
+          flex-shrink: 0;
+          margin-right: 8px;
+        }
+        @media (max-width: 768px) {
+          .hl-hamburger-btn { display: flex !important; }
+        }
+        .hl-welcome-text { display: block; }
+        @media (max-width: 480px) {
+          .hl-welcome-text { display: none; }
+        }
+      `}</style>
 
       {/* Saludo */}
-      <div className="flex items-center gap-6 flex-1 min-w-0">
-        <div className="min-w-0">
-          <h2 className="hidden sm:block truncate" style={{ color: "#1a3a2a", fontFamily: "var(--font-body)", fontWeight: 600 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 24, flex: 1, minWidth: 0 }}>
+        <div style={{ minWidth: 0 }}>
+          <h2 className="hl-welcome-text" style={{ color: "#1a3a2a", fontFamily: "var(--font-body)", fontWeight: 600, margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
             Bienvenido de nuevo
           </h2>
-          <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-            <p className="text-sm truncate" style={{ color: "#6b7c6b", fontFamily: "var(--font-body)" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 2, flexWrap: "wrap" }}>
+            <p className="text-sm" style={{ color: "#6b7c6b", fontFamily: "var(--font-body)", margin: 0 }}>
               <span style={{ color: "#1a3a2a", fontWeight: 600 }}>{displayName}</span>
             </p>
             <Badge variant="outline" className={`${getRoleBadgeColor()} text-xs px-2 py-0.5`}>

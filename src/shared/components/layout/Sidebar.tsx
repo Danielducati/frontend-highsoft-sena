@@ -125,7 +125,7 @@ export function Sidebar({ activePage, onNavigate, onLogout, userRole, allowedPag
           .hl-sidebar {
             transform: translateX(-100%);
             transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
-            z-index: 200 !important;
+            z-index: 45 !important;
           }
           .hl-sidebar.hl-sidebar--open {
             transform: translateX(0);
@@ -152,7 +152,7 @@ export function Sidebar({ activePage, onNavigate, onLogout, userRole, allowedPag
           display: "none",
           position: "fixed", inset: 0,
           backgroundColor: "rgba(0,0,0,0.45)",
-          zIndex: 199,
+          zIndex: 44,
           opacity: isOpen ? 1 : 0,
           pointerEvents: isOpen ? "auto" : "none",
           transition: "opacity 0.28s ease",
@@ -166,7 +166,7 @@ export function Sidebar({ activePage, onNavigate, onLogout, userRole, allowedPag
           height: "100vh", position: "fixed", left: 0, top: 0,
           backgroundColor: "var(--bg-app)",
           borderRight: "1px solid #e9e9e9",
-          zIndex: 200,
+          zIndex: 40,
         }}
       >
         {/* Logo */}

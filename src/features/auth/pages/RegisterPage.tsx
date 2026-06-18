@@ -108,7 +108,7 @@ export function RegisterPage({ onBack, onGoHome, onRegisterSuccess, onLogin }: R
 
             {/* Header */}
             <div style={{ textAlign: "center", marginBottom: 22 }}>
-              <h3 style={{ fontSize: 22, fontWeight: 400, fontStyle: "italic", color: "#1a3a2a", fontFamily: "var(--font-display)", marginBottom: 4 }}>
+              <h3 style={{ fontSize: 22, fontWeight: 400, fontStyle: "italic", color: "#1a3a2a", fontFamily: "Bond", marginBottom: 4 }}>
                 Crear cuenta
               </h3>
               <p style={{ fontSize: 12, color: "#8a9e8d" }}>Completa tus datos para registrarte</p>
