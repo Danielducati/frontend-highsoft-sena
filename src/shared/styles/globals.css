@@ -271,3 +271,37 @@ html {
     scroll-behavior: smooth;
   }
 }
+
+/* ─── Responsive: layout principal ─── */
+@media (max-width: 768px) {
+  /* Tablas: scroll horizontal */
+  .overflow-x-auto {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Cards con grid de 2+ columnas → 1 columna en móvil */
+  .sm\:grid-cols-2,
+  .grid-cols-2,
+  .grid-cols-3,
+  .grid-cols-4 {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Ocultar columnas opcionales de tablas en móvil */
+  .hide-mobile { display: none !important; }
+
+  /* Header padding */
+  header.sticky { padding-left: 1rem; padding-right: 1rem; }
+
+  /* Main content padding */
+  main.overflow-y-auto { padding: 1rem !important; }
+
+  /* Botón de acción en SpaPage — ancho completo en móvil */
+  .spa-action-btn { width: 100%; justify-content: center; }
+}
+
+@media (max-width: 480px) {
+  /* Texto de título más pequeño */
+  .text-4xl { font-size: 1.5rem !important; }
+  .text-2xl { font-size: 1.25rem !important; }
+}

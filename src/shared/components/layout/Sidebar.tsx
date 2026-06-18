@@ -11,6 +11,8 @@ interface SidebarProps {
   onLogout: () => void;
   userRole: 'admin' | 'employee' | 'client';
   allowedPages?: string[];
+  isOpen?: boolean;
+  onClose?: () => void;
 }
 
 const GROUPS = [
@@ -82,7 +84,7 @@ const ALL_EMPLOYEE_ITEMS = [
   { id: "users",        label: "Usuarios",             icon: UserCog         },
 ];
 
-export function Sidebar({ activePage, onNavigate, onLogout, userRole, allowedPages }: SidebarProps) {
+export function Sidebar({ activePage, onNavigate, onLogout, userRole, allowedPages, isOpen = false, onClose }: SidebarProps) {
   const findInitialOpen = () => {
     for (const g of GROUPS) {
       if (g.children.some(c => c.id === activePage)) return g.id;
@@ -118,14 +120,53 @@ export function Sidebar({ activePage, onNavigate, onLogout, userRole, allowedPag
         .sidebar-chevron.open {
           transform: rotate(180deg);
         }
+        /* Sidebar responsive */
+        @media (max-width: 768px) {
+          .hl-sidebar {
+            transform: translateX(-100%);
+            transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 200 !important;
+          }
+          .hl-sidebar.hl-sidebar--open {
+            transform: translateX(0);
+          }
+          .hl-sidebar-overlay {
+            display: block !important;
+          }
+        }
+        @media (min-width: 769px) {
+          .hl-sidebar {
+            transform: translateX(0) !important;
+          }
+          .hl-sidebar-overlay {
+            display: none !important;
+          }
+        }
       `}</style>
 
+      {/* Overlay para móvil */}
+      <div
+        className="hl-sidebar-overlay"
+        onClick={onClose}
+        style={{
+          display: "none",
+          position: "fixed", inset: 0,
+          backgroundColor: "rgba(0,0,0,0.45)",
+          zIndex: 199,
+          opacity: isOpen ? 1 : 0,
+          pointerEvents: isOpen ? "auto" : "none",
+          transition: "opacity 0.28s ease",
+        }}
+      />
+
       <aside
+        className={`hl-sidebar${isOpen ? " hl-sidebar--open" : ""}`}
         style={{
           width: 240, display: "flex", flexDirection: "column",
           height: "100vh", position: "fixed", left: 0, top: 0,
           backgroundColor: "var(--bg-app)",
           borderRight: "1px solid #e9e9e9",
+          zIndex: 200,
         }}
       >
         {/* Logo */}
@@ -248,7 +289,7 @@ export function Sidebar({ activePage, onNavigate, onLogout, userRole, allowedPag
                 const Icon = item.icon;
                 const isActive = activePage === item.id;
                 return (
-                  <button key={item.id} onClick={() => onNavigate(item.id)}
+                  <button key={item.id} onClick={() => { onNavigate(item.id); onClose?.(); }}
                     style={{
                       width: "100%", display: "flex", alignItems: "center", gap: 10,
                       padding: "8px 10px", borderRadius: 8, border: "none", cursor: "pointer",

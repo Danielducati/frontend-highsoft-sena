@@ -10,13 +10,13 @@ type SpaPageProps = {
 export function SpaPage({ title, subtitle, action, icon, children }: SpaPageProps) {
   return (
     <div
-      className="min-h-screen -m-8 p-8"
+      className="min-h-screen -m-8 p-4 sm:p-8"
       style={{ backgroundColor: "var(--bg-app)", fontFamily: "var(--font-body)" }}
     >
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-        <div>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6 sm:mb-8">
+        <div className="min-w-0">
           <h1
-            className="text-4xl font-bold mb-1"
+            className="text-2xl sm:text-4xl font-bold mb-1 truncate"
             style={{ color: "#1a3a2a", fontFamily: "var(--font-body)" }}
           >
             {title}
@@ -27,7 +27,7 @@ export function SpaPage({ title, subtitle, action, icon, children }: SpaPageProp
             </p>
           ) : null}
         </div>
-        {action ? <div style={{ fontFamily: "var(--font-body)" }}>{action}</div> : null}
+        {action ? <div style={{ fontFamily: "var(--font-body)", flexShrink: 0 }}>{action}</div> : null}
       </div>
 
       {children}

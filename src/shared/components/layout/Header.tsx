@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Bell, Calendar, Clock, X, CheckCheck, LogOut, UserCog } from "lucide-react";
+import { Bell, Calendar, Clock, X, CheckCheck, LogOut, UserCog, Menu } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "../../ui/avatar";
 import { Badge } from "../../ui/badge";
 
@@ -9,6 +9,7 @@ interface HeaderProps {
   userPhoto?: string;
   onLogout?: () => void;
   onNavigate?: (page: string) => void;
+  onMenuToggle?: () => void;
 }
 
 interface Notification {
@@ -91,7 +92,7 @@ async function fetchUpcomingAppointments(userRole: string): Promise<Notification
     .sort((a, b) => a.daysUntil - b.daysUntil);
 }
 
-export function Header({ userRole, userName, userPhoto, onLogout, onNavigate }: HeaderProps) {
+export function Header({ userRole, userName, userPhoto, onLogout, onNavigate, onMenuToggle }: HeaderProps) {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [open,          setOpen]          = useState(false);
   const [avatarOpen,    setAvatarOpen]    = useState(false);
@@ -145,17 +146,27 @@ export function Header({ userRole, userName, userPhoto, onLogout, onNavigate }: 
 
   return (
     <header
-      className="h-16 sticky top-0 z-50 flex items-center justify-between px-8"
+      className="h-16 sticky top-0 z-50 flex items-center justify-between px-4 md:px-8"
       style={{ backgroundColor: "var(--bg-app)", borderBottom: "1px solid var(--border)" }}
     >
+      {/* Botón hamburguesa — solo móvil */}
+      <button
+        onClick={onMenuToggle}
+        className="md:hidden flex items-center justify-center w-9 h-9 rounded-lg mr-2"
+        style={{ border: "none", background: "transparent", cursor: "pointer", color: "#1a3a2a", flexShrink: 0 }}
+        aria-label="Abrir menú"
+      >
+        <Menu style={{ width: 22, height: 22 }} />
+      </button>
+
       {/* Saludo */}
-      <div className="flex items-center gap-6 flex-1">
-        <div>
-          <h2 style={{ color: "#1a3a2a", fontFamily: "var(--font-body)", fontWeight: 600 }}>
+      <div className="flex items-center gap-6 flex-1 min-w-0">
+        <div className="min-w-0">
+          <h2 className="hidden sm:block truncate" style={{ color: "#1a3a2a", fontFamily: "var(--font-body)", fontWeight: 600 }}>
             Bienvenido de nuevo
           </h2>
-          <div className="flex items-center gap-2 mt-0.5">
-            <p className="text-sm" style={{ color: "#6b7c6b", fontFamily: "var(--font-body)" }}>
+          <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+            <p className="text-sm truncate" style={{ color: "#6b7c6b", fontFamily: "var(--font-body)" }}>
               <span style={{ color: "#1a3a2a", fontWeight: 600 }}>{displayName}</span>
             </p>
             <Badge variant="outline" className={`${getRoleBadgeColor()} text-xs px-2 py-0.5`}>

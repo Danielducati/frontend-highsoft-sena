@@ -119,6 +119,7 @@ export default function App() {
   const [userRole,    setUserRole]    = useState<UserRole>(null);
   const [userName,    setUserName]    = useState<string>("");
   const [userPhoto,   setUserPhoto]   = useState<string>("");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   // Contador para forzar re-render cuando cambian los permisos
   const [permVersion, setPermVersion] = useState(0);
 
@@ -240,12 +241,35 @@ export default function App() {
 
   return (
     <div className="flex h-screen overflow-hidden">
-      <Sidebar key={permVersion} activePage={currentPage} onNavigate={handleNavigate} onLogout={handleLogout} userRole={userRole} allowedPages={getAllowedPages(userRole)} />
+      <Sidebar
+        key={permVersion}
+        activePage={currentPage}
+        onNavigate={(page) => { handleNavigate(page); setSidebarOpen(false); }}
+        onLogout={handleLogout}
+        userRole={userRole}
+        allowedPages={getAllowedPages(userRole)}
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+      />
 
-      <div className="flex-1 flex flex-col" style={{ marginLeft: 240, backgroundColor: "var(--bg-app)" }}>
-        <Header userRole={userRole} userName={userName} userPhoto={userPhoto} onLogout={handleLogout} onNavigate={handleNavigate} />
+      <div
+        className="flex-1 flex flex-col"
+        style={{ marginLeft: "var(--hl-sidebar-ml, 240px)", backgroundColor: "var(--bg-app)", transition: "margin-left 0.28s ease" }}
+      >
+        <style>{`
+          @media (max-width: 768px) { :root { --hl-sidebar-ml: 0px; } }
+          @media (min-width: 769px) { :root { --hl-sidebar-ml: 240px; } }
+        `}</style>
+        <Header
+          userRole={userRole}
+          userName={userName}
+          userPhoto={userPhoto}
+          onLogout={handleLogout}
+          onNavigate={handleNavigate}
+          onMenuToggle={() => setSidebarOpen(o => !o)}
+        />
 
-        <main className="flex-1 overflow-y-auto p-8" style={{ backgroundColor: "var(--bg-app)" }}>
+        <main className="flex-1 overflow-y-auto p-4 sm:p-8" style={{ backgroundColor: "var(--bg-app)" }}>
           <AppContent currentPage={currentPage} userRole={userRole} />
         </main>
       </div>
