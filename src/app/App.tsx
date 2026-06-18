@@ -229,7 +229,7 @@ export default function App() {
   );
 
   if (currentPage === "register") return (
-    <><RegisterPage onBack={() => setCurrentPage("login")} onRegisterSuccess={() => setCurrentPage("login")} onLogin={handleLogin} /><Toaster /></>
+    <><RegisterPage onBack={() => setCurrentPage("login")} onGoHome={() => setCurrentPage("landing")} onRegisterSuccess={() => setCurrentPage("login")} onLogin={handleLogin} /><Toaster /></>
   );
 
   if (currentPage === "reset-password") return (

@@ -8,6 +8,7 @@ export interface LoginPageProps {
 
 export interface RegisterPageProps {
   onBack: () => void;
+  onGoHome: () => void;
   onRegisterSuccess: () => void;
   onLogin: (role: UserRole, firstPage?: string) => void;
 }
