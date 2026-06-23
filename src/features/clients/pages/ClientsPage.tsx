@@ -98,17 +98,18 @@ export function ClientsPage({ userRole }: ClientsModuleProps) {
                 <p className="text-sm text-gray-400 mt-1">Intenta ajustar los filtros de búsqueda</p>
               </div>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-gray-200 bg-gray-50/50">
-                      <th className="text-left px-4 py-3 text-sm text-gray-700">Nombre</th>
-                      <th className="text-left px-4 py-3 text-sm text-gray-700">Contacto</th>
-                      <th className="text-left px-4 py-3 text-sm text-gray-700">Servicios</th>
-                      <th className="text-left px-4 py-3 text-sm text-gray-700">Estado</th>
-                      <th className="text-center px-4 py-3 text-sm text-gray-700 w-32">Acciones</th>
-                    </tr>
-                  </thead>
+              <div className="overflow-x-auto -mx-4 sm:mx-0">
+                <div className="inline-block min-w-full align-middle px-4 sm:px-0">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b border-gray-200 bg-gray-50/50">
+                        <th className="text-left px-4 py-3 text-sm text-gray-700 whitespace-nowrap">Nombre</th>
+                        <th className="text-left px-4 py-3 text-sm text-gray-700 whitespace-nowrap">Contacto</th>
+                        <th className="text-left px-4 py-3 text-sm text-gray-700 whitespace-nowrap">Servicios</th>
+                        <th className="text-left px-4 py-3 text-sm text-gray-700 whitespace-nowrap">Estado</th>
+                        <th className="text-center px-4 py-3 text-sm text-gray-700 w-32 whitespace-nowrap">Acciones</th>
+                      </tr>
+                    </thead>
                   <tbody className="divide-y divide-gray-200">
                     {paginatedClients.map((client) => (
                       <tr key={client.id} className="hover:bg-gray-50/50 transition-colors">
@@ -235,6 +236,7 @@ export function ClientsPage({ userRole }: ClientsModuleProps) {
                     ))}
                   </tbody>
                 </table>
+                </div>
               </div>
             )}
           </CardContent>

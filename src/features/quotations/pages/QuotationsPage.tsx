@@ -177,16 +177,18 @@ export function QuotationsPage({ userRole }: QuotationsModuleProps) {
             <p className="text-sm mt-1" style={{ color: "#6b7c6b" }}>Intenta ajustar los filtros de búsqueda</p>
           </div>
         ) : (
-          <table className="w-full" style={{ fontFamily: "var(--font-body)" }}>
-            <thead>
-              <tr style={{ borderBottom: "1px solid #E5E7EB" }}>
-                {["N°", "Cliente", "Servicios", "Valor", "Estado", "Fecha", "Acciones"].map(col => (
-                  <th key={col} className="px-6 py-4 text-left text-xs font-semibold" style={{ color: "#6b7c6b" }}>
-                    {col}
-                  </th>
-                ))}
-              </tr>
-            </thead>
+          <div className="overflow-x-auto -mx-4 sm:mx-0">
+            <div className="inline-block min-w-full align-middle px-4 sm:px-0">
+              <table className="w-full" style={{ fontFamily: "var(--font-body)" }}>
+                <thead>
+                  <tr style={{ borderBottom: "1px solid #E5E7EB" }}>
+                    {["N°", "Cliente", "Servicios", "Valor", "Estado", "Fecha", "Acciones"].map(col => (
+                      <th key={col} className="px-6 py-4 text-left text-xs font-semibold whitespace-nowrap" style={{ color: "#6b7c6b" }}>
+                        {col}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
             <tbody>
               {paginatedQuotations.map((q, idx) => (
                 <tr
@@ -310,6 +312,8 @@ export function QuotationsPage({ userRole }: QuotationsModuleProps) {
               ))}
             </tbody>
           </table>
+            </div>
+          </div>
         )}
       </div>
 

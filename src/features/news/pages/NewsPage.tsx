@@ -217,14 +217,18 @@ export function NewsPage({ userRole }: NewsModuleProps) {
       {/* Tabla */}
       <Card className="border-gray-200 shadow-sm rounded-2xl">
         <CardContent className="p-0">
-          <NewsTable
-            news={paginatedNews}
-            userRole={userRole}
-            onView={setViewingNews}
-            onEdit={handleEdit}
-            onDelete={id => { setNewsToDelete(id); setDeleteDialogOpen(true); }}
-            onUpdateStatus={updateStatus}
-          />
+          <div className="overflow-x-auto -mx-4 sm:mx-0">
+            <div className="inline-block min-w-full align-middle px-4 sm:px-0">
+              <NewsTable
+                news={paginatedNews}
+                userRole={userRole}
+                onView={setViewingNews}
+                onEdit={handleEdit}
+                onDelete={id => { setNewsToDelete(id); setDeleteDialogOpen(true); }}
+                onUpdateStatus={updateStatus}
+              />
+            </div>
+          </div>
         </CardContent>
       </Card>
 

@@ -16,17 +16,16 @@ interface NewsTableProps {
 export function NewsTable({ news, userRole, onView, onEdit, onDelete, onUpdateStatus }: NewsTableProps) {
   const { can } = usePermisos();
   return (
-    <div className="overflow-x-auto">
       <table className="w-full">
         <thead className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
           <tr>
-            <th className="px-4 py-3 text-left text-gray-900 text-sm font-semibold">Empleado</th>
-            <th className="px-4 py-3 text-left text-gray-900 text-sm font-semibold">Tipo</th>
-            <th className="px-4 py-3 text-left text-gray-900 text-sm font-semibold">Fecha Inicio</th>
-            <th className="px-4 py-3 text-left text-gray-900 text-sm font-semibold">Fecha Final</th>
-            <th className="px-4 py-3 text-left text-gray-900 text-sm font-semibold">Hora</th>
-            <th className="px-4 py-3 text-left text-gray-900 text-sm font-semibold">Status</th>
-            <th className="px-4 py-3 text-center text-gray-900 text-sm font-semibold">Acciones</th>
+            <th className="px-4 py-3 text-left text-gray-900 text-sm font-semibold whitespace-nowrap">Empleado</th>
+            <th className="px-4 py-3 text-left text-gray-900 text-sm font-semibold whitespace-nowrap">Tipo</th>
+            <th className="px-4 py-3 text-left text-gray-900 text-sm font-semibold whitespace-nowrap">Fecha Inicio</th>
+            <th className="px-4 py-3 text-left text-gray-900 text-sm font-semibold whitespace-nowrap">Fecha Final</th>
+            <th className="px-4 py-3 text-left text-gray-900 text-sm font-semibold whitespace-nowrap">Hora</th>
+            <th className="px-4 py-3 text-left text-gray-900 text-sm font-semibold whitespace-nowrap">Status</th>
+            <th className="px-4 py-3 text-center text-gray-900 text-sm font-semibold whitespace-nowrap">Acciones</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-100">
@@ -153,6 +152,5 @@ export function NewsTable({ news, userRole, onView, onEdit, onDelete, onUpdateSt
           })}
         </tbody>
       </table>
-    </div>
   );
 }

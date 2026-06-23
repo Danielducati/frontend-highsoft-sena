@@ -32,17 +32,18 @@ export function SalesTable({ sales, loading, onView }: SalesTableProps) {
   );
 
   return (
-    <div className="rounded-2xl overflow-hidden shadow-sm" style={{ backgroundColor: "#ffffff" }}>
-      <table className="w-full" style={{ fontFamily: "var(--font-body)" }}>
-        <thead>
-          <tr style={{ borderBottom: "1px solid #E5E7EB" }}>
-            {["N°", "Cliente", "Servicio", "Método de pago", "Total", "Fecha", "Acciones"].map(col => (
-              <th key={col} className="px-6 py-4 text-left text-xs font-semibold" style={{ color: "#6b7c6b" }}>
-                {col}
-              </th>
-            ))}
-          </tr>
-        </thead>
+    <div className="overflow-x-auto -mx-4 sm:mx-0">
+      <div className="inline-block min-w-full align-middle px-4 sm:px-0">
+        <table className="w-full" style={{ fontFamily: "var(--font-body)" }}>
+          <thead>
+            <tr style={{ borderBottom: "1px solid #E5E7EB" }}>
+              {["N°", "Cliente", "Servicio", "Método de pago", "Total", "Fecha", "Acciones"].map(col => (
+                <th key={col} className="px-6 py-4 text-left text-xs font-semibold whitespace-nowrap" style={{ color: "#6b7c6b" }}>
+                  {col}
+                </th>
+              ))}
+            </tr>
+          </thead>
         <tbody>
           {sales.map((sale, idx) => (
             <tr key={sale.id ?? idx}
@@ -114,6 +115,7 @@ export function SalesTable({ sales, loading, onView }: SalesTableProps) {
           ))}
         </tbody>
       </table>
+      </div>
     </div>
   );
 }

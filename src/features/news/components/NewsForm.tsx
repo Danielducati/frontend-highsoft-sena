@@ -167,6 +167,7 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
     if (!formData.employeeId) { 
       console.log('[NewsForm] ⚠️ No employeeId, clearing schedules');
       setEmployeeSchedules([]); 
+      setDiagnosticInfo(null);
       return; 
     }
     
@@ -184,6 +185,13 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
         console.log('[NewsForm] ✅ Schedules loaded successfully!');
         console.log('[NewsForm] 📊 Number of weeks:', data.length);
         console.log('[NewsForm] 📋 Schedule data:', JSON.stringify(data, null, 2));
+        
+        // Extraer todas las fechas disponibles para debug
+        const allDates = data.flatMap(w => 
+          (w.daySchedules || []).map((ds: any) => `${ds.fecha} (${DAY_NAMES[ds.dayIndex]})`)
+        );
+        console.log('[NewsForm] 📅 All available dates:', allDates.join(', '));
+        
         setEmployeeSchedules(data ?? []);
       })
       .catch((err) => {
@@ -249,28 +257,33 @@ export function NewsForm({ formData, setFormData, employees, editingNews, onSubm
     console.log('[NewsForm] 📅 Date:', dateStr, '→ Day Index:', dayIdx, `(${DAY_NAMES[dayIdx]})`);
     console.log('[NewsForm] 📅 Week start for this date:', weekStart);
     console.log('[NewsForm] 📊 Available schedules:', employeeSchedules.length, 'weeks');
+    console.log('[NewsForm] 📋 Available weeks:', employeeSchedules.map(w => w.weekStartDate).join(', '));
     
-    // Buscar la semana que contiene esta fecha
-    const weekSchedule = employeeSchedules.find(w => w.weekStartDate === weekStart);
-    
-    if (!weekSchedule) {
-      console.log('[NewsForm] ⚠️ No schedule found for week starting', weekStart);
-      console.log('[NewsForm] 📋 Available weeks:', employeeSchedules.map(w => w.weekStartDate).join(', '));
-      return null;
+    // NUEVA LÓGICA: Buscar en TODOS los horarios por daySchedules que contengan la fecha exacta
+    // En lugar de buscar por semana, buscamos directamente por el día específico
+    for (const weekSchedule of employeeSchedules) {
+      const daySchedules = weekSchedule.daySchedules ?? [];
+      
+      // Buscar un daySchedule que coincida con la fecha exacta
+      const ds = daySchedules.find((d: any) => d.fecha === dateStr);
+      
+      if (ds) {
+        console.log('[NewsForm] ✅ FOUND schedule by fecha match:', ds);
+        return ds;
+      }
+      
+      // Si no encuentra por fecha exacta, buscar por weekStartDate + dayIndex
+      if (weekSchedule.weekStartDate === weekStart) {
+        const dsByIndex = daySchedules.find((d: any) => d.dayIndex === dayIdx);
+        if (dsByIndex) {
+          console.log('[NewsForm] ✅ FOUND schedule by week + dayIndex:', dsByIndex);
+          return dsByIndex;
+        }
+      }
     }
     
-    console.log('[NewsForm] ✅ Found week schedule:', weekSchedule.weekStartDate);
-    console.log('[NewsForm] 📋 Week daySchedules:', weekSchedule.daySchedules);
-    
-    const ds = (weekSchedule.daySchedules ?? []).find((d: any) => d.dayIndex === dayIdx);
-    
-    if (ds) {
-      console.log('[NewsForm] ✅ FOUND schedule for day index', dayIdx, ':', ds);
-      return ds;
-    } else {
-      console.log('[NewsForm] ⚠️ No schedule found for day index', dayIdx, 'in week', weekStart);
-      return null;
-    }
+    console.log('[NewsForm] ❌ No schedule found for date', dateStr, 'or day index', dayIdx);
+    return null;
   };
 
   const getViewWeekDays = () => {

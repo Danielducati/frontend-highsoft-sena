@@ -109,17 +109,18 @@ export function UsersPage({ userRole }: UsersModuleProps) {
                 <p className="text-sm text-gray-400 mt-1">Intenta ajustar los filtros de búsqueda</p>
               </div>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-gray-200 bg-gray-50/50">
-                      <th className="text-left px-4 py-3 text-sm text-gray-700">Usuario</th>
-                      <th className="text-left px-4 py-3 text-sm text-gray-700">Rol</th>
-                      <th className="text-left px-4 py-3 text-sm text-gray-700">Contacto</th>
-                      <th className="text-left px-4 py-3 text-sm text-gray-700">Estado</th>
-                      <th className="text-center px-4 py-3 text-sm text-gray-700 w-32">Acciones</th>
-                    </tr>
-                  </thead>
+              <div className="overflow-x-auto -mx-4 sm:mx-0">
+                <div className="inline-block min-w-full align-middle px-4 sm:px-0">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b border-gray-200 bg-gray-50/50">
+                        <th className="text-left px-4 py-3 text-sm text-gray-700 whitespace-nowrap">Usuario</th>
+                        <th className="text-left px-4 py-3 text-sm text-gray-700 whitespace-nowrap">Rol</th>
+                        <th className="text-left px-4 py-3 text-sm text-gray-700 whitespace-nowrap">Contacto</th>
+                        <th className="text-left px-4 py-3 text-sm text-gray-700 whitespace-nowrap">Estado</th>
+                        <th className="text-center px-4 py-3 text-sm text-gray-700 w-32 whitespace-nowrap">Acciones</th>
+                      </tr>
+                    </thead>
                   <tbody className="divide-y divide-gray-200">
                     {paginatedUsers.map((user) => {
                       const isAdmin = user.role?.toLowerCase() === "admin" || user.role?.toLowerCase() === "administrador";
@@ -258,6 +259,7 @@ export function UsersPage({ userRole }: UsersModuleProps) {
                     })}
                   </tbody>
                 </table>
+                </div>
               </div>
             )}
           </CardContent>
