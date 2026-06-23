@@ -276,7 +276,19 @@ html {
 @media (max-width: 768px) {
   /* Tablas: scroll horizontal */
   .overflow-x-auto {
+    overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+  }
+
+  /* Tablas más compactas en móvil */
+  table {
+    font-size: 0.85rem;
+  }
+
+  table th,
+  table td {
+    padding: 0.5rem !important;
+    white-space: nowrap;
   }
 
   /* Cards con grid de 2+ columnas → 1 columna en móvil */
@@ -287,21 +299,142 @@ html {
     grid-template-columns: 1fr !important;
   }
 
+  /* Stats y métricas (4 columnas → 2 columnas) */
+  .grid.grid-cols-4.gap-4,
+  .grid.grid-cols-4.gap-6 {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  /* Reducir gaps en móvil */
+  .gap-6 {
+    gap: 1rem !important;
+  }
+
+  .gap-8 {
+    gap: 1.5rem !important;
+  }
+
+  /* Headers de módulos: botones en vertical */
+  .flex.items-center.justify-between {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 1rem !important;
+  }
+
+  .flex.items-center.justify-between > div {
+    width: 100%;
+  }
+
+  /* Botones de acción en headers: ancho completo */
+  .flex.items-center.justify-between button,
+  .flex.items-center.gap-2 button,
+  .flex.items-center.gap-3 button {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+
+  /* Contenedor de botones en línea → vertical */
+  .flex.items-center.gap-2,
+  .flex.items-center.gap-3 {
+    flex-direction: column !important;
+    width: 100% !important;
+  }
+
   /* Ocultar columnas opcionales de tablas en móvil */
-  .hide-mobile { display: none !important; }
+  .hide-mobile { 
+    display: none !important; 
+  }
 
   /* Header padding */
-  header.sticky { padding-left: 1rem; padding-right: 1rem; }
+  header.sticky { 
+    padding-left: 1rem; 
+    padding-right: 1rem; 
+  }
 
   /* Main content padding */
-  main.overflow-y-auto { padding: 1rem !important; }
+  main.overflow-y-auto { 
+    padding: 1rem !important; 
+  }
+
+  /* Modals y dialogs: ocupar casi toda la pantalla */
+  [role="dialog"] {
+    max-width: 95vw !important;
+    max-height: 90vh !important;
+    margin: 1rem auto !important;
+  }
+
+  /* Formularios: prevenir zoom en iOS */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  input[type="tel"],
+  input[type="date"],
+  input[type="time"],
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+
+  /* Cards más compactos */
+  .rounded-lg,
+  .rounded-xl {
+    border-radius: 0.5rem !important;
+  }
+
+  .p-6 {
+    padding: 1rem !important;
+  }
+
+  .p-8 {
+    padding: 1.5rem !important;
+  }
 
   /* Botón de acción en SpaPage — ancho completo en móvil */
-  .spa-action-btn { width: 100%; justify-content: center; }
+  .spa-action-btn { 
+    width: 100%; 
+    justify-content: center; 
+  }
+
+  /* Calendario de citas: hacer responsive */
+  .appointment-calendar {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Tabs responsive */
+  [role="tablist"] {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    flex-wrap: nowrap !important;
+  }
+
+  [role="tab"] {
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
 }
 
 @media (max-width: 480px) {
   /* Texto de título más pequeño */
   .text-4xl { font-size: 1.5rem !important; }
+  .text-3xl { font-size: 1.35rem !important; }
   .text-2xl { font-size: 1.25rem !important; }
+  .text-xl { font-size: 1.1rem !important; }
+
+  /* Stats en 1 columna en pantallas muy pequeñas */
+  .grid.grid-cols-4,
+  .grid.grid-cols-3,
+  .grid.grid-cols-2 {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Padding más pequeño */
+  .p-4 {
+    padding: 0.75rem !important;
+  }
+
+  .p-6 {
+    padding: 0.85rem !important;
+  }
 }
