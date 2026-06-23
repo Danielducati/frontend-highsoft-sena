@@ -402,6 +402,16 @@ html {
     -webkit-overflow-scrolling: touch;
   }
 
+  /* Calendario: reducir min-width para permitir scroll más natural */
+  .min-w-\[1600px\] {
+    min-width: 800px !important;
+  }
+
+  /* Grid del calendario: hacer más compacto */
+  .grid-cols-8 {
+    font-size: 0.75rem;
+  }
+
   /* Tabs responsive */
   [role="tablist"] {
     overflow-x: auto;
@@ -412,6 +422,46 @@ html {
   [role="tab"] {
     white-space: nowrap;
     flex-shrink: 0;
+  }
+
+  /* Grids de lista en citas: hacer responsive */
+  .lg\:grid-cols-\[80px_1\.5fr_1\.5fr_1\.2fr_100px_1\.8fr_120px_140px\] {
+    display: block !important;
+  }
+
+  .lg\:grid-cols-\[80px_1\.5fr_1\.5fr_1\.2fr_100px_1\.8fr_120px_140px\] > * {
+    padding: 0.5rem 0 !important;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .lg\:grid-cols-\[80px_1\.5fr_1\.5fr_1\.2fr_100px_1\.8fr_120px_140px\] > *:last-child {
+    border-bottom: none;
+  }
+
+  /* Semana del calendario: hacer más compacta */
+  .flex.items-center.justify-between > button {
+    padding: 0.5rem !important;
+  }
+
+  /* Filtros en móvil: stack vertical */
+  .flex.gap-2.items-center {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+
+  /* Leyenda del calendario: wrap en móvil */
+  .flex.items-center.gap-4.flex-wrap {
+    gap: 0.75rem !important;
+  }
+
+  /* Dashboard: stats cards */
+  .grid.grid-cols-1.md\:grid-cols-2.lg\:grid-cols-4 {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  /* Servicios/Categorías: cards en 1 columna */
+  .grid.md\:grid-cols-2.lg\:grid-cols-3 {
+    grid-template-columns: 1fr !important;
   }
 }
 
@@ -436,5 +486,21 @@ html {
 
   .p-6 {
     padding: 0.85rem !important;
+  }
+
+  /* Calendario: aún más compacto */
+  .min-w-\[1600px\],
+  .min-w-\[800px\] {
+    min-width: 600px !important;
+  }
+
+  /* Botones más pequeños */
+  button {
+    font-size: 0.85rem !important;
+  }
+
+  /* Badges más pequeños */
+  .text-xs {
+    font-size: 0.65rem !important;
   }
 }
