@@ -153,18 +153,17 @@ export function CategoriesPage({ userRole }: CategoriesModuleProps) {
                 <p className="text-gray-500 text-center">No hay categorías registradas</p>
               </div>
             ) : (
-              <div className="overflow-x-auto -mx-4 sm:mx-0">
-                <div className="inline-block min-w-full align-middle px-4 sm:px-0">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="border-b border-gray-200 bg-gray-50/50">
-                        <th className="text-left px-4 py-3 text-sm text-gray-700 cursor-pointer select-none whitespace-nowrap" onClick={() => handleSort("name")}>Color</th>
-                        <th className="text-left px-4 py-3 text-sm text-gray-700 cursor-pointer select-none whitespace-nowrap" onClick={() => handleSort("name")}>Nombre</th>
-                        <th className="text-left px-4 py-3 text-sm text-gray-700 cursor-pointer select-none whitespace-nowrap" onClick={() => handleSort("servicesCount")}>Servicios</th>
-                        <th className="text-left px-4 py-3 text-sm text-gray-700 whitespace-nowrap">Estado</th>
-                        {showActions && <th className="text-center px-4 py-3 text-sm text-gray-700 w-32 whitespace-nowrap">Acciones</th>}
-                      </tr>
-                    </thead>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-gray-200 bg-gray-50/50">
+                      <th className="text-left px-4 py-3 text-sm text-gray-700 cursor-pointer select-none whitespace-nowrap" onClick={() => handleSort("name")}>Color</th>
+                      <th className="text-left px-4 py-3 text-sm text-gray-700 cursor-pointer select-none whitespace-nowrap" onClick={() => handleSort("name")}>Nombre</th>
+                      <th className="text-left px-4 py-3 text-sm text-gray-700 cursor-pointer select-none whitespace-nowrap" onClick={() => handleSort("servicesCount")}>Servicios</th>
+                      <th className="text-left px-4 py-3 text-sm text-gray-700 whitespace-nowrap">Estado</th>
+                      {showActions && <th className="text-center px-4 py-3 text-sm text-gray-700 w-32 whitespace-nowrap">Acciones</th>}
+                    </tr>
+                  </thead>
                   <tbody className="divide-y divide-gray-200">
                     {paginated.map((category) => (
                       <tr key={category.id} className="hover:bg-gray-50/50 transition-colors">
@@ -255,7 +254,6 @@ export function CategoriesPage({ userRole }: CategoriesModuleProps) {
                     ))}
                   </tbody>
                 </table>
-                </div>
               </div>
             )}
           </CardContent>
