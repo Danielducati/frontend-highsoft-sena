@@ -253,7 +253,7 @@ export default function App() {
       />
 
       <div
-        className="flex-1 flex flex-col"
+        className="flex-1 flex flex-col min-w-0 overflow-hidden"
         style={{ marginLeft: "var(--hl-sidebar-ml, 240px)", backgroundColor: "var(--bg-app)", transition: "margin-left 0.28s ease" }}
       >
         <style>{`

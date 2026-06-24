@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { Bell, Calendar, Clock, X, CheckCheck, LogOut, UserCog, Menu } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "../../ui/avatar";
 import { Badge } from "../../ui/badge";
@@ -96,8 +97,10 @@ export function Header({ userRole, userName, userPhoto, onLogout, onNavigate, on
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [open,          setOpen]          = useState(false);
   const [avatarOpen,    setAvatarOpen]    = useState(false);
+  const [avatarMenuPos, setAvatarMenuPos] = useState({ top: 0, right: 0 });
   const dropdownRef = useRef<HTMLDivElement>(null);
   const avatarRef   = useRef<HTMLDivElement>(null);
+  const avatarMenuRef = useRef<HTMLDivElement>(null);
 
   const unread = notifications.filter(n => !n.read).length;
 
@@ -112,19 +115,43 @@ export function Header({ userRole, userName, userPhoto, onLogout, onNavigate, on
     return () => clearInterval(interval);
   }, [userRole]);
 
-  // Cerrar al hacer clic fuera
+  // Cerrar al hacer clic fuera (incluye el menú del avatar, que ahora vive en un portal)
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
         setOpen(false);
       }
-      if (avatarRef.current && !avatarRef.current.contains(e.target as Node)) {
+      const clickedAvatarBtn  = avatarRef.current?.contains(e.target as Node);
+      const clickedAvatarMenu = avatarMenuRef.current?.contains(e.target as Node);
+      if (!clickedAvatarBtn && !clickedAvatarMenu) {
         setAvatarOpen(false);
       }
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
   }, []);
+
+  // Calcular posición del menú del avatar (en coordenadas de viewport, porque va en un portal)
+  useEffect(() => {
+    if (!avatarOpen) return;
+
+    const updatePosition = () => {
+      if (!avatarRef.current) return;
+      const rect = avatarRef.current.getBoundingClientRect();
+      setAvatarMenuPos({
+        top: rect.bottom + 8,
+        right: window.innerWidth - rect.right,
+      });
+    };
+
+    updatePosition();
+    window.addEventListener("scroll", updatePosition, true);
+    window.addEventListener("resize", updatePosition);
+    return () => {
+      window.removeEventListener("scroll", updatePosition, true);
+      window.removeEventListener("resize", updatePosition);
+    };
+  }, [avatarOpen]);
 
   const markAllRead = () =>
     setNotifications(prev => prev.map(n => ({ ...n, read: true })));
@@ -146,10 +173,10 @@ export function Header({ userRole, userName, userPhoto, onLogout, onNavigate, on
 
   return (
     <header
-      className="h-16 sticky top-0 z-40 flex items-center justify-between"
-      style={{ backgroundColor: "var(--bg-app)", borderBottom: "1px solid var(--border)", paddingLeft: "1rem", paddingRight: "1rem" }}
+      className="hl-app-header h-16 sticky top-0 z-40 flex items-center gap-2 sm:gap-3 w-full max-w-full overflow-hidden box-border"
+      style={{ backgroundColor: "var(--bg-app)", borderBottom: "1px solid var(--border)", paddingLeft: "0.75rem", paddingRight: "0.75rem" }}
     >
-      {/* Botón hamburguesa — solo móvil, usando CSS inline */}
+      {/* Botón hamburguesa — solo móvil */}
       <button
         onClick={onMenuToggle}
         className="hl-hamburger-btn"
@@ -170,45 +197,52 @@ export function Header({ userRole, userName, userPhoto, onLogout, onNavigate, on
           cursor: pointer;
           color: #1a3a2a;
           flex-shrink: 0;
-          margin-right: 8px;
         }
         @media (max-width: 768px) {
           .hl-hamburger-btn { display: flex !important; }
+          .hl-app-header { padding-left: 0.5rem !important; padding-right: 0.5rem !important; }
         }
         .hl-welcome-text { display: block; }
         @media (max-width: 480px) {
           .hl-welcome-text { display: none; }
         }
+        .hl-role-badge { display: inline-flex; }
+        @media (max-width: 640px) {
+          .hl-role-badge { display: none !important; }
+        }
+        .hl-header-actions {
+          flex-shrink: 0;
+        }
       `}</style>
 
       {/* Saludo */}
-      <div style={{ display: "flex", alignItems: "center", gap: 24, flex: 1, minWidth: 0 }}>
-        <div style={{ minWidth: 0 }}>
-          <h2 className="hl-welcome-text" style={{ color: "#1a3a2a", fontFamily: "var(--font-body)", fontWeight: 600, margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+      <div className="flex items-center flex-1 min-w-0 overflow-hidden">
+        <div className="min-w-0 overflow-hidden">
+          <h2 className="hl-welcome-text text-sm sm:text-base" style={{ color: "#1a3a2a", fontFamily: "var(--font-body)", fontWeight: 600, margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
             Bienvenido de nuevo
           </h2>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 2, flexWrap: "wrap" }}>
-            <p className="text-sm" style={{ color: "#6b7c6b", fontFamily: "var(--font-body)", margin: 0 }}>
+          <div className="flex items-center gap-2 min-w-0" style={{ marginTop: 2 }}>
+            <p className="text-xs sm:text-sm min-w-0 truncate" style={{ color: "#6b7c6b", fontFamily: "var(--font-body)", margin: 0 }}>
               <span style={{ color: "#1a3a2a", fontWeight: 600 }}>{displayName}</span>
             </p>
-            <Badge variant="outline" className={`${getRoleBadgeColor()} text-xs px-2 py-0.5`}>
+            <Badge variant="outline" className={`hl-role-badge ${getRoleBadgeColor()} text-xs px-2 py-0.5 flex-shrink-0`}>
               {rolLabel}
             </Badge>
           </div>
         </div>
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="hl-header-actions flex items-center gap-1.5 sm:gap-3 flex-shrink-0">
 
         {/* ── Campana ── */}
         <div ref={dropdownRef} style={{ position: "relative" }}>
           <button
             onClick={() => setOpen(o => !o)}
             style={{
-              position: "relative", width: 38, height: 38, borderRadius: 10,
+              position: "relative", width: 36, height: 36, borderRadius: 10,
               border: "none", backgroundColor: open ? "var(--muted)" : "transparent",
               cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
-              color: "#6b7c6b", transition: "background 0.15s",
+              color: "#6b7c6b", transition: "background 0.15s", flexShrink: 0,
             }}
             onMouseEnter={e => { if (!open) e.currentTarget.style.backgroundColor = "var(--muted)"; }}
             onMouseLeave={e => { if (!open) e.currentTarget.style.backgroundColor = "transparent"; }}
@@ -337,69 +371,78 @@ export function Header({ userRole, userName, userPhoto, onLogout, onNavigate, on
           )}
         </div>
 
-        {/* Avatar con dropdown de logout */}
-        <div ref={avatarRef} style={{ position: "relative" }}>
+        {/* Avatar — el botón se queda aquí, el menú se renderiza en un Portal */}
+        <div ref={avatarRef} style={{ position: "relative", flexShrink: 0 }}>
           <button
             onClick={() => setAvatarOpen(o => !o)}
-            style={{ background: "none", border: "none", cursor: "pointer", padding: 0, borderRadius: "50%" }}
+            style={{ background: "none", border: "none", cursor: "pointer", padding: 0, borderRadius: "50%", display: "flex", flexShrink: 0 }}
           >
-            <Avatar className="w-9 h-9" style={{ border: "2px solid #c8ead9", borderRadius: "50%" }}>
+            <Avatar className="w-8 h-8 sm:w-9 sm:h-9" style={{ border: "2px solid #c8ead9", borderRadius: "50%" }}>
               {userPhoto && <AvatarImage src={userPhoto} alt={displayName} className="object-cover" />}
               <AvatarFallback style={{ background: "linear-gradient(135deg, #1a3a2a, #2a5a40)", color: "#fff" }}>
                 {displayName.charAt(0).toUpperCase()}
               </AvatarFallback>
             </Avatar>
           </button>
-
-          {avatarOpen && (
-            <div style={{
-              position: "absolute", top: "calc(100% + 8px)", right: 0,
-              minWidth: 180, borderRadius: 12, backgroundColor: "#ffffff",
-              border: "1px solid #E5E7EB", boxShadow: "0 8px 24px rgba(0,0,0,0.10)",
-              zIndex: 9999, overflow: "hidden", fontFamily: "var(--font-body)",
-            }}>
-              <div style={{ padding: "12px 16px", borderBottom: "1px solid #E5E7EB" }}>
-                <p style={{ fontSize: 13, fontWeight: 600, color: "#1a3a2a", margin: 0 }}>{displayName}</p>
-                <p style={{ fontSize: 11, color: "#6b7c6b", margin: "2px 0 0" }}>{rolLabel}</p>
-              </div>
-              
-              <button
-                onClick={() => { 
-                  setAvatarOpen(false); 
-                  if (userRole === "admin") onNavigate?.("admin-profile");
-                  else if (userRole === "client") onNavigate?.("client-profile");
-                  else onNavigate?.("employee-profile");
-                }}
-                style={{
-                  width: "100%", display: "flex", alignItems: "center", gap: 10,
-                  padding: "10px 16px", border: "none", backgroundColor: "transparent",
-                  cursor: "pointer", fontSize: 13, color: "#1a3a2a", fontFamily: "var(--font-body)",
-                  borderBottom: "1px solid #E5E7EB"
-                }}
-                onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#F3F4F6")}
-                onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
-              >
-                <UserCog style={{ width: 15, height: 15, color: "#6b7c6b" }} />
-                Mi Perfil
-              </button>
-
-              <button
-                onClick={() => { setAvatarOpen(false); onLogout?.(); }}
-                style={{
-                  width: "100%", display: "flex", alignItems: "center", gap: 10,
-                  padding: "10px 16px", border: "none", backgroundColor: "transparent",
-                  cursor: "pointer", fontSize: 13, color: "#b14b3d", fontFamily: "var(--font-body)",
-                }}
-                onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#fdf2f2")}
-                onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
-              >
-                <LogOut style={{ width: 15, height: 15 }} />
-                Cerrar Sesión
-              </button>
-            </div>
-          )}
         </div>
       </div>
+
+      {/* Menú del avatar renderizado vía Portal directamente en <body>.
+          Así queda SIEMPRE por encima de cualquier overflow/scroll/z-index
+          de Sidebar, main, tablas, modales, etc. */}
+      {avatarOpen && createPortal(
+        <div
+          ref={avatarMenuRef}
+          style={{
+            position: "fixed",
+            top: avatarMenuPos.top,
+            right: avatarMenuPos.right,
+            minWidth: 180, borderRadius: 12, backgroundColor: "#ffffff",
+            border: "1px solid #E5E7EB", boxShadow: "0 8px 24px rgba(0,0,0,0.10)",
+            zIndex: 99999, overflow: "hidden", fontFamily: "var(--font-body)",
+          }}
+        >
+          <div style={{ padding: "12px 16px", borderBottom: "1px solid #E5E7EB" }}>
+            <p style={{ fontSize: 13, fontWeight: 600, color: "#1a3a2a", margin: 0 }}>{displayName}</p>
+            <p style={{ fontSize: 11, color: "#6b7c6b", margin: "2px 0 0" }}>{rolLabel}</p>
+          </div>
+
+          <button
+            onClick={() => {
+              setAvatarOpen(false);
+              if (userRole === "admin") onNavigate?.("admin-profile");
+              else if (userRole === "client") onNavigate?.("client-profile");
+              else onNavigate?.("employee-profile");
+            }}
+            style={{
+              width: "100%", display: "flex", alignItems: "center", gap: 10,
+              padding: "10px 16px", border: "none", backgroundColor: "transparent",
+              cursor: "pointer", fontSize: 13, color: "#1a3a2a", fontFamily: "var(--font-body)",
+              borderBottom: "1px solid #E5E7EB"
+            }}
+            onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#F3F4F6")}
+            onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
+          >
+            <UserCog style={{ width: 15, height: 15, color: "#6b7c6b" }} />
+            Mi Perfil
+          </button>
+
+          <button
+            onClick={() => { setAvatarOpen(false); onLogout?.(); }}
+            style={{
+              width: "100%", display: "flex", alignItems: "center", gap: 10,
+              padding: "10px 16px", border: "none", backgroundColor: "transparent",
+              cursor: "pointer", fontSize: 13, color: "#b14b3d", fontFamily: "var(--font-body)",
+            }}
+            onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#fdf2f2")}
+            onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
+          >
+            <LogOut style={{ width: 15, height: 15 }} />
+            Cerrar Sesión
+          </button>
+        </div>,
+        document.body
+      )}
     </header>
   );
 }
