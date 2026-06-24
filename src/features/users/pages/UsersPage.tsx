@@ -109,8 +109,8 @@ export function UsersPage({ userRole }: UsersModuleProps) {
                 <p className="text-sm text-gray-400 mt-1">Intenta ajustar los filtros de búsqueda</p>
               </div>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full">
+              <div className="module-table-scroll overflow-x-auto">
+                <table className="w-full" style={{ minWidth: 560 }}>
                   <thead>
                     <tr className="border-b border-gray-200 bg-gray-50/50">
                       <th className="text-left px-4 py-3 text-sm text-gray-700 whitespace-nowrap">Usuario</th>
@@ -265,7 +265,7 @@ export function UsersPage({ userRole }: UsersModuleProps) {
 
         {/* Paginación */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-between mt-2 px-1" style={{ fontFamily: "var(--font-body)" }}>
+          <div className="flex items-center justify-between mt-2 px-1 table-pagination" style={{ fontFamily: "var(--font-body)" }}>
             <p className="text-sm" style={{ color: "#6b7c6b" }}>Mostrando {startIndex + 1}–{endIndex} de {filteredUsers.length} usuarios</p>
             <div className="flex items-center gap-1">
               <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1} className="w-8 h-8 flex items-center justify-center rounded-lg text-sm disabled:opacity-30" style={{ color: "#1a3a2a" }}>‹</button>

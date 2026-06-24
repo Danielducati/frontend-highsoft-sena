@@ -187,8 +187,8 @@ export function RolesPage({ userRole }: RolesModuleProps) {
               </div>
             ) : (
               <>
-                <div className="overflow-x-auto">
-                  <table className="w-full">
+                <div className="module-table-scroll overflow-x-auto">
+                  <table className="w-full" style={{ minWidth: 560 }}>
                     <thead>
                       <tr className="border-b border-gray-200 bg-gray-50/50">
                         <th className="text-left px-4 py-3 text-sm text-gray-700 whitespace-nowrap">Rol</th>
@@ -291,7 +291,7 @@ export function RolesPage({ userRole }: RolesModuleProps) {
 
                 {/* Paginación — solo si hay más de 5 roles */}
                 {filteredRoles.length > ITEMS_PER_PAGE && (
-                  <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200" style={{ fontFamily: "var(--font-body)" }}>
+                  <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200 table-pagination" style={{ fontFamily: "var(--font-body)" }}>
                     <p className="text-xs text-gray-500">
                       Mostrando {(safePage - 1) * ITEMS_PER_PAGE + 1}–{Math.min(safePage * ITEMS_PER_PAGE, filteredRoles.length)} de {filteredRoles.length} roles
                     </p>

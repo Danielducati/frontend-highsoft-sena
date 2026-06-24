@@ -217,7 +217,7 @@ export function NewsPage({ userRole }: NewsModuleProps) {
       {/* Tabla */}
       <Card className="border-gray-200 shadow-sm rounded-2xl">
         <CardContent className="p-0">
-          <div className="overflow-x-auto -mx-4 sm:mx-0">
+          <div className="module-table-scroll -mx-4 sm:mx-0">
             <div className="inline-block min-w-full align-middle px-4 sm:px-0">
               <NewsTable
                 news={paginatedNews}
@@ -234,7 +234,7 @@ export function NewsPage({ userRole }: NewsModuleProps) {
 
       {/* Paginación */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-between mt-2 px-1" style={{ fontFamily: "var(--font-body)" }}>
+        <div className="flex items-center justify-between mt-2 px-1 table-pagination" style={{ fontFamily: "var(--font-body)" }}>
           <p className="text-sm" style={{ color: "#6b7c6b" }}>
             Mostrando {(currentPage - 1) * itemsPerPage + 1}–{Math.min(currentPage * itemsPerPage, filteredNews.length)} de {filteredNews.length} novedades
           </p>

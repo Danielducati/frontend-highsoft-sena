@@ -32,9 +32,9 @@ export function SalesTable({ sales, loading, onView }: SalesTableProps) {
   );
 
   return (
-    <div className="overflow-x-auto -mx-4 sm:mx-0">
+    <div className="module-table-scroll overflow-x-auto -mx-4 sm:mx-0">
       <div className="inline-block min-w-full align-middle px-4 sm:px-0">
-        <table className="w-full" style={{ fontFamily: "var(--font-body)" }}>
+        <table className="w-full" style={{ fontFamily: "var(--font-body)", minWidth: 620 }}>
           <thead>
             <tr style={{ borderBottom: "1px solid #E5E7EB" }}>
               {["N°", "Cliente", "Servicio", "Método de pago", "Total", "Fecha", "Acciones"].map(col => (

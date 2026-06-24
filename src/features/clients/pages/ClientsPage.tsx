@@ -98,151 +98,129 @@ export function ClientsPage({ userRole }: ClientsModuleProps) {
                 <p className="text-sm text-gray-400 mt-1">Intenta ajustar los filtros de búsqueda</p>
               </div>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-gray-200 bg-gray-50/50">
-                      <th className="text-left px-4 py-3 text-sm text-gray-700 whitespace-nowrap">Nombre</th>
-                      <th className="text-left px-4 py-3 text-sm text-gray-700 whitespace-nowrap">Contacto</th>
-                      <th className="text-left px-4 py-3 text-sm text-gray-700 whitespace-nowrap">Servicios</th>
-                      <th className="text-left px-4 py-3 text-sm text-gray-700 whitespace-nowrap">Estado</th>
-                      <th className="text-center px-4 py-3 text-sm text-gray-700 w-32 whitespace-nowrap">Acciones</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200">
-                    {paginatedClients.map((client) => (
-                      <tr key={client.id} className="hover:bg-gray-50/50 transition-colors">
-                        <td className="px-4 py-3">
-                          <div className="flex items-center gap-3 min-w-0">
-                            <div className="w-9 h-9 rounded-full overflow-hidden flex-shrink-0" style={{ border: "2px solid #c8ead9" }}>
-                              {client.image ? (
-                                <img src={client.image} alt={client.name} className="w-full h-full object-cover" />
-                              ) : (
-                                <div className="w-full h-full flex items-center justify-center text-white text-sm" style={{ background: "linear-gradient(135deg, #78D1BD, #5FBFAA)" }}>
-                                  {client.name.charAt(0)}
-                                </div>
-                              )}
-                            </div>
-                            <div className="min-w-0">
-                              <p className="text-sm font-medium text-gray-900 truncate">{client.name}</p>
-                              {client.numero_documento && (
-                                <p className="text-xs text-gray-500 truncate">{client.tipo_documento ? `${client.tipo_documento}: ` : ""}{client.numero_documento}</p>
-                              )}
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-4 py-3">
-                          <div className="min-w-0">
-                            <div className="flex items-center gap-1.5">
-                              <Mail className="w-3.5 h-3.5 flex-shrink-0 text-gray-400" />
-                              <span className="text-xs text-gray-900 truncate">{client.email}</span>
-                            </div>
-                            <div className="flex items-center gap-1.5 mt-1">
-                              <Phone className="w-3.5 h-3.5 flex-shrink-0 text-gray-400" />
-                              <span className="text-xs text-gray-900">{client.phone}</span>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-4 py-3">
-                          <p className="text-sm flex items-center gap-1.5 text-gray-900">
-                            <ShoppingBag className="w-3.5 h-3.5 text-gray-400" />
-                            {client.totalVisits} servicios
-                          </p>
-                        </td>
+              <>
+                <style>{`
+                  .cli-table { display: block; }
+                  .cli-cards { display: none; }
+                  @media (max-width: 640px) {
+                    .cli-table { display: none; }
+                    .cli-cards { display: flex; flex-direction: column; gap: 10px; padding: 12px; }
+                  }
+                `}</style>
 
-                        {/* SWITCH DE ESTADO */}
-                        <td className="px-4 py-3">
-                          {can("clientes.editar") ? (
-                            <button
-                              onClick={() => handleToggleStatus(client.id)}
-                              title={client.isActive ? "Desactivar cliente" : "Activar cliente"}
-                              style={{
-                                position: "relative",
-                                display: "inline-flex",
-                                alignItems: "center",
-                                width: 44,
-                                height: 24,
-                                borderRadius: 999,
-                                border: "none",
-                                cursor: "pointer",
-                                backgroundColor: client.isActive ? "#1a5c3a" : "#d1d5db",
-                                transition: "background 0.2s",
-                                padding: 0,
-                              }}
-                            >
-                              <span
-                                style={{
-                                  position: "absolute",
-                                  left: client.isActive ? 22 : 2,
-                                  width: 20,
-                                  height: 20,
-                                  borderRadius: "50%",
-                                  backgroundColor: "#ffffff",
-                                  boxShadow: "0 1px 3px rgba(0,0,0,0.2)",
-                                  transition: "left 0.2s",
-                                }}
-                              />
-                            </button>
-                          ) : (
-                            <span style={{ display: "inline-flex", padding: "3px 12px", borderRadius: 999, fontSize: 11, fontWeight: 600, backgroundColor: client.isActive ? "#edf7f4" : "#f3f4f6", color: client.isActive ? "#1a5c3a" : "#6b7280" }}>
-                              {client.isActive ? "Activo" : "Inactivo"}
-                            </span>
-                          )}
-                        </td>
-
-                        {/* ACCIONES */}
-                        <td className="px-4 py-3">
-                          <div className="flex items-center justify-center gap-1">
-                            <button
-                              onClick={() => setViewingClient(client)}
-                              title="Ver detalles"
-                              className="p-2 rounded-lg transition-colors"
-                              style={{ color: "#1a3a2a" }}
-                              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#edf7f4")}
-                              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
-                            >
-                              <Eye className="w-4 h-4" />
-                            </button>
-                            {can("clientes.editar") && (
-                              <button
-                                onClick={() => client.isActive && handleEdit(client)}
-                                title={client.isActive ? "Editar" : "Activa el cliente para editar"}
-                                disabled={!client.isActive}
-                                className="p-2 rounded-lg transition-colors"
-                                style={{ color: client.isActive ? "#1a5c3a" : "#d1d5db", cursor: client.isActive ? "pointer" : "not-allowed" }}
-                                onMouseEnter={(e) => { if (client.isActive) e.currentTarget.style.backgroundColor = "#edf7f4"; }}
-                                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
-                              >
-                                <Pencil className="w-4 h-4" />
-                              </button>
-                            )}
-                            {can("clientes.eliminar") && (
-                              <button
-                                onClick={() => client.isActive && confirmDelete(client.id)}
-                                title={client.isActive ? "Eliminar" : "Activa el cliente para eliminar"}
-                                disabled={!client.isActive}
-                                className="p-2 rounded-lg transition-colors"
-                                style={{ color: client.isActive ? "#EF4444" : "#d1d5db", cursor: client.isActive ? "pointer" : "not-allowed" }}
-                                onMouseEnter={(e) => { if (client.isActive) e.currentTarget.style.backgroundColor = "#fef2f2"; }}
-                                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </button>
-                            )}
-                          </div>
-                        </td>
+                {/* ── Tabla desktop ── */}
+                <div className="cli-table module-table-scroll overflow-x-auto">
+                  <table className="w-full" style={{ minWidth: 560 }}>
+                    <thead>
+                      <tr className="border-b border-gray-200 bg-gray-50/50">
+                        <th className="text-left px-4 py-3 text-sm text-gray-700 whitespace-nowrap">Nombre</th>
+                        <th className="text-left px-4 py-3 text-sm text-gray-700 whitespace-nowrap">Contacto</th>
+                        <th className="text-left px-4 py-3 text-sm text-gray-700 whitespace-nowrap">Servicios</th>
+                        <th className="text-left px-4 py-3 text-sm text-gray-700 whitespace-nowrap">Estado</th>
+                        <th className="text-center px-4 py-3 text-sm text-gray-700 w-32 whitespace-nowrap">Acciones</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200">
+                      {paginatedClients.map((client) => (
+                        <tr key={client.id} className="hover:bg-gray-50/50 transition-colors">
+                          <td className="px-4 py-3">
+                            <div className="flex items-center gap-3 min-w-0">
+                              <div className="w-9 h-9 rounded-full overflow-hidden flex-shrink-0" style={{ border: "2px solid #c8ead9" }}>
+                                {client.image ? <img src={client.image} alt={client.name} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-white text-sm" style={{ background: "linear-gradient(135deg, #78D1BD, #5FBFAA)" }}>{client.name.charAt(0)}</div>}
+                              </div>
+                              <div className="min-w-0">
+                                <p className="text-sm font-medium text-gray-900 truncate">{client.name}</p>
+                                {client.numero_documento && <p className="text-xs text-gray-500 truncate">{client.tipo_documento ? `${client.tipo_documento}: ` : ""}{client.numero_documento}</p>}
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-4 py-3">
+                            <div className="flex items-center gap-1.5"><Mail className="w-3.5 h-3.5 flex-shrink-0 text-gray-400" /><span className="text-xs text-gray-900 truncate">{client.email}</span></div>
+                            <div className="flex items-center gap-1.5 mt-1"><Phone className="w-3.5 h-3.5 flex-shrink-0 text-gray-400" /><span className="text-xs text-gray-900">{client.phone}</span></div>
+                          </td>
+                          <td className="px-4 py-3"><p className="text-sm flex items-center gap-1.5 text-gray-900"><ShoppingBag className="w-3.5 h-3.5 text-gray-400" />{client.totalVisits} servicios</p></td>
+                          <td className="px-4 py-3">
+                            {can("clientes.editar") ? (
+                              <button onClick={() => handleToggleStatus(client.id)} title={client.isActive ? "Desactivar" : "Activar"} style={{ position: "relative", display: "inline-flex", alignItems: "center", width: 44, height: 24, borderRadius: 999, border: "none", cursor: "pointer", backgroundColor: client.isActive ? "#1a5c3a" : "#d1d5db", transition: "background 0.2s", padding: 0 }}>
+                                <span style={{ position: "absolute", left: client.isActive ? 22 : 2, width: 20, height: 20, borderRadius: "50%", backgroundColor: "#ffffff", boxShadow: "0 1px 3px rgba(0,0,0,0.2)", transition: "left 0.2s" }} />
+                              </button>
+                            ) : (
+                              <span style={{ display: "inline-flex", padding: "3px 12px", borderRadius: 999, fontSize: 11, fontWeight: 600, backgroundColor: client.isActive ? "#edf7f4" : "#f3f4f6", color: client.isActive ? "#1a5c3a" : "#6b7280" }}>{client.isActive ? "Activo" : "Inactivo"}</span>
+                            )}
+                          </td>
+                          <td className="px-4 py-3">
+                            <div className="flex items-center justify-center gap-1">
+                              <button onClick={() => setViewingClient(client)} title="Ver detalles" className="p-2 rounded-lg transition-colors" style={{ color: "#1a3a2a" }} onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#edf7f4")} onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}><Eye className="w-4 h-4" /></button>
+                              {can("clientes.editar") && <button onClick={() => client.isActive && handleEdit(client)} disabled={!client.isActive} title={client.isActive ? "Editar" : "Activa el cliente para editar"} className="p-2 rounded-lg transition-colors" style={{ color: client.isActive ? "#1a5c3a" : "#d1d5db", cursor: client.isActive ? "pointer" : "not-allowed" }} onMouseEnter={e => { if (client.isActive) e.currentTarget.style.backgroundColor = "#edf7f4"; }} onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}><Pencil className="w-4 h-4" /></button>}
+                              {can("clientes.eliminar") && <button onClick={() => client.isActive && confirmDelete(client.id)} disabled={!client.isActive} title={client.isActive ? "Eliminar" : "Activa el cliente para eliminar"} className="p-2 rounded-lg transition-colors" style={{ color: client.isActive ? "#EF4444" : "#d1d5db", cursor: client.isActive ? "pointer" : "not-allowed" }} onMouseEnter={e => { if (client.isActive) e.currentTarget.style.backgroundColor = "#fef2f2"; }} onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}><Trash2 className="w-4 h-4" /></button>}
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* ── Tarjetas móvil ── */}
+                <div className="cli-cards">
+                  {paginatedClients.map(client => (
+                    <div key={client.id} style={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: 12, padding: "14px 16px", boxShadow: "0 1px 4px rgba(0,0,0,0.05)" }}>
+                      {/* Header */}
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                          <div style={{ width: 40, height: 40, borderRadius: "50%", overflow: "hidden", border: "2px solid #c8ead9", flexShrink: 0 }}>
+                            {client.image ? <img src={client.image} alt={client.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", background: "linear-gradient(135deg, #78D1BD, #5FBFAA)", color: "#fff", fontSize: 16, fontWeight: 600 }}>{client.name.charAt(0)}</div>}
+                          </div>
+                          <div>
+                            <p style={{ fontSize: 14, fontWeight: 600, color: "#111827", margin: 0 }}>{client.name}</p>
+                            {client.numero_documento && <p style={{ fontSize: 11, color: "#6b7280", margin: 0 }}>{client.tipo_documento ? `${client.tipo_documento}: ` : ""}{client.numero_documento}</p>}
+                          </div>
+                        </div>
+                        {/* Acciones */}
+                        <div style={{ display: "flex", gap: 4 }}>
+                          <button onClick={() => setViewingClient(client)} style={{ padding: 6, borderRadius: 8, border: "none", background: "transparent", cursor: "pointer", color: "#1a3a2a" }} onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#edf7f4")} onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}><Eye style={{ width: 15, height: 15 }} /></button>
+                          {can("clientes.editar") && <button onClick={() => client.isActive && handleEdit(client)} disabled={!client.isActive} style={{ padding: 6, borderRadius: 8, border: "none", background: "transparent", cursor: client.isActive ? "pointer" : "not-allowed", color: client.isActive ? "#1a5c3a" : "#d1d5db", opacity: client.isActive ? 1 : 0.4 }} onMouseEnter={e => { if (client.isActive) e.currentTarget.style.backgroundColor = "#edf7f4"; }} onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}><Pencil style={{ width: 15, height: 15 }} /></button>}
+                          {can("clientes.eliminar") && <button onClick={() => client.isActive && confirmDelete(client.id)} disabled={!client.isActive} style={{ padding: 6, borderRadius: 8, border: "none", background: "transparent", cursor: client.isActive ? "pointer" : "not-allowed", color: client.isActive ? "#EF4444" : "#d1d5db", opacity: client.isActive ? 1 : 0.4 }} onMouseEnter={e => { if (client.isActive) e.currentTarget.style.backgroundColor = "#fef2f2"; }} onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}><Trash2 style={{ width: 15, height: 15 }} /></button>}
+                        </div>
+                      </div>
+
+                      {/* Info */}
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px 16px", fontSize: 12 }}>
+                        <div>
+                          <span style={{ color: "#9ca3af", fontSize: 10, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em" }}>Correo</span>
+                          <div style={{ color: "#374151", marginTop: 2, fontSize: 12, wordBreak: "break-all" }}>{client.email}</div>
+                        </div>
+                        <div>
+                          <span style={{ color: "#9ca3af", fontSize: 10, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em" }}>Teléfono</span>
+                          <div style={{ color: "#374151", marginTop: 2 }}>{client.phone}</div>
+                        </div>
+                        <div>
+                          <span style={{ color: "#9ca3af", fontSize: 10, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em" }}>Servicios</span>
+                          <div style={{ color: "#374151", marginTop: 2 }}>{client.totalVisits} servicios</div>
+                        </div>
+                        <div>
+                          <span style={{ color: "#9ca3af", fontSize: 10, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em" }}>Estado</span>
+                          <div style={{ marginTop: 4, display: "flex", alignItems: "center", gap: 6 }}>
+                            {can("clientes.editar") ? (
+                              <button onClick={() => handleToggleStatus(client.id)} style={{ position: "relative", display: "inline-flex", alignItems: "center", width: 36, height: 20, borderRadius: 999, border: "none", cursor: "pointer", backgroundColor: client.isActive ? "#1a5c3a" : "#d1d5db", padding: 0 }}>
+                                <span style={{ position: "absolute", left: client.isActive ? 18 : 2, width: 16, height: 16, borderRadius: "50%", backgroundColor: "#fff", boxShadow: "0 1px 3px rgba(0,0,0,0.2)", transition: "left 0.2s" }} />
+                              </button>
+                            ) : null}
+                            <span style={{ fontSize: 11, fontWeight: 600, color: client.isActive ? "#1a5c3a" : "#9ca3af" }}>{client.isActive ? "Activo" : "Inactivo"}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </>
             )}
           </CardContent>
         </Card>
 
         {/* Paginación */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-between mt-2 px-1" style={{ fontFamily: "var(--font-body)" }}>
+          <div className="flex items-center justify-between mt-2 px-1 table-pagination" style={{ fontFamily: "var(--font-body)" }}>
             <p className="text-sm" style={{ color: "#6b7c6b" }}>Mostrando {startIndex + 1}–{endIndex} de {filteredClients.length} clientes</p>
             <div className="flex items-center gap-1">
               <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1} className="w-8 h-8 flex items-center justify-center rounded-lg text-sm disabled:opacity-30" style={{ color: "#1a3a2a" }}>‹</button>

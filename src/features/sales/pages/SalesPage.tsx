@@ -210,7 +210,7 @@ export function SalesPage({ userRole }: SalesModuleProps) {
 
         {/* Paginación */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-between mt-2 px-1" style={{ fontFamily: "var(--font-body)" }}>
+          <div className="flex items-center justify-between mt-2 px-1 table-pagination" style={{ fontFamily: "var(--font-body)" }}>
             <p className="text-sm" style={{ color: "#6b7c6b" }}>
               Mostrando {startIndex + 1}–{Math.min(startIndex + itemsPerPage, filteredSales.length)} de {filteredSales.length} ventas
             </p>
