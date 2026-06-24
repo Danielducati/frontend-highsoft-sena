@@ -1,4 +1,4 @@
-﻿// src/features/users/pages/UsersPage.tsx
+// src/features/users/pages/UsersPage.tsx
 import { Card, CardContent } from "../../../shared/ui/card";
 import { Input } from "../../../shared/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../shared/ui/select";
@@ -58,7 +58,7 @@ export function UsersPage({ userRole }: UsersModuleProps) {
         {/* Filtros */}
         <Card className="border-gray-200 shadow-sm rounded-2xl">
           <CardContent className="p-4">
-            <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex flex-col sm:flex-row gap-3 filter-row">
               <div className="flex-1 relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <Input
@@ -68,7 +68,7 @@ export function UsersPage({ userRole }: UsersModuleProps) {
                   className="pl-9 h-9 rounded-lg border-gray-200 w-full"
                 />
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 filter-selects">
                 <Filter className="w-4 h-4 text-gray-400" />
                 <Select value={filterRole} onValueChange={(v) => { setFilterRole(v); setCurrentPage(1); }}>
                   <SelectTrigger className="h-9 rounded-lg border-gray-200 w-48">
@@ -109,7 +109,8 @@ export function UsersPage({ userRole }: UsersModuleProps) {
                 <p className="text-sm text-gray-400 mt-1">Intenta ajustar los filtros de búsqueda</p>
               </div>
             ) : (
-              <div className="module-table-scroll overflow-x-auto">
+              <>
+              <div className="mod-table module-table-scroll overflow-x-auto">
                 <table className="w-full" style={{ minWidth: 560 }}>
                   <thead>
                     <tr className="border-b border-gray-200 bg-gray-50/50">
@@ -259,6 +260,81 @@ export function UsersPage({ userRole }: UsersModuleProps) {
                   </tbody>
                 </table>
               </div>
+
+              {/* Tarjetas móvil */}
+              <div className="mod-cards">
+                {paginatedUsers.map((user) => {
+                  const isAdmin = user.role?.toLowerCase() === "admin" || user.role?.toLowerCase() === "administrador";
+                  return (
+                    <div key={user.id} className="mod-card">
+                      <div className="mod-card-header">
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0" style={{ border: "2px solid #c8ead9" }}>
+                            {user.photo ? (
+                              <img src={user.photo} alt={user.name} className="w-full h-full object-cover" />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center text-white text-sm" style={{ background: "linear-gradient(135deg, #78D1BD, #5FBFAA)" }}>
+                                {user.name.charAt(0)}
+                              </div>
+                            )}
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-sm font-semibold text-gray-900 truncate">{user.name}</p>
+                            <Badge className={`${getRoleBadgeColor(user.role)} text-xs px-2 py-0.5 mt-0.5`}>{user.role}</Badge>
+                          </div>
+                        </div>
+                        {(can("usuarios.editar") || can("usuarios.eliminar")) && (
+                          <div className="mod-card-actions">
+                            <button onClick={() => setViewingUser(user)} title="Ver detalles"
+                              className="p-1.5 rounded-lg" style={{ color: "#1a3a2a", border: "none", background: "transparent", cursor: "pointer" }}>
+                              <Eye className="w-4 h-4" />
+                            </button>
+                            {can("usuarios.editar") && (
+                              <button onClick={() => user.isActive && handleEdit(user)} disabled={!user.isActive} title="Editar"
+                                className="p-1.5 rounded-lg" style={{ color: user.isActive ? "#1a5c3a" : "#d1d5db", border: "none", background: "transparent", cursor: user.isActive ? "pointer" : "not-allowed" }}>
+                                <Pencil className="w-4 h-4" />
+                              </button>
+                            )}
+                            {can("usuarios.eliminar") && (
+                              <button onClick={() => user.isActive && !isAdmin && confirmDelete(user.id)} disabled={!user.isActive || isAdmin} title="Eliminar"
+                                className="p-1.5 rounded-lg" style={{ color: (user.isActive && !isAdmin) ? "#EF4444" : "#d1d5db", border: "none", background: "transparent", cursor: (user.isActive && !isAdmin) ? "pointer" : "not-allowed" }}>
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                      <div className="mod-card-grid">
+                        <div>
+                          <span className="mod-card-label">Correo</span>
+                          <div className="mod-card-value">{user.email}</div>
+                        </div>
+                        <div>
+                          <span className="mod-card-label">Teléfono</span>
+                          <div className="mod-card-value">{user.phone || "—"}</div>
+                        </div>
+                        <div>
+                          <span className="mod-card-label">Documento</span>
+                          <div className="mod-card-value">{user.documentType ? `${user.documentType} ${user.document}` : user.document || "—"}</div>
+                        </div>
+                        <div>
+                          <span className="mod-card-label">Estado</span>
+                          <div className="mod-card-value flex items-center gap-2 mt-1">
+                            {can("usuarios.editar") ? (
+                              <button onClick={() => !isAdmin && handleToggleStatus(user)} disabled={isAdmin}
+                                style={{ position: "relative", display: "inline-flex", alignItems: "center", width: 36, height: 20, borderRadius: 999, border: "none", cursor: isAdmin ? "not-allowed" : "pointer", backgroundColor: user.isActive ? "#1a5c3a" : "#d1d5db", opacity: isAdmin ? 0.5 : 1, padding: 0 }}>
+                                <span style={{ position: "absolute", left: user.isActive ? 18 : 2, width: 16, height: 16, borderRadius: "50%", backgroundColor: "#fff", boxShadow: "0 1px 3px rgba(0,0,0,0.2)" }} />
+                              </button>
+                            ) : null}
+                            <span style={{ fontSize: 11, fontWeight: 600, color: user.isActive ? "#1a5c3a" : "#9ca3af" }}>{user.isActive ? "Activo" : "Inactivo"}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              </>
             )}
           </CardContent>
         </Card>

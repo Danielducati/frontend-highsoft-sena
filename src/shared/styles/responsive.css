@@ -1,0 +1,121 @@
+/* Responsive utilities for module list views */
+
+/* SpaPage header — evitar que el título se comprima junto a botones de acción */
+.spa-page-header .spa-page-title-block {
+  flex: 1 1 260px;
+  max-width: 100%;
+}
+
+.spa-page-header .spa-page-title-block h1,
+.spa-page-header .spa-page-title-block p {
+  word-break: normal;
+  overflow-wrap: break-word;
+  white-space: normal;
+}
+
+.spa-page-header .spa-page-actions {
+  flex: 0 0 auto;
+  max-width: 100%;
+}
+
+@media (min-width: 768px) {
+  .spa-page-header .spa-page-actions {
+    margin-left: auto;
+  }
+}
+
+.mod-table { display: block; }
+.mod-cards { display: none; }
+
+@media (max-width: 640px) {
+  .mod-table { display: none; }
+  .mod-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 12px;
+  }
+}
+
+.mod-card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 14px 16px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+}
+
+.mod-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  gap: 8px;
+}
+
+.mod-card-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 16px;
+}
+
+.mod-card-label {
+  color: #9ca3af;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.mod-card-value {
+  color: #374151;
+  margin-top: 2px;
+  font-size: 12px;
+  word-break: break-word;
+}
+
+.mod-card-actions {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.module-table-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  width: 100%;
+  max-width: 100%;
+}
+
+@media (max-width: 768px) {
+  .module-table-scroll {
+    padding-bottom: 4px;
+  }
+}
+
+@media (max-width: 640px) {
+  .table-pagination {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 8px;
+  }
+
+  .table-pagination > p {
+    text-align: center;
+    font-size: 12px;
+  }
+
+  .table-pagination > div {
+    justify-content: center;
+  }
+
+  .filter-row .filter-selects {
+    flex-wrap: wrap;
+    width: 100%;
+  }
+
+  .filter-row .filter-selects > * {
+    flex: 1;
+    min-width: 120px;
+  }
+}

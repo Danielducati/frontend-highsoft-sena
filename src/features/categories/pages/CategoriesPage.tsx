@@ -1,4 +1,4 @@
-﻿import { Card, CardContent } from "../../../shared/ui/card";
+import { Card, CardContent } from "../../../shared/ui/card";
 import { Input } from "../../../shared/ui/input";
 import { Switch } from "../../../shared/ui/switch";
 import { Search, Eye, Pencil, Trash2, Tag, Filter } from "lucide-react";
@@ -104,8 +104,8 @@ export function CategoriesPage({ userRole }: CategoriesModuleProps) {
         {/* Filtros */}
         <Card className="border-gray-200 shadow-sm rounded-2xl">
           <CardContent className="p-4">
-            <div className="flex flex-wrap items-center gap-3">
-              <div className="flex-1 relative" style={{ minWidth: 200 }}>
+            <div className="flex flex-col sm:flex-row gap-3 filter-row">
+              <div className="flex-1 relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <Input
                   placeholder="Buscar categoría..."
@@ -114,7 +114,8 @@ export function CategoriesPage({ userRole }: CategoriesModuleProps) {
                   className="pl-9 h-9 rounded-lg border-gray-200 w-full"
                 />
               </div>
-              <Filter className="w-4 h-4 text-gray-400" />
+              <div className="flex items-center gap-2 filter-selects">
+                <Filter className="w-4 h-4 text-gray-400 flex-shrink-0" />
               <Select value={filterServices} onValueChange={setFilterServices}>
                 <SelectTrigger className="h-9 rounded-lg border-gray-200 w-48">
                   <SelectValue placeholder="Servicios" />
@@ -136,6 +137,7 @@ export function CategoriesPage({ userRole }: CategoriesModuleProps) {
                   <SelectItem value="inactive">Inactivos</SelectItem>
                 </SelectContent>
               </Select>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -153,7 +155,8 @@ export function CategoriesPage({ userRole }: CategoriesModuleProps) {
                 <p className="text-gray-500 text-center">No hay categorías registradas</p>
               </div>
             ) : (
-              <div className="module-table-scroll overflow-x-auto">
+              <>
+              <div className="mod-table module-table-scroll overflow-x-auto">
                 <table className="w-full" style={{ minWidth: 480 }}>
                   <thead>
                     <tr className="border-b border-gray-200 bg-gray-50/50">
@@ -255,6 +258,65 @@ export function CategoriesPage({ userRole }: CategoriesModuleProps) {
                   </tbody>
                 </table>
               </div>
+
+              {/* Tarjetas móvil */}
+              <div className="mod-cards">
+                {paginated.map((category) => (
+                  <div key={category.id} className="mod-card">
+                    <div className="mod-card-header">
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <div className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0"
+                          style={{ backgroundColor: category.color + "22", border: `2px solid ${category.color}` }}>
+                          <div className="w-4 h-4 rounded-full" style={{ backgroundColor: category.color }} />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-sm font-semibold text-gray-900">{category.name}</p>
+                          {category.description && <p className="text-xs text-gray-500 line-clamp-1">{category.description}</p>}
+                        </div>
+                      </div>
+                      {showActions && (
+                        <div className="mod-card-actions">
+                          <button onClick={() => handleViewDetail(category)} title="Ver detalle"
+                            className="p-1.5 rounded-lg" style={{ color: "#1a3a2a", border: "none", background: "transparent", cursor: "pointer" }}>
+                            <Eye className="w-4 h-4" />
+                          </button>
+                          {canEdit && (
+                            <button onClick={() => category.isActive && handleEdit(category)} disabled={!category.isActive} title="Editar"
+                              className="p-1.5 rounded-lg" style={{ color: category.isActive ? "#1a5c3a" : "#d1d5db", border: "none", background: "transparent", cursor: category.isActive ? "pointer" : "not-allowed" }}>
+                              <Pencil className="w-4 h-4" />
+                            </button>
+                          )}
+                          {canDelete && (
+                            <button onClick={() => category.isActive && handleDeleteClick(category.id)} disabled={!category.isActive} title="Eliminar"
+                              className="p-1.5 rounded-lg" style={{ color: category.isActive ? "#EF4444" : "#d1d5db", border: "none", background: "transparent", cursor: category.isActive ? "pointer" : "not-allowed" }}>
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                    <div className="mod-card-grid">
+                      <div>
+                        <span className="mod-card-label">Servicios</span>
+                        <div className="mod-card-value">{category.servicesCount} servicios</div>
+                      </div>
+                      <div>
+                        <span className="mod-card-label">Estado</span>
+                        <div className="mod-card-value flex items-center gap-2 mt-1">
+                          {canToggle ? (
+                            <Switch checked={category.isActive} onCheckedChange={() => handleToggleStatus(category)}
+                              style={category.isActive ? { backgroundColor: "#4caf82" } : { backgroundColor: "#9ca3af" }} />
+                          ) : null}
+                          <span style={{ fontSize: 11, fontWeight: 600, color: category.isActive ? "#1a5c3a" : "#9ca3af" }}>
+                            {category.isActive ? "Activo" : "Inactivo"}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              </>
             )}
           </CardContent>
         </Card>

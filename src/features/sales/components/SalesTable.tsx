@@ -1,4 +1,4 @@
-﻿import { Eye, Receipt, ShoppingCart } from "lucide-react";
+import { Eye, Receipt, ShoppingCart } from "lucide-react";
 import { Sale } from "../types";
 import { formatDate } from "../utils";
 
@@ -32,90 +32,120 @@ export function SalesTable({ sales, loading, onView }: SalesTableProps) {
   );
 
   return (
-    <div className="module-table-scroll overflow-x-auto -mx-4 sm:mx-0">
-      <div className="inline-block min-w-full align-middle px-4 sm:px-0">
+    <>
+      <div className="mod-table module-table-scroll overflow-x-auto">
         <table className="w-full" style={{ fontFamily: "var(--font-body)", minWidth: 620 }}>
           <thead>
             <tr style={{ borderBottom: "1px solid #E5E7EB" }}>
               {["N°", "Cliente", "Servicio", "Método de pago", "Total", "Fecha", "Acciones"].map(col => (
-                <th key={col} className="px-6 py-4 text-left text-xs font-semibold whitespace-nowrap" style={{ color: "#6b7c6b" }}>
+                <th key={col} className="px-4 sm:px-6 py-4 text-left text-xs font-semibold whitespace-nowrap" style={{ color: "#6b7c6b" }}>
                   {col}
                 </th>
               ))}
             </tr>
           </thead>
-        <tbody>
-          {sales.map((sale, idx) => (
-            <tr key={sale.id ?? idx}
-              style={{ borderBottom: idx < sales.length - 1 ? "1px solid #E5E7EB" : "none", transition: "background 0.15s" }}
-              onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#ffffff")}
-              onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}>
-
-              {/* N° */}
-              <td className="px-6 py-4">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-                    style={{ backgroundColor: "#F3F4F6" }}>
-                    <Receipt className="w-4 h-4" style={{ color: "#6b7c6b" }} />
+          <tbody>
+            {sales.map((sale, idx) => (
+              <tr key={sale.id ?? idx}
+                style={{ borderBottom: idx < sales.length - 1 ? "1px solid #E5E7EB" : "none" }}>
+                <td className="px-4 sm:px-6 py-4">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: "#F3F4F6" }}>
+                      <Receipt className="w-4 h-4" style={{ color: "#6b7c6b" }} />
+                    </div>
+                    <span className="text-sm font-mono" style={{ color: "#6b7c6b" }}>
+                      #{(idx + 1).toString().padStart(4, "0")}
+                    </span>
                   </div>
-                  <span className="text-sm font-mono" style={{ color: "#6b7c6b" }}>
-                    #{(idx + 1).toString().padStart(4, "0")}
+                </td>
+                <td className="px-4 sm:px-6 py-4">
+                  <p className="font-medium text-sm" style={{ color: "#1a3a2a" }}>{sale.Cliente || "—"}</p>
+                </td>
+                <td className="px-4 sm:px-6 py-4">
+                  <p className="text-sm" style={{ color: "#6b7c6b" }}>{sale.Servicio || "—"}</p>
+                </td>
+                <td className="px-4 sm:px-6 py-4">
+                  <span style={{
+                    display: "inline-flex", padding: "3px 12px", borderRadius: 999,
+                    fontSize: 11, fontWeight: 600, letterSpacing: "0.04em",
+                    ...(METHOD_COLORS[sale.metodo_pago] ?? { backgroundColor: "#f3f4f6", color: "#6b7280" }),
+                  }}>
+                    {sale.metodo_pago || "—"}
+                  </span>
+                </td>
+                <td className="px-4 sm:px-6 py-4">
+                  <p className="font-semibold text-sm" style={{ color: "#1a3a2a" }}>
+                    ${(sale.Total || 0).toLocaleString("es-CO")}
+                  </p>
+                  {sale.descuento > 0 && (
+                    <p className="text-xs mt-0.5" style={{ color: "#1a5c3a" }}>
+                      -{sale.descuento.toLocaleString("es-CO")} desc.
+                    </p>
+                  )}
+                </td>
+                <td className="px-4 sm:px-6 py-4">
+                  <p className="text-sm" style={{ color: "#1a3a2a" }}>{formatDate(sale.Fecha)}</p>
+                </td>
+                <td className="px-4 sm:px-6 py-4">
+                  <button onClick={() => onView(sale)} title="Ver detalle"
+                    className="p-2 rounded-lg transition-colors" style={{ color: "#6b7c6b", border: "none", background: "transparent", cursor: "pointer" }}>
+                    <Eye className="w-4 h-4" />
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Tarjetas móvil */}
+      <div className="mod-cards">
+        {sales.map((sale, idx) => (
+          <div key={sale.id ?? idx} className="mod-card">
+            <div className="mod-card-header">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: "#F3F4F6" }}>
+                  <Receipt className="w-4 h-4" style={{ color: "#6b7c6b" }} />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs font-mono text-gray-500">#{(idx + 1).toString().padStart(4, "0")}</p>
+                  <p className="text-sm font-semibold text-gray-900 truncate">{sale.Cliente || "—"}</p>
+                </div>
+              </div>
+              <button onClick={() => onView(sale)} title="Ver detalle"
+                className="p-1.5 rounded-lg" style={{ color: "#6b7c6b", border: "none", background: "transparent", cursor: "pointer" }}>
+                <Eye className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="mod-card-grid">
+              <div>
+                <span className="mod-card-label">Servicio</span>
+                <div className="mod-card-value">{sale.Servicio || "—"}</div>
+              </div>
+              <div>
+                <span className="mod-card-label">Total</span>
+                <div className="mod-card-value font-semibold">${(sale.Total || 0).toLocaleString("es-CO")}</div>
+              </div>
+              <div>
+                <span className="mod-card-label">Método de pago</span>
+                <div className="mod-card-value mt-1">
+                  <span style={{
+                    display: "inline-flex", padding: "3px 10px", borderRadius: 999,
+                    fontSize: 10, fontWeight: 600,
+                    ...(METHOD_COLORS[sale.metodo_pago] ?? { backgroundColor: "#f3f4f6", color: "#6b7280" }),
+                  }}>
+                    {sale.metodo_pago || "—"}
                   </span>
                 </div>
-              </td>
-
-              {/* Cliente */}
-              <td className="px-6 py-4">
-                <p className="font-medium text-sm" style={{ color: "#1a3a2a" }}>{sale.Cliente || "—"}</p>
-              </td>
-
-              {/* Servicio */}
-              <td className="px-6 py-4">
-                <p className="text-sm" style={{ color: "#6b7c6b" }}>{sale.Servicio || "—"}</p>
-              </td>
-
-              {/* Método de pago */}
-              <td className="px-6 py-4">
-                <span style={{
-                  display: "inline-flex", padding: "3px 12px", borderRadius: 999,
-                  fontSize: 11, fontWeight: 600, letterSpacing: "0.04em",
-                  ...(METHOD_COLORS[sale.metodo_pago] ?? { backgroundColor: "#f3f4f6", color: "#6b7280" }),
-                }}>
-                  {sale.metodo_pago || "—"}
-                </span>
-              </td>
-
-              {/* Total */}
-              <td className="px-6 py-4">
-                <p className="font-semibold text-sm" style={{ color: "#1a3a2a" }}>
-                  ${(sale.Total || 0).toLocaleString("es-CO")}
-                </p>
-                {sale.descuento > 0 && (
-                  <p className="text-xs mt-0.5" style={{ color: "#1a5c3a" }}>
-                    -{sale.descuento.toLocaleString("es-CO")} desc.
-                  </p>
-                )}
-              </td>
-
-              {/* Fecha */}
-              <td className="px-6 py-4">
-                <p className="text-sm" style={{ color: "#1a3a2a" }}>{formatDate(sale.Fecha)}</p>
-              </td>
-
-              {/* Acciones */}
-              <td className="px-6 py-4">
-                <button onClick={() => onView(sale)} title="Ver detalle"
-                  className="p-2 rounded-lg transition-colors" style={{ color: "#6b7c6b" }}
-                  onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#F3F4F6")}
-                  onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}>
-                  <Eye className="w-4 h-4" />
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+              </div>
+              <div>
+                <span className="mod-card-label">Fecha</span>
+                <div className="mod-card-value">{formatDate(sale.Fecha)}</div>
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
-    </div>
+    </>
   );
 }

@@ -145,7 +145,7 @@ export function RolesPage({ userRole }: RolesModuleProps) {
         {/* Filtros */}
         <Card className="border-gray-200 shadow-sm rounded-2xl">
           <CardContent className="p-4">
-            <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex flex-col sm:flex-row gap-3 filter-row">
               <div className="flex-1 relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <Input
@@ -155,7 +155,7 @@ export function RolesPage({ userRole }: RolesModuleProps) {
                   className="pl-9 h-9 rounded-lg border-gray-200 w-full"
                 />
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 filter-selects">
                 <Filter className="w-4 h-4 text-gray-400" />
                 <Select value={filterStatus} onValueChange={handleFilter}>
                   <SelectTrigger className="h-9 rounded-lg border-gray-200 w-44">
@@ -187,7 +187,7 @@ export function RolesPage({ userRole }: RolesModuleProps) {
               </div>
             ) : (
               <>
-                <div className="module-table-scroll overflow-x-auto">
+                <div className="mod-table module-table-scroll overflow-x-auto">
                   <table className="w-full" style={{ minWidth: 560 }}>
                     <thead>
                       <tr className="border-b border-gray-200 bg-gray-50/50">
@@ -287,6 +287,71 @@ export function RolesPage({ userRole }: RolesModuleProps) {
                       })}
                     </tbody>
                   </table>
+                </div>
+
+                {/* Tarjetas móvil */}
+                <div className="mod-cards">
+                  {paginatedRoles.map((role) => {
+                    const isBaseRole = ["administrador", "admin", "barbero", "babero", "cliente"].includes(role.nombre?.toLowerCase() ?? "");
+                    return (
+                      <div key={role.id} className="mod-card">
+                        <div className="mod-card-header">
+                          <div className="flex items-center gap-2.5 min-w-0">
+                            <div className="w-9 h-9 rounded-lg flex items-center justify-center text-white flex-shrink-0" style={{ background: "linear-gradient(135deg, #78D1BD, #5FBFAA)" }}>
+                              <Shield className="w-4 h-4" />
+                            </div>
+                            <div className="min-w-0">
+                              <p className="text-sm font-semibold text-gray-900 truncate">{role.nombre}</p>
+                              <p className="text-xs text-gray-500 line-clamp-1">{role.descripcion}</p>
+                            </div>
+                          </div>
+                          {(canViewRoles || canEditRoles || canDeleteRoles) && (
+                            <div className="mod-card-actions">
+                              <button onClick={() => { setViewingRole(role); setIsViewDialogOpen(true); }} title="Ver detalles"
+                                className="p-1.5 rounded-lg" style={{ color: "#1a3a2a", border: "none", background: "transparent", cursor: "pointer" }}>
+                                <Eye className="w-4 h-4" />
+                              </button>
+                              {canEditRoles && (
+                                <button onClick={() => role.isActive && handleEdit(role)} disabled={!role.isActive} title="Editar"
+                                  className="p-1.5 rounded-lg" style={{ color: role.isActive ? "#1a5c3a" : "#d1d5db", border: "none", background: "transparent", cursor: role.isActive ? "pointer" : "not-allowed" }}>
+                                  <Pencil className="w-4 h-4" />
+                                </button>
+                              )}
+                              {canDeleteRoles && (
+                                <button onClick={() => { if (role.isActive && !isBaseRole) { setRoleToDelete(role.id); setDeleteDialogOpen(true); } }}
+                                  disabled={!role.isActive || isBaseRole} title="Eliminar"
+                                  className="p-1.5 rounded-lg" style={{ color: (role.isActive && !isBaseRole) ? "#EF4444" : "#d1d5db", border: "none", background: "transparent", cursor: (role.isActive && !isBaseRole) ? "pointer" : "not-allowed" }}>
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                        <div className="mod-card-grid">
+                          <div>
+                            <span className="mod-card-label">Permisos</span>
+                            <div className="mod-card-value">{role.permisos?.length ?? 0} permisos</div>
+                          </div>
+                          <div>
+                            <span className="mod-card-label">Estado</span>
+                            <div className="mod-card-value flex items-center gap-2 mt-1">
+                              {canEditRoles && (
+                                <button onClick={() => !isBaseRole && handleToggleStatus(role)} disabled={isBaseRole}
+                                  className="relative inline-flex h-5 w-9 items-center rounded-full"
+                                  style={{ backgroundColor: role.isActive ? "#10b981" : "#d1d5db", border: "none", cursor: isBaseRole ? "not-allowed" : "pointer", opacity: isBaseRole ? 0.5 : 1, padding: 0 }}>
+                                  <span className="inline-block h-4 w-4 transform rounded-full bg-white shadow"
+                                    style={{ transform: role.isActive ? "translateX(18px)" : "translateX(2px)" }} />
+                                </button>
+                              )}
+                              <span style={{ fontSize: 11, fontWeight: 600, color: role.isActive ? "#1a5c3a" : "#6b7280" }}>
+                                {role.isActive ? "Activo" : "Inactivo"}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
 
                 {/* Paginación — solo si hay más de 5 roles */}

@@ -1,4 +1,4 @@
-﻿import { useState } from "react";
+import { useState } from "react";
 import { Card, CardContent } from "../../../shared/ui/card";
 import { Input } from "../../../shared/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../shared/ui/select";
@@ -118,7 +118,7 @@ export function SalesPage({ userRole }: SalesModuleProps) {
                 <Plus className="w-4 h-4" /> Registrar Venta
               </button>
             </DialogTrigger>
-            <DialogContent style={{ backgroundColor: "#ffffff", borderRadius: 16, border: "1px solid #E5E7EB", padding: 32, maxWidth: 680, maxHeight: "90vh", overflowY: "auto" }}>
+            <DialogContent className="w-[95vw] max-w-[680px] max-h-[90vh] overflow-y-auto" style={{ backgroundColor: "#ffffff", borderRadius: 16, border: "1px solid #E5E7EB", padding: "24px 20px" }}>
               <DialogHeader>
                 <DialogTitle style={{ fontFamily: "var(--font-body)", fontSize: 22, color: "#1a3a2a", fontWeight: 700 }}>
                   Registrar Nueva Venta
@@ -163,7 +163,7 @@ export function SalesPage({ userRole }: SalesModuleProps) {
         {/* Filtros */}
         <Card className="border-gray-200 shadow-sm rounded-2xl">
           <CardContent className="p-4">
-            <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex flex-col sm:flex-row gap-3 filter-row">
               <div className="flex-1 relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <Input
@@ -173,7 +173,7 @@ export function SalesPage({ userRole }: SalesModuleProps) {
                   className="pl-9 h-9 rounded-lg border-gray-200 w-full"
                 />
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 filter-selects">
                 <Filter className="w-4 h-4 text-gray-400" />
                 <Select value={filterClient} onValueChange={v => { setFilterClient(v); setCurrentPage(1); }}>
                   <SelectTrigger className="h-9 rounded-lg border-gray-200 w-48">

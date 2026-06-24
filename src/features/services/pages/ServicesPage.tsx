@@ -1,4 +1,4 @@
-﻿import { Card, CardContent } from "../../../shared/ui/card";
+import { Card, CardContent } from "../../../shared/ui/card";
 import { Input } from "../../../shared/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../shared/ui/select";
 import { Search, Filter, Wrench, Clock3, Eye, Pencil, Trash2 } from "lucide-react";
@@ -85,7 +85,7 @@ export function ServicesPage({ userRole }: ServicesModuleProps) {
         {/* Filtros */}
         <Card className="border-gray-200 shadow-sm rounded-2xl">
           <CardContent className="p-4">
-            <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex flex-col sm:flex-row gap-3 filter-row">
               <div className="flex-1 relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <Input
@@ -95,7 +95,7 @@ export function ServicesPage({ userRole }: ServicesModuleProps) {
                   className="pl-9 h-9 rounded-lg border-gray-200 w-full"
                 />
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 filter-selects">
                 <Filter className="w-4 h-4 text-gray-400" />
                 <Select value={filterCategory} onValueChange={v => { setFilterCategory(v); setCurrentPage(1); }}>
                   <SelectTrigger className="h-9 rounded-lg border-gray-200 w-52">
@@ -140,7 +140,8 @@ export function ServicesPage({ userRole }: ServicesModuleProps) {
                 </p>
               </div>
             ) : (
-              <div className="module-table-scroll overflow-x-auto">
+              <>
+              <div className="mod-table module-table-scroll overflow-x-auto">
                 <table className="w-full" style={{ minWidth: 560 }}>
                   <thead>
                     <tr className="border-b border-gray-200 bg-gray-50/50">
@@ -265,6 +266,77 @@ export function ServicesPage({ userRole }: ServicesModuleProps) {
                   </tbody>
                 </table>
               </div>
+
+              {/* Tarjetas móvil */}
+              <div className="mod-cards">
+                {paginatedServices.map((service) => (
+                  <div key={service.id} className="mod-card">
+                    <div className="mod-card-header">
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <div style={{ width: 40, height: 40, borderRadius: "50%", backgroundColor: "#edf7f4", border: "2px solid #c8ead9", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, color: "#1a5c3a", fontWeight: 600, fontSize: 16 }}>
+                          {service.image ? (
+                            <ImageWithFallback src={service.image} alt={service.name} className="w-full h-full object-cover" />
+                          ) : (
+                            service.name.charAt(0).toUpperCase()
+                          )}
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-sm font-semibold text-gray-900 truncate">{service.name}</p>
+                          <span style={{ display: "inline-flex", padding: "2px 8px", borderRadius: 999, fontSize: 10, fontWeight: 600, backgroundColor: "#edf7f4", color: "#1a5c3a" }}>
+                            {service.category}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="mod-card-actions">
+                        <button onClick={() => setViewingService(service)} title="Ver detalle"
+                          className="p-1.5 rounded-lg" style={{ color: "#1a3a2a", border: "none", background: "transparent", cursor: "pointer" }}>
+                          <Eye className="w-4 h-4" />
+                        </button>
+                        {can("servicios.editar") && (
+                          <>
+                            <button onClick={() => service.isActive && handleEdit(service)} disabled={!service.isActive} title="Editar"
+                              className="p-1.5 rounded-lg" style={{ color: service.isActive ? "#1a5c3a" : "#d1d5db", border: "none", background: "transparent", cursor: service.isActive ? "pointer" : "not-allowed" }}>
+                              <Pencil className="w-4 h-4" />
+                            </button>
+                            {can("servicios.eliminar") && (
+                              <button onClick={() => service.isActive && confirmDelete(service.id)} disabled={!service.isActive} title="Eliminar"
+                                className="p-1.5 rounded-lg" style={{ color: service.isActive ? "#EF4444" : "#d1d5db", border: "none", background: "transparent", cursor: service.isActive ? "pointer" : "not-allowed" }}>
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            )}
+                          </>
+                        )}
+                      </div>
+                    </div>
+                    <div className="mod-card-grid">
+                      <div>
+                        <span className="mod-card-label">Precio</span>
+                        <div className="mod-card-value font-semibold">${Number(service.price || 0).toLocaleString("es-CO")}</div>
+                      </div>
+                      <div>
+                        <span className="mod-card-label">Duración</span>
+                        <div className="mod-card-value flex items-center gap-1">
+                          <Clock3 className="w-3 h-3 text-gray-400" />
+                          {service.duration ? `${service.duration} min` : "—"}
+                        </div>
+                      </div>
+                      <div style={{ gridColumn: "1 / -1" }}>
+                        <span className="mod-card-label">Estado</span>
+                        <div className="mod-card-value flex items-center gap-2 mt-1">
+                          {can("servicios.editar") ? (
+                            <Switch checked={service.isActive} onCheckedChange={() => handleToggleStatus(service)}
+                              style={service.isActive ? { backgroundColor: "#4caf82" } : { backgroundColor: "#9ca3af" }} />
+                          ) : null}
+                          <span style={{ fontSize: 11, fontWeight: 600, color: service.isActive ? "#1a5c3a" : "#9ca3af" }}>
+                            {service.isActive ? "Activo" : "Inactivo"}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              </>
             )}
           </CardContent>
         </Card>
