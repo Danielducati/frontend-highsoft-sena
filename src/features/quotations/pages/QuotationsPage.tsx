@@ -311,9 +311,8 @@ export function QuotationsPage({ userRole }: QuotationsModuleProps) {
               ))}
             </tbody>
           </table>
-            </div>
-          </div>
-        )}
+        </div>
+      )}
       </div>
 
       {/* ── Paginación ── */}
