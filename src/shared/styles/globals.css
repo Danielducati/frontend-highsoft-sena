@@ -274,19 +274,20 @@ html {
 
 /* ─── Responsive: layout principal ─── */
 @media (max-width: 768px) {
-  /* Tablas: scroll horizontal */
-  .overflow-x-auto {
+  /* Tablas: scroll horizontal dentro de contenedores de módulo */
+  .module-table-scroll {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+    width: 100%;
+    max-width: 100%;
   }
 
-  /* Tablas más compactas en móvil */
-  table {
+  .module-table-scroll table {
     font-size: 0.85rem;
   }
 
-  table th,
-  table td {
+  .module-table-scroll table th,
+  .module-table-scroll table td {
     padding: 0.5rem !important;
     white-space: nowrap;
   }
@@ -314,30 +315,11 @@ html {
     gap: 1.5rem !important;
   }
 
-  /* Headers de módulos: botones en vertical */
-  .flex.items-center.justify-between {
-    flex-direction: column !important;
-    align-items: flex-start !important;
-    gap: 1rem !important;
-  }
-
-  .flex.items-center.justify-between > div {
+  /* Filtros de módulos: apilar botones (no afecta paginación de tablas) */
+  .space-y-4 > .card .flex.items-center.gap-2,
+  .space-y-4 > .card .flex.items-center.gap-3 {
+    flex-wrap: wrap;
     width: 100%;
-  }
-
-  /* Botones de acción en headers: ancho completo */
-  .flex.items-center.justify-between button,
-  .flex.items-center.gap-2 button,
-  .flex.items-center.gap-3 button {
-    width: 100% !important;
-    justify-content: center !important;
-  }
-
-  /* Contenedor de botones en línea → vertical */
-  .flex.items-center.gap-2,
-  .flex.items-center.gap-3 {
-    flex-direction: column !important;
-    width: 100% !important;
   }
 
   /* Ocultar columnas opcionales de tablas en móvil */
@@ -502,5 +484,130 @@ html {
   /* Badges más pequeños */
   .text-xs {
     font-size: 0.65rem !important;
+  }
+}
+
+/* ─── Responsive: tablas en módulos ─── */
+
+/*
+  Estrategia:
+  - Desktop/tablet: tabla normal con scroll horizontal si no cabe.
+  - ≤640px: módulos con tarjetas propias (.cli-table, .emp-table, .news-table-wrap) las ocultan vía CSS inline.
+  - Resto de módulos: scroll horizontal suave, sin deformar la tabla.
+*/
+
+[data-slot="card"] {
+  min-width: 0;
+  max-width: 100%;
+}
+
+[data-slot="card-content"].p-0 {
+  min-width: 0;
+}
+
+.module-table-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  width: 100%;
+  max-width: 100%;
+}
+
+@media (max-width: 768px) {
+  .module-table-scroll {
+    padding-bottom: 4px;
+  }
+
+  .module-table-scroll table {
+    min-width: 560px;
+  }
+
+  /* Filtros: apilar en columna */
+  .flex.flex-col.sm\\:flex-row {
+    flex-direction: column !important;
+  }
+
+  /* Selects de filtro: ancho completo */
+  .flex.flex-col.sm\\:flex-row .flex.items-center.gap-2 {
+    flex-wrap: wrap;
+  }
+  .flex.flex-col.sm\\:flex-row .flex.items-center.gap-2 > div,
+  .flex.flex-col.sm\\:flex-row .flex.items-center.gap-2 > button {
+    flex: 1;
+    min-width: 120px;
+  }
+}
+
+@media (max-width: 640px) {
+  /* Paginación de tablas: mantener en fila */
+  .table-pagination {
+    flex-direction: row !important;
+    align-items: center !important;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .table-pagination > p {
+    width: auto !important;
+    text-align: center;
+  }
+}
+
+/* ─── Responsive: filtros y cards de stats ─── */
+@media (max-width: 640px) {
+  /* Cards de stats del dashboard */
+  .grid.grid-cols-2,
+  .grid.grid-cols-3,
+  .grid.grid-cols-4 {
+    grid-template-columns: 1fr 1fr !important;
+  }
+}
+
+@media (max-width: 400px) {
+  .grid.grid-cols-2 {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* ─── Fix: clases Tailwind sm: que no se procesan ─── */
+/* Forzar comportamiento responsivo en contenedores de filtros */
+@media (min-width: 641px) {
+  /* Filtros en fila en pantallas medianas+ */
+  .space-y-4 .flex.flex-col {
+    flex-direction: row;
+  }
+}
+
+@media (max-width: 640px) {
+  /* Asegurar columna en móvil */
+  .space-y-4 .flex.flex-col {
+    flex-direction: column !important;
+  }
+
+  /* Selects de ancho fijo → ancho completo en móvil */
+  [class*="w-52"],
+  [class*="w-44"],
+  [class*="w-36"] {
+    width: 100% !important;
+  }
+
+  /* Input de búsqueda siempre ancho completo */
+  .flex-1.relative input {
+    width: 100% !important;
+  }
+
+  /* SpaPage header: apilar título y botón */
+  .min-h-screen.-m-8 > div:first-child {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+  }
+
+  /* Botón de acción ocupa todo el ancho */
+  .min-h-screen.-m-8 > div:first-child > div:last-child {
+    width: 100%;
+  }
+  .min-h-screen.-m-8 > div:first-child > div:last-child button,
+  .min-h-screen.-m-8 > div:first-child > div:last-child > button {
+    width: 100% !important;
+    justify-content: center !important;
   }
 }

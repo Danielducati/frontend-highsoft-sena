@@ -127,151 +127,146 @@ export function EmployeesPage({ userRole }: EmployeesModuleProps) {
                 <p className="text-sm text-gray-400 mt-1">Intenta ajustar los filtros de búsqueda</p>
               </div>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-gray-200 bg-gray-50/50">
-                      <th className="text-left px-4 py-3 text-sm text-gray-700 whitespace-nowrap">Empleado</th>
-                      <th className="text-left px-4 py-3 text-sm text-gray-700 whitespace-nowrap">Especialidad</th>
-                      <th className="text-left px-4 py-3 text-sm text-gray-700 whitespace-nowrap">Contacto</th>
-                      <th className="text-left px-4 py-3 text-sm text-gray-700 whitespace-nowrap">Estado</th>
-                      {(can("empleados.editar") || can("empleados.eliminar")) && (
-                        <th className="text-center px-4 py-3 text-sm text-gray-700 w-32 whitespace-nowrap">Acciones</th>
-                      )}
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200">
-                    {paginatedEmployees.map((employee) => (
-                      <tr key={employee.id} className="hover:bg-gray-50/50 transition-colors">
-                        {/* Nombre */}
-                        <td className="px-4 py-3">
-                          <div className="flex items-center gap-3">
-                            <div
-                              style={{
-                                width: 40,
-                                height: 40,
-                                borderRadius: "50%",
-                                backgroundColor: "#edf7f4",
-                                border: "2px solid #c8ead9",
-                                overflow: "hidden",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                flexShrink: 0,
-                                color: "#1a5c3a",
-                                fontWeight: 600,
-                                fontSize: 16,
-                              }}
-                            >
-                              {employee.image
-                                ? <ImageWithFallback src={employee.image} alt={employee.name} className="w-full h-full object-cover" />
-                                : employee.name.charAt(0).toUpperCase()}
-                            </div>
-                            <div>
-                              <p className="text-sm font-medium text-gray-900">{employee.name}</p>
-                              <p className="text-xs text-gray-500 mt-0.5">{employee.email}</p>
-                            </div>
-                          </div>
-                        </td>
+              <>
+                <style>{`
+                  .emp-table { display: block; }
+                  .emp-cards { display: none; }
+                  @media (max-width: 640px) {
+                    .emp-table { display: none; }
+                    .emp-cards { display: flex; flex-direction: column; gap: 10px; padding: 12px; }
+                  }
+                `}</style>
 
-                        {/* Especialidad */}
-                        <td className="px-4 py-3">
-                          <span className="inline-flex px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
-                            {employee.specialty || "—"}
-                          </span>
-                        </td>
-
-                        {/* Contacto */}
-                        <td className="px-4 py-3">
-                          <p className="text-sm text-gray-900">{employee.phone || "—"}</p>
-                          <p className="text-xs text-gray-500 mt-0.5">{employee.ciudad || "—"}</p>
-                        </td>
-
-                        {/* Estado */}
-                        <td className="px-4 py-3">
-                          {can("empleados.editar") ? (
-                            <div className="flex items-center gap-2">
-                              <Switch
-                                checked={employee.isActive}
-                                onCheckedChange={() => handleToggleStatus(employee)}
-                                style={employee.isActive ? { backgroundColor: "#4caf82" } : { backgroundColor: "#9ca3af" }}
-                              />
-                              <span
-                                className="text-xs font-semibold"
-                                style={{ color: employee.isActive ? "#1a5c3a" : "#9ca3af" }}
-                              >
-                                {employee.isActive ? "Activo" : "Inactivo"}
-                              </span>
-                            </div>
-                          ) : (
-                            <span
-                              className="inline-flex px-3 py-1 rounded-full text-xs font-semibold"
-                              style={employee.isActive
-                                ? { backgroundColor: "#edf7f4", color: "#1a5c3a" }
-                                : { backgroundColor: "#f3f4f6", color: "#9ca3af" }}
-                            >
-                              {employee.isActive ? "Activo" : "Inactivo"}
-                            </span>
-                          )}
-                        </td>
-
-                        {/* Acciones */}
+                {/* ── Tabla desktop ── */}
+                <div className="emp-table module-table-scroll overflow-x-auto">
+                  <table className="w-full" style={{ minWidth: 580 }}>
+                    <thead>
+                      <tr className="border-b border-gray-200 bg-gray-50/50">
+                        <th className="text-left px-4 py-3 text-sm text-gray-700 whitespace-nowrap">Empleado</th>
+                        <th className="text-left px-4 py-3 text-sm text-gray-700 whitespace-nowrap">Especialidad</th>
+                        <th className="text-left px-4 py-3 text-sm text-gray-700 whitespace-nowrap">Contacto</th>
+                        <th className="text-left px-4 py-3 text-sm text-gray-700 whitespace-nowrap">Estado</th>
                         {(can("empleados.editar") || can("empleados.eliminar")) && (
-                          <td className="px-4 py-3">
-                            <div className="flex items-center justify-center gap-1">
-                              <button
-                                onClick={() => setViewingEmployee(employee)}
-                                title="Ver detalles"
-                                className="p-2 rounded-lg transition-colors"
-                                style={{ color: "#1a3a2a" }}
-                                onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#edf7f4")}
-                                onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
-                              >
-                                <Eye className="w-4 h-4" />
-                              </button>
-
-                              {can("empleados.editar") && (
-                                <button
-                                  onClick={() => employee.isActive && handleEdit(employee)}
-                                  title={employee.isActive ? "Editar" : "Activa el empleado para editar"}
-                                  disabled={!employee.isActive}
-                                  className="p-2 rounded-lg transition-colors"
-                                  style={{ color: employee.isActive ? "#1a5c3a" : "#d1d5db", cursor: employee.isActive ? "pointer" : "not-allowed" }}
-                                  onMouseEnter={e => { if (employee.isActive) e.currentTarget.style.backgroundColor = "#edf7f4"; }}
-                                  onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
-                                >
-                                  <Pencil className="w-4 h-4" />
-                                </button>
-                              )}
-
-                              {can("empleados.eliminar") && (
-                                <button
-                                  onClick={() => employee.isActive && confirmDelete(employee.id)}
-                                  title={employee.isActive ? "Eliminar" : "Activa el empleado para eliminar"}
-                                  disabled={!employee.isActive}
-                                  className="p-2 rounded-lg transition-colors"
-                                  style={{ color: employee.isActive ? "#EF4444" : "#d1d5db", cursor: employee.isActive ? "pointer" : "not-allowed" }}
-                                  onMouseEnter={e => { if (employee.isActive) e.currentTarget.style.backgroundColor = "#fef2f2"; }}
-                                  onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
-                                >
-                                  <Trash2 className="w-4 h-4" />
-                                </button>
-                              )}
-                            </div>
-                          </td>
+                          <th className="text-center px-4 py-3 text-sm text-gray-700 w-32 whitespace-nowrap">Acciones</th>
                         )}
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200">
+                      {paginatedEmployees.map((employee) => (
+                        <tr key={employee.id} className="hover:bg-gray-50/50 transition-colors">
+                          <td className="px-4 py-3">
+                            <div className="flex items-center gap-3">
+                              <div style={{ width: 40, height: 40, borderRadius: "50%", backgroundColor: "#edf7f4", border: "2px solid #c8ead9", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, color: "#1a5c3a", fontWeight: 600, fontSize: 16 }}>
+                                {employee.image ? <ImageWithFallback src={employee.image} alt={employee.name} className="w-full h-full object-cover" /> : employee.name.charAt(0).toUpperCase()}
+                              </div>
+                              <div>
+                                <p className="text-sm font-medium text-gray-900">{employee.name}</p>
+                                <p className="text-xs text-gray-500 mt-0.5">{employee.email}</p>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-4 py-3">
+                            <span className="inline-flex px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700">{employee.specialty || "—"}</span>
+                          </td>
+                          <td className="px-4 py-3">
+                            <p className="text-sm text-gray-900">{employee.phone || "—"}</p>
+                            <p className="text-xs text-gray-500 mt-0.5">{employee.ciudad || "—"}</p>
+                          </td>
+                          <td className="px-4 py-3">
+                            {can("empleados.editar") ? (
+                              <div className="flex items-center gap-2">
+                                <Switch checked={employee.isActive} onCheckedChange={() => handleToggleStatus(employee)} style={employee.isActive ? { backgroundColor: "#4caf82" } : { backgroundColor: "#9ca3af" }} />
+                                <span className="text-xs font-semibold" style={{ color: employee.isActive ? "#1a5c3a" : "#9ca3af" }}>{employee.isActive ? "Activo" : "Inactivo"}</span>
+                              </div>
+                            ) : (
+                              <span className="inline-flex px-3 py-1 rounded-full text-xs font-semibold" style={employee.isActive ? { backgroundColor: "#edf7f4", color: "#1a5c3a" } : { backgroundColor: "#f3f4f6", color: "#9ca3af" }}>
+                                {employee.isActive ? "Activo" : "Inactivo"}
+                              </span>
+                            )}
+                          </td>
+                          {(can("empleados.editar") || can("empleados.eliminar")) && (
+                            <td className="px-4 py-3">
+                              <div className="flex items-center justify-center gap-1">
+                                <button onClick={() => setViewingEmployee(employee)} title="Ver detalles" className="p-2 rounded-lg transition-colors" style={{ color: "#1a3a2a" }} onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#edf7f4")} onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}><Eye className="w-4 h-4" /></button>
+                                {can("empleados.editar") && (
+                                  <button onClick={() => employee.isActive && handleEdit(employee)} disabled={!employee.isActive} title={employee.isActive ? "Editar" : "Activa el empleado para editar"} className="p-2 rounded-lg transition-colors" style={{ color: employee.isActive ? "#1a5c3a" : "#d1d5db", cursor: employee.isActive ? "pointer" : "not-allowed" }} onMouseEnter={e => { if (employee.isActive) e.currentTarget.style.backgroundColor = "#edf7f4"; }} onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}><Pencil className="w-4 h-4" /></button>
+                                )}
+                                {can("empleados.eliminar") && (
+                                  <button onClick={() => employee.isActive && confirmDelete(employee.id)} disabled={!employee.isActive} title={employee.isActive ? "Eliminar" : "Activa el empleado para eliminar"} className="p-2 rounded-lg transition-colors" style={{ color: employee.isActive ? "#EF4444" : "#d1d5db", cursor: employee.isActive ? "pointer" : "not-allowed" }} onMouseEnter={e => { if (employee.isActive) e.currentTarget.style.backgroundColor = "#fef2f2"; }} onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}><Trash2 className="w-4 h-4" /></button>
+                                )}
+                              </div>
+                            </td>
+                          )}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* ── Tarjetas móvil ── */}
+                <div className="emp-cards">
+                  {paginatedEmployees.map(employee => (
+                    <div key={employee.id} style={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: 12, padding: "14px 16px", boxShadow: "0 1px 4px rgba(0,0,0,0.05)" }}>
+                      {/* Header */}
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                          <div style={{ width: 40, height: 40, borderRadius: "50%", backgroundColor: "#edf7f4", border: "2px solid #c8ead9", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, color: "#1a5c3a", fontWeight: 600, fontSize: 16 }}>
+                            {employee.image ? <ImageWithFallback src={employee.image} alt={employee.name} className="w-full h-full object-cover" /> : employee.name.charAt(0).toUpperCase()}
+                          </div>
+                          <div>
+                            <p style={{ fontSize: 14, fontWeight: 600, color: "#111827", margin: 0 }}>{employee.name}</p>
+                            <p style={{ fontSize: 12, color: "#6b7280", margin: 0 }}>{employee.email}</p>
+                          </div>
+                        </div>
+                        {/* Acciones */}
+                        {(can("empleados.editar") || can("empleados.eliminar")) && (
+                          <div style={{ display: "flex", gap: 4 }}>
+                            <button onClick={() => setViewingEmployee(employee)} style={{ padding: 6, borderRadius: 8, border: "none", background: "transparent", cursor: "pointer", color: "#1a3a2a" }} onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#edf7f4")} onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}><Eye style={{ width: 15, height: 15 }} /></button>
+                            {can("empleados.editar") && <button onClick={() => employee.isActive && handleEdit(employee)} disabled={!employee.isActive} style={{ padding: 6, borderRadius: 8, border: "none", background: "transparent", cursor: employee.isActive ? "pointer" : "not-allowed", color: employee.isActive ? "#1a5c3a" : "#d1d5db", opacity: employee.isActive ? 1 : 0.4 }} onMouseEnter={e => { if (employee.isActive) e.currentTarget.style.backgroundColor = "#edf7f4"; }} onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}><Pencil style={{ width: 15, height: 15 }} /></button>}
+                            {can("empleados.eliminar") && <button onClick={() => employee.isActive && confirmDelete(employee.id)} disabled={!employee.isActive} style={{ padding: 6, borderRadius: 8, border: "none", background: "transparent", cursor: employee.isActive ? "pointer" : "not-allowed", color: employee.isActive ? "#EF4444" : "#d1d5db", opacity: employee.isActive ? 1 : 0.4 }} onMouseEnter={e => { if (employee.isActive) e.currentTarget.style.backgroundColor = "#fef2f2"; }} onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}><Trash2 style={{ width: 15, height: 15 }} /></button>}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Info */}
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px 16px", fontSize: 12 }}>
+                        <div>
+                          <span style={{ color: "#9ca3af", fontSize: 10, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em" }}>Especialidad</span>
+                          <div><span style={{ display: "inline-flex", padding: "2px 10px", borderRadius: 999, fontSize: 11, fontWeight: 600, background: "#f3f4f6", color: "#374151", marginTop: 2 }}>{employee.specialty || "—"}</span></div>
+                        </div>
+                        <div>
+                          <span style={{ color: "#9ca3af", fontSize: 10, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em" }}>Teléfono</span>
+                          <div style={{ color: "#374151", marginTop: 2 }}>{employee.phone || "—"}</div>
+                        </div>
+                        <div>
+                          <span style={{ color: "#9ca3af", fontSize: 10, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em" }}>Ciudad</span>
+                          <div style={{ color: "#374151", marginTop: 2 }}>{employee.ciudad || "—"}</div>
+                        </div>
+                        <div>
+                          <span style={{ color: "#9ca3af", fontSize: 10, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em" }}>Estado</span>
+                          <div style={{ marginTop: 4 }}>
+                            {can("empleados.editar") ? (
+                              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                                <Switch checked={employee.isActive} onCheckedChange={() => handleToggleStatus(employee)} style={employee.isActive ? { backgroundColor: "#4caf82" } : { backgroundColor: "#9ca3af" }} />
+                                <span style={{ fontSize: 11, fontWeight: 600, color: employee.isActive ? "#1a5c3a" : "#9ca3af" }}>{employee.isActive ? "Activo" : "Inactivo"}</span>
+                              </div>
+                            ) : (
+                              <span style={{ display: "inline-flex", padding: "2px 10px", borderRadius: 999, fontSize: 11, fontWeight: 600, background: employee.isActive ? "#edf7f4" : "#f3f4f6", color: employee.isActive ? "#1a5c3a" : "#9ca3af" }}>{employee.isActive ? "Activo" : "Inactivo"}</span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </>
             )}
           </CardContent>
         </Card>
 
         {/* Paginación */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-between mt-2 px-1" style={{ fontFamily: "var(--font-body)" }}>
+          <div className="flex items-center justify-between mt-2 px-1 table-pagination" style={{ fontFamily: "var(--font-body)" }}>
             <p className="text-sm" style={{ color: "#6b7c6b" }}>
               Mostrando {(currentPage - 1) * ITEMS_PER_PAGE + 1}–{Math.min(currentPage * ITEMS_PER_PAGE, filteredEmployees.length)} de {filteredEmployees.length} empleados
             </p>

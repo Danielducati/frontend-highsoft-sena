@@ -140,8 +140,8 @@ export function ServicesPage({ userRole }: ServicesModuleProps) {
                 </p>
               </div>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full">
+              <div className="module-table-scroll overflow-x-auto">
+                <table className="w-full" style={{ minWidth: 560 }}>
                   <thead>
                     <tr className="border-b border-gray-200 bg-gray-50/50">
                       <th className="text-left px-4 py-3 text-sm text-gray-700 whitespace-nowrap">Nombre</th>
@@ -271,7 +271,7 @@ export function ServicesPage({ userRole }: ServicesModuleProps) {
 
         {/* Paginación */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-between mt-2 px-1" style={{ fontFamily: "var(--font-body)" }}>
+          <div className="flex items-center justify-between mt-2 px-1 table-pagination" style={{ fontFamily: "var(--font-body)" }}>
             <p className="text-sm" style={{ color: "#6b7c6b" }}>
               Mostrando {startIndex + 1}–{Math.min(endIndex, filteredServices.length)} de {filteredServices.length} servicios
             </p>

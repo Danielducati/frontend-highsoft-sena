@@ -10,147 +10,185 @@ interface NewsTableProps {
   onView:         (item: EmployeeNews) => void;
   onEdit:         (item: EmployeeNews) => void;
   onDelete:       (id: number) => void;
-  onUpdateStatus: (id: number, status: string) => void; 
+  onUpdateStatus: (id: number, status: string) => void;
 }
 
 export function NewsTable({ news, userRole, onView, onEdit, onDelete, onUpdateStatus }: NewsTableProps) {
   const { can } = usePermisos();
+
+  const ActionButtons = ({ item }: { item: EmployeeNews }) => (
+    <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+      <button onClick={() => onView(item)} title="Ver detalles"
+        style={{ padding: "6px", borderRadius: 8, border: "none", background: "transparent", cursor: "pointer", color: "#6b7c6b" }}
+        onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#F3F4F6")}
+        onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}>
+        <Eye style={{ width: 15, height: 15 }} />
+      </button>
+      {can("novedades.editar") && (
+        <button onClick={() => item.status === "pendiente" && onEdit(item)}
+          disabled={item.status !== "pendiente"}
+          title={item.status !== "pendiente" ? "No editable" : "Editar"}
+          style={{ padding: "6px", borderRadius: 8, border: "none", background: "transparent", cursor: item.status === "pendiente" ? "pointer" : "not-allowed", color: item.status === "pendiente" ? "#6b7c6b" : "#9ca3af", opacity: item.status === "pendiente" ? 1 : 0.4 }}
+          onMouseEnter={e => item.status === "pendiente" && (e.currentTarget.style.backgroundColor = "#F3F4F6")}
+          onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}>
+          <Pencil style={{ width: 15, height: 15 }} />
+        </button>
+      )}
+      {can("novedades.eliminar") && (
+        <button onClick={() => item.status === "pendiente" && onDelete(item.id)}
+          disabled={item.status !== "pendiente"}
+          title={item.status !== "pendiente" ? "No eliminable" : "Eliminar"}
+          style={{ padding: "6px", borderRadius: 8, border: "none", background: "transparent", cursor: item.status === "pendiente" ? "pointer" : "not-allowed", color: item.status === "pendiente" ? "#c0392b" : "#9ca3af", opacity: item.status === "pendiente" ? 1 : 0.4 }}
+          onMouseEnter={e => item.status === "pendiente" && (e.currentTarget.style.backgroundColor = "#fdf0ee")}
+          onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}>
+          <Trash2 style={{ width: 15, height: 15 }} />
+        </button>
+      )}
+    </div>
+  );
+
+  const StatusControl = ({ item }: { item: EmployeeNews }) =>
+    can("novedades.editar") ? (
+      <Select value={item.status} onValueChange={v => onUpdateStatus(item.id, v)}>
+        <SelectTrigger className={`h-7 w-[120px] text-xs font-semibold rounded-full border-none shadow-none ${getStatusColor(item.status)}`}>
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="pendiente">Pendiente</SelectItem>
+          <SelectItem value="aprobada">Aprobada</SelectItem>
+          <SelectItem value="rechazada">Rechazada</SelectItem>
+        </SelectContent>
+      </Select>
+    ) : (
+      <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${getStatusColor(item.status)}`}>
+        {getStatusLabel(item.status)}
+      </span>
+    );
+
+  if (news.length === 0) {
+    return (
+      <div style={{ padding: "48px 16px", textAlign: "center" }}>
+        <AlertCircle style={{ width: 40, height: 40, color: "#d1d5db", margin: "0 auto 12px" }} />
+        <p style={{ color: "#6b7280", fontSize: 14 }}>No se encontraron novedades</p>
+      </div>
+    );
+  }
+
   return (
-      <table className="w-full">
-        <thead className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
-          <tr>
-            <th className="px-4 py-3 text-left text-gray-900 text-sm font-semibold whitespace-nowrap">Empleado</th>
-            <th className="px-4 py-3 text-left text-gray-900 text-sm font-semibold whitespace-nowrap">Tipo</th>
-            <th className="px-4 py-3 text-left text-gray-900 text-sm font-semibold whitespace-nowrap">Fecha Inicio</th>
-            <th className="px-4 py-3 text-left text-gray-900 text-sm font-semibold whitespace-nowrap">Fecha Final</th>
-            <th className="px-4 py-3 text-left text-gray-900 text-sm font-semibold whitespace-nowrap">Hora</th>
-            <th className="px-4 py-3 text-left text-gray-900 text-sm font-semibold whitespace-nowrap">Status</th>
-            <th className="px-4 py-3 text-center text-gray-900 text-sm font-semibold whitespace-nowrap">Acciones</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-gray-100">
-          {news.length === 0 ? (
+    <>
+      {/* ── CSS responsive ── */}
+      <style>{`
+        .news-table-wrap { display: block; }
+        .news-cards-wrap  { display: none; }
+        @media (max-width: 640px) {
+          .news-table-wrap { display: none; }
+          .news-cards-wrap  { display: flex; flex-direction: column; gap: 10px; padding: 12px; }
+        }
+      `}</style>
+
+      {/* ── Tabla desktop ── */}
+      <div className="news-table-wrap module-table-scroll overflow-x-auto">
+        <table style={{ width: "100%", minWidth: 640, borderCollapse: "collapse" }}>
+          <thead style={{ background: "linear-gradient(to right, #f9fafb, #f3f4f6)", borderBottom: "1px solid #e5e7eb" }}>
             <tr>
-              <td colSpan={7} className="px-4 py-12 text-center">
-                <AlertCircle className="w-10 h-10 text-gray-300 mx-auto mb-3" />
-                <p className="text-gray-600">No se encontraron novedades</p>
-              </td>
+              {["Empleado", "Tipo", "Fecha Inicio", "Fecha Final", "Hora", "Estado", "Acciones"].map(h => (
+                <th key={h} style={{ padding: "10px 14px", textAlign: "left", fontSize: 12, fontWeight: 600, color: "#374151", whiteSpace: "nowrap" }}>{h}</th>
+              ))}
             </tr>
-          ) : news.map(item => {
-            const cfg      = getTypeConfig(item.type);
-            const TypeIcon = cfg.icon;
-
-            return (
-              <tr key={item.id} className="hover:bg-gray-50/50 transition-colors">
-                <td className="px-4 py-3">
-                  <div className="flex items-center gap-2">
-                    <TypeIcon className={`w-4 h-4 flex-shrink-0 ${cfg.color}`} />
-                    <p className="text-sm text-gray-900 font-medium">{item.employeeName}</p>
-                  </div>
-                </td>
-                
-                <td className="px-4 py-3">
-                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getTypeColor(item.type)}`}>
-                    {cfg.label}
-                  </span>
-                </td>
-
-                <td className="px-4 py-3">
-                  <div className="flex items-center gap-1.5 text-gray-700">
-                    <CalendarIcon className="w-3.5 h-3.5 text-gray-400" />
-                    <span className="text-sm">{formatDate(item.date)}</span>
-                  </div>
-                </td>
-
-                <td className="px-4 py-3">
-                  <div className="flex items-center gap-1.5 text-gray-700">
-                    <CalendarIcon className="w-3.5 h-3.5 text-gray-400" />
-                    <span className="text-sm">{formatDate(item.fechaFinal ?? "")}</span>
-                  </div>
-                </td>
-
-                <td className="px-4 py-3">
-                  {item.startTime || item.endTime ? (
-                    <div className="flex flex-col text-sm text-gray-700">
-                      <span>{item.startTime}</span>
-                      <span className="text-gray-400 text-xs">{item.endTime}</span>
+          </thead>
+          <tbody>
+            {news.map(item => {
+              const cfg = getTypeConfig(item.type);
+              const TypeIcon = cfg.icon;
+              return (
+                <tr key={item.id} style={{ borderBottom: "1px solid #f3f4f6" }}
+                  onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#f9fafb")}
+                  onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}>
+                  <td style={{ padding: "10px 14px" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <TypeIcon style={{ width: 14, height: 14, flexShrink: 0 }} className={cfg.color} />
+                      <span style={{ fontSize: 13, fontWeight: 500, color: "#111827" }}>{item.employeeName}</span>
                     </div>
-                  ) : (
-                    <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-[#edf7f4] text-[#1a5c3a] border border-[#78D1BD]/40">
-                      Día completo
-                    </span>
-                  )}
-                </td>
-
-                {/* STATUS — solo con permiso puede cambiarlo */}
-                <td className="px-4 py-3">
-                  {can("novedades.editar") ? (
-                    <Select
-                      value={item.status}
-                      onValueChange={(value) => onUpdateStatus(item.id, value)}
-                    >
-                      <SelectTrigger className={`h-7 w-[120px] text-xs font-semibold rounded-full border-none shadow-none ${getStatusColor(item.status)}`}>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="pendiente">Pendiente</SelectItem>
-                        <SelectItem value="aprobada">Aprobada</SelectItem>
-                        <SelectItem value="rechazada">Rechazada</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  ) : (
-                    <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${getStatusColor(item.status)}`}>
-                      {getStatusLabel(item.status)}
-                    </span>
-                  )}
-                </td>
-
-                <td className="px-4 py-3 text-center">
-                  <div className="flex items-center justify-center gap-1">
-                    <button
-                      onClick={() => onView(item)}
-                      title="Ver detalles"
-                      className="p-2 rounded-lg transition-colors"
-                      style={{ color: "#6b7c6b" }}
-                      onMouseEnter={e => (e.currentTarget.style.backgroundColor = "#F3F4F6")}
-                      onMouseLeave={e => (e.currentTarget.style.backgroundColor = "transparent")}
-                    >
-                      <Eye className="w-4 h-4" />
-                    </button>
-
-                    {can("novedades.editar") && (
-                      <button
-                        onClick={() => item.status === "pendiente" && onEdit(item)}
-                        disabled={item.status !== "pendiente"}
-                        title={item.status !== "pendiente" ? "No se puede editar una novedad aprobada/rechazada" : "Editar"}
-                        className={`p-2 rounded-lg transition-colors ${item.status !== "pendiente" ? "opacity-40 cursor-not-allowed" : ""}`}
-                        style={{ color: item.status !== "pendiente" ? "#9ca3af" : "#6b7c6b" }}
-                        onMouseEnter={e => item.status === "pendiente" && (e.currentTarget.style.backgroundColor = "#F3F4F6")}
-                        onMouseLeave={e => item.status === "pendiente" && (e.currentTarget.style.backgroundColor = "transparent")}
-                      >
-                        <Pencil className="w-4 h-4" />
-                      </button>
+                  </td>
+                  <td style={{ padding: "10px 14px" }}>
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getTypeColor(item.type)}`}>{cfg.label}</span>
+                  </td>
+                  <td style={{ padding: "10px 14px" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6, color: "#374151" }}>
+                      <CalendarIcon style={{ width: 13, height: 13, color: "#9ca3af" }} />
+                      <span style={{ fontSize: 13 }}>{formatDate(item.date)}</span>
+                    </div>
+                  </td>
+                  <td style={{ padding: "10px 14px" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6, color: "#374151" }}>
+                      <CalendarIcon style={{ width: 13, height: 13, color: "#9ca3af" }} />
+                      <span style={{ fontSize: 13 }}>{formatDate(item.fechaFinal ?? "")}</span>
+                    </div>
+                  </td>
+                  <td style={{ padding: "10px 14px" }}>
+                    {item.startTime || item.endTime ? (
+                      <div style={{ fontSize: 13, color: "#374151" }}>
+                        <div>{item.startTime}</div>
+                        <div style={{ fontSize: 11, color: "#9ca3af" }}>{item.endTime}</div>
+                      </div>
+                    ) : (
+                      <span style={{ fontSize: 11, fontWeight: 600, padding: "2px 8px", borderRadius: 999, background: "#edf7f4", color: "#1a5c3a", border: "1px solid rgba(120,209,189,0.4)" }}>Día completo</span>
                     )}
+                  </td>
+                  <td style={{ padding: "10px 14px" }}><StatusControl item={item} /></td>
+                  <td style={{ padding: "10px 14px" }}><ActionButtons item={item} /></td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
 
-                    {can("novedades.eliminar") && (
-                      <button
-                        onClick={() => item.status === "pendiente" && onDelete(item.id)}
-                        disabled={item.status !== "pendiente"}
-                        title={item.status !== "pendiente" ? "No se puede eliminar una novedad aprobada/rechazada" : "Eliminar"}
-                        className={`p-2 rounded-lg transition-colors ${item.status !== "pendiente" ? "opacity-40 cursor-not-allowed" : ""}`}
-                        style={{ color: item.status !== "pendiente" ? "#9ca3af" : "#c0392b" }}
-                        onMouseEnter={e => item.status === "pendiente" && (e.currentTarget.style.backgroundColor = "#fdf0ee")}
-                        onMouseLeave={e => item.status === "pendiente" && (e.currentTarget.style.backgroundColor = "transparent")}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    )}
+      {/* ── Tarjetas móvil ── */}
+      <div className="news-cards-wrap">
+        {news.map(item => {
+          const cfg = getTypeConfig(item.type);
+          const TypeIcon = cfg.icon;
+          return (
+            <div key={item.id} style={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: 12, padding: "14px 16px", boxShadow: "0 1px 4px rgba(0,0,0,0.05)" }}>
+              {/* Header tarjeta */}
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <TypeIcon style={{ width: 15, height: 15, flexShrink: 0 }} className={cfg.color} />
+                  <span style={{ fontSize: 14, fontWeight: 600, color: "#111827" }}>{item.employeeName}</span>
+                </div>
+                <ActionButtons item={item} />
+              </div>
+
+              {/* Tipo + Estado */}
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 10 }}>
+                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getTypeColor(item.type)}`}>{cfg.label}</span>
+                <StatusControl item={item} />
+              </div>
+
+              {/* Fechas y hora */}
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "6px 12px", fontSize: 12, color: "#6b7280" }}>
+                <div>
+                  <span style={{ fontWeight: 600, color: "#9ca3af", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.06em" }}>Inicio</span>
+                  <div style={{ color: "#374151", marginTop: 2 }}>{formatDate(item.date)}</div>
+                </div>
+                <div>
+                  <span style={{ fontWeight: 600, color: "#9ca3af", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.06em" }}>Final</span>
+                  <div style={{ color: "#374151", marginTop: 2 }}>{formatDate(item.fechaFinal ?? "")}</div>
+                </div>
+                <div>
+                  <span style={{ fontWeight: 600, color: "#9ca3af", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.06em" }}>Hora</span>
+                  <div style={{ color: "#374151", marginTop: 2 }}>
+                    {item.startTime || item.endTime
+                      ? `${item.startTime}${item.endTime ? ` – ${item.endTime}` : ""}`
+                      : "Día completo"}
                   </div>
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </>
   );
 }
